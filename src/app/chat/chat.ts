@@ -6,7 +6,9 @@ import { Supporter } from '../../classes/Supporter';
 
 import { Answer } from '../../classes/Answer';
 import { User } from '../../classes/User';
-import { MockAgent } from '../../agents/MockAgent';
+import { AiAgent } from '../../agents/AiAgent';
+import { HttpClient } from '@angular/common/http';
+import { AiService } from '../../services/ai.service';
 
 @Component({
   selector: 'app-chat',
@@ -20,13 +22,14 @@ export class Chat implements OnInit {
   supporter : Supporter;
   user : User;
   
-  constructor(){
+  constructor(private aiService: AiService) {
     this.supporter = new Supporter(this.messages);
     this.user = new User(this.messages, this.supporter);
+    this.aiService = aiService;
   }
   
   ngOnInit(): void {
-    this.supporter.setAgent(new MockAgent());
+    this.supporter.setAgent(new AiAgent(this.aiService));
   }
 
   sendMessage(): void {
