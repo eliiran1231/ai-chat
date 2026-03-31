@@ -1,0 +1,64 @@
+<section class="chat-shell">
+  <header class="chat-navbar">
+    <div class="contact-block">
+      <div class="avatar" aria-hidden="true">S</div>
+      <div class="contact-meta">
+        <h1>Support</h1>
+        <p>online</p>
+      </div>
+    </div>
+
+    <div class="navbar-actions" aria-label="Chat actions">
+      <button type="button" class="icon-button" aria-label="Search conversation">O</button>
+      <button type="button" class="icon-button" aria-label="More options">...</button>
+    </div>
+  </header>
+
+  <main class="chat-thread" aria-label="Conversation">
+    @for (message of messages; track $index) {
+      <article
+        class="message-row"
+        [class.message-row--supporter]="isSupporterMessage(message)"
+        [class.message-row--user]="!isSupporterMessage(message)"
+      >
+        <div
+          class="message-bubble"
+          [class.message-bubble--supporter]="isSupporterMessage(message)"
+          [class.message-bubble--user]="!isSupporterMessage(message)"
+        >
+          <p>{{ messageText(message) }}</p>
+          <time class="message-time">{{ message.time | date: 'HH:mm' }}</time>
+        </div>
+      </article>
+    } @empty {
+      <div class="empty-state">
+        <p>No messages yet</p>
+      </div>
+    }
+  </main>
+
+  <form class="chat-composer" (ngSubmit)="sendMessage()">
+    <button type="button" class="composer-action" aria-label="Emoji">:)</button>
+    <button type="button" class="composer-action" aria-label="Attach file">+</button>
+
+    <label class="composer-field" for="message-input">
+      <input
+        id="message-input"
+        type="text"
+        name="message"
+        [(ngModel)]="draftMessage"
+        placeholder="Type a message"
+        autocomplete="off"
+      />
+    </label>
+
+    <button
+      type="submit"
+      class="send-button"
+      aria-label="Send message"
+      [disabled]="!draftMessage.trim()"
+    >
+      >
+    </button>
+  </form>
+</section>
