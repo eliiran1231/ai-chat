@@ -1,0 +1,85 @@
+@if (chat; as activeChat) {
+  <section class="chat-shell">
+    <header class="chat-navbar">
+      <div class="contact-block">
+        @if (showBackButton) {
+          <button
+            type="button"
+            class="back-button"
+            aria-label="Back to chat list"
+            (click)="back.emit()"
+          >
+            &lt;
+          </button>
+        }
+
+        <div class="avatar" aria-hidden="true">{{ activeChat.avatar }}</div>
+        <div class="contact-meta">
+          <h1>{{ activeChat.name }}</h1>
+          <p>{{ activeChat.status }}</p>
+        </div>
+      </div>
+
+      <div class="navbar-actions" aria-label="Chat actions">
+        <button type="button" class="icon-button" aria-label="Search conversation">O</button>
+        <button type="button" class="icon-button" aria-label="More options">...</button>
+      </div>
+    </header>
+
+    <main class="chat-thread" aria-label="Conversation">
+      @for (message of activeChat.messages; track $index) {
+        <article
+          class="message-row"
+          [class.message-row--supporter]="isSupporterMessage(message)"
+          [class.message-row--user]="!isSupporterMessage(message)"
+        >
+          <div
+            class="message-bubble"
+            [class.message-bubble--supporter]="isSupporterMessage(message)"
+            [class.message-bubble--user]="!isSupporterMessage(message)"
+          >
+            <p>{{ messageText(message) }}</p>
+            <time class="message-time">{{ message.time | date: 'HH:mm' }}</time>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-state">
+          <p>No messages yet</p>
+        </div>
+      }
+    </main>
+
+    <form class="chat-composer" (ngSubmit)="sendMessage()">
+      <button type="button" class="composer-action" aria-label="Emoji">:)</button>
+      <button type="button" class="composer-action" aria-label="Attach file">+</button>
+
+      <label class="composer-field" for="message-input">
+        <input
+          id="message-input"
+          type="text"
+          name="message"
+          [(ngModel)]="activeChat.draftMessage"
+          placeholder="Type a message"
+          autocomplete="off"
+        />
+      </label>
+
+      <button
+        type="submit"
+        class="send-button"
+        aria-label="Send message"
+        [disabled]="!activeChat.draftMessage.trim()"
+      >
+        >
+      </button>
+    </form>
+  </section>
+} @else {
+  <section class="chat-placeholder">
+    <div class="chat-placeholder__card">
+      <div class="chat-placeholder__icon">WA</div>
+      <h2>Select a chat</h2>
+      <p>Pick an existing conversation or create a new one from the sidebar.</p>
+    </div>
+  </section>
+}

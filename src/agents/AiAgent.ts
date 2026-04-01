@@ -1,20 +1,24 @@
-import { Agent } from "../classes/Agent";
-import { Message } from "../classes/Message";
-import { Supporter } from "../classes/Supporter";
-import { AiService } from "../services/ai.service";
+import { Agent } from '../classes/Agent';
+import { Chat } from '../classes/chat';
+import { Supporter } from '../classes/Supporter';
+import { AiService } from '../services/ai.service';
 
-export class AiAgent extends Agent{
-    constructor(private aiService: AiService){
-        super()
-    }
-    override init(messages : Message[], supporter : Supporter) {
-        super.init(messages, supporter)
-        supporter.sendMessage("שלום שלום איך אפשר לעזור")
-    }
-    override async respond(): Promise<void> {
-        this.aiService.sendMessage(this.messages[this.messages.length - 1].value as string).subscribe((response) => {
-            const aiMessage = response.choices[0].message.content;
-            this.supporter.sendMessage(aiMessage);
-        });
-    }
+export class AiAgent extends Agent {
+  constructor(private aiService: AiService) {
+    super();
+  }
+
+  override init(chat: Chat, supporter: Supporter) {
+    super.init(chat, supporter);
+    supporter.sendMessage('Hello, how can I help you today?');
+  }
+
+  override async respond(): Promise<void> {
+    super.respond();
+    const lastMessage = this.chat.messages[this.chat.messages.length - 1];
+    this.aiService.sendMessage(lastMessage.value as string).subscribe((response) => {
+      const aiMessage = response.choices[0].message.content;
+      this.supporter.sendMessage(aiMessage);
+    });
+  }
 }

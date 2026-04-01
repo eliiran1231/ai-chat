@@ -1,17 +1,16 @@
-import { Message } from "./Message";
+import { Chat } from "./chat";
 import { Supporter } from "./Supporter";
 
 export class Agent{
-    messages: Message[] = [];
-    supporter: Supporter = new Supporter(this.messages);
-    init(messages : Message[], supporter : Supporter) {
-        this.messages = messages;
+    chat: Chat = null as any;
+    supporter: Supporter = new Supporter();
+    init(chat : Chat, supporter : Supporter) {
+        this.chat = chat;
         this.supporter = supporter;
     }
     async respond(): Promise<void> {
-        if(this.messages[this.messages.length-1].from == "supporter"){
-            console.error("respond was called but there is nothing to respond to. the lasy messgae is from the agent");
-            return;
+        if(this.chat.messages[this.chat.messages.length-1].from == "supporter"){
+            throw new Error("respond was called but there is nothing to respond to. the last message is from the agent");
         }
     }
 } 

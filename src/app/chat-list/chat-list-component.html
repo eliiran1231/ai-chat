@@ -1,0 +1,83 @@
+<section class="whatsapp-layout" [class.whatsapp-layout--mobile-chat]="selectedChat">
+  <aside class="chat-sidebar">
+    <header class="mobile-appbar">
+      <div class="brand-row">
+        <h1>WhatsApp</h1>
+        <div class="sidebar-actions">
+          <button type="button" class="sidebar-icon-button" aria-label="Menu">...</button>
+        </div>
+      </div>
+
+      <nav class="top-tabs" aria-label="Primary sections">
+        <button type="button" class="top-tabs__icon">grp</button>
+        <button type="button" class="top-tab top-tab--active">
+          Chats
+          <span class="top-tab__badge">1</span>
+        </button>
+        <button type="button" class="top-tab">Calls</button>
+      </nav>
+    </header>
+
+    <div class="sidebar-tools">
+      <label class="search-box" for="chat-search">
+        <span class="search-box__icon">O</span>
+        <input
+          id="chat-search"
+          type="text"
+          name="chat-search"
+          [(ngModel)]="searchTerm"
+          placeholder="Search or start a new chat"
+        />
+      </label>
+    </div>
+
+    <div class="chat-list">
+      @for (chat of filteredChats; track chat.id) {
+        <button
+          type="button"
+          class="chat-list-item"
+          [class.chat-list-item--active]="selectedChat?.id === chat.id"
+          (click)="openChat(chat)"
+        >
+          <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing">
+            <div class="chat-list-item__avatar">{{ avatarFor(chat) }}</div>
+          </div>
+          <div class="chat-list-item__content">
+            <div class="chat-list-item__top">
+              <strong>{{ chat.name }}</strong>
+              <time [class.chat-list-item__time--accent]="chat.highlightTime">{{ lastMessageTime(chat) }}</time>
+            </div>
+            <div class="chat-list-item__bottom">
+              <p>{{ lastMessageText(chat) }}</p>
+              @if (chat.unreadCount) {
+                <span class="chat-list-item__badge">{{ chat.unreadCount }}</span>
+              }
+            </div>
+          </div>
+        </button>
+      } @empty {
+        <div class="chat-list-empty">
+          <p>No chats match your search.</p>
+        </div>
+      }
+
+      <div class="chat-list-tip">
+        <p>Tap and hold on a chat for more options</p>
+      </div>
+    </div>
+
+    <footer class="chat-sidebar-footer">
+      <p>
+        Your personal messages are end-to-end encrypted
+      </p>
+    </footer>
+
+    <button type="button" class="floating-compose" aria-label="New chat" (click)="createNewChat()">
+      +
+    </button>
+  </aside>
+
+  <section class="chat-stage">
+    <app-chat [chat]="selectedChat" [showBackButton]="true" (back)="closeChat()" />
+  </section>
+</section>

@@ -1,0 +1,365 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.whatsapp-layout {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: 26rem minmax(0, 1fr);
+  background:
+    linear-gradient(180deg, #0b8b72 0 8.5rem, #111b21 8.5rem 100%),
+    #111b21;
+}
+
+.chat-sidebar,
+.chat-stage {
+  min-height: 0;
+}
+
+.chat-sidebar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-right: 1px solid #d6dadd;
+}
+
+.mobile-appbar {
+  background: #0b8b72;
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(17, 27, 33, 0.18);
+}
+
+.status-row,
+.brand-row,
+.top-tabs {
+  display: flex;
+  align-items: center;
+}
+
+.status-row {
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.35rem;
+  font-size: 0.78rem;
+  opacity: 0.95;
+}
+
+.brand-row {
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 1.25rem 0.85rem;
+}
+
+.brand-row h1,
+.chat-list-item__bottom p,
+.chat-list-empty p,
+.chat-list-tip p,
+.chat-sidebar-footer p {
+  margin: 0;
+}
+
+.brand-row h1 {
+  font-size: 2rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.sidebar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sidebar-icon-button,
+.top-tab,
+.top-tabs__icon,
+.floating-compose {
+  border: 0;
+  cursor: pointer;
+}
+
+.sidebar-icon-button {
+  min-width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-size: 0.85rem;
+  text-transform: lowercase;
+}
+
+.top-tabs {
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0 0.4rem;
+}
+
+.top-tabs__icon,
+.top-tab {
+  min-height: 3.25rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.top-tabs__icon {
+  width: 4.5rem;
+  font-size: 0.8rem;
+}
+
+.top-tab {
+  flex: 1;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.top-tab--active {
+  color: #fff;
+}
+
+.top-tab--active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0.22rem;
+  background: #fff;
+}
+
+.top-tab__badge {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #0b8b72;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.sidebar-tools {
+  padding: 0.7rem 1rem 0.6rem;
+  background: #fff;
+}
+
+.search-box {
+  min-height: 2.2rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 0.9rem;
+  border-radius: 999px;
+  background: #f1f3f4;
+}
+
+.search-box__icon {
+  color: #7a8a96;
+  font-size: 0.82rem;
+}
+
+.search-box input {
+  min-height: 2.2rem;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #101820;
+  font-size: 0.92rem;
+}
+
+.chat-list {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+}
+
+.chat-list-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.95rem;
+  padding: 1rem 1rem 0.95rem;
+  border: 0;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+}
+
+.chat-list-item::after {
+  content: '';
+  position: absolute;
+  left: 5.4rem;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #eff1f2;
+}
+
+.chat-list-item:hover,
+.chat-list-item--active {
+  background: #f8f9f9;
+}
+
+.chat-list-item__avatar-wrap {
+  width: 3.6rem;
+  height: 3.6rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.chat-list-item__avatar-wrap--ring {
+  border: 0.18rem solid #25d366;
+}
+
+.chat-list-item__avatar {
+  width: 3.25rem;
+  height: 3.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #c8d5df, #e8eef2);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.chat-list-item__content {
+  min-width: 0;
+}
+
+.chat-list-item__top,
+.chat-list-item__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.chat-list-item__top strong,
+.chat-list-item__bottom p {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-list-item__top strong {
+  color: #111b21;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.chat-list-item__top time {
+  color: #7a8a96;
+  font-size: 0.74rem;
+  white-space: nowrap;
+}
+
+.chat-list-item__time--accent {
+  color: #21b15d !important;
+}
+
+.chat-list-item__bottom {
+  margin-top: 0.28rem;
+}
+
+.chat-list-item__bottom p {
+  color: #6f7f8a;
+  font-size: 0.88rem;
+}
+
+.chat-list-item__badge {
+  min-width: 1.55rem;
+  height: 1.55rem;
+  padding: 0 0.3rem;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.chat-list-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.chat-list-tip {
+  padding: 1.7rem 1rem 2rem;
+  text-align: center;
+  color: #6f7f8a;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.chat-sidebar-footer {
+  border-top: 1px solid #ebedef;
+  background: #fff;
+  padding: 1rem 1.2rem 5.6rem;
+  color: #75848e;
+  font-size: 0.78rem;
+}
+
+.footer-lock {
+  margin-right: 0.35rem;
+  text-transform: lowercase;
+}
+
+.footer-accent {
+  color: #00a884;
+}
+
+.floating-compose {
+  position: absolute;
+  right: 1rem;
+  bottom: 1.95rem;
+  width: 4.15rem;
+  height: 4.15rem;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #16c79a, #05a884);
+  color: #fff;
+  box-shadow: 0 0.9rem 1.6rem rgba(0, 168, 132, 0.32);
+  font-size: 0.9rem;
+  text-transform: lowercase;
+}
+
+.chat-stage {
+  min-width: 0;
+  background: #e5ddd5;
+}
+
+@media (max-width: 980px) {
+  .whatsapp-layout {
+    grid-template-columns: 23rem minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 780px) {
+  .whatsapp-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-sidebar,
+  .chat-stage {
+    min-height: 100dvh;
+  }
+
+  .whatsapp-layout--mobile-chat .chat-sidebar {
+    display: none;
+  }
+
+  .whatsapp-layout:not(.whatsapp-layout--mobile-chat) .chat-stage {
+    display: none;
+  }
+}

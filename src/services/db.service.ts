@@ -1,0 +1,48 @@
+import { Injectable } from '@angular/core';
+import { ElectronService } from './electron.service';
+
+export interface ChatRecord {
+  id: number;
+  name: string;
+  status: string;
+  avatar: string;
+  subtitle?: string;
+  timeLabel?: string;
+  unreadCount?: number;
+  highlightTime?: boolean;
+  avatarRing?: boolean;
+  tipLabel?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateChatRecordInput {
+  name: string;
+  status: string;
+  avatar: string;
+  subtitle?: string;
+  timeLabel?: string;
+  unreadCount?: number;
+  highlightTime?: boolean;
+  avatarRing?: boolean;
+  tipLabel?: string;
+}
+
+@Injectable({
+  providedIn: 'root',
+})
+export class DbService {
+  constructor(private electronService: ElectronService) {}
+
+  async getChats(): Promise<ChatRecord[]> {
+    if (!this.electronService.isElectronAvailable()) {
+      return [];
+    }
+
+    return this.electronService.invoke<ChatRecord[]>('db:getChats');
+  }
+
+  async createChat(chat: CreateChatRecordInput): Promise<ChatRecord> {
+    return this.electronService.invoke<ChatRecord>('db:createChat', chat);
+  }
+}
