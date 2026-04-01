@@ -1,11 +1,11 @@
 :host {
   display: block;
-  min-height: 100dvh;
+  height: 100dvh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .whatsapp-layout {
-  min-height: 100dvh;
+  height: 100%;
   display: grid;
   grid-template-columns: 26rem minmax(0, 1fr);
   background:
@@ -16,6 +16,7 @@
 .chat-sidebar,
 .chat-stage {
   min-height: 0;
+  height: 100%;
 }
 
 .chat-sidebar {
@@ -176,6 +177,7 @@
 
 .chat-list {
   flex: 1;
+  flex-grow: 1;
   overflow-y: auto;
   background: #fff;
 }
@@ -296,7 +298,7 @@
 }
 
 .chat-list-tip {
-  padding: 1.7rem 1rem 2rem;
+  padding: 5%;
   text-align: center;
   color: #6f7f8a;
   font-size: 0.82rem;
@@ -306,7 +308,7 @@
 .chat-sidebar-footer {
   border-top: 1px solid #ebedef;
   background: #fff;
-  padding: 1rem 1.2rem 5.6rem;
+  padding: 5%;
   color: #75848e;
   font-size: 0.78rem;
 }
@@ -348,11 +350,12 @@
 @media (max-width: 780px) {
   .whatsapp-layout {
     grid-template-columns: 1fr;
+    height: 100dvh;
   }
 
   .chat-sidebar,
   .chat-stage {
-    min-height: 100dvh;
+    height: 100dvh;
   }
 
   .whatsapp-layout--mobile-chat .chat-sidebar {
