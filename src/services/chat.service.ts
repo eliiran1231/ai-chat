@@ -53,6 +53,10 @@ export class ChatService {
     return this.dbService.deleteChat(chatId);
   }
 
+  async markChatRead(chatId: number): Promise<boolean> {
+    return this.dbService.markChatRead(chatId);
+  }
+
   hydrateChat(record: ChatRecord, initialAgent: Agent, messageRecords: MessageRecord[]): Chat {
     const supporter = new Supporter();
     const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {
@@ -76,6 +80,7 @@ export class ChatService {
     message.id = record.id;
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);
+    message.isRead = record.isRead;
     return message;
   }
 
@@ -87,8 +92,10 @@ export class ChatService {
         value: typeof message.value === 'string' ? message.value : message.value.name,
         tag: message.tag,
         time: message.time.toISOString(),
+        isRead: message.isRead,
       });
       message.id = record.id;
+      message.isRead = record.isRead;
     };
 
     chat.supporter.setOnMessageAdded(persistMessage);

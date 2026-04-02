@@ -82,6 +82,7 @@ function mapMessageRow(row) {
     value: row.value,
     tag: row.tag ?? undefined,
     time: row.time,
+    isRead: Boolean(row.is_read),
   };
 }
 
@@ -111,9 +112,21 @@ async function initializeDatabase() {
       value TEXT NOT NULL,
       tag TEXT,
       time TEXT NOT NULL,
+      is_read INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
     )
   `);
+
+  const messageColumns = await all(`PRAGMA table_info(messages)`);
+  const hasIsReadColumn = messageColumns.some((column) => column.name === 'is_read');
+  if (!hasIsReadColumn) {
+    await run(`ALTER TABLE messages ADD COLUMN is_read INTEGER NOT NULL DEFAULT 0`);
+    await run(`
+      UPDATE messages
+      SET is_read = CASE WHEN sender = 'user' THEN 1 ELSE 0 END
+      WHERE is_read = 0
+    `);
+  }
 }
 
 function registerDbHandlers() {
@@ -202,7 +215,7 @@ function registerDbHandlers() {
   ipcMain.handle('db:getChatMessages', async (_event, chatId) => {
     const rows = await all(
       `
-        SELECT id, chat_id, sender, value, tag, time
+        SELECT id, chat_id, sender, value, tag, time, is_read
         FROM messages
         WHERE chat_id = ?
         ORDER BY time ASC, id ASC
@@ -216,15 +229,34 @@ function registerDbHandlers() {
   ipcMain.handle('db:createMessage', async (_event, message) => {
     const result = await run(
       `
-        INSERT INTO messages (chat_id, sender, value, tag, time)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO messages (chat_id, sender, value, tag, time, is_read)
+        VALUES (?, ?, ?, ?, ?, ?)
       `,
-      [message.chatId, message.from, message.value, message.tag ?? null, message.time],
+      [
+        message.chatId,
+        message.from,
+        message.value,
+        message.tag ?? null,
+        message.time,
+        message.isRead ? 1 : 0,
+      ],
     );
+
+    if (!message.isRead) {
+      await run(
+        `
+          UPDATE chats
+          SET unread_count = unread_count + 1,
+              updated_at = ?
+          WHERE id = ?
+        `,
+        [new Date().toISOString(), message.chatId],
+      );
+    }
 
     const row = await get(
       `
-        SELECT id, chat_id, sender, value, tag, time
+        SELECT id, chat_id, sender, value, tag, time, is_read
         FROM messages
         WHERE id = ?
       `,
@@ -232,6 +264,30 @@ function registerDbHandlers() {
     );
 
     return mapMessageRow(row);
+  });
+
+  ipcMain.handle('db:markChatRead', async (_event, chatId) => {
+    const now = new Date().toISOString();
+    await run(
+      `
+        UPDATE messages
+        SET is_read = 1
+        WHERE chat_id = ? AND is_read = 0
+      `,
+      [chatId],
+    );
+
+    const result = await run(
+      `
+        UPDATE chats
+        SET unread_count = 0,
+            updated_at = ?
+        WHERE id = ?
+      `,
+      [now, chatId],
+    );
+
+    return result.changes > 0;
   });
 
   ipcMain.handle('db:deleteChat', async (_event, chatId) => {

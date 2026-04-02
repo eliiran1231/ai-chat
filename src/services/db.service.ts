@@ -35,6 +35,7 @@ export interface MessageRecord {
   value: string;
   tag?: string;
   time: string;
+  isRead: boolean;
 }
 
 export interface CreateMessageRecordInput {
@@ -43,6 +44,7 @@ export interface CreateMessageRecordInput {
   value: string;
   tag?: string;
   time: string;
+  isRead: boolean;
 }
 
 @Injectable({
@@ -73,5 +75,9 @@ export class DbService {
 
   async createMessage(message: CreateMessageRecordInput): Promise<MessageRecord> {
     return this.electronService.invoke<MessageRecord>('db:createMessage', message);
+  }
+
+  async markChatRead(chatId: number): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:markChatRead', chatId);
   }
 }

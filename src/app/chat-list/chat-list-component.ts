@@ -22,7 +22,6 @@ export class ChatListComponent implements OnInit {
   constructor(
       private chatService: ChatService,
       private aiService: AiService,
-      private ngZone: NgZone, 
     ) {
   }
 
@@ -47,11 +46,17 @@ export class ChatListComponent implements OnInit {
     });
   }
 
-  openChat(chat: Chat): void {
+  async openChat(chat: Chat): Promise<void> {
     this.selectedChat = chat;
+    chat.active = true;
+    chat.unreadCount = 0;
+    chat.messages.forEach((message) => (message.isRead = true));
+    await this.chatService.markChatRead(chat.id);
   }
 
   closeChat(): void {
+    if (!this.selectedChat) return;
+    this.selectedChat.active = false;
     this.selectedChat = null;
   }
 
@@ -99,7 +104,7 @@ export class ChatListComponent implements OnInit {
         },
       );
       this.chats = [...this.chats, chat];
-      if (openChat) this.openChat(chat);
+      if (openChat) await this.openChat(chat);
       return chat;
     })();
 

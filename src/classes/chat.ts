@@ -9,7 +9,7 @@ export class Chat {
   avatar: string;
   subtitle?: string;
   timeLabel?: string;
-  unreadCount?: number;
+  unreadCount: number;
   highlightTime?: boolean;
   avatarRing?: boolean;
   tipLabel?: string;
@@ -17,6 +17,7 @@ export class Chat {
   messages: Message[];
   supporter: Supporter;
   user: User;
+  active: boolean = false;
 
   constructor(
     id: number,
@@ -44,7 +45,7 @@ export class Chat {
     this.draftMessage = '';
     this.subtitle = options.subtitle;
     this.timeLabel = options.timeLabel;
-    this.unreadCount = options.unreadCount;
+    this.unreadCount = options.unreadCount || 0;
     this.highlightTime = options.highlightTime;
     this.avatarRing = options.avatarRing;
     this.tipLabel = options.tipLabel;
