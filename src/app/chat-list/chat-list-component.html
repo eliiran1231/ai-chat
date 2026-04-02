@@ -45,7 +45,18 @@
           <div class="chat-list-item__content">
             <div class="chat-list-item__top">
               <strong>{{ chat.name }}</strong>
-              <time [class.chat-list-item__time--accent]="chat.highlightTime">{{ lastMessageTime(chat) }}</time>
+              <div class="chat-list-item__actions">
+                <time [class.chat-list-item__time--accent]="chat.highlightTime">{{ lastMessageTime(chat) }}</time>
+                <button
+                  type="button"
+                  class="chat-delete-button"
+                  aria-label="Delete chat"
+                  [disabled]="deletingChatId === chat.id"
+                  (click)="deleteChat(chat, $event)"
+                >
+                  x
+                </button>
+              </div>
             </div>
             <div class="chat-list-item__bottom">
               <p>{{ lastMessageText(chat) }}</p>

@@ -17,6 +17,7 @@ export class ChatListComponent implements OnInit {
   selectedChat: Chat | null = null;
   chats: Chat[] = [];
   isCreatingChat = false;
+  deletingChatId: number | null = null;
   pendingCreateChat: Promise<Chat> | null = null;
   constructor(
       private chatService: ChatService,
@@ -52,6 +53,29 @@ export class ChatListComponent implements OnInit {
 
   closeChat(): void {
     this.selectedChat = null;
+  }
+
+  async deleteChat(chat: Chat, event?: Event): Promise<void> {
+    event?.stopPropagation();
+
+    if (this.deletingChatId === chat.id) {
+      return;
+    }
+
+    this.deletingChatId = chat.id;
+    try {
+      const deleted = await this.chatService.deleteChat(chat.id);
+      if (!deleted) {
+        return;
+      }
+
+      this.chats = this.chats.filter((existingChat) => existingChat.id !== chat.id);
+      if (this.selectedChat?.id === chat.id) {
+        this.selectedChat = null;
+      }
+    } finally {
+      this.deletingChatId = null;
+    }
   }
 
   async createNewChat(

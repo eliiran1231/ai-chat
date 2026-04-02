@@ -43,6 +43,10 @@ export class ChatService {
     return records.map((record) => this.hydrateChat(record, initialAgentFactory()));
   }
 
+  async deleteChat(chatId: number): Promise<boolean> {
+    return this.dbService.deleteChat(chatId);
+  }
+
   hydrateChat(record: ChatRecord, initialAgent: Agent): Chat {
     const supporter = new Supporter();
     const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {

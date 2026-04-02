@@ -175,6 +175,11 @@ function registerDbHandlers() {
 
     return mapChatRow(row);
   });
+
+  ipcMain.handle('db:deleteChat', async (_event, chatId) => {
+    const result = await run(`DELETE FROM chats WHERE id = ?`, [chatId]);
+    return result.changes > 0;
+  });
 }
 
 function createWindow() {

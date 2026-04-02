@@ -45,4 +45,8 @@ export class DbService {
   async createChat(chat: CreateChatRecordInput): Promise<ChatRecord> {
     return this.electronService.invoke<ChatRecord>('db:createChat', chat);
   }
+
+  async deleteChat(chatId: number): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:deleteChat', chatId);
+  }
 }
