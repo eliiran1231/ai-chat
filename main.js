@@ -74,7 +74,19 @@ function mapChatRow(row) {
   };
 }
 
+function mapMessageRow(row) {
+  return {
+    id: row.id,
+    chatId: row.chat_id,
+    from: row.sender,
+    value: row.value,
+    tag: row.tag ?? undefined,
+    time: row.time,
+  };
+}
+
 async function initializeDatabase() {
+  await run(`PRAGMA foreign_keys = ON`);
   await run(`
     CREATE TABLE IF NOT EXISTS chats (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -89,6 +101,17 @@ async function initializeDatabase() {
       tip_label TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
+    )
+  `);
+  await run(`
+    CREATE TABLE IF NOT EXISTS messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chat_id INTEGER NOT NULL,
+      sender TEXT NOT NULL,
+      value TEXT NOT NULL,
+      tag TEXT,
+      time TEXT NOT NULL,
+      FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
     )
   `);
 }
@@ -176,7 +199,43 @@ function registerDbHandlers() {
     return mapChatRow(row);
   });
 
+  ipcMain.handle('db:getChatMessages', async (_event, chatId) => {
+    const rows = await all(
+      `
+        SELECT id, chat_id, sender, value, tag, time
+        FROM messages
+        WHERE chat_id = ?
+        ORDER BY time ASC, id ASC
+      `,
+      [chatId],
+    );
+
+    return rows.map(mapMessageRow);
+  });
+
+  ipcMain.handle('db:createMessage', async (_event, message) => {
+    const result = await run(
+      `
+        INSERT INTO messages (chat_id, sender, value, tag, time)
+        VALUES (?, ?, ?, ?, ?)
+      `,
+      [message.chatId, message.from, message.value, message.tag ?? null, message.time],
+    );
+
+    const row = await get(
+      `
+        SELECT id, chat_id, sender, value, tag, time
+        FROM messages
+        WHERE id = ?
+      `,
+      [result.lastID],
+    );
+
+    return mapMessageRow(row);
+  });
+
   ipcMain.handle('db:deleteChat', async (_event, chatId) => {
+    await run(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
     const result = await run(`DELETE FROM chats WHERE id = ?`, [chatId]);
     return result.changes > 0;
   });

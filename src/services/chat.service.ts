@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
+import { Message } from '../classes/Message';
 import { Supporter } from '../classes/Supporter';
 import { Chat } from '../classes/chat';
 import { Agent } from '../classes/Agent';
-import { ChatRecord, DbService } from './db.service';
+import { ChatRecord, DbService, MessageRecord } from './db.service';
 
 @Injectable({
   providedIn: 'root'
@@ -35,19 +36,24 @@ export class ChatService {
       tipLabel: options.tipLabel,
     });
 
-    return this.hydrateChat(record, initialAgent);
+    return this.hydrateChat(record, initialAgent, []);
   }
 
   async getChats(initialAgentFactory: () => Agent): Promise<Chat[]> {
     const records = await this.dbService.getChats();
-    return records.map((record) => this.hydrateChat(record, initialAgentFactory()));
+    return Promise.all(
+      records.map(async (record) => {
+        const messages = await this.dbService.getChatMessages(record.id);
+        return this.hydrateChat(record, initialAgentFactory(), messages);
+      }),
+    );
   }
 
   async deleteChat(chatId: number): Promise<boolean> {
     return this.dbService.deleteChat(chatId);
   }
 
-  hydrateChat(record: ChatRecord, initialAgent: Agent): Chat {
+  hydrateChat(record: ChatRecord, initialAgent: Agent, messageRecords: MessageRecord[]): Chat {
     const supporter = new Supporter();
     const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {
       subtitle: record.subtitle,
@@ -57,7 +63,35 @@ export class ChatService {
       avatarRing: record.avatarRing,
       tipLabel: record.tipLabel,
     });
+    for (const messageRecord of messageRecords) {
+      chat.messages.push(this.hydrateMessage(messageRecord));
+    }
+    this.attachMessagePersistence(chat);
     supporter.setAgent(initialAgent);
     return chat;
+  }
+
+  private hydrateMessage(record: MessageRecord): Message {
+    const message = new Message(record.value, record.from);
+    message.id = record.id;
+    message.tag = record.tag ?? 'general';
+    message.time = new Date(record.time);
+    return message;
+  }
+
+  private attachMessagePersistence(chat: Chat): void {
+    const persistMessage = async (message: Message) => {
+      const record = await this.dbService.createMessage({
+        chatId: chat.id,
+        from: message.from,
+        value: typeof message.value === 'string' ? message.value : message.value.name,
+        tag: message.tag,
+        time: message.time.toISOString(),
+      });
+      message.id = record.id;
+    };
+
+    chat.supporter.setOnMessageAdded(persistMessage);
+    chat.user.setOnMessageAdded(persistMessage);
   }
 }

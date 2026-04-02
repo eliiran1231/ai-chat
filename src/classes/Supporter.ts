@@ -7,25 +7,26 @@ import { Question } from "./Question";
 export class Supporter{
     private chat: Chat = null as any;
     private agent: Agent | undefined;
+    private onMessageAdded?: (message: Message) => void | Promise<void>;
     name = "Supporter";
     constructor(){}
     ask(message : string | File, time? : Date, tag? : string){
         var question = new Question(message, "supporter");
         if(time) question.time = time;
         if(tag) question.tag = tag;
-        this.chat.messages.push(question);
+        this.appendMessage(question);
     }
     answer(message : string | File, time? : Date, tag? : string){
         var answer = new Answer(message, "supporter");
         if(time) answer.time = time;
         if(tag) answer.tag = tag;
-        this.chat.messages.push(answer);
+        this.appendMessage(answer);
     }
     sendMessage(message : string | File, time? : Date, tag? : string){
         var msg = new Message(message, "supporter");
         if(time) msg.time = time;
         if(tag) msg.tag = tag;
-        this.chat.messages.push(msg);
+        this.appendMessage(msg);
     }
     async respond(){
         if(!this.agent) {
@@ -40,5 +41,12 @@ export class Supporter{
     }
     setChat(chat: Chat){
         this.chat = chat;
+    }
+    setOnMessageAdded(onMessageAdded: (message: Message) => void | Promise<void>) {
+        this.onMessageAdded = onMessageAdded;
+    }
+    private appendMessage(message: Message){
+        this.chat.messages.push(message);
+        void this.onMessageAdded?.(message);
     }
 }

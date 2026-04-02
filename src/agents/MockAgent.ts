@@ -8,7 +8,9 @@ export class MockAgent extends Agent{
     }
     override init(chat : Chat, supporter : Supporter) {
         super.init(chat, supporter)
-        supporter.sendMessage("שלום שלום איך אפשר לעזור")
+        if (chat.messages.length === 0) {
+            supporter.sendMessage("שלום שלום איך אפשר לעזור")
+        }
     }
     override async respond(): Promise<void> {
         this.supporter.ask("שלום?");

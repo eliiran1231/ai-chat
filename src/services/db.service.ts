@@ -28,6 +28,23 @@ export interface CreateChatRecordInput {
   tipLabel?: string;
 }
 
+export interface MessageRecord {
+  id: number;
+  chatId: number;
+  from: 'user' | 'supporter';
+  value: string;
+  tag?: string;
+  time: string;
+}
+
+export interface CreateMessageRecordInput {
+  chatId: number;
+  from: 'user' | 'supporter';
+  value: string;
+  tag?: string;
+  time: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -48,5 +65,13 @@ export class DbService {
 
   async deleteChat(chatId: number): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:deleteChat', chatId);
+  }
+
+  async getChatMessages(chatId: number): Promise<MessageRecord[]> {
+    return this.electronService.invoke<MessageRecord[]>('db:getChatMessages', chatId);
+  }
+
+  async createMessage(message: CreateMessageRecordInput): Promise<MessageRecord> {
+    return this.electronService.invoke<MessageRecord>('db:createMessage', message);
   }
 }

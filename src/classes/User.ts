@@ -6,16 +6,24 @@ import { Supporter } from "./Supporter";
 export class User {
     private messages: Message[];
     private supporter: Supporter;
+    private onMessageAdded?: (message: Message) => void | Promise<void>;
     constructor(messages: Message[], supporter: Supporter){
         this.messages = messages;
         this.supporter = supporter;
     }
     ask(question : Question){
-        this.messages.push(question);
+        this.appendMessage(question);
         this.supporter.respond();
     }
     answer(answer : Answer){
-        this.messages.push(answer);
+        this.appendMessage(answer);
         this.supporter.respond();
+    }
+    setOnMessageAdded(onMessageAdded: (message: Message) => void | Promise<void>) {
+        this.onMessageAdded = onMessageAdded;
+    }
+    private appendMessage(message: Message){
+        this.messages.push(message);
+        void this.onMessageAdded?.(message);
     }
 }

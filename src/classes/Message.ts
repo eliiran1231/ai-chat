@@ -1,4 +1,5 @@
 export class Message {
+    id?: number;
     from: "user" | "supporter";
     time: Date = new Date();
     tag: string = "general";

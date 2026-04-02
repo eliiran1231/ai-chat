@@ -10,7 +10,9 @@ export class AiAgent extends Agent {
 
   override init(chat: Chat, supporter: Supporter) {
     super.init(chat, supporter);
-    supporter.sendMessage('Hello, how can I help you today?');
+    if (chat.messages.length === 0) {
+      supporter.sendMessage('Hello, how can I help you today?');
+    }
   }
 
   override async respond(): Promise<void> {
