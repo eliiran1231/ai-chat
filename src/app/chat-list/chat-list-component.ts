@@ -121,26 +121,18 @@ export class ChatListComponent implements OnInit {
   }
 
   lastMessageText(chat: Chat): string {
-    if (chat.subtitle) {
-      return chat.subtitle;
-    }
-
     const lastMessage = chat.messages.at(-1);
     if (!lastMessage) {
-      return 'No messages yet';
+      return chat.subtitle || 'start the conversation';
     }
 
     return typeof lastMessage.value === 'string' ? lastMessage.value : lastMessage.value.name;
   }
 
   lastMessageTime(chat: Chat): string {
-    if (chat.timeLabel) {
-      return chat.timeLabel;
-    }
-
     const lastMessage = chat.messages.at(-1)?.time;
     return lastMessage
       ? lastMessage.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-      : '';
+      : chat.timeLabel || '';
   }
 }
