@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit } from '@angular/core';
+import { Component, Inject, Injector, NgZone, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/chat';
@@ -22,11 +22,12 @@ export class ChatListComponent implements OnInit {
   constructor(
       private chatService: ChatService,
       private aiService: AiService,
+      private injector: Injector,
     ) {
   }
 
   async ngOnInit(): Promise<void> {
-    this.chats = await this.chatService.getChats(() => new AiAgent(this.aiService));
+    this.chats = await this.chatService.getChats(() => new AiAgent(this.injector));
   }
 
   
@@ -85,7 +86,7 @@ export class ChatListComponent implements OnInit {
 
   async createNewChat(
     openChat = true,
-    initialAgent: Agent = new AiAgent(this.aiService),
+    initialAgent: Agent = new AiAgent(this.injector),
   ): Promise<Chat> {
     if (this.isCreatingChat && this.pendingCreateChat) {
       return this.pendingCreateChat;

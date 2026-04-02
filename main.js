@@ -290,6 +290,42 @@ function registerDbHandlers() {
     return result.changes > 0;
   });
 
+  ipcMain.handle('db:updateChatTitle', async (_event, { chatId, name }) => {
+    const now = new Date().toISOString();
+    await run(
+      `
+        UPDATE chats
+        SET name = ?,
+            updated_at = ?
+        WHERE id = ?
+      `,
+      [name, now, chatId],
+    );
+
+    const row = await get(
+      `
+        SELECT
+          id,
+          name,
+          status,
+          avatar,
+          subtitle,
+          time_label,
+          unread_count,
+          highlight_time,
+          avatar_ring,
+          tip_label,
+          created_at,
+          updated_at
+        FROM chats
+        WHERE id = ?
+      `,
+      [chatId],
+    );
+
+    return mapChatRow(row);
+  });
+
   ipcMain.handle('db:deleteChat', async (_event, chatId) => {
     await run(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
     const result = await run(`DELETE FROM chats WHERE id = ?`, [chatId]);

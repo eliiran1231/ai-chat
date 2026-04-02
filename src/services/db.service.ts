@@ -28,6 +28,11 @@ export interface CreateChatRecordInput {
   tipLabel?: string;
 }
 
+export interface UpdateChatTitleInput {
+  chatId: number;
+  name: string;
+}
+
 export interface MessageRecord {
   id: number;
   chatId: number;
@@ -79,5 +84,9 @@ export class DbService {
 
   async markChatRead(chatId: number): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:markChatRead', chatId);
+  }
+
+  async updateChatTitle(input: UpdateChatTitleInput): Promise<ChatRecord> {
+    return this.electronService.invoke<ChatRecord>('db:updateChatTitle', input);
   }
 }

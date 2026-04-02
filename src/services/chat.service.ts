@@ -57,6 +57,20 @@ export class ChatService {
     return this.dbService.markChatRead(chatId);
   }
 
+  async setChatTitle(chat: Chat, title: string): Promise<void> {
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle || chat.name === trimmedTitle) {
+      return;
+    }
+
+    const record = await this.dbService.updateChatTitle({
+      chatId: chat.id,
+      name: trimmedTitle,
+    });
+
+    chat.name = record.name;
+  }
+
   hydrateChat(record: ChatRecord, initialAgent: Agent, messageRecords: MessageRecord[]): Chat {
     const supporter = new Supporter();
     const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {

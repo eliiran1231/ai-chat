@@ -1,11 +1,17 @@
+import { Injector } from '@angular/core';
 import { Agent } from '../classes/Agent';
 import { Chat } from '../classes/chat';
 import { Supporter } from '../classes/Supporter';
 import { AiService } from '../services/ai.service';
+import { ChatService } from '../services/chat.service';
 
 export class AiAgent extends Agent {
-  constructor(private aiService: AiService) {
+  aiService: AiService;
+  chatService: ChatService;
+  constructor(private injector: Injector) {
     super();
+    this.aiService = this.injector.get(AiService);
+    this.chatService = this.injector.get(ChatService);
   }
 
   override init(chat: Chat, supporter: Supporter) {
@@ -19,7 +25,7 @@ export class AiAgent extends Agent {
     super.respond();
     const lastMessage = this.chat.messages[this.chat.messages.length - 1];
     this.aiService.sendMessage(lastMessage.value as string).subscribe((response) => {
-      this.chat.name = response.model;
+      void this.chatService.setChatTitle(this.chat, response.model);
       const aiMessage = response.choices[0].message.content;
       this.supporter.sendMessage(aiMessage);
     });
