@@ -19,6 +19,7 @@ export class AiAgent extends Agent {
     super.respond();
     const lastMessage = this.chat.messages[this.chat.messages.length - 1];
     this.aiService.sendMessage(lastMessage.value as string).subscribe((response) => {
+      this.chat.name = response.model;
       const aiMessage = response.choices[0].message.content;
       this.supporter.sendMessage(aiMessage);
     });
