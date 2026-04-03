@@ -9,7 +9,11 @@ export class Agent{
         this.supporter = supporter;
     }
     async respond(): Promise<void> {
-        if(this.chat.messages[this.chat.messages.length-1].from == "supporter"){
+        const lastMessage = this.chat.messages.at(-1);
+        if (!lastMessage) {
+            throw new Error("respond was called but there is nothing to respond to");
+        }
+        else if(lastMessage.from == "supporter"){
             throw new Error("respond was called but there is nothing to respond to. the last message is from the agent");
         }
     }
