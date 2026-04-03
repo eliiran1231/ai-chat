@@ -31,9 +31,17 @@ export class HomeComponent implements OnInit {
     this.chats = await this.chatService.getChats(() => new AiAgent(this.injector));
   }
 
+  get unreadChatsCount(): number {
+    return this.chats.filter((chat) => chat.unreadCount > 0).length; // i know this is not the most efficient way to do this, but it works for now. We can optimize later if needed.
+  }
+
   async openChat(chat: Chat): Promise<void> {
     this.selectedChat = chat;
     chat.active = true;
+    await this.markChatRead(chat);
+  }
+
+  async markChatRead(chat: Chat): Promise<void> {
     chat.unreadCount = 0;
     chat.messages.forEach((message) => (message.isRead = true));
     await this.chatService.markChatRead(chat.id);

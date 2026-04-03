@@ -20,7 +20,9 @@
           (click)="selectedTab = 'chats'"
         >
           Chats
-          <span class="top-tab__badge">1</span>
+          @if (unreadChatsCount > 0) {
+             <span class="top-tab__badge">{{ unreadChatsCount }}</span>
+          }
         </button>
         <button type="button" 
           [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'calls'}"
