@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
-import { ChatListComponent } from './chat-list/chat-list-component';
+import { HomeComponent } from './home/home-component';
 
 @Component({
   selector: 'app-root',
-  imports: [ChatListComponent],
+  imports: [HomeComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })

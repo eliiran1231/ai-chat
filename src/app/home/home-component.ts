@@ -1,18 +1,17 @@
-import { Component, Inject, Injector, NgZone, OnInit } from '@angular/core';
+import { Component, Injector, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/chat';
 import { ChatService } from '../../services/chat.service';
 import { AiAgent } from '../../agents/AiAgent';
-import { AiService } from '../../services/ai.service';
 import { Agent } from '../../classes/Agent';
 @Component({
   selector: 'app-chat-list',
   imports: [FormsModule, ChatComponent],
-  templateUrl: './chat-list-component.html',
-  styleUrl: './chat-list-component.scss',
+  templateUrl: './home-component.html',
+  styleUrl: './home-component.scss',
 })
-export class ChatListComponent implements OnInit {
+export class HomeComponent implements OnInit {
   searchTerm = '';
   selectedChat: Chat | null = null;
   chats: Chat[] = [];
@@ -21,7 +20,6 @@ export class ChatListComponent implements OnInit {
   pendingCreateChat: Promise<Chat> | null = null;
   constructor(
       private chatService: ChatService,
-      private aiService: AiService,
       private injector: Injector,
     ) {
   }
