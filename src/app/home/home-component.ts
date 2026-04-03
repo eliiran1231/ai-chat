@@ -5,9 +5,10 @@ import { Chat } from '../../classes/chat';
 import { ChatService } from '../../services/chat.service';
 import { AiAgent } from '../../agents/AiAgent';
 import { Agent } from '../../classes/Agent';
+import { ChatListComponent } from '../chat-list-component/chat-list-component';
 @Component({
-  selector: 'app-chat-list',
-  imports: [FormsModule, ChatComponent],
+  selector: 'app-home',
+  imports: [FormsModule, ChatComponent, ChatListComponent],
   templateUrl: './home-component.html',
   styleUrl: './home-component.scss',
 })
@@ -26,23 +27,6 @@ export class HomeComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.chats = await this.chatService.getChats(() => new AiAgent(this.injector));
-  }
-
-  
-  get filteredChats(): Chat[] {
-    const query = this.searchTerm.trim().toLowerCase();
-    if (!query) {
-      return this.chats;
-    }
-
-    return this.chats.filter((chat) => {
-      const lastMessage = this.lastMessageText(chat).toLowerCase();
-      return (
-        chat.name.toLowerCase().includes(query) ||
-        chat.status.toLowerCase().includes(query) ||
-        lastMessage.includes(query)
-      );
-    });
   }
 
   async openChat(chat: Chat): Promise<void> {
@@ -113,25 +97,5 @@ export class HomeComponent implements OnInit {
       this.isCreatingChat = false;
       this.pendingCreateChat = null;
     }
-  }
-
-  avatarFor(chat: Chat): string {
-    return chat.avatar;
-  }
-
-  lastMessageText(chat: Chat): string {
-    const lastMessage = chat.messages.at(-1);
-    if (!lastMessage) {
-      return chat.subtitle || 'start the conversation';
-    }
-
-    return typeof lastMessage.value === 'string' ? lastMessage.value : lastMessage.value.name;
-  }
-
-  lastMessageTime(chat: Chat): string {
-    const lastMessage = chat.messages.at(-1)?.time;
-    return lastMessage
-      ? lastMessage.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-      : chat.timeLabel || '';
   }
 }

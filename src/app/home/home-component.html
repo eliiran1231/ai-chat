@@ -31,47 +31,14 @@
       </label>
     </div>
 
-    <div class="chat-list">
-      @for (chat of filteredChats; track chat.id) {
-        <button
-          type="button"
-          class="chat-list-item"
-          [class.chat-list-item--active]="selectedChat?.id === chat.id"
-          (click)="openChat(chat)"
-        >
-          <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing">
-            <div class="chat-list-item__avatar">{{ avatarFor(chat) }}</div>
-          </div>
-          <div class="chat-list-item__content">
-            <div class="chat-list-item__top">
-              <strong>{{ chat.name }}</strong>
-              <div class="chat-list-item__actions">
-                <time [class.chat-list-item__time--accent]="chat.highlightTime">{{ lastMessageTime(chat) }}</time>
-                <button
-                  type="button"
-                  class="chat-delete-button"
-                  aria-label="Delete chat"
-                  [disabled]="deletingChatId === chat.id"
-                  (click)="deleteChat(chat, $event)"
-                >
-                  x
-                </button>
-              </div>
-            </div>
-            <div class="chat-list-item__bottom">
-              <p>{{ lastMessageText(chat) }}</p>
-              @if (chat.unreadCount) {
-                <span class="chat-list-item__badge">{{ chat.unreadCount }}</span>
-              }
-            </div>
-          </div>
-        </button>
-      } @empty {
-        <div class="chat-list-empty">
-          <p>No chats match your search.</p>
-        </div>
-      }      
-    </div>
+    <app-chat-list-component
+      [chats]="chats"
+      [searchTerm]="searchTerm"
+      [selectedChat]="selectedChat"
+      (openChat)="openChat($event)"
+      (deleteChat)="deleteChat($event)"
+      [deletingChatId]="deletingChatId"
+    ></app-chat-list-component>
 
     <button type="button" class="floating-compose" aria-label="New chat" (click)="createNewChat()">
       +
