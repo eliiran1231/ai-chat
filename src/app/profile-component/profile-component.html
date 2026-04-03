@@ -1,0 +1,43 @@
+<section class="profile-page" dir="rtl">
+  <div class="profile-hero">
+    <div class="profile-avatar" aria-hidden="true">
+      <div class="profile-avatar__head"></div>
+      <div class="profile-avatar__body"></div>
+    </div>
+    <h1>{{ profile.displayName }}</h1>
+  </div>
+
+  <div class="profile-sections">
+    <article class="profile-card">
+      <div class="profile-card__icon profile-card__icon--person" aria-hidden="true"></div>
+      <div class="profile-card__content">
+        <h2>{{ profile.nameLabel }}</h2>
+        <p>{{ profile.nameValue }}</p>
+      </div>
+    </article>
+
+    <article class="profile-card">
+      <div class="profile-card__icon profile-card__icon--info" aria-hidden="true"></div>
+      <div class="profile-card__content">
+        <h2>{{ profile.aboutLabel }}</h2>
+        <p>{{ profile.aboutValue }}</p>
+      </div>
+    </article>
+
+    <article class="profile-card">
+      <div class="profile-card__icon profile-card__icon--phone" aria-hidden="true"></div>
+      <div class="profile-card__content">
+        <h2>{{ profile.phoneLabel }}</h2>
+        <p>{{ profile.phoneValue }}</p>
+      </div>
+    </article>
+
+    <article class="profile-card">
+      <div class="profile-card__icon profile-card__icon--link" aria-hidden="true"></div>
+      <div class="profile-card__content">
+        <h2>{{ profile.linksLabel }}</h2>
+        <p class="profile-card__link">{{ profile.linksValue }}</p>
+      </div>
+    </article>
+  </div>
+</section>

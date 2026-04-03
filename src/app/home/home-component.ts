@@ -1,14 +1,15 @@
 import { Component, Injector, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/chat';
 import { ChatService } from '../../services/chat.service';
 import { AiAgent } from '../../agents/AiAgent';
 import { Agent } from '../../classes/Agent';
 import { ChatListComponent } from '../chat-list-component/chat-list-component';
+import { ProfileComponent } from '../profile-component/profile-component';
+import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-home',
-  imports: [FormsModule, ChatComponent, ChatListComponent],
+  imports: [ChatComponent, ChatListComponent, ProfileComponent, CommonModule],
   templateUrl: './home-component.html',
   styleUrl: './home-component.scss',
 })
@@ -19,6 +20,7 @@ export class HomeComponent implements OnInit {
   isCreatingChat = false;
   deletingChatId: number | null = null;
   pendingCreateChat: Promise<Chat> | null = null;
+  selectedTab: 'chats' | 'profile' | 'calls' = 'chats';
   constructor(
       private chatService: ChatService,
       private injector: Injector,

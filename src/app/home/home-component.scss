@@ -13,6 +13,10 @@
     #111b21;
 }
 
+app-chat-list-component {
+  height: 100%;
+}
+
 .chat-sidebar,
 .chat-stage {
   min-height: 0;
@@ -73,8 +77,7 @@
 
 .sidebar-icon-button,
 .top-tab,
-.top-tabs__icon,
-.floating-compose {
+.top-tabs__icon {
   border: 0;
   cursor: pointer;
 }
@@ -105,6 +108,17 @@
 .top-tabs__icon {
   width: 4.5rem;
   font-size: 0.8rem;
+}
+
+.top-tabs__icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.top-tabs__icon-symbol {
+  line-height: 1;
 }
 
 .top-tab {
@@ -143,36 +157,6 @@
   font-weight: 700;
 }
 
-.sidebar-tools {
-  padding: 0.7rem 1rem 0.6rem;
-  background: #fff;
-}
-
-.search-box {
-  min-height: 2.2rem;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0 0.9rem;
-  border-radius: 999px;
-  background: #f1f3f4;
-}
-
-.search-box__icon {
-  color: #7a8a96;
-  font-size: 0.82rem;
-}
-
-.search-box input {
-  min-height: 2.2rem;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: #101820;
-  font-size: 0.92rem;
-}
-
 .chat-list-tip {
   padding: 5%;
   text-align: center;
@@ -196,20 +180,6 @@
 
 .footer-accent {
   color: #00a884;
-}
-
-.floating-compose {
-  position: absolute;
-  right: 1rem;
-  bottom: 1.95rem;
-  width: 4.15rem;
-  height: 4.15rem;
-  border-radius: 50%;
-  background: linear-gradient(180deg, #16c79a, #05a884);
-  color: #fff;
-  box-shadow: 0 0.9rem 1.6rem rgba(0, 168, 132, 0.32);
-  font-size: 0.9rem;
-  text-transform: lowercase;
 }
 
 .chat-stage {

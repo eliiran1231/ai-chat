@@ -9,40 +9,46 @@
       </div>
 
       <nav class="top-tabs" aria-label="Primary sections">
-        <button type="button" class="top-tabs__icon">grp</button>
-        <button type="button" class="top-tab top-tab--active">
+        <button type="button" 
+          [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'profile'}"
+          (click)="selectedTab = 'profile'"
+        >
+          profile
+        </button>
+        <button type="button" 
+          [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'chats'}"
+          (click)="selectedTab = 'chats'"
+        >
           Chats
           <span class="top-tab__badge">1</span>
         </button>
-        <button type="button" class="top-tab">Calls</button>
+        <button type="button" 
+          [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'calls'}"
+          (click)="selectedTab = 'calls'"
+        >
+          Calls
+        </button>
       </nav>
     </header>
 
-    <div class="sidebar-tools">
-      <label class="search-box" for="chat-search">
-        <span class="search-box__icon">O</span>
-        <input
-          id="chat-search"
-          type="text"
-          name="chat-search"
-          [(ngModel)]="searchTerm"
-          placeholder="Search or start a new chat"
-        />
-      </label>
-    </div>
-
-    <app-chat-list-component
-      [chats]="chats"
-      [searchTerm]="searchTerm"
-      [selectedChat]="selectedChat"
-      (openChat)="openChat($event)"
-      (deleteChat)="deleteChat($event)"
-      [deletingChatId]="deletingChatId"
-    ></app-chat-list-component>
-
-    <button type="button" class="floating-compose" aria-label="New chat" (click)="createNewChat()">
-      +
-    </button>
+    @if(selectedTab === 'chats') {
+      <app-chat-list-component
+        [chats]="chats"
+        [searchTerm]="searchTerm"
+        [selectedChat]="selectedChat"
+        (searchTermChange)="searchTerm = $event"
+        (openChat)="openChat($event)"
+        (deleteChat)="deleteChat($event)"
+        (createChat)="createNewChat()"
+        [deletingChatId]="deletingChatId"
+      ></app-chat-list-component>
+    }
+    @else if (selectedTab == 'profile') {
+      <app-profile-component></app-profile-component>
+    }
+    @else if (selectedTab == 'calls') {
+      <!-- <app-calls-component></app-calls-component> -->
+    }
   </aside>
 
   <section class="chat-stage">

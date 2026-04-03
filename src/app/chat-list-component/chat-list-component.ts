@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Chat } from '../../classes/chat';
 
 @Component({
   selector: 'app-chat-list-component',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './chat-list-component.html',
   styleUrl: './chat-list-component.scss',
 })
@@ -15,6 +16,8 @@ export class ChatListComponent {
 
   @Output() openChat = new EventEmitter<Chat>();
   @Output() deleteChat = new EventEmitter<Chat>();
+  @Output() searchTermChange = new EventEmitter<string>();
+  @Output() createChat = new EventEmitter<void>();
 
   get filteredChats(): Chat[] {
     const query = this.searchTerm.trim().toLowerCase();
@@ -59,5 +62,14 @@ export class ChatListComponent {
   onDeleteChat(chat: Chat, event: Event): void {
     event.stopPropagation();
     this.deleteChat.emit(chat);
+  }
+
+  onSearchTermChange(value: string): void {
+    this.searchTerm = value;
+    this.searchTermChange.emit(value);
+  }
+
+  onCreateChat(): void {
+    this.createChat.emit();
   }
 }
