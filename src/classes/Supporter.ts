@@ -10,8 +10,9 @@ export class Supporter{
     private onMessageAdded?: (message: Message) => void | Promise<void>;
     name = "Supporter";
     constructor(){}
-    ask(message : string | File, time? : Date, tag? : string){
+    ask(message : string | File, possibleAnswers?: Answer[], time? : Date, tag? : string){
         var question = new Question(message, "supporter");
+        if(possibleAnswers) question.possibleAnswers = possibleAnswers;
         if(time) question.time = time;
         if(tag) question.tag = tag;
         this.appendMessage(question);

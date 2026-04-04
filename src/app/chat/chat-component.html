@@ -39,6 +39,19 @@
             [class.message-bubble--user]="!isSupporterMessage(message)"
           >
             <p>{{ messageText(message) }}</p>
+            @if(message instanceof questionType && message.possibleAnswers.length) {
+              <div class="possible-answers-container">
+                @for (possibleAnswer of message.possibleAnswers; track $index) {
+                  <button
+                    type="button"
+                    class="possible-answer"
+                    (click)="selectAnswer(possibleAnswer)"
+                  >
+                    {{ possibleAnswer.value }}
+                  </button>
+                }
+              </div>
+            }
             <time class="message-time">{{ message.time | date: 'HH:mm' }}</time>
           </div>
         </article>

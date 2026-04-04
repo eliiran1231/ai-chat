@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Chat } from '../../classes/chat';
+import { Question } from '../../classes/Question';
 
 @Component({
   selector: 'app-chat',
@@ -15,6 +16,7 @@ export class ChatComponent {
   @Input({ required: true }) chat: Chat | null = null;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
+  questionType = Question;
 
   sendMessage(): void {
     if (!this.chat) {
@@ -36,5 +38,9 @@ export class ChatComponent {
 
   isSupporterMessage(message: Message): boolean {
     return message.from === 'supporter';
+  }
+
+  selectAnswer(answer: Answer) {
+    this.chat?.user.answer(answer);
   }
 }
