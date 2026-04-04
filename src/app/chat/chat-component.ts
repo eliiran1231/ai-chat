@@ -40,7 +40,15 @@ export class ChatComponent {
     return message.from === 'supporter';
   }
 
-  selectAnswer(answer: Answer) {
-    this.chat?.user.answer(answer);
+  possibleAnswerLabel(answer: Answer | string): string {
+    if (typeof answer === 'string') {
+      return answer;
+    }
+
+    return typeof answer.value === 'string' ? answer.value : answer.value.name;
+  }
+
+  selectAnswer(answer: Answer | string): void {
+    this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer, 'user'));
   }
 }

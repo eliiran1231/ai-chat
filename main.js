@@ -83,6 +83,7 @@ function mapMessageRow(row) {
     tag: row.tag ?? undefined,
     time: row.time,
     isRead: Boolean(row.is_read),
+    possibleAnswers: row.possible_answers ? JSON.parse(row.possible_answers) : undefined,
   };
 }
 
@@ -112,6 +113,7 @@ async function initializeDatabase() {
       value TEXT NOT NULL,
       tag TEXT,
       time TEXT NOT NULL,
+      possible_answers TEXT,
       is_read INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
     )
@@ -119,6 +121,7 @@ async function initializeDatabase() {
 
   const messageColumns = await all(`PRAGMA table_info(messages)`);
   const hasIsReadColumn = messageColumns.some((column) => column.name === 'is_read');
+  const hasPossibleAnswersColumn = messageColumns.some((column) => column.name === 'possible_answers');
   if (!hasIsReadColumn) {
     await run(`ALTER TABLE messages ADD COLUMN is_read INTEGER NOT NULL DEFAULT 0`);
     await run(`
@@ -126,6 +129,9 @@ async function initializeDatabase() {
       SET is_read = CASE WHEN sender = 'user' THEN 1 ELSE 0 END
       WHERE is_read = 0
     `);
+  }
+  if (!hasPossibleAnswersColumn) {
+    await run(`ALTER TABLE messages ADD COLUMN possible_answers TEXT`);
   }
 }
 
@@ -215,7 +221,7 @@ function registerDbHandlers() {
   ipcMain.handle('db:getChatMessages', async (_event, chatId) => {
     const rows = await all(
       `
-        SELECT id, chat_id, sender, value, tag, time, is_read
+        SELECT id, chat_id, sender, value, tag, time, possible_answers, is_read
         FROM messages
         WHERE chat_id = ?
         ORDER BY time ASC, id ASC
@@ -229,8 +235,8 @@ function registerDbHandlers() {
   ipcMain.handle('db:createMessage', async (_event, message) => {
     const result = await run(
       `
-        INSERT INTO messages (chat_id, sender, value, tag, time, is_read)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO messages (chat_id, sender, value, tag, time, possible_answers, is_read)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
       [
         message.chatId,
@@ -238,6 +244,7 @@ function registerDbHandlers() {
         message.value,
         message.tag ?? null,
         message.time,
+        message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
         message.isRead ? 1 : 0,
       ],
     );
@@ -256,7 +263,7 @@ function registerDbHandlers() {
 
     const row = await get(
       `
-        SELECT id, chat_id, sender, value, tag, time, is_read
+        SELECT id, chat_id, sender, value, tag, time, possible_answers, is_read
         FROM messages
         WHERE id = ?
       `,

@@ -15,8 +15,10 @@ export class User {
         this.appendMessage(question);
         this.supporter.respond();
     }
-    answer(answer : Answer){
-        this.appendMessage(answer);
+    answer(answer : Answer | string){
+        answer instanceof Answer ? 
+        this.appendMessage(answer) : 
+        this.appendMessage(new Answer(answer, 'user'));
         this.supporter.respond();
     }
     setOnMessageAdded(onMessageAdded: (message: Message) => void | Promise<void>) {

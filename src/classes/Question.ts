@@ -2,7 +2,7 @@ import { Answer } from "./Answer";
 import { Message } from "./Message";
 
 export class Question extends Message {
-    possibleAnswers: Answer[] = [];
+    possibleAnswers: Answer[] | string[] = [];
     private validator: RegExp | ((answer: Answer)=>boolean) = ()=>true;
     
     setValidator(validator: RegExp | ((answer: Answer)=>boolean)) {

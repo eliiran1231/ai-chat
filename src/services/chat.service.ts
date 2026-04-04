@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { Answer } from '../classes/Answer';
 import { Message } from '../classes/Message';
+import { Question } from '../classes/Question';
 import { Supporter } from '../classes/Supporter';
 import { Chat } from '../classes/chat';
 import { Agent } from '../classes/Agent';
@@ -90,12 +92,22 @@ export class ChatService {
   }
 
   private hydrateMessage(record: MessageRecord): Message {
-    const message = new Message(record.value, record.from);
+    const message = record.possibleAnswers?.length
+      ? this.hydrateQuestion(record)
+      : new Message(record.value, record.from);
     message.id = record.id;
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);
     message.isRead = record.isRead;
     return message;
+  }
+
+  private hydrateQuestion(record: MessageRecord): Question {
+    const question = new Question(record.value, record.from);
+    question.possibleAnswers = (record.possibleAnswers ?? []).map(
+      (possibleAnswer) => new Answer(possibleAnswer, 'user'),
+    );
+    return question;
   }
 
   private attachMessagePersistence(chat: Chat): void {
@@ -107,6 +119,15 @@ export class ChatService {
         tag: message.tag,
         time: message.time.toISOString(),
         isRead: message.isRead,
+        possibleAnswers: message instanceof Question
+          ? message.possibleAnswers.map((possibleAnswer) =>
+              typeof possibleAnswer === 'string'
+                ? possibleAnswer
+                : typeof possibleAnswer.value === 'string'
+                  ? possibleAnswer.value
+                  : possibleAnswer.value.name,
+            )
+          : undefined,
       });
       message.id = record.id;
       message.isRead = record.isRead;

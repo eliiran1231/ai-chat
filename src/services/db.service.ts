@@ -41,6 +41,7 @@ export interface MessageRecord {
   tag?: string;
   time: string;
   isRead: boolean;
+  possibleAnswers?: string[];
 }
 
 export interface CreateMessageRecordInput {
@@ -50,6 +51,7 @@ export interface CreateMessageRecordInput {
   tag?: string;
   time: string;
   isRead: boolean;
+  possibleAnswers?: string[];
 }
 
 @Injectable({

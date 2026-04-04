@@ -17,8 +17,10 @@ export class Supporter{
         if(tag) question.tag = tag;
         this.appendMessage(question);
     }
-    answer(message : string | File, time? : Date, tag? : string){
-        var answer = new Answer(message, "supporter");
+    answer(message : string | File | Answer, time? : Date, tag? : string){
+        var answer = message instanceof Answer ?
+        message :
+        new Answer(message, "supporter");
         if(time) answer.time = time;
         if(tag) answer.tag = tag;
         this.appendMessage(answer);
