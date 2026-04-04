@@ -1,4 +1,4 @@
-import { Chat } from "./chat";
+import { Chat } from "./Chat";
 import { Supporter } from "./Supporter";
 
 export class Agent{

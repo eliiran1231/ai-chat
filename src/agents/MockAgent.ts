@@ -1,5 +1,5 @@
 import { Agent } from "../classes/Agent";
-import { Chat } from "../classes/chat";
+import { Chat } from "../classes/Chat";
 import { Supporter } from "../classes/Supporter";
 
 export class MockAgent extends Agent{
