@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Chat } from '../../classes/chat';
+import { Chat } from '../../classes/Chat';
 
 @Component({
   selector: 'app-chat-list-component',

@@ -1,6 +1,6 @@
 import { Component, Injector, OnInit } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
-import { Chat } from '../../classes/chat';
+import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
 import { AiAgent } from '../../agents/AiAgent';
 import { Agent } from '../../classes/Agent';

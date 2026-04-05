@@ -3,7 +3,7 @@ import { Answer } from '../classes/Answer';
 import { Message } from '../classes/Message';
 import { Question } from '../classes/Question';
 import { Supporter } from '../classes/Supporter';
-import { Chat } from '../classes/chat';
+import { Chat } from '../classes/Chat';
 import { Agent } from '../classes/Agent';
 import { ChatRecord, DbService, MessageRecord } from './db.service';
 

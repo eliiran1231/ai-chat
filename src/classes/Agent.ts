@@ -1,5 +1,5 @@
 import { Answer } from "./Answer";
-import { Chat } from "./chat";
+import { Chat } from "./Chat";
 import { Question } from "./Question";
 import { Supporter } from "./Supporter";
 

@@ -1,6 +1,6 @@
 import { Agent } from "./Agent";
 import { Answer } from "./Answer";
-import { Chat } from "./chat";
+import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
 

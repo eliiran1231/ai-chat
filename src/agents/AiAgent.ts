@@ -1,6 +1,6 @@
 import { Injector } from '@angular/core';
 import { Agent } from '../classes/Agent';
-import { Chat } from '../classes/chat';
+import { Chat } from '../classes/Chat';
 import { Supporter } from '../classes/Supporter';
 import { AiService } from '../services/ai.service';
 import { ChatService } from '../services/chat.service';

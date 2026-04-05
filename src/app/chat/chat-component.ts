@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
-import { Chat } from '../../classes/chat';
+import { Chat } from '../../classes/Chat';
 import { Question } from '../../classes/Question';
 
 @Component({
