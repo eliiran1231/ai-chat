@@ -1,5 +1,6 @@
 import { Agent } from "../classes/Agent";
 import { Chat } from "../classes/chat";
+import { Question } from "../classes/Question";
 import { Supporter } from "../classes/Supporter";
 
 export class MockAgent extends Agent{
@@ -13,6 +14,10 @@ export class MockAgent extends Agent{
         }
     }
     override async respond(): Promise<void> {
-        this.supporter.ask("שלום?");
+        await super.respond();
+        const question = new Question("שלום?" , "supporter");
+        question.setValidator(/^\d+$/ , "תכניס מספרים ימעצבן");
+        this.supporter.ask(question);
     }
+    
 }
