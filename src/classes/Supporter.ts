@@ -23,7 +23,7 @@ export class Supporter{
         if(tag) answer.tag = tag;
         this.appendMessage(answer);
     }
-    sendMessage(message : string | File| Message, time? : Date, tag? : string){
+    sendMessage(message : string | File | Message, time? : Date, tag? : string){
         var msg = message instanceof Message ? message : new Message(message, "supporter");
         if(time) msg.time = time;
         if(tag) msg.tag = tag;
