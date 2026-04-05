@@ -3,6 +3,11 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "ng start",
+      "request": "attach",
+      "preLaunchTask": "npm: start",
+    },
+    {
       "name": "ng serve",
       "type": "chrome",
       "request": "launch",

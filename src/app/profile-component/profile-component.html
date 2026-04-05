@@ -40,4 +40,33 @@
       </div>
     </article>
   </div>
+
+  <section class="settings-panel" aria-labelledby="chat-settings-title">
+    <div class="settings-panel__header">
+      <p class="settings-panel__eyebrow">chat settings</p>
+      <h2 id="chat-settings-title">Markdown preview</h2>
+      <p class="settings-panel__description">
+        AI replies always render Markdown. Turn this on to preview your own Markdown messages too.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="settings-toggle"
+      role="switch"
+      [attr.aria-checked]="uiPreferences.renderUserMarkdown()"
+      (click)="toggleRenderUserMarkdown()"
+    >
+      <div class="settings-toggle__copy">
+        <span>Render Markdown in my messages</span>
+        <small>Temporary for this app run only</small>
+      </div>
+
+      <span
+        class="settings-toggle__switch"
+        [class.settings-toggle__switch--checked]="uiPreferences.renderUserMarkdown()"
+        aria-hidden="true"
+      ></span>
+    </button>
+  </section>
 </section>

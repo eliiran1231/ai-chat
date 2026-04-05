@@ -1,14 +1,16 @@
 import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MarkdownComponent } from 'ngx-markdown';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Chat } from '../../classes/Chat';
 import { Question } from '../../classes/Question';
+import { UiPreferencesService } from '../../services/ui-preferences.service';
 
 @Component({
   selector: 'app-chat',
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, MarkdownComponent],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
@@ -17,6 +19,8 @@ export class ChatComponent {
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
   questionType = Question;
+
+  constructor(readonly uiPreferences: UiPreferencesService) {}
 
   sendMessage(): void {
     if (!this.chat) {
@@ -38,6 +42,10 @@ export class ChatComponent {
 
   isSupporterMessage(message: Message): boolean {
     return message.from === 'supporter';
+  }
+
+  renderAsMarkdown(message: Message): boolean {
+    return this.isSupporterMessage(message) || this.uiPreferences.renderUserMarkdown();
   }
 
   possibleAnswerLabel(answer: Answer | string): string {

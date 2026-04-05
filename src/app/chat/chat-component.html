@@ -38,7 +38,11 @@
             [class.message-bubble--supporter]="isSupporterMessage(message)"
             [class.message-bubble--user]="!isSupporterMessage(message)"
           >
-            <p>{{ messageText(message) }}</p>
+            @if (renderAsMarkdown(message)) {
+              <div class="message-markdown" markdown [data]="messageText(message)"></div>
+            } @else {
+              <p class="message-text">{{ messageText(message) }}</p>
+            }
             @if(message instanceof questionType && message.possibleAnswers.length) {
               <div class="possible-answers-container">
                 @for (possibleAnswer of message.possibleAnswers; track $index) {
