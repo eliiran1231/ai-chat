@@ -67,14 +67,17 @@
       <button type="button" class="composer-action" aria-label="Attach file">+</button>
 
       <label class="composer-field" for="message-input">
-        <input
+        <textarea
+          #messageInput
           id="message-input"
-          type="text"
+          rows="1"
           name="message"
           [(ngModel)]="activeChat.draftMessage"
+          (input)="onDraftInput()"
+          (keydown)="handleComposerKeydown($event)"
           placeholder="Type a message"
           autocomplete="off"
-        />
+        ></textarea>
       </label>
 
       <button
