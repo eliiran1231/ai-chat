@@ -202,10 +202,6 @@
   color: inherit;
 }
 
-.message-markdown:first-child {
-  padding-top: 0.01rem;
-}
-
 :host ::ng-deep .message-markdown > :first-child {
   margin-top: 0;
 }
@@ -214,25 +210,12 @@
   margin-bottom: 0;
 }
 
-:host ::ng-deep .message-markdown p,
-:host ::ng-deep .message-markdown ul,
-:host ::ng-deep .message-markdown ol,
-:host ::ng-deep .message-markdown pre,
-:host ::ng-deep .message-markdown blockquote {
-  margin: 0 0 0.7rem;
-}
-
-:host ::ng-deep .message-markdown ul,
-:host ::ng-deep .message-markdown ol {
-  padding-inline-start: 1.3rem;
-}
-
-:host ::ng-deep .message-markdown li + li {
-  margin-top: 0.18rem;
-}
-
 :host ::ng-deep .message-markdown a {
   color: #0b66c3;
+}
+
+:host ::ng-deep .message-markdown pre {
+  overflow-x: auto;
 }
 
 :host ::ng-deep .message-markdown code {
@@ -243,25 +226,11 @@
   font-size: 0.88em;
 }
 
-:host ::ng-deep .message-markdown pre {
-  overflow-x: auto;
-  padding: 0.75rem 0.85rem;
-  border-radius: 0.8rem;
-  background: rgba(17, 27, 33, 0.94);
-  color: #f5f7fa;
-}
-
 :host ::ng-deep .message-markdown pre code {
   padding: 0;
   background: transparent;
   color: inherit;
   font-size: 0.92rem;
-}
-
-:host ::ng-deep .message-markdown blockquote {
-  padding-inline-start: 0.75rem;
-  border-inline-start: 0.22rem solid rgba(17, 27, 33, 0.2);
-  color: #41525d;
 }
 
 .message-time {

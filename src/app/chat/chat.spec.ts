@@ -1,4 +1,3 @@
-import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
 import { Chat } from '../../classes/Chat';
@@ -16,7 +15,6 @@ describe('ChatComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ChatComponent],
       providers: [
-        provideHttpClient(),
         provideMarkdown({
           markedOptions: {
             provide: MARKED_OPTIONS,
