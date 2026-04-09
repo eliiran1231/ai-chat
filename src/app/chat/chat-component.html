@@ -39,7 +39,7 @@
             [class.message-bubble--user]="!isSupporterMessage(message)"
           >
             @if (isSupporterMessage(message) || uiPreferences.renderUserMarkdown()) {
-              <div markdown [data]="messageText(message)"></div>
+              <div class="message-markdown" markdown [data]="messageText(message)"></div>
             } @else {
               <p>{{ messageText(message) }}</p>
             }

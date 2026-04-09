@@ -191,6 +191,18 @@
   margin-right: 0.3rem;
 }
 
+.message-markdown {
+  margin: 0 0.5rem;
+}
+
+:host ::ng-deep .message-markdown > :first-child {
+  margin-top: 0;
+}
+
+:host ::ng-deep .message-markdown > :last-child {
+  margin-bottom: 0;
+}
+
 .message-time {
   font-size: 0.68rem;
   color: var(--wa-text-soft);
