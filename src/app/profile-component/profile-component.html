@@ -39,5 +39,20 @@
         <p class="profile-card__link">{{ profile.linksValue }}</p>
       </div>
     </article>
+
+    <article class="profile-card">
+      <div class="profile-card__icon profile-card__icon--info" aria-hidden="true"></div>
+      <div class="profile-card__content">
+        <h2>markdown</h2>
+        <label>
+          <input
+            type="checkbox"
+            [checked]="uiPreferences.renderUserMarkdown()"
+            (change)="uiPreferences.setRenderUserMarkdown($any($event.target).checked)"
+          />
+          render my messages
+        </label>
+      </div>
+    </article>
   </div>
 </section>
