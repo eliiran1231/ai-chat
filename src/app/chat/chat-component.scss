@@ -164,7 +164,7 @@
 }
 
 .message-bubble--supporter::after {
-  left: -0.78rem;
+  left: -0.42rem;
   border-top-color: var(--wa-supporter-bubble);
 }
 
@@ -174,7 +174,7 @@
 }
 
 .message-bubble--user::after {
-  right: -0.78rem;
+  right: -0.42rem;
   border-top-color: var(--wa-user-bubble);
 }
 
@@ -186,7 +186,9 @@
   margin-top: 0.5rem;
 }
 
-.message-bubble time, .message-bubble p, .possible-answers-container {
+.message-bubble time,
+.message-bubble p,
+.possible-answers-container {
   margin-left: 0.3rem;
   margin-right: 0.3rem;
 }
