@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { UiPreferencesService } from '../../services/ui-preferences.service';
-
 @Component({
   selector: 'app-profile-component',
   imports: [],
@@ -20,9 +18,7 @@ export class ProfileComponent {
     linksValue: 'Add links',
   };
 
-  constructor(readonly uiPreferences: UiPreferencesService) {}
-
-  toggleRenderUserMarkdown(): void {
-    this.uiPreferences.setRenderUserMarkdown(!this.uiPreferences.renderUserMarkdown());
+  constructor(){
+    
   }
 }

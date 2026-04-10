@@ -1,16 +1,12 @@
-import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MarkdownComponent } from 'ngx-markdown';
 import { Answer } from '../../classes/Answer';
-import { Message } from '../../classes/Message';
 import { Chat } from '../../classes/Chat';
-import { Question } from '../../classes/Question';
-import { UiPreferencesService } from '../../services/ui-preferences.service';
+import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 
 @Component({
   selector: 'app-chat',
-  imports: [FormsModule, DatePipe, MarkdownComponent],
+  imports: [FormsModule, MessageBubbleComponent],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
@@ -18,9 +14,6 @@ export class ChatComponent {
   @Input({ required: true }) chat: Chat | null = null;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
-  questionType = Question;
-
-  constructor(readonly uiPreferences: UiPreferencesService) {}
 
   sendMessage(): void {
     if (!this.chat) {
@@ -34,26 +27,6 @@ export class ChatComponent {
 
     this.chat.user.answer(new Answer(trimmedMessage, 'user'));
     this.chat.draftMessage = '';
-  }
-
-  messageText(message: Message): string {
-    return typeof message.value === 'string' ? message.value : message.value.name;
-  }
-
-  isSupporterMessage(message: Message): boolean {
-    return message.from === 'supporter';
-  }
-
-  renderAsMarkdown(message: Message): boolean {
-    return this.isSupporterMessage(message) || this.uiPreferences.renderUserMarkdown();
-  }
-
-  possibleAnswerLabel(answer: Answer | string): string {
-    if (typeof answer === 'string') {
-      return answer;
-    }
-
-    return typeof answer.value === 'string' ? answer.value : answer.value.name;
   }
 
   selectAnswer(answer: Answer | string): void {
