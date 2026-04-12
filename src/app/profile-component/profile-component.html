@@ -39,22 +39,5 @@
         <p class="profile-card__link">{{ profile.linksValue }}</p>
       </div>
     </article>
-
-    <label
-      class="profile-card profile-card--toggle"
-    >
-      <div class="profile-card__icon profile-card__icon--info" aria-hidden="true"></div>
-      <div class="profile-card__content">
-        <h2>markdown</h2>
-        <p>render my messages</p>
-      </div>
-
-      <input
-        class="profile-checkbox"
-        type="checkbox"
-        [checked]="uiPreferences.renderUserMarkdown()"
-        (change)="toggleRenderUserMarkdown()"
-      />
-    </label>
   </div>
 </section>
