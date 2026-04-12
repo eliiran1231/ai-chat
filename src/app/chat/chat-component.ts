@@ -70,17 +70,6 @@ export class ChatComponent {
 
   syncComposerOverflow(autosize: CdkTextareaAutosize, textarea: HTMLTextAreaElement): void {
     autosize.resizeToFitContent(true);
-    requestAnimationFrame(() => {
-      const maxHeight = this.composerMaxHeight(textarea);
-
-      textarea.style.maxHeight = `${maxHeight}px`;
-      textarea.style.overflowY = textarea.scrollHeight > maxHeight + 1 ? 'auto' : 'hidden';
-    });
-  }
-
-  private composerMaxHeight(textarea: HTMLTextAreaElement): number {
-    const lineHeight = Number.parseFloat(window.getComputedStyle(textarea).lineHeight) || 0;
-
-    return lineHeight * this.composerMaxRows;
+    textarea.style.overflowY = textarea.scrollHeight > textarea.clientHeight ? 'auto' : 'hidden';
   }
 }

@@ -274,6 +274,8 @@
 
 .composer-field textarea {
   width: 100%;
+  min-height: 1lh;
+  max-height: calc(var(--composer-max-rows) * 1lh);
   padding: 0;
   border: 0;
   outline: none;
