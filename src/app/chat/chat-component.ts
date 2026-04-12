@@ -3,8 +3,8 @@ import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Answer } from '../../classes/Answer';
-import { Message } from '../../classes/Message';
 import { Chat } from '../../classes/Chat';
+import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
 
 @Component({
@@ -15,9 +15,11 @@ import { Question } from '../../classes/Question';
 })
 export class ChatComponent {
   readonly composerMaxRows = 5;
+
   @Input({ required: true }) chat: Chat | null = null;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
+
   questionType = Question;
 
   sendMessage(): void {
