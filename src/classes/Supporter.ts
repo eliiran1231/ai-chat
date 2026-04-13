@@ -15,18 +15,14 @@ export class Supporter{
         if(this.agent) this.agent.lastQuestion = question;
         this.appendMessage(question);
     }
-    answer(message : string | File | Answer, time? : Date, tag? : string){
+    answer(message : string | File | Answer){
         var answer = message instanceof Answer ?
         message :
         new Answer(message, "supporter");
-        if(time) answer.time = time;
-        if(tag) answer.tag = tag;
         this.appendMessage(answer);
     }
-    sendMessage(message : string | File | Message, time? : Date, tag? : string){
+    sendMessage(message : string | File | Message){
         var msg = message instanceof Message ? message : new Message(message, "supporter");
-        if(time) msg.time = time;
-        if(tag) msg.tag = tag;
         this.appendMessage(msg);
     }
     async respond(){

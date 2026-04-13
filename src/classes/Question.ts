@@ -4,7 +4,7 @@ import { Message } from "./Message";
 export class Question extends Message {
     possibleAnswers: Answer[] | string[] = [];
     public validator: RegExp = /.*/;
-    public validationErrorMessage: string | Message  = "sorry, i didnt understand your answer. please try again";
+    public validationErrorMessage: string | Message  = "Invalid answer. Please try again.";
 
     setValidator(validator: RegExp  , validationErrorMessage?: string| Message) {
         this.validator = validator;

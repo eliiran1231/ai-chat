@@ -15,9 +15,7 @@ export class MockAgent extends Agent{
     }
     override async respond(): Promise<void> {
         await super.respond();
-        const question = new Question("שלום?" , "supporter");
-        question.setValidator(/^\d+$/ , "תכניס מספרים ימעצבן");
-        this.supporter.ask(question);
+        this.supporter.ask("שלום?");
     }
     
 }
