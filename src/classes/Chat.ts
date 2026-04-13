@@ -1,6 +1,6 @@
 import { Message } from './Message';
 import { Supporter } from './Supporter';
-import { User } from './User';
+import { Client } from './Client';
 
 export class Chat {
   id: number;
@@ -16,7 +16,7 @@ export class Chat {
   draftMessage: string;
   messages: Message[];
   supporter: Supporter;
-  user: User;
+  user: Client;
   active: boolean = false;
 
   constructor(
@@ -41,7 +41,7 @@ export class Chat {
     this.messages = []
     this.supporter = supporter;
     this.supporter.setChat(this);
-    this.user = new User(this.messages, this.supporter);
+    this.user = new Client(this);
     this.draftMessage = '';
     this.subtitle = options.subtitle;
     this.timeLabel = options.timeLabel;

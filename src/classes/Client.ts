@@ -1,31 +1,29 @@
 import { Answer } from "./Answer";
+import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
-import { Supporter } from "./Supporter";
 
-export class User {
-    private messages: Message[];
-    private supporter: Supporter;
+export class Client {
+    private chat: Chat;
     private onMessageAdded?: (message: Message) => void | Promise<void>;
-    constructor(messages: Message[], supporter: Supporter){
-        this.messages = messages;
-        this.supporter = supporter;
+    constructor(chat: Chat){
+        this.chat = chat;
     }
     ask(question : Question){
         this.appendMessage(question);
-        this.supporter.respond();
+        this.chat.supporter.respond();
     }
     answer(answer : Answer | string){
         answer instanceof Answer ? 
         this.appendMessage(answer) : 
         this.appendMessage(new Answer(answer, 'user'));
-        this.supporter.respond();
+        this.chat.supporter.respond();
     }
     setOnMessageAdded(onMessageAdded: (message: Message) => void | Promise<void>) {
         this.onMessageAdded = onMessageAdded;
     }
     private appendMessage(message: Message){
-        this.messages.push(message);
+        this.chat.messages.push(message);
         void this.onMessageAdded?.(message);
     }
 }
