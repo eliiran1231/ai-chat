@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.chats = await this.chatService.getChats(() => new MockAgent());
+    this.chats = await this.chatService.getChats(() => new AiAgent(this.injector));
   }
 
   get unreadChatsCount(): number {
