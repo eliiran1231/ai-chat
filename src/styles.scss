@@ -69,3 +69,12 @@ body {
   border-inline-start: 0.22rem solid rgba(17, 27, 33, 0.2);
   color: #41525d;
 }
+
+.message-markdown img {
+  display: block;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  margin: 0.35rem 0;
+  border-radius: 0.4rem;
+}
