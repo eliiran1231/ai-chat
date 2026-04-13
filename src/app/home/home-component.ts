@@ -7,7 +7,6 @@ import { Agent } from '../../classes/Agent';
 import { ChatListComponent } from '../chat-list-component/chat-list-component';
 import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
-import { MockAgent } from '../../agents/MockAgent';
 @Component({
   selector: 'app-home',
   imports: [ChatComponent, ChatListComponent, ProfileComponent, CommonModule],
@@ -79,7 +78,7 @@ export class HomeComponent implements OnInit {
 
   async createNewChat(
     openChat = true,
-    initialAgent: Agent = new MockAgent(),
+    initialAgent: Agent = new AiAgent(this.injector),
   ): Promise<Chat> {
     if (this.isCreatingChat && this.pendingCreateChat) {
       return this.pendingCreateChat;
