@@ -3,19 +3,16 @@ import { Message } from "./Message";
 
 export class Question extends Message {
     possibleAnswers: Answer[] | string[] = [];
-    private validator: RegExp | ((answer: Answer)=>boolean) = ()=>true;
-    
-    setValidator(validator: RegExp | ((answer: Answer)=>boolean)) {
+    public validator: RegExp = /.*/;
+    public validationErrorMessage: string | Message  = "Invalid answer. Please try again.";
+
+    setValidator(validator: RegExp  , validationErrorMessage?: string| Message) {
         this.validator = validator;
+        if(validationErrorMessage) this.validationErrorMessage = validationErrorMessage;
     }
     
     isAnswerValid(answer: Answer){
-        if(this.validator instanceof RegExp){
-            if(answer.value instanceof File) return false;
-            return this.validator.test(answer.value);
-        }
-        else{
-            return this.validator(answer);
-        }
+        if(answer.value instanceof File) return true;
+        return this.validator.test(answer.value);
     }
 }

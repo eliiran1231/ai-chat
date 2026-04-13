@@ -1,46 +1,60 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
 import { Chat } from '../../classes/Chat';
-import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
 import { ChatComponent } from './chat-component';
+import { Message } from '../../classes/Message';
 
 describe('ChatComponent', () => {
-  let component: ChatComponent;
   let fixture: ComponentFixture<ChatComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ChatComponent],
-      providers: [
-        provideMarkdown({
-          markedOptions: {
-            provide: MARKED_OPTIONS,
-            useValue: {
-              gfm: true,
-              breaks: true,
-            },
-          },
-        }),
-      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChatComponent);
-    component = fixture.componentInstance;
   });
 
-  async function renderChat(messages: Message[] = []): Promise<Chat> {
+  async function renderChat(draftMessage: string | Message[] = ''): Promise<Chat> {
     const chat = new Chat(1, 'Test Chat', 'Online', 'TC', new Supporter());
-    chat.messages.push(...messages);
+    if (typeof draftMessage === 'string') {
+      chat.draftMessage = draftMessage;
+    } else {
+      chat.messages = draftMessage;
+    }
+
     fixture.componentRef.setInput('chat', chat);
     fixture.detectChanges();
     await fixture.whenStable();
-    fixture.detectChanges();
+
     return chat;
   }
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('renders a textarea composer with a max of 5 rows', async () => {
+    await renderChat();
+
+    const textarea = fixture.nativeElement.querySelector('#message-input') as HTMLTextAreaElement;
+
+    expect(textarea.tagName).toBe('TEXTAREA');
+    expect(fixture.componentInstance.composerMaxRows).toBe(5);
+  });
+
+  it('sends the message on Enter', async () => {
+    const chat = await renderChat('Hello from Enter');
+    const textarea = fixture.nativeElement.querySelector('#message-input') as HTMLTextAreaElement;
+    const enterEvent = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      bubbles: true,
+      cancelable: true,
+    });
+
+    textarea.dispatchEvent(enterEvent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(chat.messages).toHaveLength(1);
+    expect(chat.messages[0].value).toBe('Hello from Enter');
+    expect(chat.draftMessage).toBe('');
   });
 
   it('renders AI messages as markdown', async () => {
@@ -66,7 +80,9 @@ describe('ChatComponent', () => {
       ),
     ]);
 
-    const image = fixture.nativeElement.querySelector('.message-markdown img') as HTMLImageElement | null;
+    const image = fixture.nativeElement.querySelector(
+      '.message-markdown img',
+    ) as HTMLImageElement | null;
     expect(image?.getAttribute('src')).toBe(
       'https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg',
     );
