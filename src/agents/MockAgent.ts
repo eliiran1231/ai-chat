@@ -1,5 +1,6 @@
 import { Agent } from "../classes/Agent";
 import { Chat } from "../classes/Chat";
+import { Question } from "../classes/Question";
 import { Supporter } from "../classes/Supporter";
 
 export class MockAgent extends Agent{
@@ -13,6 +14,8 @@ export class MockAgent extends Agent{
         }
     }
     override async respond(): Promise<void> {
+        await super.respond();
         this.supporter.ask("שלום?");
     }
+    
 }

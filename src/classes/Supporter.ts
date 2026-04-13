@@ -10,25 +10,19 @@ export class Supporter{
     private onMessageAdded?: (message: Message) => void | Promise<void>;
     name = "Supporter";
     constructor(){}
-    ask(message : string | File, possibleAnswers?: Answer[], time? : Date, tag? : string){
-        var question = new Question(message, "supporter");
-        if(possibleAnswers) question.possibleAnswers = possibleAnswers;
-        if(time) question.time = time;
-        if(tag) question.tag = tag;
+    ask(message : string | Question){
+        var question = message instanceof Question ? message : new Question(message, "supporter");
+        if(this.agent) this.agent.lastQuestion = question;
         this.appendMessage(question);
     }
-    answer(message : string | File | Answer, time? : Date, tag? : string){
+    answer(message : string | File | Answer){
         var answer = message instanceof Answer ?
         message :
         new Answer(message, "supporter");
-        if(time) answer.time = time;
-        if(tag) answer.tag = tag;
         this.appendMessage(answer);
     }
-    sendMessage(message : string | File, time? : Date, tag? : string){
-        var msg = new Message(message, "supporter");
-        if(time) msg.time = time;
-        if(tag) msg.tag = tag;
+    sendMessage(message : string | File | Message){
+        var msg = message instanceof Message ? message : new Message(message, "supporter");
         this.appendMessage(msg);
     }
     async respond(){
