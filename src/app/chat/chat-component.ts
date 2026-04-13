@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Chat } from '../../classes/Chat';
@@ -15,24 +15,28 @@ import { Question } from '../../classes/Question';
 })
 export class ChatComponent {
   readonly composerMaxRows = 5;
+  composerHasOverflow = false;
 
   @Input({ required: true }) chat: Chat | null = null;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
   questionType = Question;
 
-  sendMessage(): void {
+  sendMessage(form?: NgForm): void {
     if (!this.chat) {
       return;
     }
 
     const trimmedMessage = this.chat.draftMessage.trim();
+
     if (!trimmedMessage) {
       return;
     }
 
     this.chat.user.answer(new Answer(trimmedMessage, 'user'));
     this.chat.draftMessage = '';
+    this.composerHasOverflow = false;
+    form?.resetForm({ message: '' });
   }
 
   messageText(message: Message): string {
@@ -57,20 +61,17 @@ export class ChatComponent {
 
   handleComposerKeydown(
     event: KeyboardEvent,
-    autosize: CdkTextareaAutosize,
-    textarea: HTMLTextAreaElement,
+    _autosize: CdkTextareaAutosize,
+    _textarea: HTMLTextAreaElement,
   ): void {
-    if (event.key !== 'Enter' || event.shiftKey || event.isComposing) {
-      return;
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      (event.target as HTMLTextAreaElement).form?.requestSubmit();
     }
-
-    event.preventDefault();
-    this.sendMessage();
-    this.syncComposerOverflow(autosize, textarea);
   }
 
   syncComposerOverflow(autosize: CdkTextareaAutosize, textarea: HTMLTextAreaElement): void {
     autosize.resizeToFitContent(true);
-    textarea.style.overflowY = textarea.scrollHeight > textarea.clientHeight ? 'auto' : 'hidden';
+    this.composerHasOverflow = textarea.scrollHeight > textarea.clientHeight;
   }
 }

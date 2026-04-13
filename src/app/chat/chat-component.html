@@ -62,7 +62,11 @@
       }
     </main>
 
-    <form class="chat-composer" (ngSubmit)="sendMessage(); syncComposerOverflow(autosize, messageInput)">
+    <form
+      #chatForm="ngForm"
+      class="chat-composer"
+      (ngSubmit)="sendMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
+    >
       <button type="button" class="composer-action" aria-label="Emoji">:)</button>
       <button type="button" class="composer-action" aria-label="Attach file">+</button>
 
@@ -77,6 +81,7 @@
           cdkAutosizeMinRows="1"
           [cdkAutosizeMaxRows]="composerMaxRows"
           [style.--composer-max-rows]="composerMaxRows"
+          [style.overflow-y]="composerHasOverflow ? 'auto' : 'hidden'"
           [(ngModel)]="activeChat.draftMessage"
           (input)="syncComposerOverflow(autosize, messageInput)"
           (keydown)="handleComposerKeydown($event, autosize, messageInput)"
