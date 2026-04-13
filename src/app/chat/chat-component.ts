@@ -28,7 +28,11 @@ export class ChatComponent {
       return;
     }
 
-    this.chat.user.answer(new Answer(trimmedMessage, 'user'));
+    if (this.chat.messages.at(-1) instanceof Question) {
+      this.chat.user.answer(trimmedMessage);
+    } else {
+      this.chat.user.ask(trimmedMessage);
+    }
     this.chat.draftMessage = '';
   }
 

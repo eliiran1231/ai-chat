@@ -9,8 +9,10 @@ export class Client {
     constructor(chat: Chat){
         this.chat = chat;
     }
-    ask(question : Question){
-        this.appendMessage(question);
+    ask(question : Question | string){
+        question instanceof Question ?
+        this.appendMessage(question) :
+        this.appendMessage(new Question(question, 'user'));
         this.chat.supporter.respond();
     }
     answer(answer : Answer | string){
