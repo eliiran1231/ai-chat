@@ -36,7 +36,7 @@ export interface UpdateChatTitleInput {
 export interface MessageRecord {
   id: number;
   chatId: number;
-  from: 'user' | 'supporter';
+  from?: 'client' | 'supporter';
   value: string;
   tag?: string;
   time: string;
@@ -46,7 +46,7 @@ export interface MessageRecord {
 
 export interface CreateMessageRecordInput {
   chatId: number;
-  from: 'user' | 'supporter';
+  from?: 'client' | 'supporter';
   value: string;
   tag?: string;
   time: string;

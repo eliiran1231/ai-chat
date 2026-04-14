@@ -94,8 +94,9 @@ export class ChatService {
   private hydrateMessage(record: MessageRecord): Message {
     const message = record.possibleAnswers?.length
       ? this.hydrateQuestion(record)
-      : new Message(record.value, record.from);
+      : new Message(record.value);
     message.id = record.id;
+    message.from = record.from;
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);
     message.isRead = record.isRead;
@@ -103,10 +104,9 @@ export class ChatService {
   }
 
   private hydrateQuestion(record: MessageRecord): Question {
-    const question = new Question(record.value, record.from);
-    question.possibleAnswers = (record.possibleAnswers ?? []).map(
-      (possibleAnswer) => new Answer(possibleAnswer, 'user'),
-    );
+    const question = new Question(record.value);
+    question.from = record.from;
+    question.setPossibleAnswers(record.possibleAnswers ?? []);
     return question;
   }
 
