@@ -6,7 +6,7 @@ export class Question extends Message {
     public validator: RegExp = /.*/;
     public validationErrorMessage: string | Message  = "Invalid answer. Please try again.";
 
-    setValidator(validator: RegExp  , validationErrorMessage?: string| Message) {
+    setValidator(validator: RegExp, validationErrorMessage?: string | Message) {
         this.validator = validator;
         if(validationErrorMessage) this.validationErrorMessage = validationErrorMessage;
     }
