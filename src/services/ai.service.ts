@@ -3,18 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AiService {
-  private apiUrl = 'http://127.0.0.1:1234/v1/chat/completions';
+  private apiUrl = 'http://localhost:1234/v1/chat/completions';
 
   constructor(private http: HttpClient) {}
 
   sendMessage(message: string): Observable<any> {
     return this.http.post(this.apiUrl, {
-      model: 'qwen', // name shown in LM Studio
-      messages: [{ role: 'user', content: message }],
-      temperature: 0.7,
+      model: 'google/gemma-3-4b', // name shown in LM Studio
+      messages: [
+        { role: 'user', content: message }
+      ],
+      temperature: 0.7
     });
   }
 }
