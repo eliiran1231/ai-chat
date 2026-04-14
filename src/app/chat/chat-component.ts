@@ -5,10 +5,11 @@ import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
+import { App } from '../app';
 
 @Component({
   selector: 'app-chat',
-  imports: [FormsModule, TextFieldModule],
+  imports: [FormsModule, TextFieldModule, MessageBubbleComponent],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
