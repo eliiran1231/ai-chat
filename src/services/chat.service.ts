@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Answer } from '../classes/Answer';
 import { Message } from '../classes/Message';
-import { Question } from '../classes/Question';
+import { coerceValidatorSpec } from '../classes/MessageValidator';
+import { Question, getPersistableValidationErrorMessage } from '../classes/Question';
 import { Supporter } from '../classes/Supporter';
 import { Chat } from '../classes/Chat';
 import { Agent } from '../classes/Agent';
@@ -88,15 +89,21 @@ export class ChatService {
     }
     this.attachMessagePersistence(chat);
     supporter.setAgent(initialAgent);
+    initialAgent.lastQuestion = this.findLastSupporterQuestion(chat.messages);
     return chat;
   }
 
   private hydrateMessage(record: MessageRecord): Message {
-    const message = record.possibleAnswers?.length
+    const messageType = record.messageType ?? 'message';
+    const message = messageType === 'question'
       ? this.hydrateQuestion(record)
-      : new Message(record.value);
+      : messageType === 'answer'
+        ? new Answer(record.value)
+        : new Message(record.value);
+
     message.id = record.id;
     message.from = record.from;
+    message.messageType = messageType;
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);
     message.isRead = record.isRead;
@@ -107,7 +114,19 @@ export class ChatService {
     const question = new Question(record.value);
     question.from = record.from;
     question.setPossibleAnswers(record.possibleAnswers ?? []);
+    const validatorSpec = coerceValidatorSpec(record.validatorSpec);
+    if (validatorSpec) {
+      question.setValidator(validatorSpec, record.validationErrorMessage);
+    } else if (record.validationErrorMessage) {
+      question.validationErrorMessage = record.validationErrorMessage;
+    }
     return question;
+  }
+
+  private findLastSupporterQuestion(messages: Message[]): Question | undefined {
+    return [...messages]
+      .reverse()
+      .find((message): message is Question => message instanceof Question && message.from === 'supporter');
   }
 
   private attachMessagePersistence(chat: Chat): void {
@@ -115,6 +134,7 @@ export class ChatService {
       const record = await this.dbService.createMessage({
         chatId: chat.id,
         from: message.from,
+        messageType: message.messageType,
         value: typeof message.value === 'string' ? message.value : message.value.name,
         tag: message.tag,
         time: message.time.toISOString(),
@@ -127,6 +147,10 @@ export class ChatService {
                   ? possibleAnswer.value
                   : possibleAnswer.value.name,
             )
+          : undefined,
+        validatorSpec: message instanceof Question ? message.validatorSpec : undefined,
+        validationErrorMessage: message instanceof Question
+          ? getPersistableValidationErrorMessage(message.validationErrorMessage)
           : undefined,
       });
       message.id = record.id;

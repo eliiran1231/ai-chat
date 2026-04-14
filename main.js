@@ -74,16 +74,46 @@ function mapChatRow(row) {
   };
 }
 
+function parseJsonColumn(value, fieldName, rowId) {
+  if (!value) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    console.warn(`Failed to parse ${fieldName} for message ${rowId}.`, error);
+    return undefined;
+  }
+}
+
+function parseStringArrayColumn(value, fieldName, rowId) {
+  const parsedValue = parseJsonColumn(value, fieldName, rowId);
+  if (parsedValue === undefined) {
+    return undefined;
+  }
+
+  if (Array.isArray(parsedValue) && parsedValue.every((item) => typeof item === 'string')) {
+    return parsedValue;
+  }
+
+  console.warn(`Unexpected ${fieldName} payload for message ${rowId}.`, parsedValue);
+  return undefined;
+}
+
 function mapMessageRow(row) {
   return {
     id: row.id,
     chatId: row.chat_id,
     from: row.sender,
+    messageType: row.message_type ?? 'message',
     value: row.value,
     tag: row.tag ?? undefined,
     time: row.time,
     isRead: Boolean(row.is_read),
-    possibleAnswers: row.possible_answers ? JSON.parse(row.possible_answers) : undefined,
+    possibleAnswers: parseStringArrayColumn(row.possible_answers, 'possible_answers', row.id),
+    validatorSpec: parseJsonColumn(row.validator_spec, 'validator_spec', row.id),
+    validationErrorMessage: row.validation_error_message ?? undefined,
   };
 }
 
@@ -110,10 +140,13 @@ async function initializeDatabase() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       chat_id INTEGER NOT NULL,
       sender TEXT NOT NULL,
+      message_type TEXT NOT NULL DEFAULT 'message',
       value TEXT NOT NULL,
       tag TEXT,
       time TEXT NOT NULL,
       possible_answers TEXT,
+      validator_spec TEXT,
+      validation_error_message TEXT,
       is_read INTEGER NOT NULL DEFAULT 0,
       FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
     )
@@ -122,6 +155,11 @@ async function initializeDatabase() {
   const messageColumns = await all(`PRAGMA table_info(messages)`);
   const hasIsReadColumn = messageColumns.some((column) => column.name === 'is_read');
   const hasPossibleAnswersColumn = messageColumns.some((column) => column.name === 'possible_answers');
+  const hasMessageTypeColumn = messageColumns.some((column) => column.name === 'message_type');
+  const hasValidatorSpecColumn = messageColumns.some((column) => column.name === 'validator_spec');
+  const hasValidationErrorMessageColumn = messageColumns.some(
+    (column) => column.name === 'validation_error_message',
+  );
   if (!hasIsReadColumn) {
     await run(`ALTER TABLE messages ADD COLUMN is_read INTEGER NOT NULL DEFAULT 0`);
     await run(`
@@ -132,6 +170,20 @@ async function initializeDatabase() {
   }
   if (!hasPossibleAnswersColumn) {
     await run(`ALTER TABLE messages ADD COLUMN possible_answers TEXT`);
+  }
+  if (!hasMessageTypeColumn) {
+    await run(`ALTER TABLE messages ADD COLUMN message_type TEXT NOT NULL DEFAULT 'message'`);
+    await run(`
+      UPDATE messages
+      SET message_type = 'question'
+      WHERE possible_answers IS NOT NULL
+    `);
+  }
+  if (!hasValidatorSpecColumn) {
+    await run(`ALTER TABLE messages ADD COLUMN validator_spec TEXT`);
+  }
+  if (!hasValidationErrorMessageColumn) {
+    await run(`ALTER TABLE messages ADD COLUMN validation_error_message TEXT`);
   }
 }
 
@@ -221,7 +273,18 @@ function registerDbHandlers() {
   ipcMain.handle('db:getChatMessages', async (_event, chatId) => {
     const rows = await all(
       `
-        SELECT id, chat_id, sender, value, tag, time, possible_answers, is_read
+        SELECT
+          id,
+          chat_id,
+          sender,
+          message_type,
+          value,
+          tag,
+          time,
+          possible_answers,
+          validator_spec,
+          validation_error_message,
+          is_read
         FROM messages
         WHERE chat_id = ?
         ORDER BY time ASC, id ASC
@@ -235,16 +298,30 @@ function registerDbHandlers() {
   ipcMain.handle('db:createMessage', async (_event, message) => {
     const result = await run(
       `
-        INSERT INTO messages (chat_id, sender, value, tag, time, possible_answers, is_read)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO messages (
+          chat_id,
+          sender,
+          message_type,
+          value,
+          tag,
+          time,
+          possible_answers,
+          validator_spec,
+          validation_error_message,
+          is_read
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         message.chatId,
         message.from,
+        message.messageType ?? 'message',
         message.value,
         message.tag ?? null,
         message.time,
         message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
+        message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
+        message.validationErrorMessage ?? null,
         message.isRead ? 1 : 0,
       ],
     );
@@ -263,7 +340,18 @@ function registerDbHandlers() {
 
     const row = await get(
       `
-        SELECT id, chat_id, sender, value, tag, time, possible_answers, is_read
+        SELECT
+          id,
+          chat_id,
+          sender,
+          message_type,
+          value,
+          tag,
+          time,
+          possible_answers,
+          validator_spec,
+          validation_error_message,
+          is_read
         FROM messages
         WHERE id = ?
       `,
