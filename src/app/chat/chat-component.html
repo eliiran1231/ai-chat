@@ -28,33 +28,10 @@
 
     <main class="chat-thread" aria-label="Conversation">
       @for (message of activeChat.messages; track $index) {
-        <article
-          class="message-row"
-          [class.message-row--supporter]="isSupporterMessage(message)"
-          [class.message-row--user]="!isSupporterMessage(message)"
-        >
-          <div
-            class="message-bubble"
-            [class.message-bubble--supporter]="isSupporterMessage(message)"
-            [class.message-bubble--user]="!isSupporterMessage(message)"
-          >
-            <p>{{ messageText(message) }}</p>
-            @if(message instanceof questionType && message.possibleAnswers.length) {
-              <div class="possible-answers-container">
-                @for (possibleAnswer of message.possibleAnswers; track $index) {
-                  <button
-                    type="button"
-                    class="possible-answer"
-                    (click)="selectAnswer(possibleAnswer)"
-                  >
-                    {{ possibleAnswerLabel(possibleAnswer) }}
-                  </button>
-                }
-              </div>
-            }
-            <time class="message-time">{{ message.time | date: 'HH:mm' }}</time>
-          </div>
-        </article>
+        <app-message-bubble
+          [message]="message"
+          (answerSelected)="selectAnswer($event)"
+        ></app-message-bubble>
       } @empty {
         <div class="empty-state">
           <p>No messages yet</p>

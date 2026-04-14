@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-
 @Component({
   selector: 'app-profile-component',
   imports: [],
@@ -18,4 +17,8 @@ export class ProfileComponent {
     linksLabel: 'links',
     linksValue: 'Add links',
   };
+
+  constructor(){
+    
+  }
 }

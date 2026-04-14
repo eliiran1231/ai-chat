@@ -1,15 +1,15 @@
-import { DatePipe } from '@angular/common';
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Answer } from '../../classes/Answer';
-import { Message } from '../../classes/Message';
 import { Chat } from '../../classes/Chat';
+import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
+import { App } from '../app';
 
 @Component({
   selector: 'app-chat',
-  imports: [FormsModule, DatePipe, TextFieldModule],
+  imports: [FormsModule, TextFieldModule, MessageBubbleComponent],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
@@ -20,7 +20,6 @@ export class ChatComponent {
   @Input({ required: true }) chat: Chat | null = null;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
-  questionType = Question;
 
   sendMessage(form?: NgForm): void {
     if (!this.chat) {
@@ -41,22 +40,6 @@ export class ChatComponent {
     this.chat.draftMessage = '';
     this.composerHasOverflow = false;
     form?.resetForm({ message: '' });
-  }
-
-  messageText(message: Message): string {
-    return typeof message.value === 'string' ? message.value : message.value.name;
-  }
-
-  isSupporterMessage(message: Message): boolean {
-    return message.from === 'supporter';
-  }
-
-  possibleAnswerLabel(answer: Answer | string): string {
-    if (typeof answer === 'string') {
-      return answer;
-    }
-
-    return typeof answer.value === 'string' ? answer.value : answer.value.name;
   }
 
   selectAnswer(answer: Answer | string): void {

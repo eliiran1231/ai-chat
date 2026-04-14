@@ -88,6 +88,12 @@
   padding-block: 0.2rem;
 }
 
+.profile-card--toggle {
+  width: 100%;
+  grid-template-columns: auto 1fr auto;
+  cursor: pointer;
+}
+
 .profile-card__icon {
   width: 2.5rem;
   height: 2.5rem;
@@ -205,6 +211,13 @@
 
 .profile-card__icon--link::after {
   right: 0.15rem;
+}
+
+.profile-checkbox {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0;
+  accent-color: #2b8f73;
 }
 
 @media (max-width: 640px) {
