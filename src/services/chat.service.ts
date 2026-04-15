@@ -103,7 +103,6 @@ export class ChatService {
 
     message.id = record.id;
     message.from = record.from;
-    message.messageType = messageType;
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);
     message.isRead = record.isRead;
