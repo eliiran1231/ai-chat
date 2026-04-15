@@ -9,8 +9,7 @@ export class Message {
     value: string | File;
     isRead: boolean = false;
 
-    constructor(value: string | File, from?: MessageSender) {
+    constructor(value: string | File) {
         this.value = value;
-        this.from = from;
     }
 }

@@ -1,5 +1,5 @@
 import { Answer } from "./Answer";
-import { Message, type MessageType } from "./Message";
+import { Message } from "./Message";
 import {
     coerceValidatorSpec,
     normalizeValidatorSpec,

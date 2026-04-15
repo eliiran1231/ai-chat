@@ -1,4 +1,5 @@
-import { Message, type MessageType } from "./Message";
+import { Message } from "./Message";
 
 export class Answer extends Message {
+    
 }
