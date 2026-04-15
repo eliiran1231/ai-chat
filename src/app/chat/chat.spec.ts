@@ -1,8 +1,11 @@
+import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
+import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
+import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
 import { ChatComponent } from './chat-component';
-import { Message } from '../../classes/Message';
 
 describe('ChatComponent', () => {
   let fixture: ComponentFixture<ChatComponent>;
@@ -10,13 +13,27 @@ describe('ChatComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ChatComponent],
+      providers: [
+        provideHttpClient(),
+        provideMarkdown({
+          markedOptions: {
+            provide: MARKED_OPTIONS,
+            useValue: {
+              gfm: true,
+              breaks: true,
+            },
+          },
+        }),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ChatComponent);
   });
 
   async function renderChat(draftMessage: string | Message[] = ''): Promise<Chat> {
-    const chat = new Chat(1, 'Test Chat', 'Online', 'TC', new Supporter());
+    const supporter = new Supporter();
+    const chat = new Chat(1, 'Test Chat', 'Online', 'TC', supporter);
+    supporter.setAgent(new Agent());
     if (typeof draftMessage === 'string') {
       chat.draftMessage = draftMessage;
     } else {
@@ -66,7 +83,7 @@ describe('ChatComponent', () => {
   });
 
   it('renders user messages through the message bubble markdown view', async () => {
-    await renderChat([new Message('**bold**', 'user')]);
+    await renderChat([new Message('**bold**', 'client')]);
 
     const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
     expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
