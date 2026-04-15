@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, ipcMain } from 'electron/main';
+import { app, BrowserWindow, Menu, ipcMain, shell} from 'electron/main';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import sqlite3 from 'sqlite3';
@@ -154,7 +154,9 @@ async function initializeDatabase() {
 
   const messageColumns = await all(`PRAGMA table_info(messages)`);
   const hasIsReadColumn = messageColumns.some((column) => column.name === 'is_read');
-  const hasPossibleAnswersColumn = messageColumns.some((column) => column.name === 'possible_answers');
+  const hasPossibleAnswersColumn = messageColumns.some(
+    (column) => column.name === 'possible_answers',
+  );
   const hasMessageTypeColumn = messageColumns.some((column) => column.name === 'message_type');
   const hasValidatorSpecColumn = messageColumns.some((column) => column.name === 'validator_spec');
   const hasValidationErrorMessageColumn = messageColumns.some(
@@ -427,6 +429,9 @@ function registerDbHandlers() {
     return result.changes > 0;
   });
 }
+function isExternalUrl(url) {
+  return /^https?:\/\//i.test(url);
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -434,9 +439,26 @@ function createWindow() {
     height: 600,
     resizable: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(__dirname, 'preload.js'),
+    },
+  });
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (isExternalUrl(url)) {
+      void shell.openExternal(url);
+      return { action: 'deny' };
     }
-  })
+      return { action: 'allow' };
+  });
+  win.webContents.on('will-navigate', (event, url) => {
+    const currentUrl = win.webContents.getURL();
+
+    if (url !== currentUrl && isExternalUrl(url)) {
+      event.preventDefault();
+      void shell.openExternal(url);
+    }
+  });
+
+    
 
   win.loadFile(path.join(__dirname, './dist/ai-chat/browser/index.html'));
 }
