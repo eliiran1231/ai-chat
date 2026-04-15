@@ -26,7 +26,7 @@
       </div>
     </header>
 
-    <main class="chat-thread" aria-label="Conversation">
+    <main #thread class="chat-thread" aria-label="Conversation">
       @for (message of activeChat.messages; track $index) {
         <app-message-bubble
           [message]="message"
@@ -37,7 +37,21 @@
           <p>No messages yet</p>
         </div>
       }
+
+      <div #bottomSentinel class="chat-thread__bottom-sentinel" aria-hidden="true"></div>
     </main>
+
+    @if (showScrollToBottomButton()) {
+      <button
+        type="button"
+        class="scroll-to-bottom-button"
+        [class.scroll-to-bottom-button--highlight]="highlightScrollToBottomButton()"
+        aria-label="Scroll to latest message"
+        (click)="scrollThreadToBottom()"
+      >
+        v
+      </button>
+    }
 
     <form
       #chatForm="ngForm"
