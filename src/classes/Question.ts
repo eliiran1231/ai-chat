@@ -20,7 +20,6 @@ export function getPersistableValidationErrorMessage(
 }
 
 export class Question extends Message {
-    override readonly messageType: MessageType = 'question';
     private _possibleAnswers: Answer[] = [];
     public validatorSpec?: ValidatorSpec;
     public validationErrorMessage: string | Message  = "Invalid answer. Please try again.";

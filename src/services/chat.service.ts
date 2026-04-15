@@ -130,10 +130,11 @@ export class ChatService {
 
   private attachMessagePersistence(chat: Chat): void {
     const persistMessage = async (message: Message) => {
+      const messageType = message instanceof Answer ? "answer" : message instanceof Question ? "question" : "message";
       const record = await this.dbService.createMessage({
         chatId: chat.id,
         from: message.from,
-        messageType: message.messageType,
+        messageType,
         value: typeof message.value === 'string' ? message.value : message.value.name,
         tag: message.tag,
         time: message.time.toISOString(),
