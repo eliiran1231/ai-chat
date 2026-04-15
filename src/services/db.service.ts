@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import type { MessageType } from '../classes/Message';
+import type { ValidatorSpec } from '../classes/MessageValidator';
 import { ElectronService } from './electron.service';
 
 export interface ChatRecord {
@@ -36,22 +38,28 @@ export interface UpdateChatTitleInput {
 export interface MessageRecord {
   id: number;
   chatId: number;
-  from: 'user' | 'supporter';
+  from?: 'client' | 'supporter';
+  messageType?: MessageType;
   value: string;
   tag?: string;
   time: string;
   isRead: boolean;
   possibleAnswers?: string[];
+  validatorSpec?: ValidatorSpec;
+  validationErrorMessage?: string;
 }
 
 export interface CreateMessageRecordInput {
   chatId: number;
-  from: 'user' | 'supporter';
+  from?: 'client' | 'supporter';
+  messageType?: MessageType;
   value: string;
   tag?: string;
   time: string;
   isRead: boolean;
   possibleAnswers?: string[];
+  validatorSpec?: ValidatorSpec;
+  validationErrorMessage?: string;
 }
 
 @Injectable({

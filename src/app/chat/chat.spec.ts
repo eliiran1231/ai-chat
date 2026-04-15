@@ -1,10 +1,11 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
+import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
+import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
 import { ChatComponent } from './chat-component';
-import { Message } from '../../classes/Message';
 
 class MockIntersectionObserver {
   static instances: MockIntersectionObserver[] = [];
@@ -107,7 +108,9 @@ describe('ChatComponent', () => {
   });
 
   async function renderChat(draftMessage: string | Message[] = ''): Promise<Chat> {
-    const chat = new Chat(1, 'Test Chat', 'Online', 'TC', new Supporter());
+    const supporter = new Supporter();
+    const chat = new Chat(1, 'Test Chat', 'Online', 'TC', supporter);
+    supporter.setAgent(new Agent());
     if (typeof draftMessage === 'string') {
       chat.draftMessage = draftMessage;
     } else {
@@ -149,7 +152,7 @@ describe('ChatComponent', () => {
   });
 
   it('renders AI messages as markdown', async () => {
-    await renderChat([new Message('**bold** and *italic*', 'supporter')]);
+    await renderChat([new Message('**bold** and *italic*')]);
 
     const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
     expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
@@ -157,7 +160,7 @@ describe('ChatComponent', () => {
   });
 
   it('renders user messages through the message bubble markdown view', async () => {
-    await renderChat([new Message('**bold**', 'user')]);
+    await renderChat([new Message('**bold**')]);
 
     const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
     expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
@@ -166,8 +169,7 @@ describe('ChatComponent', () => {
   it('renders markdown images as img elements', async () => {
     await renderChat([
       new Message(
-        '![A mushroom-head robot drinking bubble tea](https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg)',
-        'supporter',
+        '![A mushroom-head robot drinking bubble tea](https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg)'
       ),
     ]);
 
@@ -181,7 +183,7 @@ describe('ChatComponent', () => {
   });
 
   it('keeps the DOM message order chronological', async () => {
-    await renderChat([new Message('first', 'supporter'), new Message('second', 'user')]);
+    await renderChat([new Message('first'), new Message('second')]);
 
     const renderedMessages = Array.from(
       fixture.nativeElement.querySelectorAll('.message-markdown'),
@@ -209,7 +211,7 @@ describe('ChatComponent', () => {
       },
     });
 
-    await renderChat([new Message('existing', 'supporter')]);
+    await renderChat([new Message('existing')]);
     await waitForAnimationFrame();
 
     expect(scrollTopValue).toBe(480);
@@ -218,7 +220,7 @@ describe('ChatComponent', () => {
 
   it('creates the bottom observer with a 10rem bottom offset', async () => {
     const requestAnimationFrameSpy = mockAnimationFrameAsync();
-    await renderChat([new Message('existing', 'supporter')]);
+    await renderChat([new Message('existing')]);
     await waitForAnimationFrame();
     await waitForAnimationFrame();
 
@@ -228,14 +230,14 @@ describe('ChatComponent', () => {
   });
 
   it('keeps the scroll-to-bottom button hidden on first open before the observer settles', async () => {
-    await renderChat([new Message('existing', 'supporter')]);
+    await renderChat([new Message('existing')]);
 
     expect(fixture.nativeElement.querySelector('.scroll-to-bottom-button')).toBeNull();
   });
 
   it('shows the scroll-to-bottom button whenever the bottom sentinel is no longer visible', async () => {
     const requestAnimationFrameSpy = mockAnimationFrameAsync();
-    await renderChat([new Message('existing', 'supporter')]);
+    await renderChat([new Message('existing')]);
     await waitForAnimationFrame();
     await updateBottomSentinelVisibility(false);
 
@@ -296,7 +298,7 @@ describe('ChatComponent', () => {
       },
     });
 
-    const chat = await renderChat([new Message('existing', 'supporter')]);
+    const chat = await renderChat([new Message('existing')]);
     await waitForAnimationFrame();
     await updateBottomSentinelVisibility(true);
 
@@ -314,7 +316,7 @@ describe('ChatComponent', () => {
   });
 
   it('renders a supporter message when it arrives after the chat is already open', async () => {
-    const chat = await renderChat([new Message('existing', 'supporter')]);
+    const chat = await renderChat([new Message('existing')]);
 
     chat.supporter.sendMessage('incoming');
     await fixture.whenStable();
@@ -348,7 +350,7 @@ describe('ChatComponent', () => {
       },
     });
 
-    const chat = await renderChat([new Message('existing', 'supporter')]);
+    const chat = await renderChat([new Message('existing')]);
     await waitForAnimationFrame();
     await updateBottomSentinelVisibility(true);
     await updateBottomSentinelVisibility(false);
@@ -387,7 +389,7 @@ describe('ChatComponent', () => {
       },
     });
 
-    await renderChat([new Message('existing', 'supporter')]);
+    await renderChat([new Message('existing')]);
     await waitForAnimationFrame();
     await updateBottomSentinelVisibility(true);
     await updateBottomSentinelVisibility(false);
@@ -408,7 +410,7 @@ describe('ChatComponent', () => {
   it('hides the scroll-to-bottom button and clears highlight when the sentinel becomes visible again', async () => {
     const requestAnimationFrameSpy = mockAnimationFrameAsync();
 
-    const chat = await renderChat([new Message('existing', 'supporter')]);
+    const chat = await renderChat([new Message('existing')]);
     await waitForAnimationFrame();
     await updateBottomSentinelVisibility(true);
     await updateBottomSentinelVisibility(false);

@@ -152,8 +152,10 @@ export class ChatComponent {
   }
 
   selectAnswer(answer: Answer | string): void {
-    this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer, 'user'));
+    // this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer, 'user'));
+    this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer));
     this.requestScrollToBottom();
+
   }
 
   handleComposerKeydown(
