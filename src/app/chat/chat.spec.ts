@@ -431,4 +431,49 @@ describe('ChatComponent', () => {
     expect(fixture.nativeElement.querySelector('.scroll-to-bottom-button')).toBeNull();
     requestAnimationFrameSpy.mockRestore();
   });
+
+  it('cleans up old chat listeners when switching chats', async () => {
+    const requestAnimationFrameSpy = mockAnimationFrameAsync();
+    let scrollTopValue = 0;
+
+    Object.defineProperty(HTMLElement.prototype, 'scrollHeight', {
+      configurable: true,
+      get: () => 520,
+    });
+    Object.defineProperty(HTMLElement.prototype, 'scrollTop', {
+      configurable: true,
+      get: () => scrollTopValue,
+      set: (value: number) => {
+        scrollTopValue = value;
+      },
+    });
+
+    const firstChat = await renderChat([new Message('first chat message')]);
+    await waitForAnimationFrame();
+
+    const secondChat = new Chat(2, 'Second Chat', 'Online', 'SC', new Supporter());
+    secondChat.supporter.setAgent(new Agent());
+    secondChat.messages = [new Message('second chat message')];
+    fixture.componentRef.setInput('chat', secondChat);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await waitForAnimationFrame();
+
+    scrollTopValue = 120;
+    firstChat.supporter.sendMessage('stale incoming');
+    await fixture.whenStable();
+    await waitForAnimationFrame();
+    fixture.detectChanges();
+
+    const renderedMessages = Array.from(
+      fixture.nativeElement.querySelectorAll('.message-markdown'),
+    ) as HTMLElement[];
+
+    expect(renderedMessages.map((element) => element.textContent?.trim())).toEqual([
+      'second chat message',
+    ]);
+    expect(scrollTopValue).toBe(120);
+    expect(fixture.componentInstance.highlightScrollToBottomButton()).toBe(false);
+    requestAnimationFrameSpy.mockRestore();
+  });
 });

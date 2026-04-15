@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   computed,
+  DestroyRef,
   ElementRef,
   effect,
   EventEmitter,
@@ -16,7 +17,6 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
-import { Message } from '../../classes/Message';
 import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
 
@@ -31,6 +31,7 @@ export class ChatComponent {
   private readonly bottomButtonOffsetRem = 10;
   composerHasOverflow = false;
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
   private readonly activeChat = signal<Chat | null>(null);
   private readonly scrollRequest = signal(0);
@@ -40,7 +41,6 @@ export class ChatComponent {
     () => this.shouldObserveBottom() && !this.isAtBottom(),
   );
   readonly highlightScrollToBottomButton = signal(false);
-  private boundChat: Chat | null = null;
   private scrollButtonHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
   @Input({ required: true })
@@ -48,7 +48,8 @@ export class ChatComponent {
     this.activeChat.set(value);
     this.shouldObserveBottom.set(false);
     this.isAtBottom.set(true);
-    this.highlightScrollToBottomButton.set(false);
+    this.composerHasOverflow = false;
+    this.resetScrollButtonHighlight();
   }
 
   get chat(): Chat | null {
@@ -61,30 +62,44 @@ export class ChatComponent {
   readonly bottomSentinel = viewChild<ElementRef<HTMLElement>>('bottomSentinel');
 
   constructor() {
-    effect(() => {
+    this.destroyRef.onDestroy(() => {
+      this.resetScrollButtonHighlight();
+    });
+
+    effect((onCleanup) => {
       const chat = this.activeChat();
 
       if (!chat) {
-        this.boundChat = null;
+        this.shouldObserveBottom.set(false);
+        this.resetScrollButtonHighlight();
         return;
       }
 
-      if (this.boundChat === chat) {
-        return;
-      }
-
-      this.boundChat = chat;
       this.shouldObserveBottom.set(false);
-      this.bindMessageListeners(chat);
+      const cleanupListeners = this.bindMessageListeners(chat);
       this.requestScrollToBottom();
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
+
+      let enableObserverFrameId: number | null = null;
+      let enableObserverConfirmationFrameId: number | null = null;
+
+      enableObserverFrameId = requestAnimationFrame(() => {
+        enableObserverConfirmationFrameId = requestAnimationFrame(() => {
           this.shouldObserveBottom.set(true);
         });
       });
+
+      onCleanup(() => {
+        cleanupListeners();
+        if (enableObserverFrameId !== null) {
+          cancelAnimationFrame(enableObserverFrameId);
+        }
+        if (enableObserverConfirmationFrameId !== null) {
+          cancelAnimationFrame(enableObserverConfirmationFrameId);
+        }
+      });
     });
 
-    effect(() => {
+    effect((onCleanup) => {
       if (this.scrollRequest() === 0) {
         return;
       }
@@ -95,9 +110,28 @@ export class ChatComponent {
         return;
       }
 
+      let cancelled = false;
+      let followUpFrameId: number | null = null;
+
       queueMicrotask(() => {
+        if (cancelled) {
+          return;
+        }
+
         this.scrollToBottom(thread);
-        requestAnimationFrame(() => this.scrollToBottom(thread));
+        // A follow-up frame keeps long or asynchronously-sized content pinned after layout settles.
+        followUpFrameId = requestAnimationFrame(() => {
+          if (!cancelled) {
+            this.scrollToBottom(thread);
+          }
+        });
+      });
+
+      onCleanup(() => {
+        cancelled = true;
+        if (followUpFrameId !== null) {
+          cancelAnimationFrame(followUpFrameId);
+        }
       });
     });
 
@@ -152,17 +186,11 @@ export class ChatComponent {
   }
 
   selectAnswer(answer: Answer | string): void {
-    // this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer, 'user'));
     this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer));
     this.requestScrollToBottom();
-
   }
 
-  handleComposerKeydown(
-    event: KeyboardEvent,
-    _autosize: CdkTextareaAutosize,
-    _textarea: HTMLTextAreaElement,
-  ): void {
+  handleComposerKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
       event.preventDefault();
       (event.target as HTMLTextAreaElement).form?.requestSubmit();
@@ -178,16 +206,23 @@ export class ChatComponent {
     this.requestScrollToBottom();
   }
 
-  private bindMessageListeners(chat: Chat): void {
-    chat.user.setOnMessageAdded(() => {
+  private bindMessageListeners(chat: Chat): () => void {
+    let listenersActive = true;
+    const pendingIncomingMessageFrameIds = new Set<number>();
+
+    const detachUserListener = chat.user.subscribeOnMessageAdded(() => {
       this.requestScrollToBottom();
     });
 
-    chat.supporter.setOnMessageAdded((_message: Message) => {
+    const detachSupporterListener = chat.supporter.subscribeOnMessageAdded(() => {
       const shouldAutoScroll = this.isAtBottom();
-
-      requestAnimationFrame(() => {
+      const incomingMessageFrameId = requestAnimationFrame(() => {
+        pendingIncomingMessageFrameIds.delete(incomingMessageFrameId);
         this.ngZone.run(() => {
+          if (!listenersActive) {
+            return;
+          }
+
           this.changeDetectorRef.detectChanges();
 
           if (shouldAutoScroll) {
@@ -195,16 +230,20 @@ export class ChatComponent {
             return;
           }
 
-          this.highlightScrollToBottomButton.set(true);
-          if (this.scrollButtonHighlightTimeout) {
-            clearTimeout(this.scrollButtonHighlightTimeout);
-          }
-          this.scrollButtonHighlightTimeout = setTimeout(() => {
-            this.highlightScrollToBottomButton.set(false);
-          }, 900);
+          this.highlightScrollButton();
         });
       });
+      pendingIncomingMessageFrameIds.add(incomingMessageFrameId);
     });
+
+    return () => {
+      listenersActive = false;
+      detachUserListener();
+      detachSupporterListener();
+      pendingIncomingMessageFrameIds.forEach((frameId) => cancelAnimationFrame(frameId));
+      pendingIncomingMessageFrameIds.clear();
+      this.resetScrollButtonHighlight();
+    };
   }
 
   private requestScrollToBottom(): void {
@@ -219,11 +258,7 @@ export class ChatComponent {
     this.isAtBottom.set(isAtBottom);
 
     if (isAtBottom) {
-      this.highlightScrollToBottomButton.set(false);
-      if (this.scrollButtonHighlightTimeout) {
-        clearTimeout(this.scrollButtonHighlightTimeout);
-        this.scrollButtonHighlightTimeout = null;
-      }
+      this.resetScrollButtonHighlight();
     }
   }
 
@@ -231,5 +266,24 @@ export class ChatComponent {
     const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
     const fontSize = Number.isFinite(rootFontSize) ? rootFontSize : 16;
     return fontSize * this.bottomButtonOffsetRem;
+  }
+
+  private highlightScrollButton(): void {
+    this.highlightScrollToBottomButton.set(true);
+    if (this.scrollButtonHighlightTimeout) {
+      clearTimeout(this.scrollButtonHighlightTimeout);
+    }
+    this.scrollButtonHighlightTimeout = setTimeout(() => {
+      this.highlightScrollToBottomButton.set(false);
+      this.scrollButtonHighlightTimeout = null;
+    }, 900);
+  }
+
+  private resetScrollButtonHighlight(): void {
+    this.highlightScrollToBottomButton.set(false);
+    if (this.scrollButtonHighlightTimeout) {
+      clearTimeout(this.scrollButtonHighlightTimeout);
+      this.scrollButtonHighlightTimeout = null;
+    }
   }
 }

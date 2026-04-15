@@ -3,9 +3,11 @@ import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
 
+type MessageAddedListener = (message: Message) => void | Promise<void>;
+
 export class Client {
-    private chat: Chat;
-    public onMessageAdded?: (message: Message) => void | Promise<void>;
+    private readonly chat: Chat;
+    private readonly messageAddedListeners = new Set<MessageAddedListener>();
     constructor(chat: Chat){
         this.chat = chat;
     }
@@ -21,13 +23,24 @@ export class Client {
         this.appendMessage(new Answer(answer));
         this.chat.supporter.respond();
     }
-    setOnMessageAdded(onMessageAdded: (message: Message) => void | Promise<void>) {
-        this.onMessageAdded = onMessageAdded;
+
+    subscribeOnMessageAdded(onMessageAdded: MessageAddedListener): () => void {
+        this.messageAddedListeners.add(onMessageAdded);
+        return () => {
+            this.messageAddedListeners.delete(onMessageAdded);
+        };
     }
+
+    setOnMessageAdded(onMessageAdded: MessageAddedListener): () => void {
+        return this.subscribeOnMessageAdded(onMessageAdded);
+    }
+
     private appendMessage(message: Message){
         message.from = "client";
         message.isRead = true;
         this.chat.messages.push(message);
-        void this.onMessageAdded?.(message);
+        this.messageAddedListeners.forEach((listener) => {
+            void listener(message);
+        });
     }
 }
