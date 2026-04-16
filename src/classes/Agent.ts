@@ -13,7 +13,7 @@ export class Agent{
         this.chat = chat;
         this.supporter = supporter;
     }
-    async respond(): Promise<void> {
+    respond() {
         this.lastMessage = this.chat.messages.at(-1);
         if (!this.lastMessage) {
             throw new Error("respond was called but there is nothing to respond to");
@@ -26,6 +26,5 @@ export class Agent{
             this.supporter.sendMessage(this.lastQuestion.validationErrorMessage);
             throw new Error("validation didnt pass");
         }
-
     }
 } 
