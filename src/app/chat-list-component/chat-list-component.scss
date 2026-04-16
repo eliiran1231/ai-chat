@@ -43,6 +43,7 @@
   flex-grow: 1;
   overflow-y: auto;
   background: #fff;
+  padding-bottom: 6rem; //1rems of padding + 5rem for floating button.
 }
 
 .chat-list-item {
@@ -196,15 +197,15 @@
 .floating-compose {
   position: absolute;
   right: 1rem;
-  bottom: 1.95rem;
-  width: 4.15rem;
-  height: 4.15rem;
+  bottom: 2rem;//do not edit without also changing chat-list padding-bottom.
+  width: 3rem;
+  height: 3rem;//do not edit without also changing chat-list padding-bottom.
   border: 0;
   border-radius: 50%;
   background: linear-gradient(180deg, #16c79a, #05a884);
   color: #fff;
   box-shadow: 0 0.9rem 1.6rem rgba(0, 168, 132, 0.32);
-  font-size: 0.9rem;
+  font-size: 1.5rem;
   text-transform: lowercase;
   cursor: pointer;
 }
