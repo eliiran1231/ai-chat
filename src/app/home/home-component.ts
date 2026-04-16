@@ -7,6 +7,7 @@ import { Agent } from '../../classes/Agent';
 import { ChatListComponent } from '../chat-list-component/chat-list-component';
 import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
+import { ProfileService } from '../../services/profile.service';
 @Component({
   selector: 'app-home',
   imports: [ChatComponent, ChatListComponent, ProfileComponent, CommonModule],
@@ -24,10 +25,12 @@ export class HomeComponent implements OnInit {
   constructor(
       private chatService: ChatService,
       private injector: Injector,
+      private profileService: ProfileService,
     ) {
   }
 
   async ngOnInit(): Promise<void> {
+    void this.profileService.loadBasicInfo();
     this.chats = await this.chatService.getChats(() => new AiAgent(this.injector));
   }
 
