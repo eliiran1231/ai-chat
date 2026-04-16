@@ -15,6 +15,8 @@ import { CommonModule } from '@angular/common';
 })
 export class HomeComponent implements OnInit {
   searchTerm = '';
+  // whatsappLogoUrl: string | null = 'image.png';
+  whatsappLogoUrl: string | null = null;
   selectedChat: Chat | null = null;
   chats: Chat[] = [];
   isCreatingChat = false;
@@ -22,8 +24,8 @@ export class HomeComponent implements OnInit {
   pendingCreateChat: Promise<Chat> | null = null;
   selectedTab: 'chats' | 'profile' | 'calls' = 'chats';
   constructor(
-      private chatService: ChatService,
-      private injector: Injector,
+    private chatService: ChatService,
+    private injector: Injector,
     ) {
   }
 
