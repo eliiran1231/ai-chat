@@ -1,8 +1,9 @@
 import { app, BrowserWindow, Menu, ipcMain, shell} from 'electron/main';
 import * as path from 'path';
+import * as os from 'os';
 import { fileURLToPath } from 'url';
 import sqlite3 from 'sqlite3';
-
+import { exec } from 'child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sqlite = sqlite3.verbose();
@@ -55,6 +56,47 @@ function get(sql, params = []) {
       resolve(row);
     });
   });
+}
+
+function getNetworkIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    const addrs = interfaces[name];
+    if (!addrs) continue;
+
+    for (const addr of addrs) {
+      if (addr.family === 'IPv4' && !addr.internal) {
+        return addr.address;
+      }
+    }
+  }
+
+  return '127.0.0.1';
+}
+
+function getFullName() {
+  return new Promise((resolve) => {
+    const command = `powershell -NoProfile -ExecutionPolicy Bypass -Command "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; (Get-LocalUser -Name $env:USERNAME).FullName"`;
+
+    exec(command, { encoding: "utf8" }, (err, out) => {
+      if (err) return resolve(null);
+      resolve(out.trim());
+    });
+  });
+}
+
+async function getBasicInfo() {
+  const userInfo = os.userInfo();
+  const username = userInfo.username || process.env.USERNAME || process.env.USER || 'unknown';
+  const displayName = await getFullName() || username;
+  const computerName = os.hostname();
+
+  return {
+    username,
+    displayName,
+    computerName,
+    ip: getNetworkIp(),
+  };
 }
 
 function mapChatRow(row) {
@@ -428,7 +470,12 @@ function registerDbHandlers() {
     const result = await run(`DELETE FROM chats WHERE id = ?`, [chatId]);
     return result.changes > 0;
   });
+
+  ipcMain.handle('system:getBasicInfo', async () => {
+    return getBasicInfo();
+  });
 }
+
 function isExternalUrl(url) {
   return /^https?:\/\//i.test(url);
 }
@@ -436,7 +483,7 @@ function isExternalUrl(url) {
 function createWindow() {
   const win = new BrowserWindow({
     width: 360,
-    height: 600,
+    height: 680,
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
