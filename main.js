@@ -77,7 +77,7 @@ function getNetworkIp() {
 function getFullName() {
   return new Promise((resolve) => {
     const command = `powershell -NoProfile -ExecutionPolicy Bypass -Command "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; (Get-LocalUser -Name $env:USERNAME).FullName"`;
-    
+
     exec(command, { encoding: "utf8" }, (err, out) => {
       if (err) return resolve(null);
       resolve(out.trim());
@@ -483,7 +483,7 @@ function isExternalUrl(url) {
 function createWindow() {
   const win = new BrowserWindow({
     width: 360,
-    height: 600,
+    height: 680,
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
