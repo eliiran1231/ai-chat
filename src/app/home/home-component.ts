@@ -16,7 +16,7 @@ import { CommonModule } from '@angular/common';
 export class HomeComponent implements OnInit {
   searchTerm = '';
   // whatsappLogoUrl: string | null = 'image.png';
-  whatsappLogoUrl: string | null = null;
+  whatsappLogoUrl?: string
   selectedChat: Chat | null = null;
   chats: Chat[] = [];
   isCreatingChat = false;
