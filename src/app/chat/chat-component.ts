@@ -20,6 +20,9 @@ import { Chat } from '../../classes/Chat';
 import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
 
+const BOTTOM_PROXIMITY_OFFSET_REM = 10;
+const SCROLL_BUTTON_HIGHLIGHT_DURATION_MS = 900;
+
 @Component({
   selector: 'app-chat',
   imports: [FormsModule, TextFieldModule, MessageBubbleComponent],
@@ -28,23 +31,24 @@ import { Question } from '../../classes/Question';
 })
 export class ChatComponent {
   readonly composerMaxRows = 5;
-  private readonly bottomButtonOffsetRem = 10;
   composerHasOverflow = false;
+
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+
   private readonly activeChat = signal<Chat | null>(null);
-  private readonly scrollRequest = signal(0);
   private readonly shouldObserveBottom = signal(false);
   private readonly isAtBottom = signal(true);
+
   readonly showScrollToBottomButton = computed(
     () => this.shouldObserveBottom() && !this.isAtBottom(),
   );
   readonly highlightScrollToBottomButton = signal(false);
-  private scrollButtonHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
 
   @Input({ required: true })
   set chat(value: Chat | null) {
+    this.cancelScheduledScroll();
     this.activeChat.set(value);
     this.shouldObserveBottom.set(false);
     this.isAtBottom.set(true);
@@ -61,106 +65,18 @@ export class ChatComponent {
   readonly thread = viewChild<ElementRef<HTMLElement>>('thread');
   readonly bottomSentinel = viewChild<ElementRef<HTMLElement>>('bottomSentinel');
 
+  private readonly bottomProximityOffsetPx = this.computeBottomProximityOffsetPx();
+  private scrollButtonHighlightTimeout: ReturnType<typeof setTimeout> | null = null;
+  private scheduledScrollFrameId: number | null = null;
+  private scheduledScrollId = 0;
+
   constructor() {
-    this.destroyRef.onDestroy(() => {
-      this.resetScrollButtonHighlight();
-    });
-
-    effect((onCleanup) => {
-      const chat = this.activeChat();
-
-      if (!chat) {
-        this.shouldObserveBottom.set(false);
-        this.resetScrollButtonHighlight();
-        return;
-      }
-
-      this.shouldObserveBottom.set(false);
-      const cleanupListeners = this.bindMessageListeners(chat);
-      this.requestScrollToBottom();
-
-      let enableObserverFrameId: number | null = null;
-      let enableObserverConfirmationFrameId: number | null = null;
-
-      enableObserverFrameId = requestAnimationFrame(() => {
-        enableObserverConfirmationFrameId = requestAnimationFrame(() => {
-          this.shouldObserveBottom.set(true);
-        });
-      });
-
-      onCleanup(() => {
-        cleanupListeners();
-        if (enableObserverFrameId !== null) {
-          cancelAnimationFrame(enableObserverFrameId);
-        }
-        if (enableObserverConfirmationFrameId !== null) {
-          cancelAnimationFrame(enableObserverConfirmationFrameId);
-        }
-      });
-    });
-
-    effect((onCleanup) => {
-      if (this.scrollRequest() === 0) {
-        return;
-      }
-
-      const thread = this.thread()?.nativeElement;
-
-      if (!thread) {
-        return;
-      }
-
-      let cancelled = false;
-      let followUpFrameId: number | null = null;
-
-      queueMicrotask(() => {
-        if (cancelled) {
-          return;
-        }
-
-        this.scrollToBottom(thread);
-        // A follow-up frame keeps long or asynchronously-sized content pinned after layout settles.
-        followUpFrameId = requestAnimationFrame(() => {
-          if (!cancelled) {
-            this.scrollToBottom(thread);
-          }
-        });
-      });
-
-      onCleanup(() => {
-        cancelled = true;
-        if (followUpFrameId !== null) {
-          cancelAnimationFrame(followUpFrameId);
-        }
-      });
-    });
-
-    effect((onCleanup) => {
-      const thread = this.thread()?.nativeElement;
-      const bottomSentinel = this.bottomSentinel()?.nativeElement;
-
-      if (!this.shouldObserveBottom() || !thread || !bottomSentinel) {
-        return;
-      }
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          this.ngZone.run(() => {
-            this.setBottomState(entry?.isIntersecting ?? false);
-          });
-        },
-        {
-          root: thread,
-          rootMargin: `0px 0px ${this.getBottomObserverOffsetPx()}px 0px`,
-          threshold: 0,
-        },
-      );
-
-      observer.observe(bottomSentinel);
-      onCleanup(() => observer.disconnect());
-    });
+    this.registerDestroyCleanup();
+    this.registerChatLifecycleEffect();
+    this.registerBottomObserverEffect();
   }
 
+  // Chat actions
   sendMessage(form?: NgForm): void {
     const chat = this.chat;
 
@@ -182,12 +98,12 @@ export class ChatComponent {
     chat.draftMessage = '';
     this.composerHasOverflow = false;
     form?.resetForm({ message: '' });
-    this.requestScrollToBottom();
+    this.scheduleScrollToBottom();
   }
 
   selectAnswer(answer: Answer | string): void {
     this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer));
-    this.requestScrollToBottom();
+    this.scheduleScrollToBottom();
   }
 
   handleComposerKeydown(event: KeyboardEvent): void {
@@ -203,7 +119,35 @@ export class ChatComponent {
   }
 
   scrollThreadToBottom(): void {
-    this.requestScrollToBottom();
+    this.scheduleScrollToBottom();
+  }
+
+  // Chat lifecycle / listener wiring
+  private registerDestroyCleanup(): void {
+    this.destroyRef.onDestroy(() => {
+      this.cancelScheduledScroll();
+      this.resetScrollButtonHighlight();
+    });
+  }
+
+  private registerChatLifecycleEffect(): void {
+    effect((onCleanup) => {
+      const chat = this.activeChat();
+
+      if (!chat) {
+        this.shouldObserveBottom.set(false);
+        this.resetScrollButtonHighlight();
+        return;
+      }
+
+      this.shouldObserveBottom.set(false);
+      const cleanupListeners = this.bindMessageListeners(chat);
+      this.scheduleInitialScroll();
+
+      onCleanup(() => {
+        cleanupListeners();
+      });
+    });
   }
 
   private bindMessageListeners(chat: Chat): () => void {
@@ -211,7 +155,7 @@ export class ChatComponent {
     const pendingIncomingMessageFrameIds = new Set<number>();
 
     const detachUserListener = chat.user.subscribeOnMessageAdded(() => {
-      this.requestScrollToBottom();
+      this.scheduleScrollToBottom();
     });
 
     const detachSupporterListener = chat.supporter.subscribeOnMessageAdded(() => {
@@ -226,7 +170,7 @@ export class ChatComponent {
           this.changeDetectorRef.detectChanges();
 
           if (shouldAutoScroll) {
-            this.requestScrollToBottom();
+            this.scheduleScrollToBottom();
             return;
           }
 
@@ -246,12 +190,80 @@ export class ChatComponent {
     };
   }
 
-  private requestScrollToBottom(): void {
-    this.scrollRequest.update((value) => value + 1);
+  // Scroll coordination
+  private scheduleInitialScroll(): void {
+    this.scheduleScrollToBottom(() => {
+      this.shouldObserveBottom.set(true);
+    });
+  }
+
+  private scheduleScrollToBottom(onAfterScroll?: () => void): void {
+    const thread = this.thread()?.nativeElement;
+
+    if (!thread) {
+      return;
+    }
+
+    this.cancelScheduledScroll();
+    const scheduledScrollId = ++this.scheduledScrollId;
+
+    queueMicrotask(() => {
+      if (scheduledScrollId !== this.scheduledScrollId) {
+        return;
+      }
+
+      this.scrollToBottom(thread);
+      // A follow-up frame keeps long or asynchronously-sized content pinned after layout settles.
+      this.scheduledScrollFrameId = requestAnimationFrame(() => {
+        if (scheduledScrollId !== this.scheduledScrollId) {
+          return;
+        }
+
+        this.scheduledScrollFrameId = null;
+        this.scrollToBottom(thread);
+        onAfterScroll?.();
+      });
+    });
   }
 
   private scrollToBottom(thread: HTMLElement): void {
     thread.scrollTop = thread.scrollHeight;
+  }
+
+  private cancelScheduledScroll(): void {
+    this.scheduledScrollId += 1;
+    if (this.scheduledScrollFrameId !== null) {
+      cancelAnimationFrame(this.scheduledScrollFrameId);
+      this.scheduledScrollFrameId = null;
+    }
+  }
+
+  // Bottom observer state
+  private registerBottomObserverEffect(): void {
+    effect((onCleanup) => {
+      const thread = this.thread()?.nativeElement;
+      const bottomSentinel = this.bottomSentinel()?.nativeElement;
+
+      if (!this.shouldObserveBottom() || !thread || !bottomSentinel) {
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          this.ngZone.run(() => {
+            this.setBottomState(entry?.isIntersecting ?? false);
+          });
+        },
+        {
+          root: thread,
+          rootMargin: `0px 0px ${this.bottomProximityOffsetPx}px 0px`,
+          threshold: 0,
+        },
+      );
+
+      observer.observe(bottomSentinel);
+      onCleanup(() => observer.disconnect());
+    });
   }
 
   private setBottomState(isAtBottom: boolean): void {
@@ -262,12 +274,14 @@ export class ChatComponent {
     }
   }
 
-  private getBottomObserverOffsetPx(): number {
+  private computeBottomProximityOffsetPx(): number {
     const rootFontSize = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
     const fontSize = Number.isFinite(rootFontSize) ? rootFontSize : 16;
-    return fontSize * this.bottomButtonOffsetRem;
+    // Keep users "near bottom" for both auto-scroll and button visibility within a comfortable reach.
+    return fontSize * BOTTOM_PROXIMITY_OFFSET_REM;
   }
 
+  // Scroll button highlight
   private highlightScrollButton(): void {
     this.highlightScrollToBottomButton.set(true);
     if (this.scrollButtonHighlightTimeout) {
@@ -276,7 +290,7 @@ export class ChatComponent {
     this.scrollButtonHighlightTimeout = setTimeout(() => {
       this.highlightScrollToBottomButton.set(false);
       this.scrollButtonHighlightTimeout = null;
-    }, 900);
+    }, SCROLL_BUTTON_HIGHLIGHT_DURATION_MS);
   }
 
   private resetScrollButtonHighlight(): void {
