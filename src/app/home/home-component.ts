@@ -7,6 +7,7 @@ import { Agent } from '../../classes/Agent';
 import { ChatListComponent } from '../chat-list-component/chat-list-component';
 import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
+import { ProfileService } from '../../services/profile.service';
 @Component({
   selector: 'app-home',
   imports: [ChatComponent, ChatListComponent, ProfileComponent, CommonModule],
@@ -28,10 +29,12 @@ export class HomeComponent implements OnInit, OnDestroy {
       private chatService: ChatService,
       private injector: Injector,
       private ngZone: NgZone,
+      private profileService: ProfileService,
     ) {
   }
 
   async ngOnInit(): Promise<void> {
+    void this.profileService.loadBasicInfo();
     this.chats = await this.chatService.getChats(() => new AiAgent(this.injector));
     this.isFullscreen =
       (await window.electronAPI?.invoke<boolean>('window:is-fullscreen')) ?? false;

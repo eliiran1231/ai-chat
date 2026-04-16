@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ProfileService } from '../../services/profile.service';
 @Component({
   selector: 'app-profile-component',
   imports: [],
@@ -6,19 +7,15 @@ import { Component } from '@angular/core';
   styleUrl: './profile-component.scss',
 })
 export class ProfileComponent {
+  private profileService: ProfileService = inject(ProfileService);
+  private readonly basicInfo = this.profileService.basicInfo;
   readonly profile = {
-    displayName: 'edit',
-    nameLabel: 'name',
-    nameValue: 'nice user',
-    aboutLabel: 'about me',
-    aboutValue: 'nice user',
-    phoneLabel: 'phone number',
-    phoneValue: '050-1234567',
-    linksLabel: 'links',
-    linksValue: 'Add links',
+    displayName: this.basicInfo.displayName,
+    usernameLabel: 'user name',
+    usernameValue: this.basicInfo.username,
+    computerNameLabel: 'computer name',
+    computerNameValue: this.basicInfo.computerName,
+    ipLabel: 'ip address',
+    ipValue: this.basicInfo.ip
   };
-
-  constructor(){
-    
-  }
 }
