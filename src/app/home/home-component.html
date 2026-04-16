@@ -4,7 +4,28 @@
       <div class="brand-row">
         <h1>WhatsApp</h1>
         <div class="sidebar-actions">
-          <button type="button" class="sidebar-icon-button" aria-label="Menu">...</button>
+          <button
+            type="button"
+            class="sidebar-icon-button"
+            aria-label="Menu"
+            [attr.aria-expanded]="isMenuOpen"
+            (click)="toggleMenu($event)"
+          >
+            <img src="icon-menu.svg" alt="" class="sidebar-icon" />
+          </button>
+
+          @if (isMenuOpen) {
+            <div class="sidebar-menu" (click)="$event.stopPropagation()">
+              <button type="button" class="sidebar-menu__item" (click)="toggleFullscreen()">
+                <img
+                  [src]="isFullscreen ? 'icon-fullscreen-exit.svg' : 'icon-fullscreen-enter.svg'"
+                  alt=""
+                  class="sidebar-menu__icon"
+                />
+                {{ isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen' }}
+              </button>
+            </div>
+          }
         </div>
       </div>
 

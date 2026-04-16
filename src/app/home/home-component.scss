@@ -71,6 +71,7 @@ app-chat-list-component {
 }
 
 .sidebar-actions {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -86,11 +87,55 @@ app-chat-list-component {
 .sidebar-icon-button {
   min-width: 2.35rem;
   height: 2.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
   background: transparent;
   color: #fff;
-  font-size: 0.85rem;
-  text-transform: lowercase;
+}
+
+.sidebar-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  display: block;
+  filter: brightness(0) invert(1);
+}
+
+.sidebar-menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  min-width: 10.5rem;
+  padding: 0.35rem;
+  border-radius: 0.8rem;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(17, 27, 33, 0.2);
+  z-index: 10;
+}
+
+.sidebar-menu__item {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.7rem 0.8rem;
+  background: transparent;
+  color: #111b21;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-menu__icon {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+}
+
+.sidebar-menu__item:hover {
+  background: #f0f2f5;
 }
 
 .top-tabs {

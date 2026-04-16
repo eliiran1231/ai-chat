@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 const sqlite = sqlite3.verbose();
 
 let database;
+let mainWindow;
 
 function getDatabase() {
   if (!database) {
@@ -433,8 +434,27 @@ function isExternalUrl(url) {
   return /^https?:\/\//i.test(url);
 }
 
+function sendFullscreenState() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return;
+  }
+
+  mainWindow.webContents.send('window:fullscreen-changed', mainWindow.isFullScreen());
+}
+
+function toggleFullscreen() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return false;
+  }
+
+  const nextFullscreenState = !mainWindow.isFullScreen();
+  mainWindow.setFullScreen(nextFullscreenState);
+  sendFullscreenState();
+  return nextFullscreenState;
+}
+
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 360,
     height: 600,
     resizable: false,
@@ -442,15 +462,28 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-  win.webContents.setWindowOpenHandler(({ url }) => {
+  mainWindow.on('enter-full-screen', sendFullscreenState);
+  mainWindow.on('leave-full-screen', sendFullscreenState);
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.type === 'keyDown' && input.key === 'F11') {
+      event.preventDefault();
+      toggleFullscreen();
+    }
+  });
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (isExternalUrl(url)) {
       void shell.openExternal(url);
       return { action: 'deny' };
     }
       return { action: 'allow' };
   });
-  win.webContents.on('will-navigate', (event, url) => {
-    const currentUrl = win.webContents.getURL();
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+    const currentUrl = mainWindow.webContents.getURL();
 
     if (url !== currentUrl && isExternalUrl(url)) {
       event.preventDefault();
@@ -458,14 +491,14 @@ function createWindow() {
     }
   });
 
-    
-
-  win.loadFile(path.join(__dirname, './dist/ai-chat/browser/index.html'));
+  mainWindow.loadFile(path.join(__dirname, './dist/ai-chat/browser/index.html'));
 }
 
 app.whenReady().then(async () => {
   await initializeDatabase();
   registerDbHandlers();
+  ipcMain.handle('window:toggle-fullscreen', () => toggleFullscreen());
+  ipcMain.handle('window:is-fullscreen', () => mainWindow?.isFullScreen() ?? false);
   //Menu.setApplicationMenu(null);
   createWindow();
 

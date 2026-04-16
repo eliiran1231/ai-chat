@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, HostListener, Injector, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
@@ -13,22 +13,38 @@ import { CommonModule } from '@angular/common';
   templateUrl: './home-component.html',
   styleUrl: './home-component.scss',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   searchTerm = '';
   selectedChat: Chat | null = null;
   chats: Chat[] = [];
   isCreatingChat = false;
+  isMenuOpen = false;
+  isFullscreen = false;
   deletingChatId: number | null = null;
   pendingCreateChat: Promise<Chat> | null = null;
   selectedTab: 'chats' | 'profile' | 'calls' = 'chats';
+  private removeFullscreenListener?: () => void;
   constructor(
       private chatService: ChatService,
       private injector: Injector,
+      private ngZone: NgZone,
     ) {
   }
 
   async ngOnInit(): Promise<void> {
     this.chats = await this.chatService.getChats(() => new AiAgent(this.injector));
+    this.isFullscreen =
+      (await window.electronAPI?.invoke<boolean>('window:is-fullscreen')) ?? false;
+
+    this.removeFullscreenListener = window.electronAPI?.onFullscreenChanged((isFullscreen) => {
+      this.ngZone.run(() => {
+        this.isFullscreen = isFullscreen;
+      });
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.removeFullscreenListener?.();
   }
 
   get unreadChatsCount(): number {
@@ -51,6 +67,26 @@ export class HomeComponent implements OnInit {
     if (!this.selectedChat) return;
     this.selectedChat.active = false;
     this.selectedChat = null;
+  }
+
+  toggleMenu(event?: Event): void {
+    event?.stopPropagation();
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  closeMenu(): void {
+    this.isMenuOpen = false;
+  }
+
+  async toggleFullscreen(): Promise<void> {
+    this.isMenuOpen = false;
+    this.isFullscreen =
+      (await window.electronAPI?.invoke<boolean>('window:toggle-fullscreen')) ?? false;
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.closeMenu();
   }
 
   async deleteChat(chat: Chat, event?: Event): Promise<void> {
