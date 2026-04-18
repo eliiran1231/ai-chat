@@ -6,13 +6,17 @@ import { Question, getPersistableValidationErrorMessage } from '../classes/Quest
 import { Supporter } from '../classes/Supporter';
 import { Chat } from '../classes/Chat';
 import { Agent } from '../classes/Agent';
-import { ChatRecord, DbService, MessageRecord } from './db.service';
+import { ChatRecord, DbService, MessageRecord, SupporterRecord } from './db.service';
+import { AgentsService } from './agents.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChatService {
-  constructor(private dbService: DbService) {}
+  constructor(
+    private dbService: DbService,
+    private agentsService: AgentsService,
+  ) {}
 
   async createChat(
     name: string,
@@ -39,15 +43,37 @@ export class ChatService {
       tipLabel: options.tipLabel,
     });
 
-    return this.hydrateChat(record, initialAgent, []);
+    const supporterRecord = await this.dbService.createSupporter({
+      chatId: record.id,
+      agentName: this.agentsService.getAgentName(initialAgent),
+      context: '',
+    });
+
+    return this.hydrateChat(record, initialAgent, [], supporterRecord);
   }
 
-  async getChats(initialAgentFactory: () => Agent): Promise<Chat[]> {
+  async getChats(): Promise<Chat[]> {
     const records = await this.dbService.getChats();
     return Promise.all(
       records.map(async (record) => {
-        const messages = await this.dbService.getChatMessages(record.id);
-        return this.hydrateChat(record, initialAgentFactory(), messages);
+        const [messages, persistedSupporterRecord] = await Promise.all([
+          this.dbService.getChatMessages(record.id),
+          this.dbService.getChatSupporter(record.id),
+        ]);
+        if(!persistedSupporterRecord?.agentName) throw new Error("couldnt retrieve agent from sql")
+        const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
+        const supporterRecord = persistedSupporterRecord ?? await this.dbService.createSupporter({
+          chatId: record.id,
+          agentName: this.agentsService.getAgentName(initialAgent),
+          context: '',
+        });
+
+        return this.hydrateChat(
+          record,
+          initialAgent,
+          messages,
+          supporterRecord,
+        );
       }),
     );
   }
@@ -74,8 +100,20 @@ export class ChatService {
     chat.name = record.name;
   }
 
-  hydrateChat(record: ChatRecord, initialAgent: Agent, messageRecords: MessageRecord[]): Chat {
+  hydrateChat(
+    record: ChatRecord,
+    initialAgent: Agent,
+    messageRecords: MessageRecord[],
+    supporterRecord?: SupporterRecord | null,
+  ): Chat {
     const supporter = new Supporter();
+    supporter.id = supporterRecord?.id;
+    try{
+      supporter.setContext(JSON.parse(supporterRecord?.context ?? '{}'));
+    }
+    catch{
+      supporter.setContext(supporterRecord?.context ?? '');
+    }
     const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {
       subtitle: record.subtitle,
       timeLabel: record.timeLabel,
@@ -88,6 +126,7 @@ export class ChatService {
       chat.messages.push(this.hydrateMessage(messageRecord));
     }
     this.attachMessagePersistence(chat);
+    this.attachAgentPersistence(chat);
     supporter.setAgent(initialAgent);
     initialAgent.lastQuestion = this.findLastSupporterQuestion(chat.messages);
     return chat;
@@ -159,5 +198,20 @@ export class ChatService {
 
     chat.supporter.setOnMessageAdded(persistMessage);
     chat.user.setOnMessageAdded(persistMessage);
+  }
+
+  private attachAgentPersistence(chat: Chat): void {
+    chat.supporter.setOnAgentSwitch((agent) => {
+      void this.dbService.updateSupporterAgent({
+        chatId: chat.id,
+        agentName: this.agentsService.getAgentName(agent),
+      });
+    });
+    chat.supporter.setOnContextChange((context) => {
+      void this.dbService.updateSupporterContext({
+        chatId: chat.id,
+        context,
+      });
+    });
   }
 }

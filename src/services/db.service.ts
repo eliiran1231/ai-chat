@@ -62,6 +62,31 @@ export interface CreateMessageRecordInput {
   validationErrorMessage?: string;
 }
 
+export interface SupporterRecord {
+  id: number;
+  chatId: number;
+  agentName: string;
+  context: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSupporterRecordInput {
+  chatId: number;
+  agentName: string;
+  context?: string;
+}
+
+export interface UpdateSupporterAgentInput {
+  chatId: number;
+  agentName: string;
+}
+
+export interface UpdateSupporterContextInput {
+  chatId: number;
+  context: any;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -92,11 +117,33 @@ export class DbService {
     return this.electronService.invoke<MessageRecord>('db:createMessage', message);
   }
 
+  async getChatSupporter(chatId: number): Promise<SupporterRecord | null> {
+    return this.electronService.invoke<SupporterRecord | null>('db:getChatSupporter', chatId);
+  }
+
+  async createSupporter(supporter: CreateSupporterRecordInput): Promise<SupporterRecord> {
+    return this.electronService.invoke<SupporterRecord>('db:createSupporter', supporter);
+  }
+
   async markChatRead(chatId: number): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:markChatRead', chatId);
   }
 
   async updateChatTitle(input: UpdateChatTitleInput): Promise<ChatRecord> {
     return this.electronService.invoke<ChatRecord>('db:updateChatTitle', input);
+  }
+
+  async updateSupporterAgent(input: UpdateSupporterAgentInput): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:updateSupporterAgent', input);
+  }
+
+  async updateSupporterContext(input: UpdateSupporterContextInput): Promise<boolean> {
+    try{
+      input.context = JSON.stringify(input.context);
+    }
+    catch{
+      input.context = input.context.toString();
+    }
+    return this.electronService.invoke<boolean>('db:updateSupporterContext', input);
   }
 }

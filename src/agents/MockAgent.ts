@@ -1,17 +1,22 @@
+import { Injector } from "@angular/core";
 import { Agent } from "../classes/Agent";
 import { Chat } from "../classes/Chat";
 import { Question } from "../classes/Question";
 import { Supporter } from "../classes/Supporter";
+import { Answer } from "../classes/Answer";
 
 export class MockAgent extends Agent {
-    constructor() {
+    constructor(injector: Injector) {
         super()
     }
     override init(chat: Chat, supporter: Supporter) {
-        super.init(chat, supporter)
-        if (chat.messages.length === 0) {
+        super.init(chat, supporter);
+        this.lastQuestion = undefined;
+        this.respond()
+        if (!this.chat.messages.find(msg => msg.tag == "greeting")) {
+            this
             const possibleAnswers = ["hi", "hello", "hey"];
-            this.lastQuestion = new Question("hello there how can I help you?", {
+            const question = new Question("hello there how can I help you?", {
                 validator: {
                     type: "oneOf",
                     values: possibleAnswers
@@ -19,13 +24,22 @@ export class MockAgent extends Agent {
                 validationErrorMessage: "i do not understand you",
                 possibleAnswers
             });
-            this.lastQuestion.tag = "greeting";
-            supporter.ask(this.lastQuestion);
+            question.tag = "greeting"
+            this.supporter.ask(question);
+            return;
         }
     }
     override async respond(): Promise<void> {
         super.respond();
-        if(!this.lastQuestion) return;
+        if (!this.lastQuestion) return;
+        if (this.lastMessage instanceof Question) {
+            this.supporter.sendMessage("please answer my question first");
+            return;
+        }
+        if (!this.lastQuestion.isAnswerValid(this.lastMessage as Answer)) {
+            this.supporter.sendMessage(this.lastQuestion.validationErrorMessage);
+        }
+
         if (this.lastQuestion.tag == "greeting") {
             this.lastQuestion = new Question("what is your name?", {
                 validator: /^[a-zA-Z]+$/,
@@ -33,14 +47,14 @@ export class MockAgent extends Agent {
             })
             this.lastQuestion.tag = "name"
         }
-        else if(this.lastQuestion.tag == "name"){
-            this.lastQuestion = new Question("whats your age?",{
+        else if (this.lastQuestion.tag == "name") {
+            this.lastQuestion = new Question("whats your age?", {
                 validator: /^(120|1[0-1][0-9]|[1-9]?[0-9])$/,
                 validationErrorMessage: "this isnt a real age"
             })
             this.lastQuestion.tag = "age"
         }
-        else if(this.lastQuestion.tag == "age"){
+        else if (this.lastQuestion.tag == "age") {
             this.supporter.answer("your data has been submitted")
             return;
         }
