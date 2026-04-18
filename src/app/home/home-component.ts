@@ -16,6 +16,8 @@ import { ProfileService } from '../../services/profile.service';
 })
 export class HomeComponent implements OnInit {
   searchTerm = '';
+  // whatsappLogoUrl: string | null = 'image.png';
+  whatsappLogoUrl?: string
   selectedChat: Chat | null = null;
   chats: Chat[] = [];
   isCreatingChat = false;

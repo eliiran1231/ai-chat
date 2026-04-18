@@ -2,7 +2,12 @@
   <aside class="chat-sidebar">
     <header class="mobile-appbar">
       <div class="brand-row">
-        <h1>WhatsApp</h1>
+        <div class="brand-title">
+          @if (whatsappLogoUrl) {
+            <img class="brand-title__logo" [src]="whatsappLogoUrl" alt="WhatsApp logo" />
+          }
+          <h1>WhatsApp</h1>
+        </div>
         <div class="sidebar-actions">
           <button type="button" class="sidebar-icon-button" aria-label="Menu">...</button>
         </div>
@@ -21,7 +26,7 @@
         >
           Chats
           @if (unreadChatsCount > 0) {
-             <span class="top-tab__badge">{{ unreadChatsCount }}</span>
+            <span class="top-tab__badge">{{ unreadChatsCount }}</span>
           }
         </button>
         <button type="button" 
