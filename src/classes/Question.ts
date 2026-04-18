@@ -27,6 +27,20 @@ export class Question extends Message {
         return this._possibleAnswers;
     }
 
+    constructor(value: string | File, options?: {
+        validator?: RegExp | ValidatorSpec;
+        validationErrorMessage?: string | Message;
+        possibleAnswers?: string[] | Answer[];
+    }) {
+        super(value);
+        if (options?.validator) {
+            this.setValidator(options.validator, options.validationErrorMessage);
+        }
+        if (options?.possibleAnswers) {
+            this.setPossibleAnswers(options.possibleAnswers);
+        }
+    }
+
     setValidator(validator: RegExp | ValidatorSpec, validationErrorMessage?: string | Message) {
         this.validatorSpec = coerceValidatorSpec(normalizeValidatorSpec(validator));
         if(validationErrorMessage) this.validationErrorMessage = validationErrorMessage;
