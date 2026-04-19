@@ -10,7 +10,7 @@ export class AiAgent extends Agent {
   aiService: AiService;
   chatService: ChatService;
   constructor(private injector: Injector) {
-    super();
+    super(injector);
     this.aiService = this.injector.get(AiService);
     this.chatService = this.injector.get(ChatService);
   }
@@ -23,7 +23,7 @@ export class AiAgent extends Agent {
   }
 
   override async respond(): Promise<void> {
-    await super.respond();
+    super.respond();
     const lastMessage = this.chat.messages.at(-1) as Message;
     this.aiService.sendMessage(lastMessage.value as string).subscribe((response) => {
       void this.chatService.setChatTitle(this.chat, response.model);

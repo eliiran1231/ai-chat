@@ -15,7 +15,7 @@ export class FlowAgent extends Agent {
     private dbService: DbService
 
     constructor(private injector: Injector) {
-        super();
+        super(injector);
         this.dbService = injector.get(DbService);
     }
 
@@ -35,6 +35,10 @@ export class FlowAgent extends Agent {
             };
         }
         return actions;
+    }
+
+    override onInvalidAnswer(answer: Answer, lastQuestion: Question): void {
+        //let xstate handle the invalid answer 
     }
 
     override init(chat: Chat, supporter: Supporter) {

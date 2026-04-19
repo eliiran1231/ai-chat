@@ -7,7 +7,7 @@ import { Answer } from "../classes/Answer";
 
 export class MockAgent extends Agent {
     constructor(injector: Injector) {
-        super()
+        super(injector);
     }
     override init(chat: Chat, supporter: Supporter) {
         super.init(chat, supporter);
@@ -35,9 +35,6 @@ export class MockAgent extends Agent {
         if (this.lastMessage instanceof Question) {
             this.supporter.sendMessage("please answer my question first");
             return;
-        }
-        if (!this.lastQuestion.isAnswerValid(this.lastMessage as Answer)) {
-            this.supporter.sendMessage(this.lastQuestion.validationErrorMessage);
         }
 
         if (this.lastQuestion.tag == "greeting") {
