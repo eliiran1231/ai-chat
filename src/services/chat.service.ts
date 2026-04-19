@@ -129,7 +129,7 @@ export class ChatService {
       chat.messages.push(this.hydrateMessage(messageRecord));
     }
     this.attachMessagePersistence(chat);
-    this.attachAgentPersistence(chat);
+    this.attachSupporterPersistence(chat);
     supporter.setAgent(initialAgent);
     initialAgent.lastQuestion = this.findLastSupporterQuestion(chat.messages);
     return chat;
@@ -203,7 +203,7 @@ export class ChatService {
     chat.user.setOnMessageAdded(persistMessage);
   }
 
-  private attachAgentPersistence(chat: Chat): void {
+  private attachSupporterPersistence(chat: Chat): void {
     chat.supporter.setOnAgentSwitch((agent) => {
       void this.dbService.updateSupporterAgent({
         chatId: chat.id,
