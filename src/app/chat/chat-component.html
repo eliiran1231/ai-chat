@@ -1,4 +1,7 @@
-@if (chat; as activeChat) {
+@if(image){
+  <app-image-preview-component (closed)="image = undefined" [chat]="chat" [imageUrl]="image"></app-image-preview-component>
+}
+@else if (chat; as activeChat) {
   <section class="chat-shell">
     <header class="chat-navbar">
       <div class="contact-block">
@@ -42,6 +45,7 @@
     <app-chat-input-component
       [chat]="activeChat"
       (messageSubmit)="sendMessage($event)"
+      (imageSubmit)="image = $event"
     ></app-chat-input-component>
   </section>
 } @else {

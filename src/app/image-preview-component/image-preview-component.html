@@ -1,0 +1,39 @@
+<section class="image-preview-shell">
+  <button
+    type="button"
+    class="close-button"
+    aria-label="Close image preview"
+    (click)="closePreview()"
+  >
+    x
+  </button>
+
+  <div class="preview-stage">
+    <img width="100%" [src]="imageUrl" [alt]="imageAlt" />
+  </div>
+
+  <form class="composer-bar" (ngSubmit)="submitCaption()">
+    <button type="button" class="composer-icon" aria-label="Magic tools">*</button>
+
+    <label class="composer-field" for="image-caption">
+      <textarea
+        id="image-caption"
+        name="caption"
+        rows="1"
+        [(ngModel)]="caption"
+        placeholder="Write a caption..."
+      ></textarea>
+    </label>
+
+    <button type="button" class="composer-attach" aria-label="Add media">+</button>
+
+    <button
+      type="submit"
+      class="send-button"
+      aria-label="Send image with caption"
+      [disabled]="!caption.trim()"
+    >
+      <span>&gt;</span>
+    </button>
+  </form>
+</section>

@@ -29,7 +29,9 @@ describe('MessageBubbleComponent', () => {
 
     fixture = TestBed.createComponent(MessageBubbleComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('message', new Message('hello', 'supporter'));
+    const message = new Message('hello');
+    message.from = 'supporter';
+    fixture.componentRef.setInput('message', message);
     fixture.detectChanges();
     await fixture.whenStable();
   });

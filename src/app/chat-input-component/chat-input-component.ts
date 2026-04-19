@@ -15,6 +15,7 @@ export class ChatInputComponent {
 
   @Input({ required: true }) chat!: Chat;
   @Output() messageSubmit = new EventEmitter<string>();
+  @Output() imageSubmit = new EventEmitter<string>();
 
   submitMessage(form?: NgForm): void {
     const trimmedMessage = this.chat.draftMessage.trim();
