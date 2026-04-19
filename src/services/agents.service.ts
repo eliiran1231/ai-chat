@@ -1,27 +1,28 @@
-import { Injectable, Injector, Type } from '@angular/core';
+import { Inject, Injectable, Injector, Type } from '@angular/core';
 import { Agent } from '../classes/Agent';
-import { AiAgent } from '../agents/AiAgent';
-import { FlowAgent } from '../agents/FlowAgent';
-import { MockAgent } from '../agents/MockAgent';
+import { REGISTERED_AGENTS } from './agents.module';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AgentsService {
-  private agents: Record<string, Type<Agent>> = {
-    AiAgent,
-    FlowAgent,
-    MockAgent
-  };
   entries: [string, Type<Agent>][];
   cache = new Map<string, string>();
-
-  constructor(private injector: Injector) {
-    this.entries = Object.entries(this.agents);
+  private agents: Record<string, Type<Agent>>;
+  
+  constructor(
+    private injector: Injector,
+    @Inject(REGISTERED_AGENTS) registeredAgents: Record<string, Type<Agent>>,
+  ) {
+    this.entries = Object.entries(registeredAgents);
+    this.agents = registeredAgents;
   }
 
   getAgentByName(name: string): Agent {
     const AgentClass = this.agents[name];
+    if (!AgentClass) {
+      throw new Error(`Agent "${name}" is not registered.`);
+    }
     return new AgentClass(this.injector);
   }
 
