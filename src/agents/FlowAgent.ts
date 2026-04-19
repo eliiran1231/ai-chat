@@ -48,7 +48,7 @@ export class FlowAgent extends Agent {
             actions: this.actions,
             guards: this.actions,
         }), {
-            snapshot: supporter.context
+            snapshot: supporter.context.context && supporter.context
         });
         this.actor.subscribe((state) => {
             this.dbService.updateSupporterContext({
