@@ -1,8 +1,8 @@
 import { Injector } from "@angular/core";
-import { Agent } from "../classes/Agent";
-import { Chat } from "../classes/Chat";
-import { Question } from "../classes/Question";
-import { Supporter } from "../classes/Supporter";
+import { Agent } from "../../classes/Agent";
+import { Chat } from "../../classes/Chat";
+import { Question } from "../../classes/Question";
+import { Supporter } from "../../classes/Supporter";
 
 export class MockAgent extends Agent {
     constructor(injector: Injector) {

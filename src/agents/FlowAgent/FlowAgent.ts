@@ -1,13 +1,14 @@
-import { Agent } from '../classes/Agent';
-import { Chat } from '../classes/Chat';
-import { Supporter } from '../classes/Supporter';
-import { ActorRefFrom, createActor } from 'xstate';
-import { mockFlowMachine } from '../flows/mockFlow.machine';
-import { Question } from '../classes/Question';
-import { Answer } from '../classes/Answer';
-import { Injector } from '@angular/core';
-import { MockAgent } from './MockAgent';
-import { DbService } from '../services/db.service';
+import { Injector } from "@angular/core";
+import { ActorRefFrom, createActor } from "xstate";
+import { Agent } from "../../classes/Agent";
+import { Answer } from "../../classes/Answer";
+import { Chat } from "../../classes/Chat";
+import { Question } from "../../classes/Question";
+import { Supporter } from "../../classes/Supporter";
+import { DbService } from "../../services/db.service";
+import { MockAgent } from "../MockAgent/MockAgent";
+import { mockFlowMachine } from "./mockFlow.machine";
+
 
 export class FlowAgent extends Agent {
     private actions!: Record<string, any>;

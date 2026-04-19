@@ -1,10 +1,12 @@
-import { Injector } from '@angular/core';
-import { Agent } from '../classes/Agent';
-import { Chat } from '../classes/Chat';
-import { Supporter } from '../classes/Supporter';
-import { AiService } from '../services/ai.service';
-import { ChatService } from '../services/chat.service';
-import { Message } from '../classes/Message';
+import { Injector } from "@angular/core";
+import { Agent } from "../../classes/Agent";
+import { Chat } from "../../classes/Chat";
+import { Message } from "../../classes/Message";
+import { Supporter } from "../../classes/Supporter";
+import { AiService } from "../../services/ai.service";
+import { ChatService } from "../../services/chat.service";
+
+
 
 export class AiAgent extends Agent {
   aiService: AiService;

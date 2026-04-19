@@ -2,12 +2,12 @@ import { Component, Injector, OnInit } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
-import { AiAgent } from '../../agents/AiAgent';
 import { Agent } from '../../classes/Agent';
 import { ChatListComponent } from '../chat-list-component/chat-list-component';
 import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
+import { AiAgent } from '../../agents/AiAgent/AiAgent';
 
 @Component({
   selector: 'app-home',
