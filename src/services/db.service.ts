@@ -1,91 +1,14 @@
 import { Injectable } from '@angular/core';
-import type { MessageType } from '../classes/Message';
-import type { ValidatorSpec } from '../classes/MessageValidator';
 import { ElectronService } from './electron.service';
-
-export interface ChatRecord {
-  id: number;
-  name: string;
-  status: string;
-  avatar: string;
-  subtitle?: string;
-  timeLabel?: string;
-  unreadCount?: number;
-  highlightTime?: boolean;
-  avatarRing?: boolean;
-  tipLabel?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateChatRecordInput {
-  name: string;
-  status: string;
-  avatar: string;
-  subtitle?: string;
-  timeLabel?: string;
-  unreadCount?: number;
-  highlightTime?: boolean;
-  avatarRing?: boolean;
-  tipLabel?: string;
-}
-
-export interface UpdateChatTitleInput {
-  chatId: number;
-  name: string;
-}
-
-export interface MessageRecord {
-  id: number;
-  chatId: number;
-  from?: 'client' | 'supporter';
-  messageType?: MessageType;
-  value: string;
-  tag?: string;
-  time: string;
-  isRead: boolean;
-  possibleAnswers?: string[];
-  validatorSpec?: ValidatorSpec;
-  validationErrorMessage?: string;
-}
-
-export interface CreateMessageRecordInput {
-  chatId: number;
-  from?: 'client' | 'supporter';
-  messageType?: MessageType;
-  value: string;
-  tag?: string;
-  time: string;
-  isRead: boolean;
-  possibleAnswers?: string[];
-  validatorSpec?: ValidatorSpec;
-  validationErrorMessage?: string;
-}
-
-export interface SupporterRecord {
-  id: number;
-  chatId: number;
-  agentName: string;
-  context: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateSupporterRecordInput {
-  chatId: number;
-  agentName: string;
-  context?: string;
-}
-
-export interface UpdateSupporterAgentInput {
-  chatId: number;
-  agentName: string;
-}
-
-export interface UpdateSupporterContextInput {
-  chatId: number;
-  context: any;
-}
+import { ChatRecord } from '../interfaces/db/ChatRecord';
+import { CreateChatRecordInput } from '../interfaces/db/CreateChatRecordInput';
+import { CreateMessageRecordInput } from '../interfaces/db/CreateMessageRecordInput';
+import { CreateSupporterRecordInput } from '../interfaces/db/CreateSupporterRecordInput';
+import { MessageRecord } from '../interfaces/db/MessageRecord';
+import { SupporterRecord } from '../interfaces/db/SupporterRecord';
+import { UpdateChatTitleInput } from '../interfaces/db/UpdateChatTitleInput';
+import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgentInput';
+import { UpdateSupporterContextInput } from '../interfaces/db/UpdateSupporterContextInput';
 
 @Injectable({
   providedIn: 'root',

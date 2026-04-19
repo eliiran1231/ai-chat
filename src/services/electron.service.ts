@@ -1,13 +1,5 @@
 import { Injectable, NgZone } from '@angular/core';
 
-declare global {
-  interface Window {
-    electronAPI?: {
-      invoke: <T>(channel: string, payload?: unknown) => Promise<T>;
-    };
-  }
-}
-
 @Injectable({
   providedIn: 'root',
 })

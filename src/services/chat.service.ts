@@ -6,8 +6,11 @@ import { Question, getPersistableValidationErrorMessage } from '../classes/Quest
 import { Supporter } from '../classes/Supporter';
 import { Chat } from '../classes/Chat';
 import { Agent } from '../classes/Agent';
-import { ChatRecord, DbService, MessageRecord, SupporterRecord } from './db.service';
 import { AgentsService } from './agents.service';
+import { ChatRecord } from '../interfaces/db/ChatRecord';
+import { MessageRecord } from '../interfaces/db/MessageRecord';
+import { SupporterRecord } from '../interfaces/db/SupporterRecord';
+import { DbService } from './db.service';
 
 @Injectable({
   providedIn: 'root'
