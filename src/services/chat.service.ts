@@ -46,7 +46,7 @@ export class ChatService {
     const supporterRecord = await this.dbService.createSupporter({
       chatId: record.id,
       agentName: this.agentsService.getAgentName(initialAgent),
-      context: '',
+      context: '{}',
     });
 
     return this.hydrateChat(record, initialAgent, [], supporterRecord);
@@ -60,7 +60,7 @@ export class ChatService {
           this.dbService.getChatMessages(record.id),
           this.dbService.getChatSupporter(record.id),
         ]);
-        if(!persistedSupporterRecord?.agentName) throw new Error("couldnt retrieve agent from sql")
+        if(!persistedSupporterRecord?.agentName) throw new Error("couldnt retrieve agent from SQL")
         const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
         const supporterRecord = persistedSupporterRecord ?? await this.dbService.createSupporter({
           chatId: record.id,
@@ -112,7 +112,7 @@ export class ChatService {
       supporter.setContext(JSON.parse(supporterRecord?.context ?? '{}'));
     }
     catch{
-      supporter.setContext(supporterRecord?.context ?? '');
+      supporter.setContext(supporterRecord?.context ?? '{}');
     }
     const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {
       subtitle: record.subtitle,
