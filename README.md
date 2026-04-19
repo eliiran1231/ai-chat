@@ -140,11 +140,6 @@ Create a file under `src/agents`, for example:
 Example:
 
 ```ts
-import { Agent } from '../classes/Agent';
-import { Chat } from '../classes/Chat';
-import { Question } from '../classes/Question';
-import { Supporter } from '../classes/Supporter';
-
 export class WelcomeAgent extends Agent {
   override init(chat: Chat, supporter: Supporter) {
     super.init(chat, supporter);
@@ -169,6 +164,20 @@ export class WelcomeAgent extends Agent {
 }
 ```
 
+After creating the class, declare it in [src/app/app-agents.module.ts](src/app/app-agents.module.ts). 
+
+```ts
+@AgentsModule({
+  agents: {
+    AiAgent,
+    FlowAgent,
+    MockAgent,
+    WelcomeAgent
+  },
+})
+export class AppAgentsModule {}
+```
+
 ### Tips for building agents
 
 - always call `super.init(...)` and `super.respond()`
@@ -179,12 +188,43 @@ export class WelcomeAgent extends Agent {
 
 ### Register a new agent
 
-Agents are injected when chats are loaded or created. The simplest place to start is [src/app/home/home-component.ts](src/app/home/home-component.ts).
+Agents must be declared in [src/app/app-agents.module.ts](src/app/app-agents.module.ts). This module is registered at app startup and is what `AgentsService` uses to know which agent classes exist.
+
+Current example:
+
+```ts
+@AgentsModule({
+  agents: {
+    AiAgent,
+    FlowAgent,
+    MockAgent,
+  },
+})
+export class AppAgentsModule {}
+```
+
+If you add `WelcomeAgent`, register it there too:
+
+```ts
+import { WelcomeAgent } from '../agents/WelcomeAgent';
+
+@AgentsModule({
+  agents: {
+    AiAgent,
+    FlowAgent,
+    MockAgent,
+    WelcomeAgent,
+  },
+})
+export class AppAgentsModule {}
+```
+
+After the agent is declared, it can be created and used when chats are loaded or created. The simplest place to start is [src/app/home/home-component.ts](src/app/home/home-component.ts).
 
 Current examples:
 
-- loading existing chats: `this.chatService.getChats(() => new MockAgent())`
-- creating a new chat: `initialAgent: Agent = new MockAgent()`
+- loading existing chats: `this.chatService.getChats()`
+- creating a new chat: `initialAgent: Agent = new MockAgent(this.injector)`
 
 To use your custom agent, replace `new MockAgent()` with your own class instance. replacing agents via the home component is only needed for the inital agent, for the following agents use `supporter.setAgent(new SomeAgent())` in the previous agent 
 
