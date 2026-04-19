@@ -10,6 +10,8 @@
   },
   "include": [
     "src/**/*.d.ts",
-    "src/**/*.spec.ts"
-, "src/app/home/home-component.ts"  ]
+    "src/**/*.spec.ts",
+    "src/interfaces/electron/ElectronAPI.ts",
+    "src/app/home/home-component.ts"
+  ]
 }

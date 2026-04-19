@@ -39,43 +39,10 @@
       }
     </main>
 
-    <form
-      #chatForm="ngForm"
-      class="chat-composer"
-      (ngSubmit)="sendMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
-    >
-      <button type="button" class="composer-action" aria-label="Emoji">:)</button>
-      <button type="button" class="composer-action" aria-label="Attach file">+</button>
-
-      <label class="composer-field" for="message-input">
-        <textarea
-          #messageInput
-          #autosize="cdkTextareaAutosize"
-          id="message-input"
-          rows="1"
-          name="message"
-          cdkTextareaAutosize
-          cdkAutosizeMinRows="1"
-          [cdkAutosizeMaxRows]="composerMaxRows"
-          [style.--composer-max-rows]="composerMaxRows"
-          [style.overflow-y]="composerHasOverflow ? 'auto' : 'hidden'"
-          [(ngModel)]="activeChat.draftMessage"
-          (input)="syncComposerOverflow(autosize, messageInput)"
-          (keydown)="handleComposerKeydown($event, autosize, messageInput)"
-          placeholder="Type a message"
-          autocomplete="off"
-        ></textarea>
-      </label>
-
-      <button
-        type="submit"
-        class="send-button"
-        aria-label="Send message"
-        [disabled]="!activeChat.draftMessage.trim()"
-      >
-        >
-      </button>
-    </form>
+    <app-chat-input-component
+      [chat]="activeChat"
+      (messageSubmit)="sendMessage($event)"
+    ></app-chat-input-component>
   </section>
 } @else {
   <section class="chat-placeholder">

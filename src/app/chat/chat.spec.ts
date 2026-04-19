@@ -1,5 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Injector } from '@angular/core';
 import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
 import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
@@ -33,7 +34,7 @@ describe('ChatComponent', () => {
   async function renderChat(draftMessage: string | Message[] = ''): Promise<Chat> {
     const supporter = new Supporter();
     const chat = new Chat(1, 'Test Chat', 'Online', 'TC', supporter);
-    supporter.setAgent(new Agent());
+    supporter.setAgent(new Agent(TestBed.inject(Injector)));
     if (typeof draftMessage === 'string') {
       chat.draftMessage = draftMessage;
     } else {
@@ -53,7 +54,7 @@ describe('ChatComponent', () => {
     const textarea = fixture.nativeElement.querySelector('#message-input') as HTMLTextAreaElement;
 
     expect(textarea.tagName).toBe('TEXTAREA');
-    expect(fixture.componentInstance.composerMaxRows).toBe(5);
+    expect(textarea.style.getPropertyValue('--composer-max-rows')).toBe('5');
   });
 
   it('sends the message on Enter', async () => {
@@ -75,7 +76,9 @@ describe('ChatComponent', () => {
   });
 
   it('renders AI messages as markdown', async () => {
-    await renderChat([new Message('**bold** and *italic*', 'supporter')]);
+    const message = new Message('**bold** and *italic*');
+    message.from = 'supporter';
+    await renderChat([message]);
 
     const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
     expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
@@ -83,18 +86,21 @@ describe('ChatComponent', () => {
   });
 
   it('renders user messages through the message bubble markdown view', async () => {
-    await renderChat([new Message('**bold**', 'client')]);
+    const message = new Message('**bold**');
+    message.from = 'client';
+    await renderChat([message]);
 
     const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
     expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
   });
 
   it('renders markdown images as img elements', async () => {
+    const message = new Message(
+      '![A mushroom-head robot drinking bubble tea](https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg)',
+    );
+    message.from = 'supporter';
     await renderChat([
-      new Message(
-        '![A mushroom-head robot drinking bubble tea](https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg)',
-        'supporter',
-      ),
+      message,
     ]);
 
     const image = fixture.nativeElement.querySelector(
