@@ -13,8 +13,12 @@ export class AgentsService {
     FlowAgent,
     MockAgent
   };
+  entries: [string, Type<Agent>][];
+  cache = new Map<string, string>();
 
-  constructor(private injector: Injector) {}
+  constructor(private injector: Injector) {
+    this.entries = Object.entries(this.agents);
+  }
 
   getAgentByName(name: string): Agent {
     const AgentClass = this.agents[name];
@@ -22,8 +26,14 @@ export class AgentsService {
   }
 
   getAgentName(agent: Agent): string {
-    const entry = Object.entries(this.agents).find(([, AgentClass]) => agent instanceof AgentClass);
-    return entry?.[0] ?? agent.constructor.name;
+    const agentMinifiedName = agent.constructor.name; 
+    if (this.cache.has(agentMinifiedName)) {
+      return this.cache.get(agentMinifiedName)!;
+    }
+    const entry = this.entries.find(([, AgentClass]) => agent instanceof AgentClass);
+    if (!entry?.[0]) throw new Error(`Agent is not registered in AgentsService`);
+    this.cache.set(agentMinifiedName, entry[0]);
+    return entry[0];
   }
 
   getRegisteredAgents(): Record<string, Type<Agent>> {
