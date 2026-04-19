@@ -3,7 +3,6 @@ import { Agent } from "../classes/Agent";
 import { Chat } from "../classes/Chat";
 import { Question } from "../classes/Question";
 import { Supporter } from "../classes/Supporter";
-import { Answer } from "../classes/Answer";
 
 export class MockAgent extends Agent {
     constructor(injector: Injector) {
@@ -12,7 +11,6 @@ export class MockAgent extends Agent {
     override init(chat: Chat, supporter: Supporter) {
         super.init(chat, supporter);
         this.lastQuestion = undefined;
-        this.respond()
         if (!this.chat.messages.find(msg => msg.tag == "greeting")) {
             this
             const possibleAnswers = ["hi", "hello", "hey"];
