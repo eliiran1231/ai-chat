@@ -1,16 +1,18 @@
-import { Injector } from '@angular/core';
-import { Agent } from '../classes/Agent';
-import { Chat } from '../classes/Chat';
-import { Supporter } from '../classes/Supporter';
-import { AiService } from '../services/ai.service';
-import { ChatService } from '../services/chat.service';
-import { Message } from '../classes/Message';
+import { Injector } from "@angular/core";
+import { Agent } from "../../classes/Agent";
+import { Chat } from "../../classes/Chat";
+import { Message } from "../../classes/Message";
+import { Supporter } from "../../classes/Supporter";
+import { AiService } from "../../services/ai.service";
+import { ChatService } from "../../services/chat.service";
+
+
 
 export class AiAgent extends Agent {
   aiService: AiService;
   chatService: ChatService;
   constructor(private injector: Injector) {
-    super();
+    super(injector);
     this.aiService = this.injector.get(AiService);
     this.chatService = this.injector.get(ChatService);
   }
@@ -23,7 +25,7 @@ export class AiAgent extends Agent {
   }
 
   override async respond(): Promise<void> {
-    await super.respond();
+    super.respond();
     const lastMessage = this.chat.messages.at(-1) as Message;
     this.aiService.sendMessage(lastMessage.value as string).subscribe((response) => {
       void this.chatService.setChatTitle(this.chat, response.model);

@@ -1,45 +1,11 @@
-export interface RequiredValidatorSpec {
-  type: 'required';
-}
-
-export interface RegexValidatorSpec {
-  type: 'regex';
-  pattern: string;
-  flags?: string;
-}
-
-export interface LengthValidatorSpec {
-  type: 'length';
-  min?: number;
-  max?: number;
-}
-
-export interface OneOfValidatorSpec {
-  type: 'oneOf';
-  values: string[];
-}
-
-export interface AndValidatorSpec {
-  type: 'and';
-  rules: ValidatorSpec[];
-}
-
-export interface OrValidatorSpec {
-  type: 'or';
-  rules: ValidatorSpec[];
-}
-
-export type ValidatorSpec =
-  | RequiredValidatorSpec
-  | RegexValidatorSpec
-  | LengthValidatorSpec
-  | OneOfValidatorSpec
-  | AndValidatorSpec
-  | OrValidatorSpec;
-
-export interface ValidationResult {
-  isValid: boolean;
-}
+import { AndValidatorSpec } from "../interfaces/validation/AndValidatorSpec";
+import { LengthValidatorSpec } from "../interfaces/validation/LengthValidatorSpec";
+import { OneOfValidatorSpec } from "../interfaces/validation/OneOfValidatorSpec";
+import { OrValidatorSpec } from "../interfaces/validation/OrValidatorSpec";
+import { RegexValidatorSpec } from "../interfaces/validation/RegexValidatorSpec";
+import { RequiredValidatorSpec } from "../interfaces/validation/RequiredValidatorSpec";
+import { ValidationResult } from "../interfaces/validation/ValidationResult";
+import { ValidatorSpec } from "../interfaces/validation/ValidatorSpec";
 
 type UnknownRecord = Record<string, unknown>;
 type ValidatorType = ValidatorSpec['type'];

@@ -8,6 +8,8 @@ import { provideRouter } from '@angular/router';
 import { MARKED_OPTIONS, MarkedOptions, MarkedRenderer, provideMarkdown } from 'ngx-markdown';
 
 import { routes } from './app.routes';
+import { AppAgentsModule } from './app-agents.module';
+import { provideAgents } from '../services/agents.module';
 
 function escapeHtml(value: string): string {
   return value
@@ -44,5 +46,6 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     provideRouter(routes),
+    provideAgents(AppAgentsModule),
   ],
 };
