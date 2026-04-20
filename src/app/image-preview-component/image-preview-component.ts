@@ -10,11 +10,12 @@ import { Message } from '../../classes/Message';
 })
 export class ImagePreviewComponent implements OnInit {
   @Input({ required: true }) image!: File;
-  @Input() imageAlt = this.image.name;
+  @Input() imageAlt?: string; 
   @Input({ required: true }) proccessImageUrl!: (file: File) => string | Promise<string>;
   preccessedImageUrl!: string;
 
   async ngOnInit(){
+    this.imageAlt = this.imageAlt ?? this.image.name;
     const preccessedImageUrl = this.proccessImageUrl(this.image);
     this.preccessedImageUrl = typeof preccessedImageUrl == "string" ?
      preccessedImageUrl : 
