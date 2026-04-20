@@ -24,6 +24,7 @@
   position: relative;
   max-width: min(78%, 34rem);
   border-radius: 0.55rem;
+  overflow: hidden;
   box-shadow: 0 1px 0.5px rgba(17, 27, 33, 0.13);
 }
 
@@ -138,14 +139,23 @@
 }
 
 .image-attchment-container{
-  margin: 4px;
+  width: 100%;
+  max-width: min(100%, 22rem);
+  margin: 0;
+  padding: 0.3rem;
 }
 
 .message-image-attachment {
   display: block;
+  width: 100%;
   max-width: 100%;
-  width: auto;
+  max-height: 20rem;
   height: auto;
-  margin: 0.35rem 0;
+  margin: 0;
   border-radius: 0.4rem;
+  object-fit: cover;
+}
+
+.image-attchment-container + .message-markdown {
+  margin-top: 0.15rem;
 }
