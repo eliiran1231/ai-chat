@@ -1,5 +1,6 @@
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
+export type Attachment = { type: string, url: string };
 
 export class Message {
     id?: number;
@@ -8,9 +9,9 @@ export class Message {
     tag: string = 'general';
     value: string;
     isRead: boolean = false;
-    attachment?: {type: string, url: string};
+    attachment?: Attachment;
 
-    constructor(value: string, attachment?: {type: string, url: string} ) {
+    constructor(value: string, attachment?: Attachment) {
         this.value = value;
         this.attachment = attachment;
     }
