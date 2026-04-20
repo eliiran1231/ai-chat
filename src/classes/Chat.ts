@@ -50,4 +50,7 @@ export class Chat {
     this.avatarRing = options.avatarRing;
     this.tipLabel = options.tipLabel;
   }
+  proccessImageUrl(file: File): string {
+    return URL.createObjectURL(file);
+  }
 }

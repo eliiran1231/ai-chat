@@ -6,10 +6,12 @@ export class Message {
     from?: MessageSender;
     time: Date = new Date();
     tag: string = 'general';
-    value: string | File;
+    value: string;
     isRead: boolean = false;
+    attachment?: {type: string, url: string};
 
-    constructor(value: string | File) {
+    constructor(value: string, attachment?: {type: string, url: string} ) {
         this.value = value;
+        this.attachment = attachment;
     }
 }

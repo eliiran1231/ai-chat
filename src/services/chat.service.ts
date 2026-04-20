@@ -177,7 +177,7 @@ export class ChatService {
         chatId: chat.id,
         from: message.from,
         messageType,
-        value: typeof message.value === 'string' ? message.value : message.value.name,
+        value: message.value,
         tag: message.tag,
         time: message.time.toISOString(),
         isRead: message.isRead,
@@ -185,9 +185,7 @@ export class ChatService {
           ? message.possibleAnswers.map((possibleAnswer) =>
               typeof possibleAnswer === 'string'
                 ? possibleAnswer
-                : typeof possibleAnswer.value === 'string'
-                  ? possibleAnswer.value
-                  : possibleAnswer.value.name,
+                : possibleAnswer.value
             )
           : undefined,
         validatorSpec: message instanceof Question ? message.validatorSpec : undefined,

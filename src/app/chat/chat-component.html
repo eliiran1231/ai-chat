@@ -1,5 +1,5 @@
-@if(image){
-  <app-image-preview-component (closed)="image = undefined" [chat]="chat" [imageUrl]="image"></app-image-preview-component>
+@if(imageFile){
+  <app-image-preview-component [image]="imageFile" [proccessImageUrl]="chat.proccessImageUrl" (submitted)="closePreviewPage(); sendMessage($event)" (closed)="closePreviewPage()"></app-image-preview-component>
 }
 @else if (chat; as activeChat) {
   <section class="chat-shell">
@@ -45,7 +45,7 @@
     <app-chat-input-component
       [chat]="activeChat"
       (messageSubmit)="sendMessage($event)"
-      (imageSubmit)="image = $event"
+      (imageSubmit)="openPreviewPage($event)"
     ></app-chat-input-component>
   </section>
 } @else {

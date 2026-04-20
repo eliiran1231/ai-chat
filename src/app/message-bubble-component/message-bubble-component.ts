@@ -18,10 +18,6 @@ export class MessageBubbleComponent {
 
   constructor() {}
 
-  messageText(message: Message): string {
-    return typeof message.value === 'string' ? message.value : message.value.name;
-  }
-
   isSupporterMessage(message: Message): boolean {
     return message.from === 'supporter';
   }
@@ -31,7 +27,7 @@ export class MessageBubbleComponent {
       return answer;
     }
 
-    return typeof answer.value === 'string' ? answer.value : answer.value.name;
+    return answer.value;
   }
 
   selectAnswer(answer: Answer | string): void {

@@ -45,7 +45,7 @@ export class ChatListComponent {
       return chat.subtitle || 'start the conversation';
     }
 
-    return typeof lastMessage.value === 'string' ? lastMessage.value : lastMessage.value.name;
+    return lastMessage.value;
   }
 
   lastMessageTime(chat: Chat): string {

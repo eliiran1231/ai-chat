@@ -9,13 +9,14 @@ import { Chat } from '../../classes/Chat';
   templateUrl: './chat-input-component.html',
   styleUrl: './chat-input-component.scss',
 })
-export class ChatInputComponent {
+export class 
+ChatInputComponent {
   readonly composerMaxRows = 5;
   composerHasOverflow = false;
 
   @Input({ required: true }) chat!: Chat;
   @Output() messageSubmit = new EventEmitter<string>();
-  @Output() imageSubmit = new EventEmitter<string>();
+  @Output() imageSubmit = new EventEmitter<File>();
 
   submitMessage(form?: NgForm): void {
     const trimmedMessage = this.chat.draftMessage.trim();
@@ -29,6 +30,22 @@ export class ChatInputComponent {
     this.composerHasOverflow = false;
     form?.resetForm({ message: '' });
   }
+
+  pickImage(): void {
+    let input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = false;
+    input.onchange = (event) => {
+      const file = (event.target as HTMLInputElement).files?.[0];
+      if (file) {
+          console.log(file);
+          this.imageSubmit.emit(file);
+        };
+    };
+    input.click();
+  }
+
 
   handleComposerKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {

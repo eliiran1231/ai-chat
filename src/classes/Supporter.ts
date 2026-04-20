@@ -24,13 +24,13 @@ export class Supporter{
         if(this.agent) this.agent.lastQuestion = question;
         this.appendMessage(question);
     }
-    answer(message : string | File | Answer){
+    answer(message : string | Answer){
         var answer = message instanceof Answer ?
         message :
         new Answer(message);
         this.appendMessage(answer);
     }
-    sendMessage(message : string | File | Message){
+    sendMessage(message : string | Message){
         var msg = message instanceof Message ? message : new Message(message);
         this.appendMessage(msg);
     }

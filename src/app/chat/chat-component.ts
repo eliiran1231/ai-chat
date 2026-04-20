@@ -5,6 +5,7 @@ import { ChatInputComponent } from '../chat-input-component/chat-input-component
 import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
 import { ImagePreviewComponent } from "../image-preview-component/image-preview-component";
+import { Message } from '../../classes/Message';
 
 @Component({
   selector: 'app-chat',
@@ -16,27 +17,29 @@ export class ChatComponent {
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
-  image?: string;
+  imageFile?: File;
 
-  sendMessage(message: string): void {
+  sendMessage(message: string | Message): void {
     if (!this.chat) {
       return;
     }
+    const messageValue = typeof message === 'string' ? message : message.value;
+    const messageAttachment = message instanceof Message ? message.attachment : undefined;
 
     if (this.chat.messages.at(-1) instanceof Question) {
-      this.chat.user.answer(message);
+      this.chat.user.answer(new Answer(messageValue, messageAttachment));
     } else {
-      this.chat.user.ask(message);
+      this.chat.user.ask(new Question(messageValue, {attachment: messageAttachment}));
     }
   }
 
-  imageSubmitted(imageUrl: string): void {
-    this.image = undefined;
-    this.chat.user.answer(imageUrl);
+  closePreviewPage(): void {
+    this.imageFile = undefined;
   }
 
-  previewClosed(): void {
-    this.image = undefined;
+  openPreviewPage(image: File){
+    console.log(image)
+    this.imageFile = image;
   }
 
   selectAnswer(answer: Answer | string): void {

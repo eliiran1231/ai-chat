@@ -9,10 +9,15 @@
   </button>
 
   <div class="preview-stage">
-    <img width="100%" [src]="imageUrl" [alt]="imageAlt" />
+    @if(preccessedImageUrl){
+      <img width="100%" [src]="preccessedImageUrl" [alt]="imageAlt" />
+    }
+    @else {
+      <div>loading...</div>
+    }
   </div>
 
-  <form class="composer-bar" (ngSubmit)="submitCaption()">
+  <form class="composer-bar" (ngSubmit)="submitImage()">
     <button type="button" class="composer-icon" aria-label="Magic tools">*</button>
 
     <label class="composer-field" for="image-caption">
@@ -30,9 +35,7 @@
     <button
       type="submit"
       class="send-button"
-      aria-label="Send image with caption"
-      [disabled]="!caption.trim()"
-    >
+      aria-label="Send image with caption">
       <span>&gt;</span>
     </button>
   </form>

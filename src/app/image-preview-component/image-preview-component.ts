@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, effect, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Chat } from '../../classes/Chat';
+import { Message } from '../../classes/Message';
 
 @Component({
   selector: 'app-image-preview-component',
@@ -8,14 +8,18 @@ import { Chat } from '../../classes/Chat';
   templateUrl: './image-preview-component.html',
   styleUrl: './image-preview-component.scss',
 })
-export class ImagePreviewComponent {
-  @Input({ required: true }) chat!: Chat;
-  @Input() imageUrl =
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Pizza-3007395.jpg/1920px-Pizza-3007395.jpg';
-  @Input() imageAlt = 'Preview image';
+export class ImagePreviewComponent implements OnInit {
+  @Input({ required: true }) image!: File;
+  @Input() imageAlt = "hi"; //this.image.name;
+  @Input({ required: true }) proccessImageUrl!: (file: File) => string;
+  preccessedImageUrl!: string;
+
+  ngOnInit(){
+    this.preccessedImageUrl = this.proccessImageUrl(this.image);
+  }
 
   @Output() closed = new EventEmitter<void>();
-  @Output() submitted = new EventEmitter<string>();
+  @Output() submitted = new EventEmitter<Message>();
 
   caption = '';
 
@@ -23,15 +27,12 @@ export class ImagePreviewComponent {
     this.closed.emit();
   }
 
-  submitCaption(): void {
+  submitImage(): void {
     const message = this.caption.trim();
-
-    if (!message) {
-      return;
-    }
-
-    this.chat.draftMessage = message;
-    this.submitted.emit(message);
+    this.submitted.emit(new Message(message, {
+      type: 'image', 
+      url: this.preccessedImageUrl
+    }));
     this.caption = '';
   }
 }

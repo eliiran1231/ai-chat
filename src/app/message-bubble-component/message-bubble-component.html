@@ -8,7 +8,14 @@
     [class.message-bubble--supporter]="isSupporterMessage(message)"
     [class.message-bubble--user]="!isSupporterMessage(message)"
   >
-    <div class="message-markdown" markdown [data]="messageText(message)"></div>
+    @if (message.attachment) {
+      @if (message.attachment.type == 'image') {
+        <div class="image-attchment-container">
+          <img class="message-image-attachment" width="100%" [src]="message.attachment.url"/>
+        </div>
+      }
+    }
+    <div class="message-markdown" markdown [data]="message.value"></div>
     @if (message instanceof questionType && message.possibleAnswers.length) {
     <div class="possible-answers-container">
       @for (possibleAnswer of message.possibleAnswers; track $index) {
