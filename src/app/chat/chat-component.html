@@ -1,5 +1,5 @@
 @if(imageFile){
-  <app-image-preview-component [image]="imageFile" [proccessImageUrl]="chat.proccessImageUrl" (submitted)="closePreviewPage(); sendMessage($event)" (closed)="closePreviewPage()"></app-image-preview-component>
+  <app-image-preview-component [image]="imageFile" [processImageUrl]="(file)=>chat.processImageUrl(file)" (submitted)="closePreviewPage(); sendMessage($event)" (closed)="closePreviewPage()"></app-image-preview-component>
 }
 @else if (chat; as activeChat) {
   <section class="chat-shell">
