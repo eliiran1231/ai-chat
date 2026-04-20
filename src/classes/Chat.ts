@@ -50,7 +50,13 @@ export class Chat {
     this.avatarRing = options.avatarRing;
     this.tipLabel = options.tipLabel;
   }
-  processImageUrl(file: File): string | Promise<string> {
+  private _processImageUrlDriver(file: File) : string | Promise<string>{
     return URL.createObjectURL(file);
+  }
+  processImageUrl(file: File): string | Promise<string> {
+    return this._processImageUrlDriver(file);
+  }
+  setImageUrlProcessor(processor: typeof this._processImageUrlDriver) {
+    this._processImageUrlDriver = processor;
   }
 }

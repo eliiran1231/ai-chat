@@ -1,4 +1,4 @@
-import { Component, effect, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Message } from '../../classes/Message';
 
@@ -11,15 +11,14 @@ import { Message } from '../../classes/Message';
 export class ImagePreviewComponent implements OnInit {
   @Input({ required: true }) image!: File;
   @Input() imageAlt?: string; 
-  @Input({ required: true }) proccessImageUrl!: (file: File) => string | Promise<string>;
-  preccessedImageUrl!: string;
+  @Input({ required: true }) processImageUrl!: (file: File) => string | Promise<string>;
+  processedImageUrl = signal('');
 
   async ngOnInit(){
     this.imageAlt = this.imageAlt ?? this.image.name;
-    const preccessedImageUrl = this.proccessImageUrl(this.image);
-    this.preccessedImageUrl = typeof preccessedImageUrl == "string" ?
-     preccessedImageUrl : 
-     await preccessedImageUrl 
+    const processedImageUrl = this.processImageUrl(this.image);
+    if(typeof processedImageUrl == "string") this.processedImageUrl.set(processedImageUrl);
+    else this.processedImageUrl.set(await processedImageUrl)
   }
 
   @Output() closed = new EventEmitter<void>();
@@ -35,7 +34,7 @@ export class ImagePreviewComponent implements OnInit {
     const message = this.caption.trim();
     this.submitted.emit(new Message(message, {
       type: 'image', 
-      url: this.preccessedImageUrl
+      url: this.processedImageUrl()
     }));
     this.caption = '';
   }

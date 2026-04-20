@@ -9,8 +9,8 @@
   </button>
 
   <div class="preview-stage">
-    @if(preccessedImageUrl){
-      <img width="100%" [src]="preccessedImageUrl" [alt]="imageAlt" />
+    @if(processedImageUrl()){
+      <img width="100%" [src]="processedImageUrl()" [alt]="imageAlt" />
     }
     @else {
       <div id="loading-preview">loading...</div>
