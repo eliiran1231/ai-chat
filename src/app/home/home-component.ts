@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, HostListener, Injector, OnDestroy, OnInit } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
@@ -8,32 +8,43 @@ import { ChatListComponent } from '../chat-list-component/chat-list-component';
 import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
+import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
+
 @Component({
   selector: 'app-home',
-  imports: [ChatComponent, ChatListComponent, ProfileComponent, CommonModule],
+  imports: [ChatComponent, LucideAngularModule, ChatListComponent, ProfileComponent, CommonModule],
   templateUrl: './home-component.html',
   styleUrl: './home-component.scss',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  readonly menuIcon = EllipsisVertical;
+  readonly enterFullscreenIcon = Maximize;
+  readonly exitFullscreenIcon = Minimize;
   searchTerm = '';
   // whatsappLogoUrl: string | null = 'image.png';
-  whatsappLogoUrl?: string
+  whatsappLogoUrl?: string;
   selectedChat: Chat | null = null;
   chats: Chat[] = [];
   isCreatingChat = false;
+  isMenuOpen = false;
+  isFullscreen = false;
   deletingChatId: number | null = null;
   pendingCreateChat: Promise<Chat> | null = null;
   selectedTab: 'chats' | 'profile' | 'calls' = 'chats';
   constructor(
-      private chatService: ChatService,
-      private injector: Injector,
-      private profileService: ProfileService,
-    ) {
-  }
+    private chatService: ChatService,
+    private injector: Injector,
+    private profileService: ProfileService,
+  ) {}
 
   async ngOnInit(): Promise<void> {
     void this.profileService.loadBasicInfo();
     this.chats = await this.chatService.getChats(() => new AiAgent(this.injector));
+    this.syncFullscreenState();
+    queueMicrotask(() => window.focus());
+  }
+  ngOnDestroy(): void {
+    this.isMenuOpen = false;
   }
 
   get unreadChatsCount(): number {
@@ -56,6 +67,46 @@ export class HomeComponent implements OnInit {
     if (!this.selectedChat) return;
     this.selectedChat.active = false;
     this.selectedChat = null;
+  }
+
+  toggleMenu(event?: Event): void {
+    event?.stopPropagation();
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  async toggleFullscreen(): Promise<void> {
+    this.isMenuOpen = false;
+
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    await document.documentElement.requestFullscreen();
+  }
+
+  private syncFullscreenState(): void {
+    this.isFullscreen = Boolean(document.fullscreenElement);
+  }
+
+  @HostListener('document:fullscreenchange')
+  onFullscreenChange(): void {
+    this.syncFullscreenState();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  async onDocumentKeydown(event: KeyboardEvent): Promise<void> {
+    if (event.key !== 'F11') {
+      return;
+    }
+
+    event.preventDefault();
+    await this.toggleFullscreen();
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.isMenuOpen = false;
   }
 
   async deleteChat(chat: Chat, event?: Event): Promise<void> {

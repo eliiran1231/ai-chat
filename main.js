@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, ipcMain, shell} from 'electron/main';
+import { app, BrowserWindow, Menu, ipcMain, shell } from 'electron/main';
 import * as path from 'path';
 import * as os from 'os';
 import { fileURLToPath } from 'url';
@@ -78,7 +78,7 @@ function getFullName() {
   return new Promise((resolve) => {
     const command = `powershell -NoProfile -ExecutionPolicy Bypass -Command "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; (Get-LocalUser -Name $env:USERNAME).FullName"`;
 
-    exec(command, { encoding: "utf8" }, (err, out) => {
+    exec(command, { encoding: 'utf8' }, (err, out) => {
       if (err) return resolve(null);
       resolve(out.trim());
     });
@@ -88,7 +88,7 @@ function getFullName() {
 async function getBasicInfo() {
   const userInfo = os.userInfo();
   const username = userInfo.username || process.env.USERNAME || process.env.USER || 'unknown';
-  const displayName = await getFullName() || username;
+  const displayName = (await getFullName()) || username;
   const computerName = os.hostname();
 
   return {
@@ -489,12 +489,16 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
+  win.once('ready-to-show', () => {
+    win.focus();
+    win.webContents.focus();
+  });
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (isExternalUrl(url)) {
       void shell.openExternal(url);
       return { action: 'deny' };
     }
-      return { action: 'allow' };
+    return { action: 'allow' };
   });
   win.webContents.on('will-navigate', (event, url) => {
     const currentUrl = win.webContents.getURL();
@@ -504,8 +508,6 @@ function createWindow() {
       void shell.openExternal(url);
     }
   });
-
-    
 
   win.loadFile(path.join(__dirname, './dist/ai-chat/browser/index.html'));
 }
