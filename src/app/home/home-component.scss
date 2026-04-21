@@ -8,7 +8,9 @@
   height: 100%;
   display: grid;
   grid-template-columns: 26rem minmax(0, 1fr);
-  background: linear-gradient(180deg, #0b8b72 0 8.5rem, #111b21 8.5rem 100%), #111b21;
+  background:
+    linear-gradient(180deg, #0b8b72 0 8.5rem, #111b21 8.5rem 100%),
+    #111b21;
 }
 
 app-chat-list-component {
@@ -82,71 +84,10 @@ app-chat-list-component {
   margin: 0 10px;
 }
 
-.sidebar-actions {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.sidebar-icon-button,
 .top-tab,
 .top-tabs__icon {
   border: 0;
   cursor: pointer;
-}
-
-.sidebar-icon-button {
-  min-width: 2.35rem;
-  height: 2.35rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: transparent;
-  color: #fff;
-  padding: 0;
-}
-.sidebar-icon {
-  width: 1.15rem;
-  height: 1.15rem;
-  display: inline-flex;
-}
-.sidebar-menu {
-  position: absolute;
-  top: calc(100% + 0.35rem);
-  right: 0;
-  min-width: 10.5rem;
-  padding: 0.35rem;
-  border-radius: 0.8rem;
-  background: #fff;
-  box-shadow: 0 12px 28px rgba(17, 27, 33, 0.2);
-  z-index: 10;
-}
-
-.sidebar-menu__item {
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.65rem;
-  border: 0;
-  border-radius: 0.55rem;
-  padding: 0.7rem 0.8rem;
-  background: transparent;
-  color: #111b21;
-  text-align: left;
-  cursor: pointer;
-}
-
-.sidebar-menu__icon {
-  width: 1rem;
-  height: 1rem;
-  display: inline-flex;
-  align-items: center;
-}
-
-.sidebar-menu__item:hover {
-  background: #f0f2f5;
 }
 
 .top-tabs {

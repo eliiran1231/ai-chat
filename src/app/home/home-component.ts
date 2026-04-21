@@ -9,14 +9,22 @@ import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
 import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
 import { AiAgent } from '../../agents/AiAgent/AiAgent';
+import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
 
 @Component({
   selector: 'app-home',
-  imports: [ChatComponent, LucideAngularModule, ChatListComponent, ProfileComponent, CommonModule],
+  imports: [
+    ChatComponent,
+    SidebarMenuComponent,
+    LucideAngularModule,
+    ChatListComponent,
+    ProfileComponent,
+    CommonModule,
+  ],
   templateUrl: './home-component.html',
   styleUrl: './home-component.scss',
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent implements OnInit {
   readonly menuIcon = EllipsisVertical;
   readonly enterFullscreenIcon = Maximize;
   readonly exitFullscreenIcon = Minimize;
@@ -35,16 +43,14 @@ export class HomeComponent implements OnInit, OnDestroy {
     private chatService: ChatService,
     private injector: Injector,
     private profileService: ProfileService,
-  ) {}
+    ) {
+  }
 
   async ngOnInit(): Promise<void> {
     void this.profileService.loadBasicInfo();
     this.chats = await this.chatService.getChats();
     this.syncFullscreenState();
     queueMicrotask(() => window.focus());
-  }
-  ngOnDestroy(): void {
-    this.isMenuOpen = false;
   }
 
   get unreadChatsCount(): number {
@@ -69,14 +75,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.selectedChat = null;
   }
 
-  toggleMenu(event?: Event): void {
-    event?.stopPropagation();
-    this.isMenuOpen = !this.isMenuOpen;
-  }
-
   async toggleFullscreen(): Promise<void> {
-    this.isMenuOpen = false;
-
     if (document.fullscreenElement) {
       await document.exitFullscreen();
       return;
@@ -104,10 +103,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     await this.toggleFullscreen();
   }
 
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.isMenuOpen = false;
-  }
 
   async deleteChat(chat: Chat, event?: Event): Promise<void> {
     event?.stopPropagation();

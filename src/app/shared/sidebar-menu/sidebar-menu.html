@@ -1,0 +1,30 @@
+<div class="sidebar-actions">
+  <button
+    type="button"
+    class="sidebar-icon-button"
+    aria-label="Menu"
+    [cdkMenuTriggerFor]="sidebarMenu"
+  >
+    <lucide-angular [img]="menuIcon" class="sidebar-icon"></lucide-angular>
+  </button>
+
+  <ng-template #sidebarMenu>
+    <div class="sidebar-menu" cdkMenu>
+      <button
+        type="button"
+        class="sidebar-menu__item"
+        cdkMenuItem
+        (cdkMenuItemTriggered)="onToggleFullscreen()"
+      >
+        <lucide-angular
+          [img]="isFullscreen ? exitFullscreenIcon : enterFullscreenIcon"
+          class="sidebar-menu__icon"
+        ></lucide-angular>
+
+        <span>
+          {{ isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen' }}
+        </span>
+      </button>
+    </div>
+  </ng-template>
+</div>

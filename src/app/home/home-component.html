@@ -8,42 +8,24 @@
           }
           <h1>WhatsApp</h1>
         </div>
-        <div class="sidebar-actions">
-          <button
-            type="button"
-            class="sidebar-icon-button"
-            aria-label="Menu"
-            [attr.aria-expanded]="isMenuOpen"
-            (click)="toggleMenu($event)"
-          >
-            <lucide-angular [img]="menuIcon" class="sidebar-icon"></lucide-angular>
-          </button>
-
-          @if (isMenuOpen) {
-            <div class="sidebar-menu" (click)="$event.stopPropagation()">
-              <button type="button" class="sidebar-menu__item" (click)="toggleFullscreen()">
-                <lucide-angular
-                  [img]="isFullscreen ? exitFullscreenIcon : enterFullscreenIcon"
-                  class="sidebar-menu__icon"
-                ></lucide-angular>
-                {{ isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen' }}
-              </button>
-            </div>
-          }
-        </div>
+        <app-sidebar-menu
+          [isFullscreen]="isFullscreen"
+          [menuIcon]="menuIcon"
+          [enterFullscreenIcon]="enterFullscreenIcon"
+          [exitFullscreenIcon]="exitFullscreenIcon"
+          (fullscreenToggled)="toggleFullscreen()"
+        ></app-sidebar-menu>
       </div>
 
       <nav class="top-tabs" aria-label="Primary sections">
-        <button
-          type="button"
-          [ngClass]="{ 'top-tab': true, 'top-tab--active': selectedTab === 'profile' }"
+        <button type="button" 
+          [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'profile'}"
           (click)="selectedTab = 'profile'"
         >
           profile
         </button>
-        <button
-          type="button"
-          [ngClass]="{ 'top-tab': true, 'top-tab--active': selectedTab === 'chats' }"
+        <button type="button" 
+          [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'chats'}"
           (click)="selectedTab = 'chats'"
         >
           Chats
@@ -51,9 +33,8 @@
             <span class="top-tab__badge">{{ unreadChatsCount }}</span>
           }
         </button>
-        <button
-          type="button"
-          [ngClass]="{ 'top-tab': true, 'top-tab--active': selectedTab === 'calls' }"
+        <button type="button" 
+          [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'calls'}"
           (click)="selectedTab = 'calls'"
         >
           Calls
@@ -61,7 +42,7 @@
       </nav>
     </header>
 
-    @if (selectedTab === 'chats') {
+    @if(selectedTab === 'chats') {
       <app-chat-list-component
         [chats]="chats"
         [searchTerm]="searchTerm"
@@ -72,9 +53,11 @@
         (createChat)="createNewChat()"
         [deletingChatId]="deletingChatId"
       ></app-chat-list-component>
-    } @else if (selectedTab == 'profile') {
+    }
+    @else if (selectedTab == 'profile') {
       <app-profile-component></app-profile-component>
-    } @else if (selectedTab == 'calls') {
+    }
+    @else if (selectedTab == 'calls') {
       <!-- <app-calls-component></app-calls-component> -->
     }
   </aside>
