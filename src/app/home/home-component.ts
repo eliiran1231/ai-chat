@@ -2,11 +2,13 @@ import { Component, Injector, OnInit } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
-import { AiAgent } from '../../agents/AiAgent';
 import { Agent } from '../../classes/Agent';
 import { ChatListComponent } from '../chat-list-component/chat-list-component';
 import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
+import { ProfileService } from '../../services/profile.service';
+import { AiAgent } from '../../agents/AiAgent/AiAgent';
+
 @Component({
   selector: 'app-home',
   imports: [ChatComponent, ChatListComponent, ProfileComponent, CommonModule],
@@ -15,6 +17,8 @@ import { CommonModule } from '@angular/common';
 })
 export class HomeComponent implements OnInit {
   searchTerm = '';
+  // whatsappLogoUrl: string | null = 'image.png';
+  whatsappLogoUrl?: string
   selectedChat: Chat | null = null;
   chats: Chat[] = [];
   isCreatingChat = false;
@@ -24,11 +28,13 @@ export class HomeComponent implements OnInit {
   constructor(
       private chatService: ChatService,
       private injector: Injector,
+      private profileService: ProfileService,
     ) {
   }
 
   async ngOnInit(): Promise<void> {
-    this.chats = await this.chatService.getChats(() => new AiAgent(this.injector));
+    void this.profileService.loadBasicInfo();
+    this.chats = await this.chatService.getChats();
   }
 
   get unreadChatsCount(): number {

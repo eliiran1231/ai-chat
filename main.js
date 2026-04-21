@@ -1,8 +1,9 @@
 import { app, BrowserWindow, Menu, ipcMain, shell} from 'electron/main';
 import * as path from 'path';
+import * as os from 'os';
 import { fileURLToPath } from 'url';
 import sqlite3 from 'sqlite3';
-
+import { exec } from 'child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const sqlite = sqlite3.verbose();
@@ -57,6 +58,47 @@ function get(sql, params = []) {
   });
 }
 
+function getNetworkIp() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    const addrs = interfaces[name];
+    if (!addrs) continue;
+
+    for (const addr of addrs) {
+      if (addr.family === 'IPv4' && !addr.internal) {
+        return addr.address;
+      }
+    }
+  }
+
+  return '127.0.0.1';
+}
+
+function getFullName() {
+  return new Promise((resolve) => {
+    const command = `powershell -NoProfile -ExecutionPolicy Bypass -Command "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; (Get-LocalUser -Name $env:USERNAME).FullName"`;
+
+    exec(command, { encoding: "utf8" }, (err, out) => {
+      if (err) return resolve(null);
+      resolve(out.trim());
+    });
+  });
+}
+
+async function getBasicInfo() {
+  const userInfo = os.userInfo();
+  const username = userInfo.username || process.env.USERNAME || process.env.USER || 'unknown';
+  const displayName = await getFullName() || username;
+  const computerName = os.hostname();
+
+  return {
+    username,
+    displayName,
+    computerName,
+    ip: getNetworkIp(),
+  };
+}
+
 function mapChatRow(row) {
   return {
     id: row.id,
@@ -69,6 +111,21 @@ function mapChatRow(row) {
     highlightTime: Boolean(row.highlight_time),
     avatarRing: Boolean(row.avatar_ring),
     tipLabel: row.tip_label ?? undefined,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function mapSupporterRow(row) {
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    chatId: row.chat_id,
+    agentName: row.agent_name,
+    context: row.context ?? '',
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -151,8 +208,20 @@ async function initializeDatabase() {
       FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
     )
   `);
+  await run(`
+    CREATE TABLE IF NOT EXISTS supporters (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      chat_id INTEGER NOT NULL UNIQUE,
+      agent_name TEXT NOT NULL,
+      context TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
+    )
+  `);
 
   const messageColumns = await all(`PRAGMA table_info(messages)`);
+  const supporterColumns = await all(`PRAGMA table_info(supporters)`);
   const hasIsReadColumn = messageColumns.some((column) => column.name === 'is_read');
   const hasPossibleAnswersColumn = messageColumns.some(
     (column) => column.name === 'possible_answers',
@@ -186,6 +255,12 @@ async function initializeDatabase() {
   }
   if (!hasValidationErrorMessageColumn) {
     await run(`ALTER TABLE messages ADD COLUMN validation_error_message TEXT`);
+  }
+  if (supporterColumns.length > 0) {
+    const hasContextColumn = supporterColumns.some((column) => column.name === 'context');
+    if (!hasContextColumn) {
+      await run(`ALTER TABLE supporters ADD COLUMN context TEXT NOT NULL DEFAULT ''`);
+    }
   }
 }
 
@@ -270,6 +345,65 @@ function registerDbHandlers() {
     );
 
     return mapChatRow(row);
+  });
+
+  ipcMain.handle('db:getChatSupporter', async (_event, chatId) => {
+    const row = await get(
+      `
+        SELECT
+          id,
+          chat_id,
+          agent_name,
+          context,
+          created_at,
+          updated_at
+        FROM supporters
+        WHERE chat_id = ?
+      `,
+      [chatId],
+    );
+
+    return mapSupporterRow(row);
+  });
+
+  ipcMain.handle('db:createSupporter', async (_event, supporter) => {
+    const now = new Date().toISOString();
+    const result = await run(
+      `
+        INSERT INTO supporters (
+          chat_id,
+          agent_name,
+          context,
+          created_at,
+          updated_at
+        )
+        VALUES (?, ?, ?, ?, ?)
+      `,
+      [
+        supporter.chatId,
+        supporter.agentName,
+        supporter.context ?? '',
+        now,
+        now,
+      ],
+    );
+
+    const row = await get(
+      `
+        SELECT
+          id,
+          chat_id,
+          agent_name,
+          context,
+          created_at,
+          updated_at
+        FROM supporters
+        WHERE id = ?
+      `,
+      [result.lastID],
+    );
+
+    return mapSupporterRow(row);
   });
 
   ipcMain.handle('db:getChatMessages', async (_event, chatId) => {
@@ -423,12 +557,46 @@ function registerDbHandlers() {
     return mapChatRow(row);
   });
 
+  ipcMain.handle('db:updateSupporterAgent', async (_event, { chatId, agentName }) => {
+    const result = await run(
+      `
+        UPDATE supporters
+        SET agent_name = ?,
+            updated_at = ?
+        WHERE chat_id = ?
+      `,
+      [agentName, new Date().toISOString(), chatId],
+    );
+
+    return result.changes > 0;
+  });
+
+  ipcMain.handle('db:updateSupporterContext', async (_event, { chatId, context }) => {
+    const result = await run(
+      `
+        UPDATE supporters
+        SET context = ?,
+            updated_at = ?
+        WHERE chat_id = ?
+      `,
+      [context ?? '', new Date().toISOString(), chatId],
+    );
+
+    return result.changes > 0;
+  });
+
   ipcMain.handle('db:deleteChat', async (_event, chatId) => {
     await run(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
+    await run(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
     const result = await run(`DELETE FROM chats WHERE id = ?`, [chatId]);
     return result.changes > 0;
   });
+
+  ipcMain.handle('system:getBasicInfo', async () => {
+    return getBasicInfo();
+  });
 }
+
 function isExternalUrl(url) {
   return /^https?:\/\//i.test(url);
 }
@@ -436,7 +604,7 @@ function isExternalUrl(url) {
 function createWindow() {
   const win = new BrowserWindow({
     width: 360,
-    height: 600,
+    height: 680,
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

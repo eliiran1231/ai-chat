@@ -1,11 +1,8 @@
+import { ValidatorSpec } from "../interfaces/validation/ValidatorSpec";
 import { Answer } from "./Answer";
 import { Message } from "./Message";
-import {
-    coerceValidatorSpec,
-    normalizeValidatorSpec,
-    validateValue,
-    type ValidatorSpec,
-} from "./MessageValidator";
+import { coerceValidatorSpec, normalizeValidatorSpec, validateValue } from "./MessageValidator";
+
 
 export function getPersistableValidationErrorMessage(
     validationErrorMessage: string | Message,
@@ -25,6 +22,20 @@ export class Question extends Message {
     public validationErrorMessage: string | Message  = "Invalid answer. Please try again.";
     public get possibleAnswers() {
         return this._possibleAnswers;
+    }
+
+    constructor(value: string | File, options?: {
+        validator?: RegExp | ValidatorSpec;
+        validationErrorMessage?: string | Message;
+        possibleAnswers?: string[] | Answer[];
+    }) {
+        super(value);
+        if (options?.validator) {
+            this.setValidator(options.validator, options.validationErrorMessage);
+        }
+        if (options?.possibleAnswers) {
+            this.setPossibleAnswers(options.possibleAnswers);
+        }
     }
 
     setValidator(validator: RegExp | ValidatorSpec, validationErrorMessage?: string | Message) {

@@ -55,10 +55,23 @@ app-chat-list-component {
 .brand-row {
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.65rem 1.25rem 0.85rem;
+  padding: 0.625rem 0.625rem;
+}
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
 }
 
-.brand-row h1,
+.brand-title__logo {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .chat-list-tip p,
 .chat-sidebar-footer p {
   margin: 0;
@@ -68,6 +81,7 @@ app-chat-list-component {
   font-size: 2rem;
   font-weight: 400;
   letter-spacing: 0.01em;
+  margin: 0 10px;
 }
 
 .sidebar-actions {
