@@ -46,6 +46,10 @@
   padding-bottom: 6rem; //1rems of padding + 5rem for floating button.
 }
 
+.chat-list::-webkit-scrollbar {
+  display: none;
+}
+
 .chat-list-item {
   width: 100%;
   display: grid;
