@@ -1,28 +1,33 @@
-<section class="image-preview-shell">
+<section class="file-preview-shell">
   <button
     type="button"
     class="close-button"
-    aria-label="Close image preview"
+    aria-label="Close file preview"
     (click)="closePreview()"
   >
     x
   </button>
 
   <div class="preview-stage">
-    @if(processedImageUrl()){
-      <img width="100%" [src]="processedImageUrl()" [alt]="imageAlt" />
+    @if(processedFileUrl()){
+      @if(file.type.startsWith('image')){
+        <img width="100%" [src]="processedFileUrl()" [alt]="fileAlt" />
+      }
+      @else if (file.type == 'file') {
+
+      }
     }
     @else {
       <div id="loading-preview">loading...</div>
     }
   </div>
 
-  <form class="composer-bar" (ngSubmit)="submitImage()">
+  <form class="composer-bar" (ngSubmit)="submitFile()">
     <button type="button" class="composer-icon" aria-label="Magic tools">*</button>
 
-    <label class="composer-field" for="image-caption">
+    <label class="composer-field" for="file-caption">
       <textarea
-        id="image-caption"
+        id="file-caption"
         name="caption"
         rows="1"
         [(ngModel)]="caption"
@@ -35,7 +40,7 @@
     <button
       type="submit"
       class="send-button"
-      aria-label="Send image with caption">
+      aria-label="Send file with caption">
       <span>&gt;</span>
     </button>
   </form>

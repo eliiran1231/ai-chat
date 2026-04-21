@@ -4,12 +4,12 @@ import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
 import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
-import { ImagePreviewComponent } from "../image-preview-component/image-preview-component";
+import { FilePreviewComponent } from "../file-preview-component/file-preview-component";
 import { Message } from '../../classes/Message';
 
 @Component({
   selector: 'app-chat',
-  imports: [MessageBubbleComponent, ChatInputComponent, ImagePreviewComponent],
+  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
@@ -17,7 +17,7 @@ export class ChatComponent {
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
-  imageFile?: File;
+  attachmentFile?: File;
 
   sendMessage(message: string | Message): void {
     if (!this.chat) {
@@ -34,12 +34,11 @@ export class ChatComponent {
   }
 
   closePreviewPage(): void {
-    this.imageFile = undefined;
+    this.attachmentFile = undefined;
   }
 
-  openPreviewPage(image: File){
-    console.log(image)
-    this.imageFile = image;
+  openPreviewPage(file: File){
+    this.attachmentFile = file;
   }
 
   selectAnswer(answer: Answer | string): void {

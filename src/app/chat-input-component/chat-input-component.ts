@@ -16,7 +16,7 @@ ChatInputComponent {
 
   @Input({ required: true }) chat!: Chat;
   @Output() messageSubmit = new EventEmitter<string>();
-  @Output() imageSubmit = new EventEmitter<File>();
+  @Output() fileSubmit = new EventEmitter<File>();
 
   submitMessage(form?: NgForm): void {
     const trimmedMessage = this.chat.draftMessage.trim();
@@ -31,16 +31,15 @@ ChatInputComponent {
     form?.resetForm({ message: '' });
   }
 
-  pickImage(): void {
+  pickFile(): void {
     let input = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/*';
+    input.accept = 'file/*';
     input.multiple = false;
     input.onchange = (event) => {
       const file = (event.target as HTMLInputElement).files?.[0];
       if (file) {
-          console.log(file);
-          this.imageSubmit.emit(file);
+          this.fileSubmit.emit(file);
         };
     };
     input.click();

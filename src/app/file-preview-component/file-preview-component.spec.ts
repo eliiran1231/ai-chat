@@ -4,23 +4,23 @@ import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
 import { Supporter } from '../../classes/Supporter';
 
-import { ImagePreviewComponent } from './image-preview-component';
+import { FilePreviewComponent } from './file-preview-component';
 
-describe('ImagePreviewComponent', () => {
-  let component: ImagePreviewComponent;
-  let fixture: ComponentFixture<ImagePreviewComponent>;
+describe('FilePreviewComponent', () => {
+  let component: FilePreviewComponent;
+  let fixture: ComponentFixture<FilePreviewComponent>;
   let chat: Chat;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ImagePreviewComponent],
+      imports: [FilePreviewComponent],
     }).compileComponents();
 
     const supporter = new Supporter();
     chat = new Chat(1, 'Test Chat', 'Online', 'TC', supporter);
     supporter.setAgent(new Agent(TestBed.inject(Injector)));
 
-    fixture = TestBed.createComponent(ImagePreviewComponent);
+    fixture = TestBed.createComponent(FilePreviewComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('chat', chat);
     fixture.detectChanges();

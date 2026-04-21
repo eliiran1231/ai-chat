@@ -3,7 +3,7 @@
   class="chat-composer"
   (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
 >
-  <button (click)="pickImage()" type="button" class="composer-action" aria-label="Attach file">+</button>
+  <button (click)="pickFile()" type="button" class="composer-action" aria-label="Attach file">+</button>
   <button type="button" class="composer-action" aria-label="Emoji">:)</button>
 
   <label class="composer-field" for="message-input">

@@ -94,7 +94,7 @@ describe('ChatComponent', () => {
     expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
   });
 
-  it('renders markdown images as img elements', async () => {
+  it('renders markdown files as img elements', async () => {
     const message = new Message(
       '![A mushroom-head robot drinking bubble tea](https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg)',
     );
@@ -103,12 +103,12 @@ describe('ChatComponent', () => {
       message,
     ]);
 
-    const image = fixture.nativeElement.querySelector(
+    const file = fixture.nativeElement.querySelector(
       '.message-markdown img',
-    ) as HTMLImageElement | null;
-    expect(image?.getAttribute('src')).toBe(
+    ) as HTMLFileElement | null;
+    expect(file?.getAttribute('src')).toBe(
       'https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg',
     );
-    expect(image?.getAttribute('alt')).toBe('A mushroom-head robot drinking bubble tea');
+    expect(file?.getAttribute('alt')).toBe('A mushroom-head robot drinking bubble tea');
   });
 });

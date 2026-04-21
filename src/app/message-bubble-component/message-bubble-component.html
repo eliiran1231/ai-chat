@@ -9,9 +9,9 @@
     [class.message-bubble--user]="!isSupporterMessage(message)"
   >
     @if (message.attachment) {
-      @if (message.attachment.type == 'image') {
-        <div class="image-attchment-container">
-          <img class="message-image-attachment" width="100%" [src]="message.attachment.url"/>
+      @if (message.attachment.type.startsWith('image')) {
+        <div class="file-attchment-container">
+          <img class="message-file-attachment" width="100%" [src]="message.attachment.url"/>
         </div>
       }
     }
