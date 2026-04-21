@@ -1,11 +1,8 @@
+import { ValidatorSpec } from "../interfaces/validation/ValidatorSpec";
 import { Answer } from "./Answer";
 import { Message } from "./Message";
-import {
-    coerceValidatorSpec,
-    normalizeValidatorSpec,
-    validateValue,
-    type ValidatorSpec,
-} from "./MessageValidator";
+import { coerceValidatorSpec, normalizeValidatorSpec, validateValue } from "./MessageValidator";
+
 
 export function getPersistableValidationErrorMessage(
     validationErrorMessage: string | Message,

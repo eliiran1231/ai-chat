@@ -1,66 +1,14 @@
 import { Injectable } from '@angular/core';
-import type { MessageType } from '../classes/Message';
-import type { ValidatorSpec } from '../classes/MessageValidator';
 import { ElectronService } from './electron.service';
-
-export interface ChatRecord {
-  id: number;
-  name: string;
-  status: string;
-  avatar: string;
-  subtitle?: string;
-  timeLabel?: string;
-  unreadCount?: number;
-  highlightTime?: boolean;
-  avatarRing?: boolean;
-  tipLabel?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateChatRecordInput {
-  name: string;
-  status: string;
-  avatar: string;
-  subtitle?: string;
-  timeLabel?: string;
-  unreadCount?: number;
-  highlightTime?: boolean;
-  avatarRing?: boolean;
-  tipLabel?: string;
-}
-
-export interface UpdateChatTitleInput {
-  chatId: number;
-  name: string;
-}
-
-export interface MessageRecord {
-  id: number;
-  chatId: number;
-  from?: 'client' | 'supporter';
-  messageType?: MessageType;
-  value: string;
-  tag?: string;
-  time: string;
-  isRead: boolean;
-  possibleAnswers?: string[];
-  validatorSpec?: ValidatorSpec;
-  validationErrorMessage?: string;
-}
-
-export interface CreateMessageRecordInput {
-  chatId: number;
-  from?: 'client' | 'supporter';
-  messageType?: MessageType;
-  value: string;
-  tag?: string;
-  time: string;
-  isRead: boolean;
-  possibleAnswers?: string[];
-  validatorSpec?: ValidatorSpec;
-  validationErrorMessage?: string;
-}
+import { ChatRecord } from '../interfaces/db/ChatRecord';
+import { CreateChatRecordInput } from '../interfaces/db/CreateChatRecordInput';
+import { CreateMessageRecordInput } from '../interfaces/db/CreateMessageRecordInput';
+import { CreateSupporterRecordInput } from '../interfaces/db/CreateSupporterRecordInput';
+import { MessageRecord } from '../interfaces/db/MessageRecord';
+import { SupporterRecord } from '../interfaces/db/SupporterRecord';
+import { UpdateChatTitleInput } from '../interfaces/db/UpdateChatTitleInput';
+import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgentInput';
+import { UpdateSupporterContextInput } from '../interfaces/db/UpdateSupporterContextInput';
 
 @Injectable({
   providedIn: 'root',
@@ -92,11 +40,33 @@ export class DbService {
     return this.electronService.invoke<MessageRecord>('db:createMessage', message);
   }
 
+  async getChatSupporter(chatId: number): Promise<SupporterRecord | null> {
+    return this.electronService.invoke<SupporterRecord | null>('db:getChatSupporter', chatId);
+  }
+
+  async createSupporter(supporter: CreateSupporterRecordInput): Promise<SupporterRecord> {
+    return this.electronService.invoke<SupporterRecord>('db:createSupporter', supporter);
+  }
+
   async markChatRead(chatId: number): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:markChatRead', chatId);
   }
 
   async updateChatTitle(input: UpdateChatTitleInput): Promise<ChatRecord> {
     return this.electronService.invoke<ChatRecord>('db:updateChatTitle', input);
+  }
+
+  async updateSupporterAgent(input: UpdateSupporterAgentInput): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:updateSupporterAgent', input);
+  }
+
+  async updateSupporterContext(input: UpdateSupporterContextInput): Promise<boolean> {
+    try{
+      input.context = JSON.stringify(input.context);
+    }
+    catch{
+      input.context = input.context.toString();
+    }
+    return this.electronService.invoke<boolean>('db:updateSupporterContext', input);
   }
 }
