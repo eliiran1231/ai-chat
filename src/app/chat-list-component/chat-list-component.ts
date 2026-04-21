@@ -45,7 +45,7 @@ export class ChatListComponent {
       return chat.subtitle || 'start the conversation';
     }
 
-    return lastMessage.value;
+    return lastMessage.value || lastMessage.attachment?.name || '';
   }
 
   lastMessageTime(chat: Chat): string {

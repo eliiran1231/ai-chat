@@ -13,8 +13,12 @@
       @if(file.type.startsWith('image')){
         <img width="100%" [src]="processedFileUrl()" [alt]="fileAlt" />
       }
-      @else if (file.type == 'file') {
-
+      @else {
+        <div class="file-details">
+          <h3 class="file-name">{{ fileInfo.name }}</h3>
+          <p class="file-size">size: {{ fileInfo.size | filesize }}</p>
+          <p class="file-extension">type: {{ fileInfo.type }}</p>
+        </div>
       }
     }
     @else {
@@ -40,7 +44,8 @@
     <button
       type="submit"
       class="send-button"
-      aria-label="Send file with caption">
+      aria-label="Send file with caption"
+      [disabled]="!processedFileUrl()">
       <span>&gt;</span>
     </button>
   </form>

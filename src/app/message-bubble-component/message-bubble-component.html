@@ -9,25 +9,50 @@
     [class.message-bubble--user]="!isSupporterMessage(message)"
   >
     @if (message.attachment) {
-      @if (message.attachment.type.startsWith('image')) {
-        <div class="file-attchment-container">
-          <img class="message-file-attachment" width="100%" [src]="message.attachment.url"/>
-        </div>
-      }
+      <div class="file-attchment-container">
+        @if (message.attachment.type.startsWith('image')) {
+          <img class="message-file-attachment" width="100%" [src]="message.attachment.url" />
+        }
+        @else {
+          <a
+            class="message-file-card"
+            [href]="message.attachment.url"
+            [attr.download]="message.attachment.name + '.' + message.attachment.extension"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="'Open attachment ' + message.attachment.name"
+          >
+            <div class="message-file-card__content">
+              <p class="message-file-card__name">
+                {{ message.attachment.name }}.{{ message.attachment.extension }}
+              </p>
+              <p class="message-file-card__meta">
+                {{ message.attachment.size | filesize }}
+                <span class="message-file-card__dot"></span>
+                {{ message.attachment.extension }}
+              </p>
+            </div>
+
+            <div class="message-file-card__action" aria-hidden="true">
+              <span>&darr;</span>
+            </div>
+          </a>
+        }
+      </div>
     }
     <div class="message-markdown" markdown [data]="message.value"></div>
     @if (message instanceof questionType && message.possibleAnswers.length) {
-    <div class="possible-answers-container">
-      @for (possibleAnswer of message.possibleAnswers; track $index) {
-        <button
-          type="button"
-          class="possible-answer"
-          (click)="selectAnswer(possibleAnswer)"
-        >
-          {{ possibleAnswerLabel(possibleAnswer) }}
-        </button>
-      }
-    </div>
+      <div class="possible-answers-container">
+        @for (possibleAnswer of message.possibleAnswers; track $index) {
+          <button
+            type="button"
+            class="possible-answer"
+            (click)="selectAnswer(possibleAnswer)"
+          >
+            {{ possibleAnswerLabel(possibleAnswer) }}
+          </button>
+        }
+      </div>
     }
     <time class="message-time">{{ message.time | date: 'HH:mm' }}</time>
   </div>
