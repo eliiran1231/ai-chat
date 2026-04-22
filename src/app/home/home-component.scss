@@ -84,27 +84,10 @@ app-chat-list-component {
   margin: 0 10px;
 }
 
-.sidebar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.sidebar-icon-button,
 .top-tab,
 .top-tabs__icon {
   border: 0;
   cursor: pointer;
-}
-
-.sidebar-icon-button {
-  min-width: 2.35rem;
-  height: 2.35rem;
-  border-radius: 50%;
-  background: transparent;
-  color: #fff;
-  font-size: 0.85rem;
-  text-transform: lowercase;
 }
 
 .top-tabs {

@@ -8,9 +8,13 @@
           }
           <h1>WhatsApp</h1>
         </div>
-        <div class="sidebar-actions">
-          <button type="button" class="sidebar-icon-button" aria-label="Menu">...</button>
-        </div>
+        <app-sidebar-menu
+          [isFullscreen]="isFullscreen"
+          [menuIcon]="menuIcon"
+          [enterFullscreenIcon]="enterFullscreenIcon"
+          [exitFullscreenIcon]="exitFullscreenIcon"
+          (fullscreenToggled)="toggleFullscreen()"
+        ></app-sidebar-menu>
       </div>
 
       <nav class="top-tabs" aria-label="Primary sections">

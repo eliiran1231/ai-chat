@@ -610,12 +610,16 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
+  win.once('ready-to-show', () => {
+    win.focus();
+    win.webContents.focus();
+  });
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (isExternalUrl(url)) {
       void shell.openExternal(url);
       return { action: 'deny' };
     }
-      return { action: 'allow' };
+    return { action: 'allow' };
   });
   win.webContents.on('will-navigate', (event, url) => {
     const currentUrl = win.webContents.getURL();
