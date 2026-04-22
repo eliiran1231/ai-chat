@@ -17,7 +17,7 @@ import { AiAgent } from '../../agents/AiAgent/AiAgent';
 })
 export class HomeComponent implements OnInit {
   searchTerm = '';
-  // whatsappLogoUrl: string | null = 'file.png';
+  // whatsappLogoUrl: string | null = 'image.png';
   whatsappLogoUrl?: string
   selectedChat: Chat | null = null;
   chats: Chat[] = [];
