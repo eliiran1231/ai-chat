@@ -22,11 +22,6 @@ ChatInputComponent {
 
   submitMessage(form?: NgForm): void {
     const trimmedMessage = this.caption.trim();
-
-    if (!trimmedMessage) {
-      return;
-    }
-
     this.messageSubmit.emit(trimmedMessage);
     this.composerHasOverflow = false;
     form?.resetForm({ message: '' });
