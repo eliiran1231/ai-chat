@@ -3,34 +3,14 @@
 }
 @else if (chat; as activeChat) {
   <section class="chat-shell">
-    <header class="chat-navbar">
-      <div class="contact-block">
-        @if (showBackButton) {
-          <button
-            type="button"
-            class="back-button"
-            aria-label="Back to chat list"
-            (click)="back.emit()"
-          >
-            &lt;
-          </button>
-        }
-
-        <div class="avatar" aria-hidden="true">{{ activeChat.avatar }}</div>
-        <div class="contact-meta">
-          <h1>{{ activeChat.name }}</h1>
-          <p>{{ activeChat.status }}</p>
-        </div>
-      </div>
-
-      <div class="navbar-actions" aria-label="Chat actions">
-        <button type="button" class="icon-button" aria-label="Search conversation">O</button>
-        <button type="button" class="icon-button" aria-label="More options">...</button>
-      </div>
-    </header>
+    <app-chat-navbar-component
+      [chat]="activeChat"
+      [showBackButton]="showBackButton"
+      (back)="back.emit()"
+    ></app-chat-navbar-component>
 
     <main class="chat-thread" aria-label="Conversation">
-      @for (message of activeChat.messages; track $index) {
+      @for (message of activeChat.messages; track message.id) {
         <app-message-bubble
           [message]="message"
           (answerSelected)="selectAnswer($event)"

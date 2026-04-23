@@ -39,91 +39,10 @@ app-file-preview-component {
     var(--wa-thread);
 }
 
-.chat-navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.85rem 1rem;
-  background: linear-gradient(180deg, var(--wa-green), var(--wa-green-dark));
-  color: #fff;
-  box-shadow: 0 1px 0 rgba(17, 27, 33, 0.15);
-}
-
-.contact-block {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  min-width: 0;
-}
-
-.back-button,
-.icon-button {
-  border: 0;
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    background-color 0.15s ease,
-    opacity 0.15s ease;
-}
-
-.back-button:hover,
-.icon-button:hover {
-  transform: translateY(-1px);
-}
-
-.back-button,
-.icon-button {
-  min-width: 2.3rem;
-  height: 2.3rem;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  font-size: 1rem;
-}
-
-.avatar {
-  width: 2.8rem;
-  height: 2.8rem;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #dfe5e7, #b7c4c8);
-  color: var(--wa-green);
-  font-weight: 700;
-  flex: 0 0 auto;
-}
-
-.contact-meta {
-  min-width: 0;
-}
-
-.contact-meta h1,
-.contact-meta p,
 .message-text,
 .chat-placeholder__card h2,
 .chat-placeholder__card p {
   margin: 0;
-}
-
-.contact-meta h1 {
-  font-size: 1rem;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.contact-meta p {
-  margin-top: 0.12rem;
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.82);
-}
-
-.navbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
 }
 
 .chat-thread {
@@ -174,12 +93,6 @@ app-file-preview-component {
 .chat-placeholder__card p {
   color: #667781;
   line-height: 1.5;
-}
-
-@media (min-width: 781px) {
-  .back-button {
-    display: none;
-  }
 }
 
 @media (max-width: 780px) {

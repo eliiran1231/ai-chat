@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
+import { ChatNavbarComponent } from '../chat-navbar-component/chat-navbar-component';
 import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
 import { FilePreviewComponent } from "../file-preview-component/file-preview-component";
@@ -9,7 +10,7 @@ import { Message } from '../../classes/Message';
 
 @Component({
   selector: 'app-chat',
-  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent],
+  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent, ChatNavbarComponent],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
