@@ -1,6 +1,8 @@
 <form
   #chatForm="ngForm"
   class="chat-composer"
+  [class.chat-composer--dark]="theme === 'dark'"
+  [class.chat-composer--light]="theme !== 'dark'"
   (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
 >
   <button (click)="pickFile()" type="button" class="composer-action" aria-label="Attach file">+</button>
@@ -18,7 +20,7 @@
       [cdkAutosizeMaxRows]="composerMaxRows"
       [style.--composer-max-rows]="composerMaxRows"
       [style.overflow-y]="composerHasOverflow ? 'auto' : 'hidden'"
-      [(ngModel)]="chat.draftMessage"
+      [(ngModel)]="caption"
       (input)="syncComposerOverflow(autosize, messageInput)"
       (keydown)="handleComposerKeydown($event)"
       placeholder="Type a message"
@@ -30,7 +32,7 @@
     type="submit"
     class="send-button"
     aria-label="Send message"
-    [disabled]="!chat.draftMessage.trim()"
+    [disabled]="requiredContent && !caption.trim()"
   >
     >
   </button>

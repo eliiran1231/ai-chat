@@ -2,10 +2,11 @@ import { ChangeDetectorRef, Component, EventEmitter, inject, Input, OnInit, Outp
 import { FormsModule } from '@angular/forms';
 import { Attachment, Message } from '../../classes/Message';
 import { NgxFilesizeModule } from 'ngx-filesize';
+import { ChatInputComponent } from "../chat-input-component/chat-input-component";
 
 @Component({
   selector: 'app-file-preview-component',
-  imports: [FormsModule, NgxFilesizeModule],
+  imports: [FormsModule, NgxFilesizeModule, ChatInputComponent],
   templateUrl: './file-preview-component.html',
   styleUrl: './file-preview-component.scss',
 })
@@ -36,9 +37,12 @@ export class FilePreviewComponent implements OnInit {
     this.closed.emit();
   }
 
-  submitFile(): void {
-    const message = this.caption.trim();
+  submitFile(message: string): void {
     this.submitted.emit(new Message(message, this.fileInfo));
     this.caption = '';
+  }
+  changeFile(newFile: File){
+    this.file = newFile;
+    this.ngOnInit()
   }
 }

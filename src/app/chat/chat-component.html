@@ -43,6 +43,7 @@
     </main>
 
     <app-chat-input-component
+      theme="light"
       [chat]="activeChat"
       (messageSubmit)="sendMessage($event)"
       (fileSubmit)="openPreviewPage($event)"

@@ -13,20 +13,21 @@ export class
 ChatInputComponent {
   readonly composerMaxRows = 5;
   composerHasOverflow = false;
-
-  @Input({ required: true }) chat!: Chat;
+  @Input() theme: 'light' | 'dark' = 'light';
+  @Input() chat: Chat | undefined;
+  @Input() requiredContent = true;
   @Output() messageSubmit = new EventEmitter<string>();
   @Output() fileSubmit = new EventEmitter<File>();
+  caption = ''
 
   submitMessage(form?: NgForm): void {
-    const trimmedMessage = this.chat.draftMessage.trim();
+    const trimmedMessage = this.caption.trim();
 
     if (!trimmedMessage) {
       return;
     }
 
     this.messageSubmit.emit(trimmedMessage);
-    this.chat.draftMessage = '';
     this.composerHasOverflow = false;
     form?.resetForm({ message: '' });
   }
@@ -47,6 +48,7 @@ ChatInputComponent {
 
 
   handleComposerKeydown(event: KeyboardEvent): void {
+    if(this.chat) this.chat.draftMessage = this.caption; 
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
       event.preventDefault();
       (event.target as HTMLTextAreaElement).form?.requestSubmit();

@@ -26,27 +26,9 @@
     }
   </div>
 
-  <form class="composer-bar" (ngSubmit)="submitFile()">
-    <button type="button" class="composer-icon" aria-label="Magic tools">*</button>
-
-    <label class="composer-field" for="file-caption">
-      <textarea
-        id="file-caption"
-        name="caption"
-        rows="1"
-        [(ngModel)]="caption"
-        placeholder="Write a caption..."
-      ></textarea>
-    </label>
-
-    <button type="button" class="composer-attach" aria-label="Add media">+</button>
-
-    <button
-      type="submit"
-      class="send-button"
-      aria-label="Send file with caption"
-      [disabled]="!processedFileUrl()">
-      <span>&gt;</span>
-    </button>
-  </form>
+  <app-chat-input-component
+    theme="dark"
+    (messageSubmit)="submitFile($event)"
+    (fileSubmit)="changeFile($event)"
+  ></app-chat-input-component>
 </section>
