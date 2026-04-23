@@ -1,0 +1,34 @@
+<section class="file-preview-shell">
+  <button
+    type="button"
+    class="close-button"
+    aria-label="Close file preview"
+    (click)="closePreview()"
+  >
+    x
+  </button>
+
+  <div class="preview-stage">
+    @if(processedFileUrl()){
+      @if(file.type.startsWith('image')){
+        <img width="100%" [src]="processedFileUrl()" [alt]="fileAlt" />
+      }
+      @else {
+        <div class="file-details">
+          <h3 class="file-name">{{ fileInfo.name }}</h3>
+          <p class="file-size">size: {{ fileInfo.size | filesize }}</p>
+          <p class="file-extension">type: {{ fileInfo.type }}</p>
+        </div>
+      }
+    }
+    @else {
+      <div id="loading-preview">loading...</div>
+    }
+  </div>
+
+  <app-chat-input-component
+    theme="dark"
+    (messageSubmit)="submitFile($event)"
+    (fileSubmit)="changeFile($event)"
+  ></app-chat-input-component>
+</section>

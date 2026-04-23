@@ -62,7 +62,7 @@ export class FlowAgent extends Agent {
 
     override async respond(): Promise<void> {
         super.respond();
-        if (!this.lastMessage || this.lastMessage.value instanceof File) return;
+        if (!this.lastMessage) return;
 
         this.actor.send({
             type: this.lastMessage instanceof Question ? "QUESTION" : "ANSWER",
@@ -71,7 +71,7 @@ export class FlowAgent extends Agent {
     }
     askName() {
         const possibleAnswers = ["Jhon", "Kyle", "Brad"];
-        const question = new Question("Whats your name?", {
+        const question = new Question("Whats your name?" , {
             validator: {
                 type: "oneOf",
                 values: possibleAnswers

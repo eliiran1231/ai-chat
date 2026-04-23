@@ -140,8 +140,8 @@ export class ChatService {
     const message = messageType === 'question'
       ? this.hydrateQuestion(record)
       : messageType === 'answer'
-        ? new Answer(record.value)
-        : new Message(record.value);
+        ? new Answer(record.value, record.attachment)
+        : new Message(record.value, record.attachment);
 
     message.id = record.id;
     message.from = record.from;
@@ -152,7 +152,9 @@ export class ChatService {
   }
 
   private hydrateQuestion(record: MessageRecord): Question {
-    const question = new Question(record.value);
+    const question = new Question(record.value, {
+      attachment: record.attachment,
+    });
     question.from = record.from;
     question.setPossibleAnswers(record.possibleAnswers ?? []);
     const validatorSpec = coerceValidatorSpec(record.validatorSpec);
@@ -177,17 +179,16 @@ export class ChatService {
         chatId: chat.id,
         from: message.from,
         messageType,
-        value: typeof message.value === 'string' ? message.value : message.value.name,
+        value: message.value,
         tag: message.tag,
         time: message.time.toISOString(),
         isRead: message.isRead,
+        attachment: message.attachment,
         possibleAnswers: message instanceof Question
           ? message.possibleAnswers.map((possibleAnswer) =>
               typeof possibleAnswer === 'string'
                 ? possibleAnswer
-                : typeof possibleAnswer.value === 'string'
-                  ? possibleAnswer.value
-                  : possibleAnswer.value.name,
+                : possibleAnswer.value
             )
           : undefined,
         validatorSpec: message instanceof Question ? message.validatorSpec : undefined,

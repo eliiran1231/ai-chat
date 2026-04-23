@@ -1,4 +1,7 @@
-@if (chat; as activeChat) {
+@if(attachmentFile){
+  <app-file-preview-component [file]="attachmentFile" [processFileUrl]="(file)=>chat.processFileUrl(file)" (submitted)="closePreviewPage(); sendMessage($event)" (closed)="closePreviewPage()"></app-file-preview-component>
+}
+@else if (chat; as activeChat) {
   <section class="chat-shell">
     <header class="chat-navbar">
       <div class="contact-block">
@@ -39,43 +42,12 @@
       }
     </main>
 
-    <form
-      #chatForm="ngForm"
-      class="chat-composer"
-      (ngSubmit)="sendMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
-    >
-      <button type="button" class="composer-action" aria-label="Emoji">:)</button>
-      <button type="button" class="composer-action" aria-label="Attach file">+</button>
-
-      <label class="composer-field" for="message-input">
-        <textarea
-          #messageInput
-          #autosize="cdkTextareaAutosize"
-          id="message-input"
-          rows="1"
-          name="message"
-          cdkTextareaAutosize
-          cdkAutosizeMinRows="1"
-          [cdkAutosizeMaxRows]="composerMaxRows"
-          [style.--composer-max-rows]="composerMaxRows"
-          [style.overflow-y]="composerHasOverflow ? 'auto' : 'hidden'"
-          [(ngModel)]="activeChat.draftMessage"
-          (input)="syncComposerOverflow(autosize, messageInput)"
-          (keydown)="handleComposerKeydown($event, autosize, messageInput)"
-          placeholder="Type a message"
-          autocomplete="off"
-        ></textarea>
-      </label>
-
-      <button
-        type="submit"
-        class="send-button"
-        aria-label="Send message"
-        [disabled]="!activeChat.draftMessage.trim()"
-      >
-        >
-      </button>
-    </form>
+    <app-chat-input-component
+      theme="light"
+      [chat]="activeChat"
+      (messageSubmit)="sendMessage($event)"
+      (fileSubmit)="openPreviewPage($event)"
+    ></app-chat-input-component>
   </section>
 } @else {
   <section class="chat-placeholder">

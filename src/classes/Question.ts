@@ -1,6 +1,6 @@
 import { ValidatorSpec } from "../interfaces/validation/ValidatorSpec";
 import { Answer } from "./Answer";
-import { Message } from "./Message";
+import { Attachment, Message } from "./Message";
 import { coerceValidatorSpec, normalizeValidatorSpec, validateValue } from "./MessageValidator";
 
 
@@ -24,12 +24,13 @@ export class Question extends Message {
         return this._possibleAnswers;
     }
 
-    constructor(value: string | File, options?: {
+    constructor(value: string, options?: {
+        attachment?: Attachment;
         validator?: RegExp | ValidatorSpec;
         validationErrorMessage?: string | Message;
         possibleAnswers?: string[] | Answer[];
     }) {
-        super(value);
+        super(value, options?.attachment);
         if (options?.validator) {
             this.setValidator(options.validator, options.validationErrorMessage);
         }
@@ -54,7 +55,6 @@ export class Question extends Message {
     }
     
     isAnswerValid(answer: Answer) {
-        if(answer.value instanceof File) return true;
         return validateValue(answer.value, this.validatorSpec);
     }
 }

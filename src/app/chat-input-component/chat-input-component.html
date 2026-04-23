@@ -1,0 +1,39 @@
+<form
+  #chatForm="ngForm"
+  class="chat-composer"
+  [class.chat-composer--dark]="theme === 'dark'"
+  [class.chat-composer--light]="theme !== 'dark'"
+  (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
+>
+  <button (click)="pickFile()" type="button" class="composer-action" aria-label="Attach file">+</button>
+  <button type="button" class="composer-action" aria-label="Emoji">:)</button>
+
+  <label class="composer-field" for="message-input">
+    <textarea
+      #messageInput
+      #autosize="cdkTextareaAutosize"
+      id="message-input"
+      rows="1"
+      name="message"
+      cdkTextareaAutosize
+      cdkAutosizeMinRows="1"
+      [cdkAutosizeMaxRows]="composerMaxRows"
+      [style.--composer-max-rows]="composerMaxRows"
+      [style.overflow-y]="composerHasOverflow ? 'auto' : 'hidden'"
+      [(ngModel)]="caption"
+      (input)="syncComposerOverflow(autosize, messageInput)"
+      (keydown)="handleComposerKeydown($event)"
+      placeholder="Type a message"
+      autocomplete="off"
+    ></textarea>
+  </label>
+
+  <button
+    type="submit"
+    class="send-button"
+    aria-label="Send message"
+    [disabled]="requiredContent && !caption.trim()"
+  >
+    >
+  </button>
+</form>

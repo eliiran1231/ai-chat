@@ -158,6 +158,28 @@ function parseStringArrayColumn(value, fieldName, rowId) {
   return undefined;
 }
 
+function parseAttachmentColumn(value, fieldName, rowId) {
+  const parsedValue = parseJsonColumn(value, fieldName, rowId);
+  if (parsedValue === undefined) {
+    return undefined;
+  }
+
+  if (
+    parsedValue &&
+    typeof parsedValue === 'object' &&
+    typeof parsedValue.name === 'string' &&
+    typeof parsedValue.extension === 'string' &&
+    typeof parsedValue.type === 'string' &&
+    typeof parsedValue.url === 'string' &&
+    typeof parsedValue.size === 'number'
+  ) {
+    return parsedValue;
+  }
+
+  console.warn(`Unexpected ${fieldName} payload for message ${rowId}.`, parsedValue);
+  return undefined;
+}
+
 function mapMessageRow(row) {
   return {
     id: row.id,
@@ -168,6 +190,7 @@ function mapMessageRow(row) {
     tag: row.tag ?? undefined,
     time: row.time,
     isRead: Boolean(row.is_read),
+    attachment: parseAttachmentColumn(row.attachment, 'attachment', row.id),
     possibleAnswers: parseStringArrayColumn(row.possible_answers, 'possible_answers', row.id),
     validatorSpec: parseJsonColumn(row.validator_spec, 'validator_spec', row.id),
     validationErrorMessage: row.validation_error_message ?? undefined,
@@ -201,6 +224,7 @@ async function initializeDatabase() {
       value TEXT NOT NULL,
       tag TEXT,
       time TEXT NOT NULL,
+      attachment TEXT,
       possible_answers TEXT,
       validator_spec TEXT,
       validation_error_message TEXT,
@@ -231,6 +255,7 @@ async function initializeDatabase() {
   const hasValidationErrorMessageColumn = messageColumns.some(
     (column) => column.name === 'validation_error_message',
   );
+  const hasAttachmentColumn = messageColumns.some((column) => column.name === 'attachment');
   if (!hasIsReadColumn) {
     await run(`ALTER TABLE messages ADD COLUMN is_read INTEGER NOT NULL DEFAULT 0`);
     await run(`
@@ -255,6 +280,9 @@ async function initializeDatabase() {
   }
   if (!hasValidationErrorMessageColumn) {
     await run(`ALTER TABLE messages ADD COLUMN validation_error_message TEXT`);
+  }
+  if (!hasAttachmentColumn) {
+    await run(`ALTER TABLE messages ADD COLUMN attachment TEXT`);
   }
   if (supporterColumns.length > 0) {
     const hasContextColumn = supporterColumns.some((column) => column.name === 'context');
@@ -417,6 +445,7 @@ function registerDbHandlers() {
           value,
           tag,
           time,
+          attachment,
           possible_answers,
           validator_spec,
           validation_error_message,
@@ -441,12 +470,13 @@ function registerDbHandlers() {
           value,
           tag,
           time,
+          attachment,
           possible_answers,
           validator_spec,
           validation_error_message,
           is_read
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         message.chatId,
@@ -455,6 +485,7 @@ function registerDbHandlers() {
         message.value,
         message.tag ?? null,
         message.time,
+        message.attachment ? JSON.stringify(message.attachment) : null,
         message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
         message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
         message.validationErrorMessage ?? null,
@@ -484,6 +515,7 @@ function registerDbHandlers() {
           value,
           tag,
           time,
+          attachment,
           possible_answers,
           validator_spec,
           validation_error_message,

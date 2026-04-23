@@ -1,4 +1,4 @@
-import type { MessageType } from '../../classes/Message';
+import type { Attachment, MessageType } from '../../classes/Message';
 import type { ValidatorSpec } from '../validation/ValidatorSpec';
 
 export interface CreateMessageRecordInput {
@@ -9,6 +9,7 @@ export interface CreateMessageRecordInput {
   tag?: string;
   time: string;
   isRead: boolean;
+  attachment?: Attachment;
   possibleAnswers?: string[];
   validatorSpec?: ValidatorSpec;
   validationErrorMessage?: string;
