@@ -33,6 +33,8 @@
     "@angular/platform-browser": "^21.1.0",
     "@angular/router": "^21.1.0",
     "filesize": "^9.0.11",
+    "lucide": "^1.8.0",
+    "lucide-angular": "^1.0.0",
     "marked": "^17.0.6",
     "ngx-filesize": "^3.0.7",
     "ngx-markdown": "^21.1.0",
