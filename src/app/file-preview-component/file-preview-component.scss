@@ -45,6 +45,8 @@
 .preview-stage {
   min-height: 0;
   display: flex;
+  max-width: 100%;
+  max-height: 31rem;
   flex-direction: column;
   justify-content: center;
   gap: 1rem;
