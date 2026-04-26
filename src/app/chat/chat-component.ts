@@ -6,17 +6,37 @@ import { MessageBubbleComponent } from '../message-bubble-component/message-bubb
 import { Question } from '../../classes/Question';
 import { FilePreviewComponent } from "../file-preview-component/file-preview-component";
 import { Message } from '../../classes/Message';
+import { LucideAngularModule, EllipsisVertical, Trash2 } from 'lucide-angular';
+import { AppMenu, AppMenuItem } from '../shared/app-menu/app-menu';
 
 @Component({
   selector: 'app-chat',
-  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent],
+  imports: [
+    MessageBubbleComponent,
+    ChatInputComponent,
+    FilePreviewComponent,
+    LucideAngularModule,
+    AppMenu,
+  ],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
+  readonly menuIcon = EllipsisVertical;
+  readonly deleteIcon = Trash2;
+  readonly menuItems: AppMenuItem[] = [
+    {
+      id: 'delete-chat',
+      label: 'Delete chat',
+      icon: this.deleteIcon,
+      tone: 'danger',
+    },
+  ];
+
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
+  @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
 
   sendMessage(message: string | Message): void {
@@ -43,5 +63,11 @@ export class ChatComponent {
 
   selectAnswer(answer: Answer | string): void {
     this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer));
+  }
+
+  onMenuItemSelected(id: string): void {
+    if (id === 'delete-chat' && this.chat) {
+      this.deleteChat.emit(this.chat);
+    }
   }
 }

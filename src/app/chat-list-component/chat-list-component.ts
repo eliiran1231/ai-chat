@@ -12,10 +12,8 @@ export class ChatListComponent {
   @Input({ required: true }) chats: Chat[] = [];
   @Input() searchTerm = '';
   @Input() selectedChat: Chat | null = null;
-  @Input() deletingChatId: number | null = null;
 
   @Output() openChat = new EventEmitter<Chat>();
-  @Output() deleteChat = new EventEmitter<Chat>();
   @Output() searchTermChange = new EventEmitter<string>();
   @Output() createChat = new EventEmitter<void>();
 
@@ -57,11 +55,6 @@ export class ChatListComponent {
 
   onOpenChat(chat: Chat): void {
     this.openChat.emit(chat);
-  }
-
-  onDeleteChat(chat: Chat, event: Event): void {
-    event.stopPropagation();
-    this.deleteChat.emit(chat);
   }
 
   onSearchTermChange(value: string): void {

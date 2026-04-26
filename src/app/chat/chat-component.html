@@ -25,7 +25,11 @@
 
       <div class="navbar-actions" aria-label="Chat actions">
         <button type="button" class="icon-button" aria-label="Search conversation">O</button>
-        <button type="button" class="icon-button" aria-label="More options">...</button>
+        <app-menu
+          [menuIcon]="menuIcon"
+          [items]="menuItems"
+          (itemSelected)="onMenuItemSelected($event)"
+        ></app-menu>
       </div>
     </header>
 
