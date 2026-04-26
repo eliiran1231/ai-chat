@@ -1,0 +1,235 @@
+:host {
+  display: block;
+}
+
+.chat-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: linear-gradient(180deg, var(--wa-green), var(--wa-green-dark));
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(17, 27, 33, 0.15);
+}
+
+#search-mode-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.search-result-count {
+  min-width: 3rem;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.88);
+  text-align: center;
+}
+
+.search-result-count--empty {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.search-input-shell {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 2.8rem;
+  color: white;
+}
+
+.search-icon {
+  display: block;
+  position: relative;
+  width: 0.95rem;
+  height: 0.95rem;
+  color: rgba(255, 255, 255, 0.92);
+  flex: 0 0 auto;
+}
+
+.search-icon::before,
+.search-icon::after {
+  content: '';
+  position: absolute;
+}
+
+.search-icon::before {
+  inset: 0.02rem 0.18rem 0.18rem 0.02rem;
+  border: 0.12rem solid currentColor;
+  border-radius: 50%;
+}
+
+.search-icon::after {
+  width: 0.42rem;
+  height: 0.12rem;
+  right: 0;
+  bottom: 0.02rem;
+  border-radius: 999px;
+  background: currentColor;
+  transform: rotate(45deg);
+  transform-origin: right center;
+}
+
+.search-input-shell input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+.search-input-shell input::placeholder {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.search-navigation {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 0.15rem;
+}
+
+.search-nav-button,
+.search-close-button {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    color 0.15s ease;
+}
+
+.search-nav-button:hover,
+.search-close-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+}
+
+.search-nav-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.search-nav-button:disabled:hover {
+  background: transparent;
+  transform: none;
+}
+
+.search-close-button {
+  flex: 0 0 auto;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+}
+
+.contact-block {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.back-button,
+.icon-button {
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.back-button:hover,
+.icon-button:hover {
+  transform: translateY(-1px);
+}
+
+.back-button,
+.icon-button {
+  min-width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.avatar {
+  width: 2.8rem;
+  height: 2.8rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dfe5e7, #b7c4c8);
+  color: var(--wa-green);
+  font-weight: 700;
+  flex: 0 0 auto;
+}
+
+.contact-meta {
+  min-width: 0;
+}
+
+.contact-meta h1,
+.contact-meta p {
+  margin: 0;
+}
+
+.contact-meta h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contact-meta p {
+  margin-top: 0.12rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+@media (min-width: 781px) {
+  .back-button {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .chat-navbar {
+    gap: 0.65rem;
+    padding-inline: 0.75rem;
+  }
+
+  #search-mode-container {
+    gap: 0.45rem;
+  }
+
+  .search-result-count {
+    min-width: 2.35rem;
+    font-size: 0.72rem;
+  }
+}

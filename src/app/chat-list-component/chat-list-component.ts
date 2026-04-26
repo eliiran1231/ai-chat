@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Chat } from '../../classes/Chat';
-
+import DOMPurify from 'dompurify';
 @Component({
   selector: 'app-chat-list-component',
   imports: [FormsModule],
@@ -45,7 +45,12 @@ export class ChatListComponent {
       return chat.subtitle || 'start the conversation';
     }
 
-    return lastMessage.value || lastMessage.attachment?.name || '';
+    return DOMPurify.sanitize(
+      lastMessage.value || 
+      lastMessage.attachment?.name || 
+      '', 
+      { ALLOWED_TAGS: [] }
+    );
   }
 
   lastMessageTime(chat: Chat): string {
