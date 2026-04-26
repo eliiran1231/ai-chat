@@ -5,7 +5,7 @@ import { NgxFilesizeModule } from 'ngx-filesize';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
-import { HighlightPipe } from '../highlight.pipe';
+import { HighlightPipe } from '../../pipes/highlight.pipe';
 @Component({
   selector: 'app-message-bubble',
   imports: [DatePipe, MarkdownComponent, NgxFilesizeModule, HighlightPipe],
