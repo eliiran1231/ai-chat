@@ -5,15 +5,17 @@ import { NgxFilesizeModule } from 'ngx-filesize';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
+import { HighlightPipe } from '../highlight.pipe';
 @Component({
   selector: 'app-message-bubble',
-  imports: [DatePipe, MarkdownComponent, NgxFilesizeModule],
+  imports: [DatePipe, MarkdownComponent, NgxFilesizeModule, HighlightPipe],
   templateUrl: './message-bubble-component.html',
   styleUrl: './message-bubble-component.scss',
 })
 export class MessageBubbleComponent {
   @Input({ required: true }) message!: Message;
   @Input() isActiveSearchMatch = false;
+  @Input() searchTerm = '';
   @Output() answerSelected = new EventEmitter<Answer | string>();
 
   questionType = Question;

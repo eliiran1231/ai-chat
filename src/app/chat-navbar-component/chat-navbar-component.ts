@@ -20,6 +20,9 @@ export class ChatNavbarComponent {
   searchMode = false;
   searchQuery = '';
 
+  @ViewChild('searchInput') set inputRef(searchInput: ElementRef){
+    this.searchMode && searchInput.nativeElement.focus();
+  }
   openSearch(): void {
     this.searchMode = true;
   }

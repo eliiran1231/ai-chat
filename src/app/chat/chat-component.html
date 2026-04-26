@@ -20,6 +20,7 @@
         <app-message-bubble
           [message]="message"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
+          [searchTerm]="searchQuery"
           (answerSelected)="selectAnswer($event)"
         ></app-message-bubble>
       } @empty {

@@ -42,7 +42,7 @@
         }
       </div>
     }
-    <div class="message-markdown" markdown [data]="message.value"></div>
+    <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
     @if (message instanceof questionType && message.possibleAnswers.length) {
       <div class="possible-answers-container">
         @for (possibleAnswer of message.possibleAnswers; track $index) {
