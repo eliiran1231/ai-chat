@@ -63,11 +63,11 @@ export class ChatService {
           this.dbService.getChatMessages(record.id),
           this.dbService.getChatSupporter(record.id),
         ]);
-        const agentName = persistedSupporterRecord?.agentName ?? 'AiAgent';
-        const initialAgent = this.agentsService.getAgentByName(agentName);
+        if(!persistedSupporterRecord?.agentName) throw new Error("couldnt retrieve agent from SQL")
+        const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
         const supporterRecord = persistedSupporterRecord ?? await this.dbService.createSupporter({
           chatId: record.id,
-          agentName,
+          agentName: this.agentsService.getAgentName(initialAgent),
           context: '',
         });
 
