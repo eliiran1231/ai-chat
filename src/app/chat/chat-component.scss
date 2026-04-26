@@ -6,6 +6,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+ng-scrollbar,
 .chat-shell,
 .chat-placeholder {
   height: 100%;
@@ -29,6 +30,7 @@ app-file-preview-component {
   --wa-border: #d1d7db;
   --wa-text-soft: #667781;
 
+  position: relative;
   display: flex;
   flex-direction: column;
   background:
@@ -50,6 +52,43 @@ app-file-preview-component {
   overflow-y: auto;
   padding-top: 1.2rem;
   padding-bottom: 1.2rem;
+}
+
+.scroll-bottom-button {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 5.5rem;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 0;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--wa-green);
+  box-shadow: 0 8px 24px rgba(17, 27, 33, 0.16);
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
+  z-index: 2;
+}
+
+.scroll-bottom-button:hover {
+  transform: translateY(-1px);
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(17, 27, 33, 0.2);
+}
+
+.scroll-bottom-button:active {
+  transform: translateY(0);
+}
+
+.scroll-bottom-button span {
+  font-size: 1.35rem;
+  line-height: 1;
+  transform: translateY(-1px);
 }
 
 .empty-state {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { afterNextRender, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -7,14 +7,16 @@ import { MessageBubbleComponent } from '../message-bubble-component/message-bubb
 import { Question } from '../../classes/Question';
 import { FilePreviewComponent } from "../file-preview-component/file-preview-component";
 import { Message } from '../../classes/Message';
+import { NgScrollbar } from 'ngx-scrollbar';
+import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 
 @Component({
   selector: 'app-chat',
-  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent, ChatNavbarComponent],
+  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent, ChatNavbarComponent, NgScrollbar, NgScrollReachDrop],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
-export class ChatComponent {
+export class ChatComponent implements OnInit{
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
@@ -22,6 +24,15 @@ export class ChatComponent {
   searchQuery = '';
   matchingMessageIds: number[] = [];
   activeSearchResultIndex = -1;
+  hasScrollButton = false;
+
+
+  @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
+  ngOnInit(): void {
+    this.chat.supporter.onMessageAdded.subscribe(()=>{
+      void this.scrollToBottom();
+    })
+  }
 
   sendMessage(message: string | Message): void {
     if (!this.chat) {
@@ -35,6 +46,7 @@ export class ChatComponent {
     } else {
       this.chat.user.ask(new Question(messageValue, {attachment: messageAttachment}));
     }
+    //setTimeout(()=>this.scrollToBottom()); //needs better solution
   }
 
   closePreviewPage(): void {
@@ -98,6 +110,21 @@ export class ChatComponent {
         behavior: 'smooth',
         block: 'center',
       });
+    });
+  }
+
+  showScrollButton(){
+    this.hasScrollButton = true;
+  }
+  
+  hideScrollButton(){
+    this.hasScrollButton = false;
+  }
+
+  scrollToBottom() {
+    return this.scrollbar.scrollTo({
+      bottom: 0,
+      duration: 0
     });
   }
 }

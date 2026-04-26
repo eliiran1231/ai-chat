@@ -15,7 +15,15 @@
       (searchClosed)="clearSearch()"
     ></app-chat-navbar-component>
 
-    <main class="chat-thread" aria-label="Conversation">
+    <ng-scrollbar
+      #chatScrollbar
+      reachedBottomOffset="40"
+      droppedBottomOffset="40"
+      (droppedBottom)="showScrollButton()"
+      (reachedBottom)="hideScrollButton()"
+      appearance="compact"
+      class="chat-thread"
+    >
       @for (message of activeChat.messages; track message.id) {
         <app-message-bubble
           [message]="message"
@@ -28,7 +36,18 @@
           <p>No messages yet</p>
         </div>
       }
-    </main>
+    </ng-scrollbar>
+
+    @if (hasScrollButton) {
+      <button
+        type="button"
+        class="scroll-bottom-button"
+        aria-label="Scroll to bottom"
+        (click)="scrollToBottom()"
+      >
+        <span aria-hidden="true">⌄</span>
+      </button>
+    }
 
     <app-chat-input-component
       theme="light"
