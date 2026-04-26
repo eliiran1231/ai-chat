@@ -3,6 +3,7 @@
   class="message-row"
   [class.message-row--supporter]="isSupporterMessage(message)"
   [class.message-row--user]="!isSupporterMessage(message)"
+  [class.message-row--search-active]="isActiveSearchMatch"
 >
   <div
     class="message-bubble"

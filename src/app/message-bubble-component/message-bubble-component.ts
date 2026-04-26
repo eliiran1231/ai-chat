@@ -13,6 +13,7 @@ import { Question } from '../../classes/Question';
 })
 export class MessageBubbleComponent {
   @Input({ required: true }) message!: Message;
+  @Input() isActiveSearchMatch = false;
   @Output() answerSelected = new EventEmitter<Answer | string>();
 
   questionType = Question;
@@ -34,5 +35,4 @@ export class MessageBubbleComponent {
   selectAnswer(answer: Answer | string): void {
     this.answerSelected.emit(answer);
   }
-  
 }

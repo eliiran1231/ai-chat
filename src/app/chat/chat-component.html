@@ -6,13 +6,20 @@
     <app-chat-navbar-component
       [chat]="activeChat"
       [showBackButton]="showBackButton"
+      [resultCount]="matchingMessageIds.length"
+      [currentResultIndex]="activeSearchResultIndex"
       (back)="back.emit()"
+      (searchChange)="updateSearch($event)"
+      (nextMatch)="stepInSearch(1)"
+      (previousMatch)="stepInSearch(-1)"
+      (searchClosed)="clearSearch()"
     ></app-chat-navbar-component>
 
     <main class="chat-thread" aria-label="Conversation">
       @for (message of activeChat.messages; track message.id) {
         <app-message-bubble
           [message]="message"
+          [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
           (answerSelected)="selectAnswer($event)"
         ></app-message-bubble>
       } @empty {

@@ -19,6 +19,9 @@ export class ChatComponent {
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
   attachmentFile?: File;
+  searchQuery = '';
+  matchingMessageIds: number[] = [];
+  activeSearchResultIndex = -1;
 
   sendMessage(message: string | Message): void {
     if (!this.chat) {
@@ -44,5 +47,57 @@ export class ChatComponent {
 
   selectAnswer(answer: Answer | string): void {
     this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer));
+  }
+
+  updateSearch(query: string): void {
+    this.searchQuery = query;
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+
+    if (!normalizedQuery) {
+      this.clearSearch();
+      return;
+    }
+
+    this.matchingMessageIds = this.chat.messages
+      .filter((message) => message.value.toLocaleLowerCase().includes(normalizedQuery))
+      .map((message) => message.id)
+      .filter((messageId): messageId is number => messageId !== undefined);
+
+    this.activeSearchResultIndex = this.matchingMessageIds.length ? 0 : -1;
+    this.scrollToActiveSearchResult();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.matchingMessageIds = [];
+    this.activeSearchResultIndex = -1;
+  }
+
+  stepInSearch(steps: number = 1){
+    if (!this.matchingMessageIds.length) {
+      return;
+    }
+
+    this.activeSearchResultIndex = (this.activeSearchResultIndex + steps) % this.matchingMessageIds.length;
+    this.scrollToActiveSearchResult();
+  }
+
+  isActiveSearchMatch(messageId: number | undefined): boolean {
+    return this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
+  }
+
+  private scrollToActiveSearchResult(): void {
+    const activeMessageId = this.matchingMessageIds[this.activeSearchResultIndex];
+
+    if (activeMessageId === undefined) {
+      return;
+    }
+
+    requestAnimationFrame(() => {
+      document.getElementById(`${activeMessageId}`)?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    });
   }
 }
