@@ -176,6 +176,7 @@ export class ChatService {
     const persistMessage = async (message: Message) => {
       const messageType = message instanceof Answer ? "answer" : message instanceof Question ? "question" : "message";
       const record = await this.dbService.createMessage({
+        id: message.id,
         chatId: chat.id,
         from: message.from,
         messageType,

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, ipcMain, shell} from 'electron/main';
+import { app, BrowserWindow, Menu, ipcMain, shell } from 'electron/main';
 import * as path from 'path';
 import * as os from 'os';
 import { fileURLToPath } from 'url';
@@ -461,36 +461,61 @@ function registerDbHandlers() {
   });
 
   ipcMain.handle('db:createMessage', async (_event, message) => {
+    const persistWithExplicitId = Number.isInteger(message?.id) && message.id > 0;
+    const args = [
+      message.id,
+      message.chatId,
+      message.from,
+      message.messageType ?? 'message',
+      message.value,
+      message.tag ?? null,
+      message.time,
+      message.attachment ? JSON.stringify(message.attachment) : null,
+      message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
+      message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
+      message.validationErrorMessage ?? null,
+      message.isRead ? 1 : 0,
+    ];
+    if (!persistWithExplicitId) args.shift();
+
+    const sql = persistWithExplicitId
+      ? `
+          INSERT INTO messages (
+            id,
+            chat_id,
+            sender,
+            message_type,
+            value,
+            tag,
+            time,
+            attachment,
+            possible_answers,
+            validator_spec,
+            validation_error_message,
+            is_read
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `
+      : `
+          INSERT INTO messages (
+            chat_id,
+            sender,
+            message_type,
+            value,
+            tag,
+            time,
+            attachment,
+            possible_answers,
+            validator_spec,
+            validation_error_message,
+            is_read
+          )
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
     const result = await run(
-      `
-        INSERT INTO messages (
-          chat_id,
-          sender,
-          message_type,
-          value,
-          tag,
-          time,
-          attachment,
-          possible_answers,
-          validator_spec,
-          validation_error_message,
-          is_read
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        message.chatId,
-        message.from,
-        message.messageType ?? 'message',
-        message.value,
-        message.tag ?? null,
-        message.time,
-        message.attachment ? JSON.stringify(message.attachment) : null,
-        message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
-        message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
-        message.validationErrorMessage ?? null,
-        message.isRead ? 1 : 0,
-      ],
+      sql,
+      args,
     );
 
     if (!message.isRead) {
@@ -523,7 +548,7 @@ function registerDbHandlers() {
         FROM messages
         WHERE id = ?
       `,
-      [result.lastID],
+      [persistWithExplicitId ? message.id : result.lastID],
     );
 
     return mapMessageRow(row);
@@ -662,7 +687,7 @@ function createWindow() {
     }
   });
 
-    
+
 
   win.loadFile(path.join(__dirname, './dist/ai-chat/browser/index.html'));
 }
