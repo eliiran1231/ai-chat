@@ -202,15 +202,9 @@ export class ChatService {
     };
 
     chat.supporter.onMessageAdded.subscribe((message) => {
-      if (!message) {
-        return;
-      }
       void persistMessage(message);
     });
     chat.user.onMessageAdded.subscribe((message) => {
-      if (!message) {
-        return;
-      }
       void persistMessage(message);
     });
   }
