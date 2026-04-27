@@ -29,15 +29,6 @@
           <strong>{{ chat.name }}</strong>
           <div class="chat-list-item__actions">
             <time [class.chat-list-item__time--accent]="chat.highlightTime">{{ lastMessageTime(chat) }}</time>
-            <button
-              type="button"
-              class="chat-delete-button"
-              aria-label="Delete chat"
-              [disabled]="deletingChatId === chat.id"
-              (click)="onDeleteChat(chat, $event)"
-            >
-              x
-            </button>
           </div>
         </div>
         <div class="chat-list-item__bottom">

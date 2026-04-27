@@ -12,27 +12,27 @@ export class ChatListComponent {
   @Input({ required: true }) chats: Chat[] = [];
   @Input() searchTerm = '';
   @Input() selectedChat: Chat | null = null;
-  @Input() deletingChatId: number | null = null;
 
   @Output() openChat = new EventEmitter<Chat>();
-  @Output() deleteChat = new EventEmitter<Chat>();
   @Output() searchTermChange = new EventEmitter<string>();
   @Output() createChat = new EventEmitter<void>();
 
   get filteredChats(): Chat[] {
     const query = this.searchTerm.trim().toLowerCase();
-    if (!query) {
-      return this.chats;
-    }
+    const chats = !query
+      ? [...this.chats]
+      : this.chats.filter((chat) => {
+          const lastMessage = this.lastMessageText(chat).toLowerCase();
+          return (
+            chat.name.toLowerCase().includes(query) ||
+            chat.status.toLowerCase().includes(query) ||
+            lastMessage.includes(query)
+          );
+        });
 
-    return this.chats.filter((chat) => {
-      const lastMessage = this.lastMessageText(chat).toLowerCase();
-      return (
-        chat.name.toLowerCase().includes(query) ||
-        chat.status.toLowerCase().includes(query) ||
-        lastMessage.includes(query)
-      );
-    });
+    return chats.sort(
+      (a, b) => (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
+    );
   }
 
   avatarFor(chat: Chat): string {
@@ -62,11 +62,6 @@ export class ChatListComponent {
 
   onOpenChat(chat: Chat): void {
     this.openChat.emit(chat);
-  }
-
-  onDeleteChat(chat: Chat, event: Event): void {
-    event.stopPropagation();
-    this.deleteChat.emit(chat);
   }
 
   onSearchTermChange(value: string): void {

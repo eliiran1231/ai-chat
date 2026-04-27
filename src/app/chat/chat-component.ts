@@ -18,6 +18,7 @@ export class ChatComponent {
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
+  @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
   searchQuery = '';
   matchingMessageIds: number[] = [];
