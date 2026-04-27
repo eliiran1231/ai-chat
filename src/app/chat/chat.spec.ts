@@ -105,7 +105,7 @@ describe('ChatComponent', () => {
 
     const file = fixture.nativeElement.querySelector(
       '.message-markdown img',
-    ) as HTMLFileElement | null;
+    );
     expect(file?.getAttribute('src')).toBe(
       'https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg',
     );

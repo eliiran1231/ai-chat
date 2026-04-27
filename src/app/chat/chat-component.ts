@@ -17,16 +17,7 @@ import { AppMenu, AppMenuItem } from '../shared/app-menu/app-menu';
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
-  readonly menuIcon = EllipsisVertical;
-  readonly deleteIcon = Trash2;
-  readonly menuItems: AppMenuItem[] = [
-    {
-      id: 'delete-chat',
-      label: 'Delete chat',
-      icon: this.deleteIcon,
-      tone: 'danger',
-    },
-  ];
+
 
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;

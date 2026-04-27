@@ -67,7 +67,14 @@
       >
         <span class="search-icon" aria-hidden="true"></span>
       </button>
-      <button type="button" class="icon-button" aria-label="More options">...</button>
+      <div class="navbar-actions" aria-label="Chat actions">
+        <button type="button" class="icon-button" aria-label="Search conversation">O</button>
+        <app-menu
+          [menuIcon]="menuIcon"
+          [items]="menuItems"
+          (itemSelected)="onMenuItemSelected($event)"
+        ></app-menu>
+      </div>
     </div>
   }
 </header>
