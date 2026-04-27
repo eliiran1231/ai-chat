@@ -42,6 +42,7 @@ export class ChatComponent {
     } else {
       this.chat.user.ask(new Question(messageValue, {attachment: messageAttachment}));
     }
+    this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
   closePreviewPage(): void {
@@ -117,6 +118,7 @@ export class ChatComponent {
   }
 
   scrollToBottom() {
+    console.log("scrolled");
     return this.scrollbar.scrollTo({
       bottom: 0,
       duration: 0
@@ -124,6 +126,6 @@ export class ChatComponent {
   }
 
   scrollIfNeeded(){
-    (!this.awayFromBottom || this.chat.messages.at(-1)?.from == "client") && this.scrollToBottom();
+    !this.awayFromBottom && this.scrollToBottom();
   }
 }
