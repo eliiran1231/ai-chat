@@ -1,4 +1,4 @@
-import { afterNextRender, Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -16,23 +16,19 @@ import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
-export class ChatComponent implements OnInit{
+export class ChatComponent {
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
+  readonly SCROLLBAR_OFFSET = 40;
   attachmentFile?: File;
   searchQuery = '';
   matchingMessageIds: number[] = [];
   activeSearchResultIndex = -1;
-  hasScrollButton = false;
+  awayFromBottom = false;
 
 
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
-  ngOnInit(): void {
-    this.chat.supporter.onMessageAdded.subscribe(()=>{
-      void this.scrollToBottom();
-    })
-  }
 
   sendMessage(message: string | Message): void {
     if (!this.chat) {
@@ -46,7 +42,6 @@ export class ChatComponent implements OnInit{
     } else {
       this.chat.user.ask(new Question(messageValue, {attachment: messageAttachment}));
     }
-    //setTimeout(()=>this.scrollToBottom()); //needs better solution
   }
 
   closePreviewPage(): void {
@@ -114,11 +109,11 @@ export class ChatComponent implements OnInit{
   }
 
   showScrollButton(){
-    this.hasScrollButton = true;
+    this.awayFromBottom = true;
   }
   
   hideScrollButton(){
-    this.hasScrollButton = false;
+    this.awayFromBottom = false;
   }
 
   scrollToBottom() {
@@ -126,5 +121,9 @@ export class ChatComponent implements OnInit{
       bottom: 0,
       duration: 0
     });
+  }
+
+  scrollIfNeeded(){
+    (!this.awayFromBottom || this.chat.messages.at(-1)?.from == "client") && this.scrollToBottom();
   }
 }

@@ -63,6 +63,17 @@
   </aside>
 
   <section class="chat-stage">
-    <app-chat [chat]="selectedChat!" [showBackButton]="true" (back)="closeChat()" />
+    @if(selectedChat){
+      <app-chat [chat]="selectedChat" [showBackButton]="true" (back)="closeChat()" />
+    }
+    @else {
+      <section class="chat-placeholder">
+        <div class="chat-placeholder__card">
+          <div class="chat-placeholder__icon">WA</div>
+          <h2>Select a chat</h2>
+          <p>Pick an existing conversation or create a new one from the sidebar.</p>
+        </div>
+      </section>
+    }
   </section>
 </section>
