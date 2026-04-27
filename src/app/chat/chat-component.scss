@@ -13,6 +13,20 @@ ng-scrollbar,
   min-height: 0;
 }
 
+ng-scrollbar {
+  --scrollbar-track-color: transparent;
+  --scrollbar-thumb-color: rgba(0, 0, 0, 0);
+  --scrollbar-thumb-hover-color: rgba(0, 0, 0, 0);
+  --scrollbar-thumb-active-color: rgba(0, 0, 0, 0);
+  --scrollbar-thumb-transition: background-color 0.5s ease;
+
+  &.scrollbar-visible {
+    --scrollbar-thumb-color: rgba(0, 0, 0, 0.42);
+    --scrollbar-thumb-hover-color: rgba(0, 0, 0, 0.56);
+    --scrollbar-thumb-active-color: rgba(0, 0, 0, 0.62);
+  }
+}
+
 app-file-preview-component {
   display: flex;
   flex-direction: column;

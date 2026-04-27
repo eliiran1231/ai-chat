@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -16,7 +16,7 @@ import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
-export class ChatComponent {
+export class ChatComponent implements AfterViewInit, OnDestroy {
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
@@ -26,9 +26,37 @@ export class ChatComponent {
   matchingMessageIds: number[] = [];
   activeSearchResultIndex = -1;
   awayFromBottom = false;
+  scrollbarVisible = false;
+  private scrollTimer?: ReturnType<typeof setTimeout>;
+  private readonly handleScrollbarScroll = () => this.onScroll();
 
+  onScroll(): void {
+    this.scrollbarVisible = true;
 
-  @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
+    if (this.scrollTimer) {
+      clearTimeout(this.scrollTimer);
+    }
+
+    this.scrollTimer = setTimeout(() => {
+      this.scrollbarVisible = false;
+    }, 160);
+  }
+
+  ngOnDestroy(): void {
+    if (this.scrollTimer) {
+      clearTimeout(this.scrollTimer);
+    }
+
+    this.scrollbar?.nativeElement.removeEventListener('scroll', this.handleScrollbarScroll);
+  }
+  
+  @ViewChild('chatScrollbar') scrollbar?: NgScrollbar;
+
+  ngAfterViewInit(): void {
+    this.scrollbar?.nativeElement.addEventListener('scroll', this.handleScrollbarScroll, {
+      passive: true,
+    });
+  }
 
   sendMessage(message: string | Message): void {
     if (!this.chat) {
@@ -118,8 +146,7 @@ export class ChatComponent {
   }
 
   scrollToBottom() {
-    console.log("scrolled");
-    return this.scrollbar.scrollTo({
+    return this.scrollbar?.scrollTo({
       bottom: 0,
       duration: 0
     });

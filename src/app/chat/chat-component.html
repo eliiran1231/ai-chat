@@ -17,6 +17,7 @@
 
     <ng-scrollbar
       #chatScrollbar
+      [class.scrollbar-visible]="scrollbarVisible"
       [reachedBottomOffset]="SCROLLBAR_OFFSET"
       [droppedBottomOffset]="SCROLLBAR_OFFSET"
       (droppedBottom)="showScrollButton()"
