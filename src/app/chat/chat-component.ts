@@ -118,7 +118,6 @@ export class ChatComponent {
   }
 
   scrollToBottom() {
-    console.log("scrolled");
     return this.scrollbar.scrollTo({
       bottom: 0,
       duration: 0
