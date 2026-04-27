@@ -7,8 +7,6 @@ import { MessageBubbleComponent } from '../message-bubble-component/message-bubb
 import { Question } from '../../classes/Question';
 import { FilePreviewComponent } from "../file-preview-component/file-preview-component";
 import { Message } from '../../classes/Message';
-import { LucideAngularModule, EllipsisVertical, Trash2 } from 'lucide-angular';
-import { AppMenu, AppMenuItem } from '../shared/app-menu/app-menu';
 
 @Component({
   selector: 'app-chat',
@@ -17,8 +15,6 @@ import { AppMenu, AppMenuItem } from '../shared/app-menu/app-menu';
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
-
-
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
