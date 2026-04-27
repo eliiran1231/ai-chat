@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { Subject } from "rxjs";
 import { Agent } from "./Agent";
 import { Answer } from "./Answer";
 import { Chat } from "./Chat";
@@ -8,9 +8,9 @@ import { Question } from "./Question";
 export class Supporter{
     private chat!: Chat;
     private agent: Agent | undefined;
-    public readonly onMessageAdded = new BehaviorSubject<Message | null>(null);
-    public readonly onAgentSwitch = new BehaviorSubject<Agent | null>(null);
-    public readonly onContextChange = new BehaviorSubject<any>(null);
+    public readonly onMessageAdded = new Subject<Message>();
+    public readonly onAgentSwitch = new Subject<Agent>();
+    public readonly onContextChange = new Subject<any>();
     private _context: any; 
     public name = "Supporter";
     public id?: number;

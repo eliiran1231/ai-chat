@@ -217,18 +217,13 @@ export class ChatService {
 
   private attachSupporterPersistence(chat: Chat): void {
     chat.supporter.onAgentSwitch.subscribe((agent) => {
-      if (!agent) {
-        return;
-      }
       void this.dbService.updateSupporterAgent({
         chatId: chat.id,
         agentName: this.agentsService.getAgentName(agent),
       });
     });
     chat.supporter.onContextChange.subscribe((context) => {
-      if (context === null) {
-        return;
-      }
+      if (context === null) return;
       void this.dbService.updateSupporterContext({
         chatId: chat.id,
         context,

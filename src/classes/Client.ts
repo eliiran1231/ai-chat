@@ -1,4 +1,4 @@
-import { BehaviorSubject } from "rxjs";
+import { Subject } from "rxjs";
 import { Answer } from "./Answer";
 import { Chat } from "./Chat";
 import { Message } from "./Message";
@@ -6,7 +6,7 @@ import { Question } from "./Question";
 
 export class Client {
     private chat: Chat;
-    public readonly onMessageAdded = new BehaviorSubject<Message | null>(null);
+    public readonly onMessageAdded = new Subject<Message>();
     constructor(chat: Chat){
         this.chat = chat;
     }

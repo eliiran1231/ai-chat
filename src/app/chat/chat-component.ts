@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -27,7 +27,6 @@ export class ChatComponent {
   matchingMessageIds: number[] = [];
   activeSearchResultIndex = -1;
   awayFromBottom = false;
-
 
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
