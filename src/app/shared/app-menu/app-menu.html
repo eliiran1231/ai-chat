@@ -1,0 +1,33 @@
+<div class="app-menu">
+  <button
+    type="button"
+    class="app-menu__trigger"
+    aria-label="Menu"
+    [cdkMenuTriggerFor]="menu"
+  >
+    <lucide-angular [img]="menuIcon" class="app-menu__trigger-icon"></lucide-angular>
+  </button>
+
+  <ng-template #menu>
+    <div class="app-menu__panel" cdkMenu>
+      @for (item of items; track item.id) {
+        <button
+          type="button"
+          class="app-menu__item"
+          [class.app-menu__item--danger]="item.tone === 'danger'"
+          cdkMenuItem
+          (cdkMenuItemTriggered)="selectItem(item.id)"
+        >
+          @if (item.icon) {
+            <lucide-angular
+              [img]="item.icon"
+              class="app-menu__item-icon"
+            ></lucide-angular>
+          }
+
+          <span>{{ item.label }}</span>
+        </button>
+      }
+    </div>
+  </ng-template>
+</div>
