@@ -13,6 +13,7 @@
       (nextMatch)="stepInSearch(1)"
       (previousMatch)="stepInSearch(-1)"
       (searchClosed)="clearSearch()"
+      (deleteChat)="deleteChat.emit($event)"
     ></app-chat-navbar-component>
 
     <ng-scrollbar

@@ -1,0 +1,72 @@
+:host {
+  display: flex;
+  align-items: center;
+}
+
+.app-menu {
+  display: flex;
+  align-items: center;
+}
+
+.app-menu__trigger {
+  min-width: 2.35rem;
+  height: 2.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  padding: 0;
+  cursor: pointer;
+}
+
+.app-menu__trigger-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: inline-flex;
+}
+
+.app-menu__panel {
+  min-width: 10.5rem;
+  padding: 0.35rem;
+  border-radius: 0.8rem;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(17, 27, 33, 0.2);
+}
+
+.app-menu__item {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.7rem 0.8rem;
+  background: transparent;
+  color: #111b21;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-menu__item-icon {
+  width: 1rem;
+  height: 1rem;
+  display: inline-flex;
+}
+
+.app-menu__item:hover,
+.app-menu__item:focus-visible {
+  background: #f0f2f5;
+  outline: none;
+}
+
+.app-menu__item--danger {
+  color: #b42318;
+}
+
+.app-menu__item--danger:hover,
+.app-menu__item--danger:focus-visible {
+  background: #fef3f2;
+}

@@ -36,7 +36,6 @@ export class HomeComponent implements OnInit {
   isCreatingChat = false;
   isMenuOpen = false;
   isFullscreen = false;
-  deletingChatId: number | null = null;
   pendingCreateChat: Promise<Chat> | null = null;
   selectedTab: 'chats' | 'profile' | 'calls' = 'chats';
   constructor(
@@ -102,28 +101,15 @@ export class HomeComponent implements OnInit {
     event.preventDefault();
     await this.toggleFullscreen();
   }
-
-
-  async deleteChat(chat: Chat, event?: Event): Promise<void> {
-    event?.stopPropagation();
-
-    if (this.deletingChatId === chat.id) {
+  async deleteChat(chat: Chat): Promise<void> {
+    const deleted = await this.chatService.deleteChat(chat.id);
+    if (!deleted) {
       return;
     }
 
-    this.deletingChatId = chat.id;
-    try {
-      const deleted = await this.chatService.deleteChat(chat.id);
-      if (!deleted) {
-        return;
-      }
-
-      this.chats = this.chats.filter((existingChat) => existingChat.id !== chat.id);
-      if (this.selectedChat?.id === chat.id) {
-        this.selectedChat = null;
-      }
-    } finally {
-      this.deletingChatId = null;
+    this.chats = this.chats.filter((existingChat) => existingChat.id !== chat.id);
+    if (this.selectedChat?.id === chat.id) {
+      this.selectedChat = null;
     }
   }
 

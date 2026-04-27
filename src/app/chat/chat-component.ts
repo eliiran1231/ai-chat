@@ -21,6 +21,7 @@ export class ChatComponent {
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
   readonly SCROLLBAR_OFFSET = 40;
+  @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
   searchQuery = '';
   matchingMessageIds: number[] = [];
