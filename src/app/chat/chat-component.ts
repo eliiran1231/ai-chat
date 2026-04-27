@@ -124,8 +124,4 @@ export class ChatComponent {
       duration: 0
     });
   }
-
-  scrollIfNeeded(){
-    !this.awayFromBottom && this.scrollToBottom();
-  }
 }

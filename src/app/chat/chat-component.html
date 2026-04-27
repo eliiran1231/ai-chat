@@ -21,7 +21,7 @@
       [droppedBottomOffset]="SCROLLBAR_OFFSET"
       (droppedBottom)="showScrollButton()"
       (reachedBottom)="hideScrollButton()"
-      (afterUpdate)="scrollIfNeeded()"
+      (afterUpdate)="!awayFromBottom && scrollToBottom()"
       (afterInit)="scrollToBottom()"
       appearance="compact"
       class="chat-thread"
