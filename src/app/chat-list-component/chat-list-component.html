@@ -22,7 +22,13 @@
       (click)="onOpenChat(chat)"
     >
       <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing">
-        <div class="chat-list-item__avatar">{{ avatarFor(chat) }}</div>
+        <div class="chat-list-item__avatar">
+          @if (isImage(chat.avatar)) {
+            <img [src]="chat.avatar" alt="avatar" class="chat-list-item__avatar-img" />
+          } @else {
+            {{ chat.avatar }}
+          }
+        </div>
       </div>
       <div class="chat-list-item__content">
         <div class="chat-list-item__top">

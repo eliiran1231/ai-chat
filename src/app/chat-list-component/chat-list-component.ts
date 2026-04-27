@@ -33,7 +33,8 @@ export class ChatListComponent {
         });
 
     return chats.sort(
-      (a, b) => (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
+      (a, b) =>
+        (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
     );
   }
 
@@ -47,14 +48,23 @@ export class ChatListComponent {
       return chat.subtitle || 'start the conversation';
     }
 
-    return DOMPurify.sanitize(
-      lastMessage.value || 
-      lastMessage.attachment?.name || 
-      '', 
-      { ALLOWED_TAGS: [] }
-    );
+    return DOMPurify.sanitize(lastMessage.value || lastMessage.attachment?.name || '', {
+      ALLOWED_TAGS: [],
+    });
   }
 
+  isImage(value: string): boolean {
+    return (
+      value.startsWith('http') ||
+      value.startsWith('assets/') ||
+      value.endsWith('.png') ||
+      value.endsWith('.jpg') ||
+      value.endsWith('.jpeg') ||
+      value.endsWith('.webp') ||
+      value.endsWith('.svg')
+    );
+  }
+  
   lastMessageTime(chat: Chat): string {
     const lastMessage = chat.messages.at(-1)?.time;
     return lastMessage
