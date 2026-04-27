@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -7,10 +7,12 @@ import { MessageBubbleComponent } from '../message-bubble-component/message-bubb
 import { Question } from '../../classes/Question';
 import { FilePreviewComponent } from "../file-preview-component/file-preview-component";
 import { Message } from '../../classes/Message';
+import { NgScrollbar } from 'ngx-scrollbar';
+import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 
 @Component({
   selector: 'app-chat',
-  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent, ChatNavbarComponent],
+  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent, ChatNavbarComponent, NgScrollbar, NgScrollReachDrop],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
@@ -18,11 +20,15 @@ export class ChatComponent {
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
+  readonly SCROLLBAR_OFFSET = 40;
   @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
   searchQuery = '';
   matchingMessageIds: number[] = [];
   activeSearchResultIndex = -1;
+  awayFromBottom = false;
+
+  @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
   sendMessage(message: string | Message): void {
     if (!this.chat) {
@@ -36,6 +42,7 @@ export class ChatComponent {
     } else {
       this.chat.user.ask(new Question(messageValue, {attachment: messageAttachment}));
     }
+    this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
   closePreviewPage(): void {
@@ -99,6 +106,21 @@ export class ChatComponent {
         behavior: 'smooth',
         block: 'center',
       });
+    });
+  }
+
+  showScrollButton(){
+    this.awayFromBottom = true;
+  }
+  
+  hideScrollButton(){
+    this.awayFromBottom = false;
+  }
+
+  scrollToBottom() {
+    return this.scrollbar.scrollTo({
+      bottom: 0,
+      duration: 0
     });
   }
 }

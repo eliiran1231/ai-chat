@@ -1,10 +1,10 @@
 @if(attachmentFile){
   <app-file-preview-component [file]="attachmentFile" [processFileUrl]="(file)=>chat.processFileUrl(file)" (submitted)="closePreviewPage(); sendMessage($event)" (closed)="closePreviewPage()"></app-file-preview-component>
 }
-@else if (chat; as activeChat) {
+@else {
   <section class="chat-shell">
     <app-chat-navbar-component
-      [chat]="activeChat"
+      [chat]="chat"
       [showBackButton]="showBackButton"
       [resultCount]="matchingMessageIds.length"
       [currentResultIndex]="activeSearchResultIndex"
@@ -16,8 +16,18 @@
       (deleteChat)="deleteChat.emit($event)"
     ></app-chat-navbar-component>
 
-    <main class="chat-thread" aria-label="Conversation">
-      @for (message of activeChat.messages; track message.id) {
+    <ng-scrollbar
+      #chatScrollbar
+      [reachedBottomOffset]="SCROLLBAR_OFFSET"
+      [droppedBottomOffset]="SCROLLBAR_OFFSET"
+      (droppedBottom)="showScrollButton()"
+      (reachedBottom)="hideScrollButton()"
+      (afterUpdate)="!awayFromBottom && scrollToBottom()"
+      (afterInit)="scrollToBottom()"
+      appearance="compact"
+      class="chat-thread"
+    >
+      @for (message of chat.messages; track message.id) {
         <app-message-bubble
           [message]="message"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
@@ -29,21 +39,24 @@
           <p>No messages yet</p>
         </div>
       }
-    </main>
+    </ng-scrollbar>
+
+    @if (awayFromBottom) {
+      <button
+        type="button"
+        class="scroll-bottom-button"
+        aria-label="Scroll to bottom"
+        (click)="scrollToBottom()"
+      >
+        <span aria-hidden="true">⌄</span>
+      </button>
+    }
 
     <app-chat-input-component
       theme="light"
-      [chat]="activeChat"
+      [chat]="chat"
       (messageSubmit)="sendMessage($event)"
       (fileSubmit)="openPreviewPage($event)"
     ></app-chat-input-component>
-  </section>
-} @else {
-  <section class="chat-placeholder">
-    <div class="chat-placeholder__card">
-      <div class="chat-placeholder__icon">WA</div>
-      <h2>Select a chat</h2>
-      <p>Pick an existing conversation or create a new one from the sidebar.</p>
-    </div>
   </section>
 }
