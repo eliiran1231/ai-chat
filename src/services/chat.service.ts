@@ -201,18 +201,34 @@ export class ChatService {
       message.isRead = record.isRead;
     };
 
-    chat.supporter.setOnMessageAdded(persistMessage);
-    chat.user.setOnMessageAdded(persistMessage);
+    chat.supporter.onMessageAdded.subscribe((message) => {
+      if (!message) {
+        return;
+      }
+      void persistMessage(message);
+    });
+    chat.user.onMessageAdded.subscribe((message) => {
+      if (!message) {
+        return;
+      }
+      void persistMessage(message);
+    });
   }
 
   private attachSupporterPersistence(chat: Chat): void {
-    chat.supporter.setOnAgentSwitch((agent) => {
+    chat.supporter.onAgentSwitch.subscribe((agent) => {
+      if (!agent) {
+        return;
+      }
       void this.dbService.updateSupporterAgent({
         chatId: chat.id,
         agentName: this.agentsService.getAgentName(agent),
       });
     });
-    chat.supporter.setOnContextChange((context) => {
+    chat.supporter.onContextChange.subscribe((context) => {
+      if (context === null) {
+        return;
+      }
       void this.dbService.updateSupporterContext({
         chatId: chat.id,
         context,

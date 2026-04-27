@@ -1,3 +1,4 @@
+import { BehaviorSubject } from "rxjs";
 import { Agent } from "./Agent";
 import { Answer } from "./Answer";
 import { Chat } from "./Chat";
@@ -7,9 +8,9 @@ import { Question } from "./Question";
 export class Supporter{
     private chat!: Chat;
     private agent: Agent | undefined;
-    private onMessageAdded?: (message: Message) => void | Promise<void>;
-    private onAgentSwitch?: (newAgent: Agent) => void | Promise<void>;
-    private onContextChange?: (context: string) => void | Promise<void>;
+    public readonly onMessageAdded = new BehaviorSubject<Message | null>(null);
+    public readonly onAgentSwitch = new BehaviorSubject<Agent | null>(null);
+    public readonly onContextChange = new BehaviorSubject<any>(null);
     private _context: any; 
     public name = "Supporter";
     public id?: number;
@@ -44,29 +45,20 @@ export class Supporter{
     setAgent(agent: Agent){
         this.agent = agent;
         this.agent.init(this.chat, this);
-        void this.onAgentSwitch?.(agent);
+        this.onAgentSwitch.next(agent);
     }
     setContext(context: string){
         this._context = context;
-        void this.onContextChange?.(context);
+        this.onContextChange.next(context);
     }
     setChat(chat: Chat){
         this.chat = chat;
-    }
-    setOnMessageAdded(onMessageAdded: (message: Message) => void | Promise<void>) {
-        this.onMessageAdded = onMessageAdded;
-    }
-    setOnAgentSwitch(onAgentSwitch: (newAgent: Agent) => void | Promise<void>){
-        this.onAgentSwitch = onAgentSwitch
-    }
-    setOnContextChange(onContextChange: (context: string) => void | Promise<void>){
-        this.onContextChange = onContextChange;
     }
     private appendMessage(message: Message){
         message.from = "supporter";
         this.chat.messages.push(message);
         if(!this.chat.active) this.chat.unreadCount++;
         else message.isRead = true;
-        void this.onMessageAdded?.(message);
+        this.onMessageAdded.next(message);
     }
 }

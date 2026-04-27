@@ -15,7 +15,17 @@
       (searchClosed)="clearSearch()"
     ></app-chat-navbar-component>
 
-    <main class="chat-thread" aria-label="Conversation">
+    <ng-scrollbar
+      #chatScrollbar
+      [reachedBottomOffset]="SCROLLBAR_OFFSET"
+      [droppedBottomOffset]="SCROLLBAR_OFFSET"
+      (droppedBottom)="showScrollButton()"
+      (reachedBottom)="hideScrollButton()"
+      (afterUpdate)="scrollIfNeeded()"
+      (afterInit)="scrollToBottom()"
+      appearance="compact"
+      class="chat-thread"
+    >
       @for (message of activeChat.messages; track message.id) {
         <app-message-bubble
           [message]="message"
@@ -28,7 +38,18 @@
           <p>No messages yet</p>
         </div>
       }
-    </main>
+    </ng-scrollbar>
+
+    @if (awayFromBottom) {
+      <button
+        type="button"
+        class="scroll-bottom-button"
+        aria-label="Scroll to bottom"
+        (click)="scrollToBottom()"
+      >
+        <span aria-hidden="true">⌄</span>
+      </button>
+    }
 
     <app-chat-input-component
       theme="light"
@@ -38,11 +59,5 @@
     ></app-chat-input-component>
   </section>
 } @else {
-  <section class="chat-placeholder">
-    <div class="chat-placeholder__card">
-      <div class="chat-placeholder__icon">WA</div>
-      <h2>Select a chat</h2>
-      <p>Pick an existing conversation or create a new one from the sidebar.</p>
-    </div>
-  </section>
+
 }
