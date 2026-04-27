@@ -38,7 +38,7 @@ export class HomeComponent implements OnInit {
   isFullscreen = false;
   deletingChatId: number | null = null;
   pendingCreateChat: Promise<Chat> | null = null;
-  selectedTab: 'chats' | 'profile' | 'calls' = 'chats';
+  selectedTab: 'chats' | 'profile' = 'chats';
   constructor(
     private chatService: ChatService,
     private injector: Injector,
