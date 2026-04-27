@@ -1,0 +1,73 @@
+<header class="chat-navbar">
+  @if(searchMode){
+    <div id="search-mode-container">
+      <div class="search-result-count" [class.search-result-count--empty]="!hasResults">
+        {{ currentResultLabel }}
+      </div>
+      <div class="search-navigation" aria-label="Search navigation">
+        <button
+          type="button"
+          class="search-nav-button"
+          [disabled]="!hasResults"
+          (click)="previousMatch.emit()"
+          aria-label="Previous match"
+        >
+          ^
+        </button>
+        <button
+          type="button"
+          class="search-nav-button"
+          [disabled]="!hasResults"
+          (click)="nextMatch.emit()"
+          aria-label="Next match"
+        >
+          v
+        </button>
+      </div>
+      <div class="search-input-shell">
+        <input
+          #searchInput
+          [value]="searchQuery"
+          (input)="updateSearch($any($event.target).value)"
+          (keydown)="onSearchKeydown($event)"
+          type="text"
+          placeholder="Search in chat"
+          aria-label="Search in chat"
+        />
+      </div>
+      <button type="button" class="search-close-button" (click)="closeSearch()" aria-label="Close search">x</button>
+    </div>
+  }
+  @else {
+    <div class="contact-block">
+      @if (showBackButton) {
+        <button
+          type="button"
+          class="back-button"
+          aria-label="Back to chat list"
+          (click)="back.emit()"
+        >
+          &lt;
+        </button>
+      }
+
+      <div class="avatar" aria-hidden="true">{{ chat.avatar }}</div>
+      <div class="contact-meta">
+        <h1>{{ chat.name }}</h1>
+        <p>{{ chat.status }}</p>
+      </div>
+    </div>
+
+    <div class="navbar-actions" aria-label="Chat actions">
+      <button
+        type="button"
+        class="icon-button"
+        (click)="openSearch();"
+        aria-label="Search conversation"
+      >
+        <span class="search-icon" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="icon-button" aria-label="More options">...</button>
+    </div>
+  }
+</header>

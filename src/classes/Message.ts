@@ -16,8 +16,9 @@ export class Message {
     isRead: boolean = false;
     attachment?: Attachment;
 
-    constructor(value: string, attachment?: Attachment) {
+    constructor(value: string, attachment?: Attachment, id?: number) {
         this.value = value;
         this.attachment = attachment;
+        this.id = id;
     }
 }

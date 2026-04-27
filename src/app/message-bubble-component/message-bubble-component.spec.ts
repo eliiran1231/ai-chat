@@ -39,4 +39,18 @@ describe('MessageBubbleComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('highlights the search term in the message body', async () => {
+    const message = new Message('hello world');
+    message.from = 'supporter';
+
+    fixture.componentRef.setInput('message', message);
+    fixture.componentRef.setInput('searchTerm', 'world');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const highlightedText = fixture.nativeElement.querySelector('.message-markdown mark') as HTMLElement | null;
+
+    expect(highlightedText?.textContent).toBe('world');
+  });
 });

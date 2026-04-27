@@ -5,34 +5,17 @@ import {
 } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
-import { MARKED_OPTIONS, MarkedOptions, MarkedRenderer, provideMarkdown } from 'ngx-markdown';
+import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 
 import { routes } from './app.routes';
 import { AppAgentsModule } from './app-agents.module';
 import { provideAgents } from '../services/agents.module';
+import DOMPurify from 'dompurify';
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-export function markedOptionsFactory(): MarkedOptions {
-  const renderer = new MarkedRenderer();
-
-  renderer.html = ({ raw, text }: { raw?: string; text?: string }) => {
-    return escapeHtml(raw ?? text ?? '');
-  };
-
-  return {
-    gfm: true,
-    breaks: true,
-    renderer,
-  };
-}
+DOMPurify.setConfig({
+  ALLOWED_TAGS: ['mark'],
+  ALLOWED_ATTR: [],
+})
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -40,9 +23,16 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideBrowserGlobalErrorListeners(),
     provideMarkdown({
+      sanitize: {
+        provide: SANITIZE,
+        useValue: DOMPurify.sanitize
+      },
       markedOptions: {
         provide: MARKED_OPTIONS,
-        useFactory: markedOptionsFactory,
+        useValue: {
+          gfm: true,
+          breaks: true
+        },
       },
     }),
     provideRouter(routes),

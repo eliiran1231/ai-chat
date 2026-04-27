@@ -1,7 +1,9 @@
 <article
+  [id]="message.id"
   class="message-row"
   [class.message-row--supporter]="isSupporterMessage(message)"
   [class.message-row--user]="!isSupporterMessage(message)"
+  [class.message-row--search-active]="isActiveSearchMatch"
 >
   <div
     class="message-bubble"
@@ -40,7 +42,7 @@
         }
       </div>
     }
-    <div class="message-markdown" markdown [data]="message.value"></div>
+    <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
     @if (message instanceof questionType && message.possibleAnswers.length) {
       <div class="possible-answers-container">
         @for (possibleAnswer of message.possibleAnswers; track $index) {

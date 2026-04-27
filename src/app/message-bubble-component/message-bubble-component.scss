@@ -2,9 +2,25 @@
   display: block;
 }
 
+@keyframes flashOverlay {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .message-row {
   display: flex;
-  margin-bottom: 0.45rem;
+  scroll-margin-block: 5.5rem;
+  padding-left: .75rem;
+  padding-right: .75rem;
+  padding-top: 0.225rem;
+  padding-bottom: 0.225rem;
 }
 
 .message-row--supporter {
@@ -13,6 +29,20 @@
 
 .message-row--user {
   justify-content: flex-end;
+}
+
+.message-row--search-active{
+  position: relative;
+}
+
+.message-row--search-active::before{
+  content: "";
+  opacity: 0;
+  position: absolute;
+  inset: 0;
+  background-color:#97bada8c;
+  z-index: 2;
+  animation: flashOverlay 1s ease forwards;
 }
 
 .message-bubble {
@@ -26,6 +56,10 @@
   border-radius: 0.55rem;
   overflow: hidden;
   box-shadow: 0 1px 0.5px rgba(17, 27, 33, 0.13);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    outline-color 0.2s ease;
 }
 
 .message-bubble::after {

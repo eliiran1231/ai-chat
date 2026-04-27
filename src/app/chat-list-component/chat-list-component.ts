@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Chat } from '../../classes/Chat';
-
+import DOMPurify from 'dompurify';
 @Component({
   selector: 'app-chat-list-component',
   imports: [FormsModule],
@@ -19,18 +19,20 @@ export class ChatListComponent {
 
   get filteredChats(): Chat[] {
     const query = this.searchTerm.trim().toLowerCase();
-    if (!query) {
-      return this.chats;
-    }
+    const chats = !query
+      ? [...this.chats]
+      : this.chats.filter((chat) => {
+          const lastMessage = this.lastMessageText(chat).toLowerCase();
+          return (
+            chat.name.toLowerCase().includes(query) ||
+            chat.status.toLowerCase().includes(query) ||
+            lastMessage.includes(query)
+          );
+        });
 
-    return this.chats.filter((chat) => {
-      const lastMessage = this.lastMessageText(chat).toLowerCase();
-      return (
-        chat.name.toLowerCase().includes(query) ||
-        chat.status.toLowerCase().includes(query) ||
-        lastMessage.includes(query)
-      );
-    });
+    return chats.sort(
+      (a, b) => (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
+    );
   }
 
   avatarFor(chat: Chat): string {
@@ -43,7 +45,12 @@ export class ChatListComponent {
       return chat.subtitle || 'start the conversation';
     }
 
-    return lastMessage.value || lastMessage.attachment?.name || '';
+    return DOMPurify.sanitize(
+      lastMessage.value || 
+      lastMessage.attachment?.name || 
+      '', 
+      { ALLOWED_TAGS: [] }
+    );
   }
 
   lastMessageTime(chat: Chat): string {

@@ -25,12 +25,13 @@ export class Question extends Message {
     }
 
     constructor(value: string, options?: {
+        id?: number;
         attachment?: Attachment;
         validator?: RegExp | ValidatorSpec;
         validationErrorMessage?: string | Message;
         possibleAnswers?: string[] | Answer[];
     }) {
-        super(value, options?.attachment);
+        super(value, options?.attachment, options?.id);
         if (options?.validator) {
             this.setValidator(options.validator, options.validationErrorMessage);
         }
