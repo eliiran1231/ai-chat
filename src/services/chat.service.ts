@@ -137,13 +137,12 @@ export class ChatService {
 
   private hydrateMessage(record: MessageRecord): Message {
     const messageType = record.messageType ?? 'message';
+    const {attachment, id} = record
     const message = messageType === 'question'
       ? this.hydrateQuestion(record)
       : messageType === 'answer'
-        ? new Answer(record.value, record.attachment)
-        : new Message(record.value, record.attachment);
-
-    message.id = record.id;
+        ? new Answer(record.value, {attachment, id})
+        : new Message(record.value, {attachment, id});
     message.from = record.from;
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);

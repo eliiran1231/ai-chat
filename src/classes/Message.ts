@@ -7,6 +7,10 @@ export type Attachment = {
     extension: string,
     name: string 
 };
+export type MessageOptions = {
+    id?: number,
+    attachment?: Attachment
+}
 
 export class Message {
     id?: number;
@@ -17,9 +21,9 @@ export class Message {
     isRead: boolean = false;
     attachment?: Attachment;
 
-    constructor(value: string, attachment?: Attachment, id?: number) {
+    constructor(value: string, options?: MessageOptions) {
         this.value = value;
-        this.attachment = attachment;
-        this.id = id;
+        this.attachment = options?.attachment;
+        this.id = options?.id;
     }
 }

@@ -35,12 +35,12 @@ export class ChatComponent {
       return;
     }
     const messageValue = typeof message === 'string' ? message : message.value;
-    const messageAttachment = message instanceof Message ? message.attachment : undefined;
+    const attachment = message instanceof Message ? message.attachment : undefined;
 
     if (this.chat.messages.at(-1) instanceof Question) {
-      this.chat.user.answer(new Answer(messageValue, messageAttachment));
+      this.chat.user.answer(new Answer(messageValue, { attachment }));
     } else {
-      this.chat.user.ask(new Question(messageValue, {attachment: messageAttachment}));
+      this.chat.user.ask(new Question(messageValue, { attachment }));
     }
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }

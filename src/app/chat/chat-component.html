@@ -1,5 +1,10 @@
 @if(attachmentFile){
-  <app-file-preview-component [file]="attachmentFile" [processFileUrl]="(file)=>chat.processFileUrl(file)" (submitted)="closePreviewPage(); sendMessage($event)" (closed)="closePreviewPage()"></app-file-preview-component>
+  <app-file-preview-component 
+    [file]="attachmentFile"
+    [processFileUrl]="(file)=>chat.processFileUrl(file)"
+    (submitted)="closePreviewPage(); sendMessage($event)"
+    (closed)="closePreviewPage()"
+    ></app-file-preview-component>
 }
 @else {
   <section class="chat-shell">
