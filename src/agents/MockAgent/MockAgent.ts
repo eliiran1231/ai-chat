@@ -31,7 +31,7 @@ export class MockAgent extends Agent {
         super.respond();
         if (!this.lastQuestion) return;
         if (this.lastMessage instanceof Question) {
-            this.supporter.sendMessage("please answer my question first");
+            this.supporter.sendMessage("a supporter will get back to you on that");
             return;
         }
 
