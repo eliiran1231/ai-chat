@@ -31,17 +31,12 @@ export class ChatComponent {
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
   sendMessage(message: string | Message): void {
-    if (!this.chat) {
+    if(message instanceof Message) {
+      if(message instanceof Question) this.chat.user.ask(message);
+      else this.chat.user.answer(message);
       return;
     }
-    const messageValue = typeof message === 'string' ? message : message.value;
-    const attachment = message instanceof Message ? message.attachment : undefined;
-
-    if (this.chat.messages.at(-1) instanceof Question) {
-      this.chat.user.answer(new Answer(messageValue, { attachment }));
-    } else {
-      this.chat.user.ask(new Question(messageValue, { attachment }));
-    }
+    this.chat.supporter.expects == 'question' ? this.chat.user.ask(message) : this.chat.user.answer(message);
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 

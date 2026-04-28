@@ -11,6 +11,7 @@ export class Supporter{
     public readonly onMessageAdded = new Subject<Message>();
     public readonly onAgentSwitch = new Subject<Agent>();
     public readonly onContextChange = new Subject<any>();
+    public expects: "message" | "question" | "answer" = "question";
     private _context: any; 
     public name = "Supporter";
     public id?: number;
@@ -23,9 +24,11 @@ export class Supporter{
     ask(message : string | Question){
         var question = message instanceof Question ? message : new Question(message);
         if(this.agent) this.agent.lastQuestion = question;
+        this.expects = 'answer';
         this.appendMessage(question);
     }
     answer(message : string | Answer){
+        this.expects = 'question';
         var answer = message instanceof Answer ?
         message :
         new Answer(message);
