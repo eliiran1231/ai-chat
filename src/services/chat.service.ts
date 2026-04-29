@@ -153,6 +153,7 @@ export class ChatService {
   private hydrateQuestion(record: MessageRecord): Question {
     const question = new Question(record.value, {
       attachment: record.attachment,
+      id: record.id,
     });
     question.from = record.from;
     question.setPossibleAnswers(record.possibleAnswers ?? []);

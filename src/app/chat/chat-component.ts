@@ -84,7 +84,7 @@ export class ChatComponent {
   }
 
   isActiveSearchMatch(messageId: number | undefined): boolean {
-    return this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
+    return !!messageId && this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
   }
 
   private scrollToActiveSearchResult(): void {
