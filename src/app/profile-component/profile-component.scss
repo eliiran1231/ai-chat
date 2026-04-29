@@ -127,7 +127,7 @@
 
 .profile-card__icon::before,
 .profile-card__icon::after {
-  content: none;
+  content: '';
   position: absolute;
   box-sizing: border-box;
 }
