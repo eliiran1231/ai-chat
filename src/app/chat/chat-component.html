@@ -2,7 +2,7 @@
   <app-file-preview-component 
     [file]="attachmentFile"
     [processFileUrl]="(file)=>chat.processFileUrl(file)"
-    (submitted)="closePreviewPage(); sendMessage($event)"
+    (submitted)="closePreviewPage(); sendMessage($event.value, $event.options)"
     (closed)="closePreviewPage()"
     ></app-file-preview-component>
 }
