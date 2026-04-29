@@ -141,13 +141,12 @@ export class ChatService {
 
   private hydrateMessage(record: MessageRecord): Message {
     const messageType = record.messageType ?? 'message';
+    const {attachment, id} = record
     const message = messageType === 'question'
       ? this.hydrateQuestion(record)
       : messageType === 'answer'
-        ? new Answer(record.value, record.attachment)
-        : new Message(record.value, record.attachment);
-
-    message.id = record.id;
+        ? new Answer(record.value, {attachment, id})
+        : new Message(record.value, {attachment, id});
     message.from = record.from;
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);
@@ -205,18 +204,23 @@ export class ChatService {
       message.isRead = record.isRead;
     };
 
-    chat.supporter.setOnMessageAdded(persistMessage);
-    chat.user.setOnMessageAdded(persistMessage);
+    chat.supporter.onMessageAdded.subscribe((message) => {
+      void persistMessage(message);
+    });
+    chat.user.onMessageAdded.subscribe((message) => {
+      void persistMessage(message);
+    });
   }
 
   private attachSupporterPersistence(chat: Chat): void {
-    chat.supporter.setOnAgentSwitch((agent) => {
+    chat.supporter.onAgentSwitch.subscribe((agent) => {
       void this.dbService.updateSupporterAgent({
         chatId: chat.id,
         agentName: this.agentsService.getAgentName(agent),
       });
     });
-    chat.supporter.setOnContextChange((context) => {
+    chat.supporter.onContextChange.subscribe((context) => {
+      if (context === null) return;
       void this.dbService.updateSupporterContext({
         chatId: chat.id,
         context,

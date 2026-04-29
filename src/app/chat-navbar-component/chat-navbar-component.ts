@@ -1,9 +1,11 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Chat } from '../../classes/Chat';
+import { AppMenu, AppMenuItem } from "../shared/app-menu/app-menu";
+import { EllipsisVertical, Trash2 } from 'lucide-angular';
 
 @Component({
   selector: 'app-chat-navbar-component',
-  imports: [],
+  imports: [AppMenu],
   templateUrl: './chat-navbar-component.html',
   styleUrl: './chat-navbar-component.scss',
 })
@@ -20,11 +22,29 @@ export class ChatNavbarComponent {
   searchMode = false;
   searchQuery = '';
 
-  @ViewChild('searchInput') set inputRef(searchInput: ElementRef){
+  @Output() deleteChat = new EventEmitter<Chat>();
+  readonly menuIcon = EllipsisVertical;
+  readonly deleteIcon = Trash2;
+  readonly menuItems: AppMenuItem[] = [
+    {
+      id: 'delete-chat',
+      label: 'Delete chat',
+      icon: this.deleteIcon,
+      tone: 'danger',
+    },
+  ];
+
+  @ViewChild('searchInput') set inputRef(searchInput: ElementRef) {
     this.searchMode && searchInput.nativeElement.focus();
   }
   openSearch(): void {
     this.searchMode = true;
+  }
+
+  onMenuItemSelected(id: string): void {
+    if (id === 'delete-chat' && this.chat) {
+      this.deleteChat.emit(this.chat);
+    }
   }
 
   closeSearch(): void {

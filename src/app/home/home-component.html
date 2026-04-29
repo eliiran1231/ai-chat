@@ -18,14 +18,18 @@
       </div>
 
       <nav class="top-tabs" aria-label="Primary sections">
-        <button type="button" 
-          [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'profile'}"
+        <button
+          type="button"
+          class="top-tab"
+          [class.top-tab--active]="selectedTab === 'profile'"
           (click)="selectedTab = 'profile'"
         >
           profile
         </button>
-        <button type="button" 
-          [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'chats'}"
+        <button
+          type="button"
+          class="top-tab"
+          [class.top-tab--active]="selectedTab === 'chats'"
           (click)="selectedTab = 'chats'"
         >
           Chats
@@ -33,8 +37,10 @@
             <span class="top-tab__badge">{{ unreadChatsCount }}</span>
           }
         </button>
-        <button type="button" 
-          [ngClass]="{'top-tab': true, 'top-tab--active': selectedTab === 'calls'}"
+        <button
+          type="button"
+          class="top-tab"
+          [class.top-tab--active]="selectedTab === 'calls'"
           (click)="selectedTab = 'calls'"
         >
           Calls
@@ -49,20 +55,29 @@
         [selectedChat]="selectedChat"
         (searchTermChange)="searchTerm = $event"
         (openChat)="openChat($event)"
-        (deleteChat)="deleteChat($event)"
         (createChat)="createNewChat()"
-        [deletingChatId]="deletingChatId"
       ></app-chat-list-component>
     }
-    @else if (selectedTab == 'profile') {
+    @else if (selectedTab === 'profile') {
       <app-profile-component></app-profile-component>
     }
-    @else if (selectedTab == 'calls') {
+    @else if (selectedTab === 'calls') {
       <!-- <app-calls-component></app-calls-component> -->
     }
   </aside>
 
   <section class="chat-stage">
-    <app-chat [chat]="selectedChat!" [showBackButton]="true" (back)="closeChat()" />
+    @if(selectedChat){
+      <app-chat [chat]="selectedChat" [showBackButton]="true" (back)="closeChat()" (deleteChat)="deleteChat($event)" />
+    }
+    @else {
+      <section class="chat-placeholder">
+        <div class="chat-placeholder__card">
+          <div class="chat-placeholder__icon">WA</div>
+          <h2>Select a chat</h2>
+          <p>Pick an existing conversation or create a new one from the sidebar.</p>
+        </div>
+      </section>
+    }
   </section>
 </section>

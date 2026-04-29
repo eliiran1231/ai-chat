@@ -1,24 +1,36 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CdkMenuModule } from '@angular/cdk/menu';
-import { LucideAngularModule } from 'lucide-angular';
 import { LucideIconData } from 'lucide-angular';
+
+import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
 
 @Component({
   selector: 'app-sidebar-menu',
   standalone: true,
-  imports: [CdkMenuModule, LucideAngularModule],
+  imports: [AppMenu],
   templateUrl: './sidebar-menu.html',
   styleUrl: './sidebar-menu.scss',
 })
 export class SidebarMenuComponent {
-  @Input({ required: true }) isFullscreen = false;
   @Input({ required: true }) menuIcon!: LucideIconData;
+  @Input({ required: true }) isFullscreen = false;
   @Input({ required: true }) enterFullscreenIcon!: LucideIconData;
   @Input({ required: true }) exitFullscreenIcon!: LucideIconData;
 
   @Output() fullscreenToggled = new EventEmitter<void>();
 
-  onToggleFullscreen(): void {
-    this.fullscreenToggled.emit();
+  get menuItems(): AppMenuItem[] {
+    return [
+      {
+        id: 'fullscreen',
+        label: this.isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen',
+        icon: this.isFullscreen ? this.exitFullscreenIcon : this.enterFullscreenIcon,
+      },
+    ];
+  }
+
+  onMenuItemSelected(id: string): void {
+    if (id === 'fullscreen') {
+      this.fullscreenToggled.emit();
+    }
   }
 }

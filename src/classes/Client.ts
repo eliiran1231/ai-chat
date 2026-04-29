@@ -1,3 +1,4 @@
+import { Subject } from "rxjs";
 import { Answer } from "./Answer";
 import { Chat } from "./Chat";
 import { Message } from "./Message";
@@ -5,7 +6,7 @@ import { Question } from "./Question";
 
 export class Client {
     private chat: Chat;
-    public onMessageAdded?: (message: Message) => void | Promise<void>;
+    public readonly onMessageAdded = new Subject<Message>();
     constructor(chat: Chat){
         this.chat = chat;
     }
@@ -21,13 +22,10 @@ export class Client {
         this.appendMessage(new Answer(answer));
         this.chat.supporter.respond();
     }
-    setOnMessageAdded(onMessageAdded: (message: Message) => void | Promise<void>) {
-        this.onMessageAdded = onMessageAdded;
-    }
     private appendMessage(message: Message){
         message.from = "client";
         message.isRead = true;
         this.chat.messages.push(message);
-        void this.onMessageAdded?.(message);
+        this.onMessageAdded.next(message);
     }
 }
