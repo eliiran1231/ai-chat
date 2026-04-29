@@ -85,10 +85,10 @@ app-file-preview-component {
   transform: translateY(0);
 }
 
-.scroll-bottom-button span {
-  font-size: 1.35rem;
-  line-height: 1;
-  transform: translateY(-1px);
+.scroll-bottom-button lucide-angular {
+  width: 1.1rem;
+  height: 1.1rem;
+  stroke-width: 2.2;
 }
 
 .empty-state {

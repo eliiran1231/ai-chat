@@ -1,17 +1,20 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
+import { LucideAngularModule, Paperclip, SendHorizontal } from 'lucide-angular';
 import { Chat } from '../../classes/Chat';
 
 @Component({
   selector: 'app-chat-input-component',
-  imports: [FormsModule, TextFieldModule],
+  imports: [FormsModule, TextFieldModule, LucideAngularModule],
   templateUrl: './chat-input-component.html',
   styleUrl: './chat-input-component.scss',
 })
 export class 
 ChatInputComponent {
   readonly composerMaxRows = 5;
+  readonly attachIcon = Paperclip;
+  readonly sendIcon = SendHorizontal;
   composerHasOverflow = false;
   @Input() theme: 'light' | 'dark' = 'light';
   @Input() chat: Chat | undefined;

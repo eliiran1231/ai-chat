@@ -1,7 +1,7 @@
 <div class="chat-list-shell">
   <div class="sidebar-tools">
     <label class="search-box" for="chat-search">
-      <span class="search-box__icon">O</span>
+      <lucide-angular [img]="searchIcon" class="search-box__icon" aria-hidden="true"></lucide-angular>
       <input
         id="chat-search"
         type="text"
@@ -48,5 +48,5 @@
 
 </div>
 <button type="button" class="floating-compose" aria-label="New chat" (click)="onCreateChat()">
-    +
+    <lucide-angular [img]="composeIcon" aria-hidden="true"></lucide-angular>
 </button>

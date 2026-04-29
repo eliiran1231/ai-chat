@@ -99,6 +99,8 @@
   height: 2.5rem;
   position: relative;
   color: #66717a;
+  display: grid;
+  place-items: center;
 }
 
 .profile-card__content h2,
@@ -125,9 +127,15 @@
 
 .profile-card__icon::before,
 .profile-card__icon::after {
-  content: '';
+  content: none;
   position: absolute;
   box-sizing: border-box;
+}
+
+.profile-card__icon lucide-angular {
+  width: 2rem;
+  height: 2rem;
+  stroke-width: 2;
 }
 
 .profile-card__icon--person::before {

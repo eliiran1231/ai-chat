@@ -5,7 +5,9 @@
   [class.chat-composer--light]="theme !== 'dark'"
   (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
 >
-  <button (click)="pickFile()" type="button" class="composer-action" aria-label="Attach file">+</button>
+  <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" aria-label="Attach file">
+    <lucide-angular [img]="attachIcon" aria-hidden="true"></lucide-angular>
+  </button>
   <button type="button" class="composer-action" aria-label="Emoji">:)</button>
 
   <label class="composer-field" for="message-input">
@@ -34,6 +36,6 @@
     aria-label="Send message"
     [disabled]="requiredContent && !caption.trim()"
   >
-    >
+    <lucide-angular [img]="sendIcon" aria-hidden="true"></lucide-angular>
   </button>
 </form>
