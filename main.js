@@ -104,7 +104,7 @@ function mapChatRow(row) {
     id: row.id,
     name: row.name,
     status: row.status,
-    avatar: row.avatar,
+    avatar: parseAvatarColumn(row.avatar, row.id),
     subtitle: row.subtitle ?? undefined,
     timeLabel: row.time_label ?? undefined,
     unreadCount: row.unread_count ?? undefined,
@@ -178,6 +178,25 @@ function parseAttachmentColumn(value, fieldName, rowId) {
 
   console.warn(`Unexpected ${fieldName} payload for message ${rowId}.`, parsedValue);
   return undefined;
+}
+
+function parseAvatarColumn(value, rowId) {
+  const parsedValue = parseJsonColumn(value, 'avatar', rowId);
+  if (parsedValue === undefined) {
+    return value;
+  }
+
+  if (
+    parsedValue &&
+    typeof parsedValue === 'object' &&
+    typeof parsedValue.type === 'string' &&
+    typeof parsedValue.value === 'string'
+  ) {
+    return parsedValue;
+  }
+
+  console.warn(`Unexpected avatar payload for chat ${rowId}.`, parsedValue);
+  return value;
 }
 
 function mapMessageRow(row) {
@@ -339,7 +358,7 @@ function registerDbHandlers() {
       [
         chat.name,
         chat.status,
-        chat.avatar,
+        JSON.stringify(chat.avatar),
         chat.subtitle ?? null,
         chat.timeLabel ?? null,
         chat.unreadCount ?? 0,
