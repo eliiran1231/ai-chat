@@ -23,10 +23,10 @@
     >
       <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing">
         <div class="chat-list-item__avatar">
-          @if (isImage(chat.avatar)) {
-            <img [src]="chat.avatar" alt="avatar" class="chat-list-item__avatar-img" />
+          @if (chat.avatar.type === 'image') {
+            <img [src]="chat.avatar.value" alt="avatar" class="chat-list-item__avatar-img" />
           } @else {
-            {{ chat.avatar }}
+            {{ chat.avatar.value }}
           }
         </div>
       </div>

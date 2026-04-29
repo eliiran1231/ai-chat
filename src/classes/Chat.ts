@@ -2,11 +2,16 @@ import { Message } from './Message';
 import { Supporter } from './Supporter';
 import { Client } from './Client';
 
+export type Avatar = {
+  type: 'image' | 'text';
+  value: string;
+};
+
 export class Chat {
   id: number;
   name: string;
   status: string;
-  avatar: string;
+  avatar: Avatar;
   subtitle?: string;
   timeLabel?: string;
   unreadCount: number;
@@ -23,7 +28,7 @@ export class Chat {
     id: number,
     name: string,
     status: string,
-    avatar: string,
+    avatar: Avatar,
     supporter: Supporter,
     options: {
       subtitle?: string;

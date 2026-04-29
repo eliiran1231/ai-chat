@@ -1,8 +1,10 @@
+import { Avatar } from '../../classes/Chat';
+
 export interface ChatRecord {
   id: number;
   name: string;
   status: string;
-  avatar: string;
+  avatar: Avatar | string;
   subtitle?: string;
   timeLabel?: string;
   unreadCount?: number;

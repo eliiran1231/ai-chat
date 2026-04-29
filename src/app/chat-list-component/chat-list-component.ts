@@ -38,10 +38,6 @@ export class ChatListComponent {
     );
   }
 
-  avatarFor(chat: Chat): string {
-    return chat.avatar;
-  }
-
   lastMessageText(chat: Chat): string {
     const lastMessage = chat.messages.at(-1);
     if (!lastMessage) {
@@ -53,18 +49,6 @@ export class ChatListComponent {
     });
   }
 
-  isImage(value: string): boolean {
-    return (
-      value.startsWith('http') ||
-      value.startsWith('assets/') ||
-      value.endsWith('.png') ||
-      value.endsWith('.jpg') ||
-      value.endsWith('.jpeg') ||
-      value.endsWith('.webp') ||
-      value.endsWith('.svg')
-    );
-  }
-  
   lastMessageTime(chat: Chat): string {
     const lastMessage = chat.messages.at(-1)?.time;
     return lastMessage
