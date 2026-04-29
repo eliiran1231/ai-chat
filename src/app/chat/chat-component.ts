@@ -6,7 +6,7 @@ import { ChatNavbarComponent } from '../chat-navbar-component/chat-navbar-compon
 import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
 import { FilePreviewComponent } from "../file-preview-component/file-preview-component";
-import { Message } from '../../classes/Message';
+import { MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 
@@ -47,16 +47,16 @@ export class ChatComponent {
 
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
-  sendMessage(message: string | Message): void {
-    if (message instanceof Message) {
-      if (message instanceof Question) this.chat.user.ask(message);
-      else this.chat.user.answer(message);
-      return;
-    }
-    this.chat.supporter.expects == 'question'
-      ? this.chat.user.ask(message)
-      : this.chat.user.answer(message);
+  sendMessage(messageValue: string, options?: MessageOptions): void {
+    this.chat.supporter.expects == 'question' ?
+      this.chat.user.ask(new Question(messageValue, options)) : 
+      this.chat.user.answer(new Answer(messageValue, options));
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
+  }
+
+  selectAnswer(answer: Answer): void {
+    this.chat.user.answer(answer);
+    this.awayFromBottom = false;
   }
 
   closePreviewPage(): void {
@@ -65,10 +65,6 @@ export class ChatComponent {
 
   openPreviewPage(file: File) {
     this.attachmentFile = file;
-  }
-
-  selectAnswer(answer: Answer | string): void {
-    this.chat?.user.answer(answer instanceof Answer ? answer : new Answer(answer));
   }
 
   updateSearch(query: string): void {
@@ -106,7 +102,7 @@ export class ChatComponent {
   }
 
   isActiveSearchMatch(messageId: number | undefined): boolean {
-    return this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
+    return !!messageId && this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
   }
 
   private scrollToActiveSearchResult(): void {

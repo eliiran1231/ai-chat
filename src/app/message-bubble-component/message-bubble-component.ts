@@ -16,7 +16,7 @@ export class MessageBubbleComponent {
   @Input({ required: true }) message!: Message;
   @Input() isActiveSearchMatch = false;
   @Input() searchTerm = '';
-  @Output() answerSelected = new EventEmitter<Answer | string>();
+  @Output() answerSelected = new EventEmitter<Answer>();
 
   questionType = Question;
 
@@ -26,15 +26,7 @@ export class MessageBubbleComponent {
     return message.from === 'supporter';
   }
 
-  possibleAnswerLabel(answer: Answer | string): string {
-    if (typeof answer === 'string') {
-      return answer;
-    }
-
-    return answer.value;
-  }
-
-  selectAnswer(answer: Answer | string): void {
+  selectAnswer(answer: Answer): void {
     this.answerSelected.emit(answer);
   }
 }

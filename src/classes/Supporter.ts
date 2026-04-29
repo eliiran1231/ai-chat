@@ -50,7 +50,7 @@ export class Supporter{
         this.agent.init(this.chat, this);
         this.onAgentSwitch.next(agent);
     }
-    setContext(context: string){
+    setContext(context: any){
         this._context = context;
         this.onContextChange.next(context);
     }
