@@ -25,6 +25,9 @@
       #chatScrollbar
       [reachedBottomOffset]="SCROLLBAR_OFFSET"
       [droppedBottomOffset]="SCROLLBAR_OFFSET"
+      [class.is-scrolling]="isScrolling"
+      (scroll)="onScroll()"
+      (scrollend)="onChatScrollEnd()"
       (droppedBottom)="showScrollButton()"
       (reachedBottom)="hideScrollButton()"
       (afterUpdate)="!awayFromBottom && scrollToBottom()"
