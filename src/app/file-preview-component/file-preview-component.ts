@@ -38,7 +38,7 @@ export class FilePreviewComponent implements OnInit {
   }
 
   submitFile(message: string): void {
-    this.submitted.emit(new Message(message, this.fileInfo));
+    this.submitted.emit(new Message(message, { attachment: this.fileInfo }));
     this.caption = '';
   }
   changeFile(newFile: File){

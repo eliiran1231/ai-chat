@@ -1,6 +1,6 @@
 import { ValidatorSpec } from "../interfaces/validation/ValidatorSpec";
 import { Answer } from "./Answer";
-import { Attachment, Message } from "./Message";
+import { MessageOptions, Message } from "./Message";
 import { coerceValidatorSpec, normalizeValidatorSpec, validateValue } from "./MessageValidator";
 
 
@@ -16,6 +16,12 @@ export function getPersistableValidationErrorMessage(
         : undefined;
 }
 
+export type QuestionOptions = MessageOptions & {
+    validator?: RegExp | ValidatorSpec;
+    validationErrorMessage?: string | Message;
+    possibleAnswers?: string[] | Answer[];
+}
+
 export class Question extends Message {
     private _possibleAnswers: Answer[] = [];
     public validatorSpec?: ValidatorSpec;
@@ -24,14 +30,8 @@ export class Question extends Message {
         return this._possibleAnswers;
     }
 
-    constructor(value: string, options?: {
-        id?: number;
-        attachment?: Attachment;
-        validator?: RegExp | ValidatorSpec;
-        validationErrorMessage?: string | Message;
-        possibleAnswers?: string[] | Answer[];
-    }) {
-        super(value, options?.attachment, options?.id);
+    constructor(value: string, options?: QuestionOptions) {
+        super(value, options);
         if (options?.validator) {
             this.setValidator(options.validator, options.validationErrorMessage);
         }

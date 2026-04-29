@@ -1,10 +1,15 @@
 @if(attachmentFile){
-  <app-file-preview-component [file]="attachmentFile" [processFileUrl]="(file)=>chat.processFileUrl(file)" (submitted)="closePreviewPage(); sendMessage($event)" (closed)="closePreviewPage()"></app-file-preview-component>
+  <app-file-preview-component 
+    [file]="attachmentFile"
+    [processFileUrl]="(file)=>chat.processFileUrl(file)"
+    (submitted)="closePreviewPage(); sendMessage($event)"
+    (closed)="closePreviewPage()"
+    ></app-file-preview-component>
 }
-@else if (chat; as activeChat) {
+@else {
   <section class="chat-shell">
     <app-chat-navbar-component
-      [chat]="activeChat"
+      [chat]="chat"
       [showBackButton]="showBackButton"
       [resultCount]="matchingMessageIds.length"
       [currentResultIndex]="activeSearchResultIndex"
@@ -13,6 +18,7 @@
       (nextMatch)="stepInSearch(1)"
       (previousMatch)="stepInSearch(-1)"
       (searchClosed)="clearSearch()"
+      (deleteChat)="deleteChat.emit($event)"
     ></app-chat-navbar-component>
 
     <ng-scrollbar
@@ -27,7 +33,7 @@
       appearance="compact"
       class="chat-thread"
     >
-      @for (message of activeChat.messages; track message.id) {
+      @for (message of chat.messages; track message.id) {
         <app-message-bubble
           [message]="message"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
@@ -54,11 +60,9 @@
 
     <app-chat-input-component
       theme="light"
-      [chat]="activeChat"
+      [chat]="chat"
       (messageSubmit)="sendMessage($event)"
       (fileSubmit)="openPreviewPage($event)"
     ></app-chat-input-component>
   </section>
-} @else {
-
 }

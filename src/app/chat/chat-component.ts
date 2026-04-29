@@ -10,66 +10,42 @@ import { Message } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 
+
 @Component({
   selector: 'app-chat',
   imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent, ChatNavbarComponent, NgScrollbar, NgScrollReachDrop],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
-export class ChatComponent implements AfterViewInit, OnDestroy {
+export class ChatComponent {
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
   readonly SCROLLBAR_OFFSET = 40;
+  @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
   searchQuery = '';
   matchingMessageIds: number[] = [];
   activeSearchResultIndex = -1;
   awayFromBottom = false;
   scrollbarVisible = false;
-  private scrollTimer?: ReturnType<typeof setTimeout>;
-  private readonly handleScrollbarScroll = () => this.onScroll();
 
   onScroll(): void {
-    this.scrollbarVisible = true;
-
-    if (this.scrollTimer) {
-      clearTimeout(this.scrollTimer);
+    if (!this.scrollbarVisible) {
+      this.scrollbarVisible = true;
     }
-
-    this.scrollTimer = setTimeout(() => {
-      this.scrollbarVisible = false;
-    }, 160);
   }
 
-  ngOnDestroy(): void {
-    if (this.scrollTimer) {
-      clearTimeout(this.scrollTimer);
-    }
 
-    this.scrollbar?.nativeElement.removeEventListener('scroll', this.handleScrollbarScroll);
-  }
-  
-  @ViewChild('chatScrollbar') scrollbar?: NgScrollbar;
-
-  ngAfterViewInit(): void {
-    this.scrollbar?.nativeElement.addEventListener('scroll', this.handleScrollbarScroll, {
-      passive: true,
-    });
-  }
+  @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
   sendMessage(message: string | Message): void {
-    if (!this.chat) {
+    if(message instanceof Message) {
+      if(message instanceof Question) this.chat.user.ask(message);
+      else this.chat.user.answer(message);
       return;
     }
-    const messageValue = typeof message === 'string' ? message : message.value;
-    const messageAttachment = message instanceof Message ? message.attachment : undefined;
-
-    if (this.chat.messages.at(-1) instanceof Question) {
-      this.chat.user.answer(new Answer(messageValue, messageAttachment));
-    } else {
-      this.chat.user.ask(new Question(messageValue, {attachment: messageAttachment}));
-    }
+    this.chat.supporter.expects == 'question' ? this.chat.user.ask(message) : this.chat.user.answer(message);
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
@@ -146,7 +122,7 @@ export class ChatComponent implements AfterViewInit, OnDestroy {
   }
 
   scrollToBottom() {
-    return this.scrollbar?.scrollTo({
+    return this.scrollbar.scrollTo({
       bottom: 0,
       duration: 0
     });

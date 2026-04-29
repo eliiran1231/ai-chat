@@ -67,7 +67,11 @@
       >
         <span class="search-icon" aria-hidden="true"></span>
       </button>
-      <button type="button" class="icon-button" aria-label="More options">...</button>
+        <app-menu
+          [menuIcon]="menuIcon"
+          [items]="menuItems"
+          (itemSelected)="onMenuItemSelected($event)"
+        ></app-menu>
     </div>
   }
 </header>
