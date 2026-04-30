@@ -91,6 +91,11 @@
     color 0.15s ease;
 }
 
+.chat-menu{
+  border-radius: 50%;
+}
+
+.chat-menu:hover,
 .search-nav-button:hover,
 .search-close-button:hover {
   background: rgba(255, 255, 255, 0.12);
