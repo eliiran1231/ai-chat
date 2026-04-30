@@ -61,6 +61,9 @@ export class Chat {
   processFileUrl(file: File): string | Promise<string> {
     return this._processFileUrlDriver(file);
   }
+  updateAvatar(avatar: Avatar) {
+    this.avatar = avatar;
+  }
   setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
     this._processFileUrlDriver = processor;
   }

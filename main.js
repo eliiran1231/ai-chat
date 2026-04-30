@@ -633,6 +633,42 @@ function registerDbHandlers() {
     return mapChatRow(row);
   });
 
+  ipcMain.handle('db:updateChatAvatar', async (_event, { chatId, avatar }) => {
+    const now = new Date().toISOString();
+    await run(
+      `
+        UPDATE chats
+        SET avatar = ?,
+            updated_at = ?
+        WHERE id = ?
+      `,
+      [JSON.stringify(avatar), now, chatId],
+    );
+
+    const row = await get(
+      `
+        SELECT
+          id,
+          name,
+          status,
+          avatar,
+          subtitle,
+          time_label,
+          unread_count,
+          highlight_time,
+          avatar_ring,
+          tip_label,
+          created_at,
+          updated_at
+        FROM chats
+        WHERE id = ?
+      `,
+      [chatId],
+    );
+
+    return mapChatRow(row);
+  });
+
   ipcMain.handle('db:updateSupporterAgent', async (_event, { chatId, agentName }) => {
     const result = await run(
       `

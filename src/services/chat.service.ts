@@ -103,6 +103,19 @@ export class ChatService {
     chat.name = record.name;
   }
 
+  async updateChatAvatar(chat: Chat, avatar: Avatar): Promise<void> {
+    if (chat.avatar.type === avatar.type && chat.avatar.value === avatar.value) {
+      return;
+    }
+
+    const record = await this.dbService.updateChatAvatar({
+      chatId: chat.id,
+      avatar,
+    });
+
+    chat.updateAvatar(this.normalizeAvatar(record.avatar));
+  }
+
   private normalizeAvatar(avatar: Avatar | string): Avatar {
     return typeof avatar === 'string' ? { type: 'text', value: avatar } : avatar;
   }
