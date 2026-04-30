@@ -462,8 +462,7 @@ function registerDbHandlers() {
 
   ipcMain.handle('db:createMessage', async (_event, message) => {
     const persistWithExplicitId = Number.isInteger(message?.id) && message.id > 0;
-    const args = [
-      message.id,
+    const commonArgs = [
       message.chatId,
       message.from,
       message.messageType ?? 'message',
@@ -476,7 +475,6 @@ function registerDbHandlers() {
       message.validationErrorMessage ?? null,
       message.isRead ? 1 : 0,
     ];
-    if (!persistWithExplicitId) args.shift();
 
     const sql = persistWithExplicitId
       ? `
@@ -512,11 +510,15 @@ function registerDbHandlers() {
           )
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
+    const args = persistWithExplicitId
+      ? [message.id, ...commonArgs]
+      : commonArgs;
 
     const result = await run(
       sql,
       args,
     );
+    const insertedMessageId = persistWithExplicitId ? message.id : result.lastID;
 
     if (!message.isRead) {
       await run(
@@ -548,7 +550,7 @@ function registerDbHandlers() {
         FROM messages
         WHERE id = ?
       `,
-      [persistWithExplicitId ? message.id : result.lastID],
+      [insertedMessageId],
     );
 
     return mapMessageRow(row);

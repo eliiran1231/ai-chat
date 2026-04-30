@@ -13,7 +13,15 @@ import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-chat',
-  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent, ChatNavbarComponent, NgScrollbar, NgScrollReachDrop, LucideAngularModule],
+  imports: [
+    MessageBubbleComponent,
+    ChatInputComponent,
+    FilePreviewComponent,
+    ChatNavbarComponent,
+    NgScrollbar,
+    NgScrollReachDrop,
+    LucideAngularModule
+  ],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
@@ -29,6 +37,16 @@ export class ChatComponent {
   matchingMessageIds: number[] = [];
   activeSearchResultIndex = -1;
   awayFromBottom = false;
+  isScrolling = false;
+
+  onScroll(): void {
+    if (!this.isScrolling) {
+      this.isScrolling = true;
+    }
+  }
+  onChatScrollEnd(): void {
+    this.isScrolling = false;
+  }
 
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
@@ -48,7 +66,7 @@ export class ChatComponent {
     this.attachmentFile = undefined;
   }
 
-  openPreviewPage(file: File){
+  openPreviewPage(file: File) {
     this.attachmentFile = file;
   }
 
@@ -76,17 +94,18 @@ export class ChatComponent {
     this.activeSearchResultIndex = -1;
   }
 
-  stepInSearch(steps: number = 1){
+  stepInSearch(steps: number = 1) {
     if (!this.matchingMessageIds.length) {
       return;
     }
 
-    this.activeSearchResultIndex = (this.activeSearchResultIndex + steps) % this.matchingMessageIds.length;
+    this.activeSearchResultIndex =
+      (this.activeSearchResultIndex + steps) % this.matchingMessageIds.length;
     this.scrollToActiveSearchResult();
   }
 
   isActiveSearchMatch(messageId: number | undefined): boolean {
-    return this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
+    return !!messageId && this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
   }
 
   private scrollToActiveSearchResult(): void {
@@ -104,18 +123,18 @@ export class ChatComponent {
     });
   }
 
-  showScrollButton(){
+  showScrollButton() {
     this.awayFromBottom = true;
   }
-  
-  hideScrollButton(){
+
+  hideScrollButton() {
     this.awayFromBottom = false;
   }
 
   scrollToBottom() {
     return this.scrollbar.scrollTo({
       bottom: 0,
-      duration: 0
+      duration: 0,
     });
   }
 }

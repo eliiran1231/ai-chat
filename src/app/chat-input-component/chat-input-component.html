@@ -5,12 +5,7 @@
   [class.chat-composer--light]="theme !== 'dark'"
   (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
 >
-  <button
-    (click)="pickFile()"
-    type="button"
-    class="composer-action composer-action--icon"
-    aria-label="Attach file"
-  >
+  <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" aria-label="Attach file">
     <lucide-angular [img]="attachIcon" aria-hidden="true" />
   </button>
   <button type="button" class="composer-action" aria-label="Emoji">:)</button>
