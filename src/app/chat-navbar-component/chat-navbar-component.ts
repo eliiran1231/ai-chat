@@ -1,11 +1,20 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Chat } from '../../classes/Chat';
 import { AppMenu, AppMenuItem } from "../shared/app-menu/app-menu";
-import { EllipsisVertical, Trash2 } from 'lucide-angular';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronUp,
+  EllipsisVertical,
+  LucideAngularModule,
+  Search,
+  Trash2,
+  X,
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-chat-navbar-component',
-  imports: [AppMenu],
+  imports: [AppMenu, LucideAngularModule],
   templateUrl: './chat-navbar-component.html',
   styleUrl: './chat-navbar-component.scss',
 })
@@ -23,6 +32,11 @@ export class ChatNavbarComponent {
   searchQuery = '';
 
   @Output() deleteChat = new EventEmitter<Chat>();
+  readonly previousMatchIcon = ChevronUp;
+  readonly nextMatchIcon = ChevronDown;
+  readonly closeSearchIcon = X;
+  readonly backIcon = ChevronLeft;
+  readonly searchIcon = Search;
   readonly menuIcon = EllipsisVertical;
   readonly deleteIcon = Trash2;
   readonly menuItems: AppMenuItem[] = [

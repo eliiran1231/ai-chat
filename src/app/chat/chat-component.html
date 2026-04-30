@@ -1,12 +1,11 @@
-@if(attachmentFile){
-  <app-file-preview-component 
+@if (attachmentFile) {
+  <app-file-preview-component
     [file]="attachmentFile"
     [processFileUrl]="(file)=>chat.processFileUrl(file)"
     (submitted)="closePreviewPage(); sendMessage($event.value, $event.options)"
     (closed)="closePreviewPage()"
-    ></app-file-preview-component>
-}
-@else {
+  ></app-file-preview-component>
+} @else {
   <section class="chat-shell">
     <app-chat-navbar-component
       [chat]="chat"
@@ -53,7 +52,7 @@
         aria-label="Scroll to bottom"
         (click)="scrollToBottom()"
       >
-        <lucide-angular [img]="scrollDownIcon" aria-hidden="true"></lucide-angular>
+        <lucide-angular [img]="scrollDownIcon" aria-hidden="true" />
       </button>
     }
 
