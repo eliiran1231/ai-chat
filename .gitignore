@@ -46,3 +46,4 @@ Thumbs.db
 
 # Compiled Files
 main.js 
+services/*.js

@@ -6,5 +6,5 @@
     "noEmitOnError": true,
     "types": ["node"]
   },
-  "include": ["main.ts"]
+  "include": ["main.ts", "services/**/*.ts"]
 }
