@@ -8,6 +8,9 @@ import { dbService } from './services/db.service.js';
 import { chatService } from './services/chat.service.js';
 import { messageService } from './services/message.service.js';
 import { supporterService } from './services/supporter.service.js';
+import { registerChatHandlers } from './ipc/chat.handler.js';
+import { registerMessageHandlers } from './ipc/message.handler.js';
+import { registerSupporterHandlers } from './ipc/supporter.handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -109,9 +112,9 @@ app.whenReady().then(async () => {
   await chatService.initialize();
   await messageService.initialize();
   await supporterService.initialize();
-  chatService.registerHandlers();
-  messageService.registerHandlers();
-  supporterService.registerHandlers();
+  registerChatHandlers();
+  registerMessageHandlers();
+  registerSupporterHandlers();
   registerSystemHandlers();
   //Menu.setApplicationMenu(null);
   createWindow();

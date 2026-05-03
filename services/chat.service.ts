@@ -1,5 +1,3 @@
-import { ipcMain } from 'electron';
-import type { IpcMainInvokeEvent } from 'electron';
 import { dbService, type DbService } from './db.service.js';
 
 interface ChatRow {
@@ -17,7 +15,7 @@ interface ChatRow {
   updated_at: string;
 }
 
-interface ChatPayload {
+export interface ChatPayload {
   name: string;
   status: string;
   avatar: string;
@@ -29,7 +27,7 @@ interface ChatPayload {
   tipLabel?: string | null;
 }
 
-interface UpdateChatTitlePayload {
+export interface UpdateChatTitlePayload {
   chatId: number;
   name: string;
 }
@@ -56,22 +54,7 @@ export class ChatService {
     `);
   }
 
-  registerHandlers(): void {
-    ipcMain.handle('db:getChats', async () => this.getChats());
-    ipcMain.handle('db:createChat', async (_event: IpcMainInvokeEvent, chat: ChatPayload) =>
-      this.createChat(chat),
-    );
-    ipcMain.handle(
-      'db:updateChatTitle',
-      async (_event: IpcMainInvokeEvent, payload: UpdateChatTitlePayload) =>
-        this.updateChatTitle(payload),
-    );
-    ipcMain.handle('db:deleteChat', async (_event: IpcMainInvokeEvent, chatId: number) =>
-      this.deleteChat(chatId),
-    );
-  }
-
-  private async getChats() {
+  async getChats() {
     const rows = await this.db.all<ChatRow>(`
       SELECT
         id,
@@ -93,7 +76,7 @@ export class ChatService {
     return rows.map(this.mapChatRow);
   }
 
-  private async createChat(chat: ChatPayload) {
+  async createChat(chat: ChatPayload) {
     const now = new Date().toISOString();
     const result = await this.db.run(
       `
@@ -155,7 +138,7 @@ export class ChatService {
     return this.mapChatRow(row);
   }
 
-  private async updateChatTitle({ chatId, name }: UpdateChatTitlePayload) {
+  async updateChatTitle({ chatId, name }: UpdateChatTitlePayload) {
     const now = new Date().toISOString();
     await this.db.run(
       `
@@ -195,7 +178,7 @@ export class ChatService {
     return this.mapChatRow(row);
   }
 
-  private async deleteChat(chatId: number): Promise<boolean> {
+  async deleteChat(chatId: number): Promise<boolean> {
     await this.db.run(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
     await this.db.run(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
     const result = await this.db.run(`DELETE FROM chats WHERE id = ?`, [chatId]);

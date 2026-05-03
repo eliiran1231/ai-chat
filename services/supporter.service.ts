@@ -1,5 +1,3 @@
-import { ipcMain } from 'electron';
-import type { IpcMainInvokeEvent } from 'electron';
 import { dbService, type DbService } from './db.service.js';
 
 interface SupporterRow {
@@ -15,18 +13,18 @@ interface TableColumnRow {
   name: string;
 }
 
-interface SupporterPayload {
+export interface SupporterPayload {
   chatId: number;
   agentName: string;
   context?: string | null;
 }
 
-interface UpdateSupporterAgentPayload {
+export interface UpdateSupporterAgentPayload {
   chatId: number;
   agentName: string;
 }
 
-interface UpdateSupporterContextPayload {
+export interface UpdateSupporterContextPayload {
   chatId: number;
   context?: string | null;
 }
@@ -56,28 +54,7 @@ export class SupporterService {
     }
   }
 
-  registerHandlers(): void {
-    ipcMain.handle('db:getChatSupporter', async (_event: IpcMainInvokeEvent, chatId: number) =>
-      this.getChatSupporter(chatId),
-    );
-    ipcMain.handle(
-      'db:createSupporter',
-      async (_event: IpcMainInvokeEvent, supporter: SupporterPayload) =>
-        this.createSupporter(supporter),
-    );
-    ipcMain.handle(
-      'db:updateSupporterAgent',
-      async (_event: IpcMainInvokeEvent, payload: UpdateSupporterAgentPayload) =>
-        this.updateSupporterAgent(payload),
-    );
-    ipcMain.handle(
-      'db:updateSupporterContext',
-      async (_event: IpcMainInvokeEvent, payload: UpdateSupporterContextPayload) =>
-        this.updateSupporterContext(payload),
-    );
-  }
-
-  private async getChatSupporter(chatId: number) {
+  async getChatSupporter(chatId: number) {
     const row = await this.db.get<SupporterRow>(
       `
         SELECT
@@ -96,7 +73,7 @@ export class SupporterService {
     return this.mapSupporterRow(row);
   }
 
-  private async createSupporter(supporter: SupporterPayload) {
+  async createSupporter(supporter: SupporterPayload) {
     const now = new Date().toISOString();
     const result = await this.db.run(
       `
@@ -134,7 +111,7 @@ export class SupporterService {
     return this.mapSupporterRow(row);
   }
 
-  private async updateSupporterAgent({
+  async updateSupporterAgent({
     chatId,
     agentName,
   }: UpdateSupporterAgentPayload): Promise<boolean> {
@@ -151,7 +128,7 @@ export class SupporterService {
     return result.changes > 0;
   }
 
-  private async updateSupporterContext({
+  async updateSupporterContext({
     chatId,
     context,
   }: UpdateSupporterContextPayload): Promise<boolean> {

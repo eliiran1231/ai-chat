@@ -1,5 +1,3 @@
-import { ipcMain } from 'electron';
-import type { IpcMainInvokeEvent } from 'electron';
 import { dbService, type DbService } from './db.service.js';
 
 interface MessageRow {
@@ -29,7 +27,7 @@ interface AttachmentPayload {
   size: number;
 }
 
-interface MessagePayload {
+export interface MessagePayload {
   id?: number;
   chatId: number;
   from: string;
@@ -127,19 +125,7 @@ export class MessageService {
     }
   }
 
-  registerHandlers(): void {
-    ipcMain.handle('db:getChatMessages', async (_event: IpcMainInvokeEvent, chatId: number) =>
-      this.getChatMessages(chatId),
-    );
-    ipcMain.handle('db:createMessage', async (_event: IpcMainInvokeEvent, message: MessagePayload) =>
-      this.createMessage(message),
-    );
-    ipcMain.handle('db:markChatRead', async (_event: IpcMainInvokeEvent, chatId: number) =>
-      this.markChatRead(chatId),
-    );
-  }
-
-  private async getChatMessages(chatId: number) {
+  async getChatMessages(chatId: number) {
     const rows = await this.db.all<MessageRow>(
       `
         SELECT
@@ -165,7 +151,7 @@ export class MessageService {
     return rows.map((row) => this.mapMessageRow(row));
   }
 
-  private async createMessage(message: MessagePayload) {
+  async createMessage(message: MessagePayload) {
     const explicitMessageId =
       typeof message.id === 'number' && Number.isInteger(message.id) && message.id > 0
         ? message.id
@@ -264,7 +250,7 @@ export class MessageService {
     return this.mapMessageRow(row);
   }
 
-  private async markChatRead(chatId: number): Promise<boolean> {
+  async markChatRead(chatId: number): Promise<boolean> {
     const now = new Date().toISOString();
     await this.db.run(
       `
