@@ -1,3 +1,4 @@
+import { Subject } from 'rxjs';
 import { Message } from './Message';
 import { Supporter } from './Supporter';
 import { Client } from './Client';
@@ -18,6 +19,8 @@ export class Chat {
   supporter: Supporter;
   user: Client;
   active: boolean = false;
+  public readonly onMessageEdited = new Subject<Message>();
+  public readonly onMessageDeleted = new Subject<Message>();
 
   constructor(
     id: number,
@@ -58,5 +61,32 @@ export class Chat {
   }
   setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
     this._processFileUrlDriver = processor;
+  }
+
+  editMessage(message: Message, newValue: string): void {
+    if (!message.editable) {
+      return;
+    }
+
+    message.value = newValue;
+    this.onMessageEdited.next(message);
+  }
+
+  deleteMessage(message: Message): void {
+    if (!message.deletable) {
+      return;
+    }
+
+    this.onMessageDeleted.next(message);
+  }
+
+  removeMessage(message: Message): boolean {
+    const index = this.messages.indexOf(message);
+    if (index < 0) {
+      return false;
+    }
+
+    this.messages.splice(index, 1);
+    return true;
   }
 }

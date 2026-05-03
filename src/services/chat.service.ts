@@ -175,6 +175,8 @@ export class ChatService {
   }
 
   private attachMessagePersistence(chat: Chat): void {
+    const pendingMessagePersists = new WeakMap<Message, Promise<void>>();
+
     const persistMessage = async (message: Message) => {
       const messageType = message instanceof Answer ? "answer" : message instanceof Question ? "question" : "message";
       const record = await this.dbService.createMessage({
@@ -207,8 +209,8 @@ export class ChatService {
       message.deletable = record.deletable;
     };
 
-    const persistMessageEdit = async (message: Message, persisted?: Promise<void>) => {
-      await persisted;
+    const persistMessageEdit = async (message: Message) => {
+      await pendingMessagePersists.get(message);
       if (!message.id) return;
       await this.dbService.updateMessage({
         id: message.id,
@@ -216,36 +218,32 @@ export class ChatService {
       });
     };
 
-    const persistMessageDelete = async (message: Message, persisted?: Promise<void>) => {
-      await persisted;
+    const persistMessageDelete = async (message: Message) => {
+      await pendingMessagePersists.get(message);
       if (!message.id) return;
       const deleted = await this.dbService.deleteMessage(message.id);
       if (deleted) {
-        const index = chat.messages.findIndex((chatMessage) => chatMessage.id === message.id);
-        if (index >= 0) {
-          chat.messages.splice(index, 1);
-        }
+        chat.removeMessage(message);
       }
     };
 
-    const attachMessageEvents = (message: Message, persisted?: Promise<void>) => {
-      message.onMessageEdited.subscribe((editedMessage) => {
-        void persistMessageEdit(editedMessage, persisted);
-      });
-      message.onMessageDeleted.subscribe((deletedMessage) => {
-        void persistMessageDelete(deletedMessage, persisted);
-      });
-    };
+    chat.onMessageEdited.subscribe((message) => {
+      void persistMessageEdit(message);
+    });
+    chat.onMessageDeleted.subscribe((message) => {
+      void persistMessageDelete(message);
+    });
 
-    chat.messages.forEach((message) => attachMessageEvents(message));
     chat.supporter.onMessageAdded.subscribe((message) => {
       const persisted = persistMessage(message);
-      attachMessageEvents(message, persisted);
+      pendingMessagePersists.set(message, persisted);
+      void persisted.finally(() => pendingMessagePersists.delete(message));
       void persisted;
     });
     chat.user.onMessageAdded.subscribe((message) => {
       const persisted = persistMessage(message);
-      attachMessageEvents(message, persisted);
+      pendingMessagePersists.set(message, persisted);
+      void persisted.finally(() => pendingMessagePersists.delete(message));
       void persisted;
     });
   }
