@@ -99,6 +99,8 @@
   height: 2.5rem;
   position: relative;
   color: #66717a;
+  display: grid;
+  place-items: center;
 }
 
 .profile-card__content h2,
@@ -130,87 +132,16 @@
   box-sizing: border-box;
 }
 
-.profile-card__icon--person::before {
-  top: 0.15rem;
-  left: 50%;
-  width: 0.8rem;
-  height: 0.8rem;
-  transform: translateX(-50%);
-  border: 0.2rem solid currentColor;
-  border-radius: 50%;
+.profile-card__icon lucide-angular {
+  width: 2rem;
+  height: 2rem;
+  stroke-width: 2;
 }
 
-.profile-card__icon--person::after {
-  right: 0.2rem;
-  bottom: 0.3rem;
-  width: 1.9rem;
-  height: 1.05rem;
-  border: 0.2rem solid currentColor;
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
-  border-bottom: 0;
-}
 
 .profile-card__icon--info {
   border: 0.2rem solid currentColor;
   border-radius: 50%;
-}
-
-.profile-card__icon--info::before {
-  top: 0.55rem;
-  left: 50%;
-  width: 0.25rem;
-  height: 0.25rem;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.profile-card__icon--info::after {
-  top: 1rem;
-  left: 50%;
-  width: 0.25rem;
-  height: 0.8rem;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: currentColor;
-}
-
-.profile-card__icon--phone::before {
-  inset: 0.3rem 0.55rem;
-  border: 0.2rem solid currentColor;
-  border-radius: 0.8rem 0.8rem 1.2rem 1.2rem;
-  border-left-color: transparent;
-  border-top-color: transparent;
-  transform: rotate(-20deg);
-}
-
-.profile-card__icon--phone::after {
-  right: 0.1rem;
-  bottom: 0.35rem;
-  width: 0.75rem;
-  height: 0.4rem;
-  border: 0.2rem solid currentColor;
-  border-radius: 0.2rem;
-  transform: rotate(12deg);
-}
-
-.profile-card__icon--link::before,
-.profile-card__icon--link::after {
-  top: 50%;
-  width: 1.05rem;
-  height: 0.62rem;
-  border: 0.2rem solid currentColor;
-  border-radius: 999px;
-  transform: translateY(-50%);
-}
-
-.profile-card__icon--link::before {
-  left: 0.15rem;
-}
-
-.profile-card__icon--link::after {
-  right: 0.15rem;
 }
 
 .profile-checkbox {

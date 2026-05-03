@@ -1,7 +1,7 @@
 <div class="chat-list-shell">
   <div class="sidebar-tools">
     <label class="search-box" for="chat-search">
-      <span class="search-box__icon">O</span>
+      <lucide-angular [img]="searchIcon" class="search-box__icon" aria-hidden="true" />
       <input
         id="chat-search"
         type="text"
@@ -14,39 +14,43 @@
   </div>
 
   <div class="chat-list">
-  @for (chat of filteredChats; track chat.id) {
-    <button
-      type="button"
-      class="chat-list-item"
-      [class.chat-list-item--active]="selectedChat?.id === chat.id"
-      (click)="onOpenChat(chat)"
-    >
-      <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing">
-        <div class="chat-list-item__avatar">{{ avatarFor(chat) }}</div>
-      </div>
-      <div class="chat-list-item__content">
-        <div class="chat-list-item__top">
-          <strong>{{ chat.name }}</strong>
-          <div class="chat-list-item__actions">
-            <time [class.chat-list-item__time--accent]="chat.highlightTime">{{ lastMessageTime(chat) }}</time>
+    @for (chat of filteredChats; track chat.id) {
+      <button
+        type="button"
+        class="chat-list-item"
+        [class.chat-list-item--active]="selectedChat?.id === chat.id"
+        (click)="onOpenChat(chat)"
+      >
+        <div
+          class="chat-list-item__avatar-wrap"
+          [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing"
+        >
+          <div class="chat-list-item__avatar">{{ avatarFor(chat) }}</div>
+        </div>
+        <div class="chat-list-item__content">
+          <div class="chat-list-item__top">
+            <strong>{{ chat.name }}</strong>
+            <div class="chat-list-item__actions">
+              <time [class.chat-list-item__time--accent]="chat.highlightTime">{{
+                lastMessageTime(chat)
+              }}</time>
+            </div>
+          </div>
+          <div class="chat-list-item__bottom">
+            <p>{{ lastMessageText(chat) }}</p>
+            @if (chat.unreadCount) {
+              <span class="chat-list-item__badge">{{ chat.unreadCount }}</span>
+            }
           </div>
         </div>
-        <div class="chat-list-item__bottom">
-          <p>{{ lastMessageText(chat) }}</p>
-          @if (chat.unreadCount) {
-            <span class="chat-list-item__badge">{{ chat.unreadCount }}</span>
-          }
-        </div>
+      </button>
+    } @empty {
+      <div class="chat-list-empty">
+        <p>No chats match your search.</p>
       </div>
-    </button>
-  } @empty {
-    <div class="chat-list-empty">
-      <p>No chats match your search.</p>
-    </div>
-  }
+    }
   </div>
-
 </div>
 <button type="button" class="floating-compose" aria-label="New chat" (click)="onCreateChat()">
-    +
+  <lucide-angular [img]="composeIcon" aria-hidden="true" />
 </button>

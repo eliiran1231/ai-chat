@@ -9,6 +9,7 @@ import { FilePreviewComponent } from "../file-preview-component/file-preview-com
 import { MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
+import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-chat',
@@ -19,6 +20,7 @@ import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
     ChatNavbarComponent,
     NgScrollbar,
     NgScrollReachDrop,
+    LucideAngularModule
   ],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
@@ -28,6 +30,7 @@ export class ChatComponent {
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
   readonly SCROLLBAR_OFFSET = 40;
+  readonly scrollDownIcon = ChevronsDown;
   @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
   searchQuery = '';
