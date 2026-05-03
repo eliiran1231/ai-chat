@@ -6,24 +6,32 @@ import {
   type UpdateSupporterAgentPayload,
   type UpdateSupporterContextPayload,
 } from '../services/supporter.service.js';
+import { withIpcErrorHandling } from './ipc-handler.js';
 
 export function registerSupporterHandlers(): void {
-  ipcMain.handle('db:getChatSupporter', async (_event: IpcMainInvokeEvent, chatId: number) =>
-    supporterService.getChatSupporter(chatId),
+  ipcMain.handle(
+    'db:getChatSupporter',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: number) =>
+      supporterService.getChatSupporter(chatId),
+    ),
   );
   ipcMain.handle(
     'db:createSupporter',
-    async (_event: IpcMainInvokeEvent, supporter: SupporterPayload) =>
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, supporter: SupporterPayload) =>
       supporterService.createSupporter(supporter),
+    ),
   );
   ipcMain.handle(
     'db:updateSupporterAgent',
-    async (_event: IpcMainInvokeEvent, payload: UpdateSupporterAgentPayload) =>
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, payload: UpdateSupporterAgentPayload) =>
       supporterService.updateSupporterAgent(payload),
+    ),
   );
   ipcMain.handle(
     'db:updateSupporterContext',
-    async (_event: IpcMainInvokeEvent, payload: UpdateSupporterContextPayload) =>
-      supporterService.updateSupporterContext(payload),
+    withIpcErrorHandling(
+      async (_event: IpcMainInvokeEvent, payload: UpdateSupporterContextPayload) =>
+        supporterService.updateSupporterContext(payload),
+    ),
   );
 }

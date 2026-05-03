@@ -5,18 +5,29 @@ import {
   type ChatPayload,
   type UpdateChatTitlePayload,
 } from '../services/chat.service.js';
+import { withIpcErrorHandling } from './ipc-handler.js';
 
 export function registerChatHandlers(): void {
-  ipcMain.handle('db:getChats', async () => chatService.getChats());
-  ipcMain.handle('db:createChat', async (_event: IpcMainInvokeEvent, chat: ChatPayload) =>
-    chatService.createChat(chat),
+  ipcMain.handle(
+    'db:getChats',
+    withIpcErrorHandling(async () => chatService.getChats()),
+  );
+  ipcMain.handle(
+    'db:createChat',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chat: ChatPayload) =>
+      chatService.createChat(chat),
+    ),
   );
   ipcMain.handle(
     'db:updateChatTitle',
-    async (_event: IpcMainInvokeEvent, payload: UpdateChatTitlePayload) =>
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, payload: UpdateChatTitlePayload) =>
       chatService.updateChatTitle(payload),
+    ),
   );
-  ipcMain.handle('db:deleteChat', async (_event: IpcMainInvokeEvent, chatId: number) =>
-    chatService.deleteChat(chatId),
+  ipcMain.handle(
+    'db:deleteChat',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: number) =>
+      chatService.deleteChat(chatId),
+    ),
   );
 }
