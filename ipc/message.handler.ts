@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import type { IpcMainInvokeEvent } from 'electron';
 import { messageService, type MessagePayload } from '../services/message.service.js';
+import type { UpdateMessagePayload } from '../services/message.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
 export function registerMessageHandlers(): void {
@@ -14,6 +15,18 @@ export function registerMessageHandlers(): void {
     'db:createMessage',
     withIpcErrorHandling(async (_event: IpcMainInvokeEvent, message: MessagePayload) =>
       messageService.createMessage(message),
+    ),
+  );
+  ipcMain.handle(
+    'db:updateMessage',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, message: UpdateMessagePayload) =>
+      messageService.updateMessage(message),
+    ),
+  );
+  ipcMain.handle(
+    'db:deleteMessage',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, messageId: number) =>
+      messageService.deleteMessage(messageId),
     ),
   );
   ipcMain.handle(

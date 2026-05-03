@@ -10,6 +10,8 @@ export interface CreateMessageRecordInput {
   tag?: string;
   time: string;
   isRead: boolean;
+  editable: boolean;
+  deletable: boolean;
   attachment?: Attachment;
   possibleAnswers?: string[];
   validatorSpec?: ValidatorSpec;

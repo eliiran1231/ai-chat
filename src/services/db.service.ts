@@ -7,6 +7,7 @@ import { CreateSupporterRecordInput } from '../interfaces/db/CreateSupporterReco
 import { MessageRecord } from '../interfaces/db/MessageRecord';
 import { SupporterRecord } from '../interfaces/db/SupporterRecord';
 import { UpdateChatTitleInput } from '../interfaces/db/UpdateChatTitleInput';
+import { UpdateMessageInput } from '../interfaces/db/UpdateMessageInput';
 import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgentInput';
 import { UpdateSupporterContextInput } from '../interfaces/db/UpdateSupporterContextInput';
 
@@ -38,6 +39,14 @@ export class DbService {
 
   async createMessage(message: CreateMessageRecordInput): Promise<MessageRecord> {
     return this.electronService.invoke<MessageRecord>('db:createMessage', message);
+  }
+
+  async updateMessage(message: UpdateMessageInput): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:updateMessage', message);
+  }
+
+  async deleteMessage(messageId: number): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:deleteMessage', messageId);
   }
 
   async getChatSupporter(chatId: number): Promise<SupporterRecord | null> {

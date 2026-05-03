@@ -13,6 +13,8 @@ interface MessageRow {
   validator_spec: string | null;
   validation_error_message: string | null;
   is_read: number;
+  editable: number;
+  deletable: number;
 }
 
 interface TableColumnRow {
@@ -40,6 +42,13 @@ export interface MessagePayload {
   validatorSpec?: unknown;
   validationErrorMessage?: string | null;
   isRead?: boolean;
+  editable?: boolean;
+  deletable?: boolean;
+}
+
+export interface UpdateMessagePayload {
+  id: number;
+  value: string;
 }
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
@@ -75,6 +84,8 @@ export class MessageService {
         validator_spec TEXT,
         validation_error_message TEXT,
         is_read INTEGER NOT NULL DEFAULT 0,
+        editable INTEGER NOT NULL DEFAULT 1,
+        deletable INTEGER NOT NULL DEFAULT 1,
         FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
       )
     `);
@@ -92,6 +103,8 @@ export class MessageService {
       (column) => column.name === 'validation_error_message',
     );
     const hasAttachmentColumn = messageColumns.some((column) => column.name === 'attachment');
+    const hasEditableColumn = messageColumns.some((column) => column.name === 'editable');
+    const hasDeletableColumn = messageColumns.some((column) => column.name === 'deletable');
 
     if (!hasIsReadColumn) {
       await this.db.run(`ALTER TABLE messages ADD COLUMN is_read INTEGER NOT NULL DEFAULT 0`);
@@ -123,6 +136,12 @@ export class MessageService {
     if (!hasAttachmentColumn) {
       await this.db.run(`ALTER TABLE messages ADD COLUMN attachment TEXT`);
     }
+    if (!hasEditableColumn) {
+      await this.db.run(`ALTER TABLE messages ADD COLUMN editable INTEGER NOT NULL DEFAULT 1`);
+    }
+    if (!hasDeletableColumn) {
+      await this.db.run(`ALTER TABLE messages ADD COLUMN deletable INTEGER NOT NULL DEFAULT 1`);
+    }
   }
 
   async getChatMessages(chatId: number) {
@@ -140,7 +159,9 @@ export class MessageService {
           possible_answers,
           validator_spec,
           validation_error_message,
-          is_read
+          is_read,
+          editable,
+          deletable
         FROM messages
         WHERE chat_id = ?
         ORDER BY time ASC, id ASC
@@ -169,6 +190,8 @@ export class MessageService {
       message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
       message.validationErrorMessage ?? null,
       message.isRead ? 1 : 0,
+      message.editable === false ? 0 : 1,
+      message.deletable === false ? 0 : 1,
     ];
 
     const sql = persistWithExplicitId
@@ -185,9 +208,11 @@ export class MessageService {
             possible_answers,
             validator_spec,
             validation_error_message,
-            is_read
+            is_read,
+            editable,
+            deletable
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `
       : `
           INSERT INTO messages (
@@ -201,9 +226,11 @@ export class MessageService {
             possible_answers,
             validator_spec,
             validation_error_message,
-            is_read
+            is_read,
+            editable,
+            deletable
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
     const args = persistWithExplicitId ? [explicitMessageId, ...commonArgs] : commonArgs;
 
@@ -236,7 +263,9 @@ export class MessageService {
           possible_answers,
           validator_spec,
           validation_error_message,
-          is_read
+          is_read,
+          editable,
+          deletable
         FROM messages
         WHERE id = ?
       `,
@@ -248,6 +277,31 @@ export class MessageService {
     }
 
     return this.mapMessageRow(row);
+  }
+
+  async updateMessage(message: UpdateMessagePayload): Promise<boolean> {
+    const result = await this.db.run(
+      `
+        UPDATE messages
+        SET value = ?
+        WHERE id = ? AND editable = 1
+      `,
+      [message.value, message.id],
+    );
+
+    return result.changes > 0;
+  }
+
+  async deleteMessage(messageId: number): Promise<boolean> {
+    const result = await this.db.run(
+      `
+        DELETE FROM messages
+        WHERE id = ? AND deletable = 1
+      `,
+      [messageId],
+    );
+
+    return result.changes > 0;
   }
 
   async markChatRead(chatId: number): Promise<boolean> {
@@ -284,6 +338,8 @@ export class MessageService {
       tag: row.tag ?? undefined,
       time: row.time,
       isRead: Boolean(row.is_read),
+      editable: Boolean(row.editable),
+      deletable: Boolean(row.deletable),
       attachment: this.parseAttachmentColumn(row.attachment, 'attachment', row.id),
       possibleAnswers: this.parseStringArrayColumn(row.possible_answers, 'possible_answers', row.id),
       validatorSpec: this.parseJsonColumn(row.validator_spec, 'validator_spec', row.id),

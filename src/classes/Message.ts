@@ -1,3 +1,5 @@
+import { Subject } from "rxjs";
+
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
 export type Attachment = { 
@@ -9,21 +11,40 @@ export type Attachment = {
 };
 export type MessageOptions = {
     id?: number,
-    attachment?: Attachment
+    tag?: string,
+    attachment?: Attachment,
+    editable?: boolean,
+    deletable?: boolean,
 }
 
 export class Message {
     id?: number;
     from?: MessageSender;
     time: Date = new Date();
-    tag: string = 'general';
+    tag: string;
     value: string;
     isRead: boolean = false;
     attachment?: Attachment;
+    editable: boolean;
+    deletable: boolean;
+    onMessageEdited: Subject<Message> = new Subject();
+    onMessageDeleted: Subject<Message> = new Subject();
 
     constructor(value: string, options?: MessageOptions) {
         this.value = value;
         this.attachment = options?.attachment;
         this.id = options?.id;
+        this.editable = options?.editable ?? true;
+        this.deletable = options?.deletable ?? true;
+        this.tag = options?.tag ?? 'general';
+    }
+
+    edit(newValue: string) {
+        this.value = newValue;
+        this.editable && this.onMessageEdited.next(this);
+    }
+
+    delete() {
+        this.deletable && this.onMessageDeleted.next(this);
     }
 }

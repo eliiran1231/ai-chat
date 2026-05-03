@@ -147,6 +147,8 @@ export class ChatService {
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);
     message.isRead = record.isRead;
+    message.editable = record.editable;
+    message.deletable = record.deletable;
     return message;
   }
 
@@ -184,6 +186,8 @@ export class ChatService {
         tag: message.tag,
         time: message.time.toISOString(),
         isRead: message.isRead,
+        editable: message.editable,
+        deletable: message.deletable,
         attachment: message.attachment,
         possibleAnswers: message instanceof Question
           ? message.possibleAnswers.map((possibleAnswer) =>
@@ -199,13 +203,50 @@ export class ChatService {
       });
       message.id = record.id;
       message.isRead = record.isRead;
+      message.editable = record.editable;
+      message.deletable = record.deletable;
     };
 
+    const persistMessageEdit = async (message: Message, persisted?: Promise<void>) => {
+      await persisted;
+      if (!message.id) return;
+      await this.dbService.updateMessage({
+        id: message.id,
+        value: message.value,
+      });
+    };
+
+    const persistMessageDelete = async (message: Message, persisted?: Promise<void>) => {
+      await persisted;
+      if (!message.id) return;
+      const deleted = await this.dbService.deleteMessage(message.id);
+      if (deleted) {
+        const index = chat.messages.findIndex((chatMessage) => chatMessage.id === message.id);
+        if (index >= 0) {
+          chat.messages.splice(index, 1);
+        }
+      }
+    };
+
+    const attachMessageEvents = (message: Message, persisted?: Promise<void>) => {
+      message.onMessageEdited.subscribe((editedMessage) => {
+        void persistMessageEdit(editedMessage, persisted);
+      });
+      message.onMessageDeleted.subscribe((deletedMessage) => {
+        void persistMessageDelete(deletedMessage, persisted);
+      });
+    };
+
+    chat.messages.forEach((message) => attachMessageEvents(message));
     chat.supporter.onMessageAdded.subscribe((message) => {
-      void persistMessage(message);
+      const persisted = persistMessage(message);
+      attachMessageEvents(message, persisted);
+      void persisted;
     });
     chat.user.onMessageAdded.subscribe((message) => {
-      void persistMessage(message);
+      const persisted = persistMessage(message);
+      attachMessageEvents(message, persisted);
+      void persisted;
     });
   }
 
