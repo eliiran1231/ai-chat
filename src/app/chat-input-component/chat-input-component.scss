@@ -47,6 +47,19 @@
   font-size: 1rem;
 }
 
+.composer-action--icon,
+.send-button {
+  display: grid;
+  place-items: center;
+}
+
+.composer-action--icon lucide-angular,
+.send-button lucide-angular {
+  width: 1.15rem;
+  height: 1.15rem;
+  stroke-width: 2.2;
+}
+
 .composer-field {
   display: block;
   min-width: 0;
