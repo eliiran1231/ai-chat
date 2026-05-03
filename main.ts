@@ -5,6 +5,9 @@ import * as os from 'os';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { dbService } from './services/db.service.js';
+import { chatService } from './services/chat.service.js';
+import { messageService } from './services/message.service.js';
+import { supporterService } from './services/supporter.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -102,8 +105,13 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
-  await dbService.initialize();
-  dbService.registerHandlers();
+  await dbService.run(`PRAGMA foreign_keys = ON`);
+  await chatService.initialize();
+  await messageService.initialize();
+  await supporterService.initialize();
+  chatService.registerHandlers();
+  messageService.registerHandlers();
+  supporterService.registerHandlers();
   registerSystemHandlers();
   //Menu.setApplicationMenu(null);
   createWindow();
