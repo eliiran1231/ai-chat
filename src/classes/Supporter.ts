@@ -59,6 +59,7 @@ export class Supporter{
     }
     private appendMessage(message: Message){
         message.from = "supporter";
+        message.setChat(this.chat);
         this.chat.messages.push(message);
         if(!this.chat.active) this.chat.unreadCount++;
         else message.isRead = true;

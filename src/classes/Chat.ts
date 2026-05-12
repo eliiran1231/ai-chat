@@ -62,31 +62,4 @@ export class Chat {
   setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
     this._processFileUrlDriver = processor;
   }
-
-  editMessage(message: Message, newValue: string): void {
-    if (!message.editable) {
-      return;
-    }
-
-    message.value = newValue;
-    this.onMessageEdited.next(message);
-  }
-
-  deleteMessage(message: Message): void {
-    if (!message.deletable) {
-      return;
-    }
-
-    this.onMessageDeleted.next(message);
-  }
-
-  removeMessage(message: Message): boolean {
-    const index = this.messages.indexOf(message);
-    if (index < 0) {
-      return false;
-    }
-
-    this.messages.splice(index, 1);
-    return true;
-  }
 }

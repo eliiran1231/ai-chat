@@ -221,10 +221,7 @@ export class ChatService {
     const persistMessageDelete = async (message: Message) => {
       await pendingMessagePersists.get(message);
       if (!message.id) return;
-      const deleted = await this.dbService.deleteMessage(message.id);
-      if (deleted) {
-        chat.removeMessage(message);
-      }
+      await this.dbService.deleteMessage(message.id);
     };
 
     chat.onMessageEdited.subscribe((message) => {
