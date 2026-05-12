@@ -148,6 +148,7 @@ export class ChatService {
     message.from = record.from;
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);
+    message.editedAt = record.editedAt ? new Date(record.editedAt) : undefined;
     message.isRead = record.isRead;
     message.editable = record.editable;
     message.deletable = record.deletable;
@@ -189,6 +190,7 @@ export class ChatService {
         value: message.value,
         tag: message.tag,
         time: message.time.toISOString(),
+        editedAt: message.editedAt?.toISOString(),
         isRead: message.isRead,
         editable: message.editable,
         deletable: message.deletable,
@@ -217,6 +219,8 @@ export class ChatService {
       await this.dbService.updateMessage({
         id: message.id,
         value: message.value,
+        time: message.time.toISOString(),
+        editedAt: message.editedAt?.toISOString() ?? message.time.toISOString(),
       });
     };
 

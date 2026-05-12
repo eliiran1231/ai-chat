@@ -8,6 +8,7 @@ interface MessageRow {
   value: string;
   tag: string | null;
   time: string;
+  edited_at: string | null;
   attachment: string | null;
   possible_answers: string | null;
   validator_spec: string | null;
@@ -37,6 +38,7 @@ export interface MessagePayload {
   value: string;
   tag?: string | null;
   time: string;
+  editedAt?: string | null;
   attachment?: AttachmentPayload | null;
   possibleAnswers?: string[] | null;
   validatorSpec?: unknown;
@@ -49,6 +51,8 @@ export interface MessagePayload {
 export interface UpdateMessagePayload {
   id: number;
   value: string;
+  time: string;
+  editedAt: string;
 }
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
@@ -79,6 +83,7 @@ export class MessageService {
         value TEXT NOT NULL,
         tag TEXT,
         time TEXT NOT NULL,
+        edited_at TEXT,
         attachment TEXT,
         possible_answers TEXT,
         validator_spec TEXT,
@@ -103,6 +108,7 @@ export class MessageService {
       (column) => column.name === 'validation_error_message',
     );
     const hasAttachmentColumn = messageColumns.some((column) => column.name === 'attachment');
+    const hasEditedAtColumn = messageColumns.some((column) => column.name === 'edited_at');
     const hasEditableColumn = messageColumns.some((column) => column.name === 'editable');
     const hasDeletableColumn = messageColumns.some((column) => column.name === 'deletable');
 
@@ -136,6 +142,9 @@ export class MessageService {
     if (!hasAttachmentColumn) {
       await this.db.run(`ALTER TABLE messages ADD COLUMN attachment TEXT`);
     }
+    if (!hasEditedAtColumn) {
+      await this.db.run(`ALTER TABLE messages ADD COLUMN edited_at TEXT`);
+    }
     if (!hasEditableColumn) {
       await this.db.run(`ALTER TABLE messages ADD COLUMN editable INTEGER NOT NULL DEFAULT 1`);
     }
@@ -155,6 +164,7 @@ export class MessageService {
           value,
           tag,
           time,
+          edited_at,
           attachment,
           possible_answers,
           validator_spec,
@@ -185,6 +195,7 @@ export class MessageService {
       message.value,
       message.tag ?? null,
       message.time,
+      message.editedAt ?? null,
       message.attachment ? JSON.stringify(message.attachment) : null,
       message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
       message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
@@ -204,6 +215,7 @@ export class MessageService {
             value,
             tag,
             time,
+            edited_at,
             attachment,
             possible_answers,
             validator_spec,
@@ -212,7 +224,7 @@ export class MessageService {
             editable,
             deletable
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `
       : `
           INSERT INTO messages (
@@ -222,6 +234,7 @@ export class MessageService {
             value,
             tag,
             time,
+            edited_at,
             attachment,
             possible_answers,
             validator_spec,
@@ -230,7 +243,7 @@ export class MessageService {
             editable,
             deletable
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
     const args = persistWithExplicitId ? [explicitMessageId, ...commonArgs] : commonArgs;
 
@@ -259,6 +272,7 @@ export class MessageService {
           value,
           tag,
           time,
+          edited_at,
           attachment,
           possible_answers,
           validator_spec,
@@ -283,10 +297,12 @@ export class MessageService {
     const result = await this.db.run(
       `
         UPDATE messages
-        SET value = ?
+        SET value = ?,
+            time = ?,
+            edited_at = ?
         WHERE id = ? AND editable = 1
       `,
-      [message.value, message.id],
+      [message.value, message.time, message.editedAt, message.id],
     );
 
     return result.changes > 0;
@@ -337,6 +353,7 @@ export class MessageService {
       value: row.value,
       tag: row.tag ?? undefined,
       time: row.time,
+      editedAt: row.edited_at ?? undefined,
       isRead: Boolean(row.is_read),
       editable: Boolean(row.editable),
       deletable: Boolean(row.deletable),

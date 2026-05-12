@@ -21,6 +21,7 @@ export class Message {
     id?: number;
     from?: MessageSender;
     time: Date = new Date();
+    editedAt?: Date;
     tag: string;
     value: string;
     isRead: boolean = false;
@@ -45,6 +46,8 @@ export class Message {
     edit(newValue: string): void {
         if (!this.editable || this.from === 'supporter' || !this._chat) return;
         this.value = newValue;
+        this.time = new Date();
+        this.editedAt = this.time;
         this._chat.onMessageEdited.next(this);
     }
 

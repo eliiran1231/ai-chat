@@ -9,6 +9,7 @@ export interface MessageRecord {
   value: string;
   tag?: string;
   time: string;
+  editedAt?: string;
   isRead: boolean;
   editable: boolean;
   deletable: boolean;
