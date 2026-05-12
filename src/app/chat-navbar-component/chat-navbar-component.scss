@@ -21,6 +21,17 @@
   min-width: 0;
 }
 
+.message-options-mode {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+}
+
+.message-options-spacer {
+  flex: 1 1 auto;
+}
+
 .search-result-count {
   min-width: 3rem;
   font-size: 0.78rem;
@@ -163,6 +174,20 @@
 .back-button:hover,
 .icon-button:hover {
   background: rgba(255, 255, 255, 0.14);
+}
+
+.icon-button--danger:hover {
+  background: rgba(239, 68, 68, 0.24);
+}
+
+.icon-button:disabled {
+  opacity: 0.42;
+  cursor: default;
+}
+
+.icon-button:disabled:hover {
+  background: transparent;
+  transform: none;
 }
 
 .avatar {

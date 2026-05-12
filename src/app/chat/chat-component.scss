@@ -65,10 +65,41 @@ app-file-preview-component {
 }
 
 .chat-thread {
+  position: relative;
+  z-index: 1;
   flex: 1;
   overflow-y: auto;
   padding-top: 1.2rem;
   padding-bottom: 1.2rem;
+}
+
+.edit-mode-scrim {
+  position: absolute;
+  inset: 0 0 4.35rem;
+  z-index: 0;
+  background: rgba(17, 27, 33, 0.56);
+  backdrop-filter: blur(1px);
+  pointer-events: none;
+}
+
+.chat-shell--editing app-chat-navbar-component,
+.chat-shell--editing app-chat-input-component,
+.chat-shell--editing .scroll-bottom-button {
+  position: relative;
+  z-index: 4;
+}
+
+.chat-shell--editing app-message-bubble {
+  position: relative;
+  filter: brightness(0.55);
+  opacity: 0.72;
+  z-index: 1;
+}
+
+.chat-shell--editing app-message-bubble:has(.message-row--selected) {
+  filter: none;
+  opacity: 1;
+  z-index: 3;
 }
 
 .scroll-bottom-button {

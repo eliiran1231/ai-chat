@@ -4,12 +4,24 @@
   [class.message-row--supporter]="isSupporterMessage(message)"
   [class.message-row--user]="!isSupporterMessage(message)"
   [class.message-row--search-active]="isActiveSearchMatch"
+  [class.message-row--selected]="isSelected"
 >
   <div
     class="message-bubble"
     [class.message-bubble--supporter]="isSupporterMessage(message)"
     [class.message-bubble--user]="!isSupporterMessage(message)"
   >
+    @if (hasMessageOptions) {
+      <button
+        type="button"
+        class="message-options-button"
+        (click)="openMessageOptions($event)"
+        aria-label="Open message options"
+        title="Message options"
+      >
+        <lucide-angular [img]="optionsIcon" aria-hidden="true" />
+      </button>
+    }
     @if (message.attachment) {
       <div class="file-attchment-container">
         @if (message.attachment.type.startsWith('image')) {

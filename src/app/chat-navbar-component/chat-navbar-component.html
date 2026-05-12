@@ -1,5 +1,44 @@
 <header class="chat-navbar">
-  @if (searchMode) {
+  @if (messageOptionsMode) {
+    <div class="message-options-mode" aria-label="Message options">
+      <button
+        type="button"
+        class="back-button"
+        aria-label="Back to conversation"
+        title="Back"
+        (click)="messageOptionsClosed.emit()"
+      >
+        <lucide-angular [img]="backIcon" aria-hidden="true" />
+      </button>
+
+      <div class="message-options-spacer"></div>
+
+      @if (!editMode && selectedMessage?.from === 'client') {
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Edit message"
+          title="Edit"
+          [disabled]="!canEditSelectedMessage"
+          (click)="canEditSelectedMessage && selectedMessage && editMessage.emit(selectedMessage)"
+        >
+          <lucide-angular [img]="editIcon" aria-hidden="true" />
+        </button>
+      }
+      @if (!editMode) {
+        <button
+          type="button"
+          class="icon-button icon-button--danger"
+          aria-label="Delete message"
+          title="Delete"
+          [disabled]="!selectedMessage?.deletable"
+          (click)="selectedMessage && deleteMessage.emit(selectedMessage)"
+        >
+          <lucide-angular [img]="deleteIcon" aria-hidden="true" />
+        </button>
+      }
+    </div>
+  } @else if (searchMode) {
     <div id="search-mode-container">
       <div class="search-result-count" [class.search-result-count--empty]="!hasResults">
         {{ currentResultLabel }}

@@ -24,6 +24,7 @@ export class Client {
     }
     private appendMessage(message: Message){
         message.from = "client";
+        message.setChat(this.chat);
         message.isRead = true;
         this.chat.messages.push(message);
         this.onMessageAdded.next(message);

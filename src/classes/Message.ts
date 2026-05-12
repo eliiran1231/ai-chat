@@ -43,15 +43,15 @@ export class Message {
     }
 
     edit(newValue: string): void {
-        if (!this.editable || !this._chat) return;
-        this._chat.onMessageEdited.next(this);
+        if (!this.editable || this.from === 'supporter' || !this._chat) return;
         this.value = newValue;
+        this._chat.onMessageEdited.next(this);
     }
 
     delete(): void {
         if (!this.deletable || !this._chat) return;
         this._chat.onMessageDeleted.next(this);
-        const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
-        index > 0 && this._chat.messages.splice(index, 1);
+        const index = this._chat.messages.indexOf(this);
+        index >= 0 && this._chat.messages.splice(index, 1);
     }
 }

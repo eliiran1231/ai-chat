@@ -126,7 +126,9 @@ export class ChatService {
       tipLabel: record.tipLabel,
     });
     for (const messageRecord of messageRecords) {
-      chat.messages.push(this.hydrateMessage(messageRecord));
+      const message = this.hydrateMessage(messageRecord);
+      message.setChat(chat);
+      chat.messages.push(message);
     }
     this.attachMessagePersistence(chat);
     this.attachSupporterPersistence(chat);

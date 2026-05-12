@@ -6,17 +6,22 @@
     (closed)="closePreviewPage()"
   ></app-file-preview-component>
 } @else {
-  <section class="chat-shell">
+  <section class="chat-shell" [class.chat-shell--editing]="editingMessage">
     <app-chat-navbar-component
       [chat]="chat"
       [showBackButton]="showBackButton"
       [resultCount]="matchingMessageIds.length"
       [currentResultIndex]="activeSearchResultIndex"
+      [selectedMessage]="selectedMessage"
+      [editMode]="!!editingMessage"
       (back)="back.emit()"
       (searchChange)="updateSearch($event)"
       (nextMatch)="stepInSearch(1)"
       (previousMatch)="stepInSearch(-1)"
       (searchClosed)="clearSearch()"
+      (messageOptionsClosed)="closeMessageOptions()"
+      (editMessage)="editMessage($event)"
+      (deleteMessage)="deleteMessage($event)"
       (deleteChat)="deleteChat.emit($event)"
     ></app-chat-navbar-component>
 
@@ -37,9 +42,11 @@
       @for (message of chat.messages; track message.id) {
         <app-message-bubble
           [message]="message"
+          [isSelected]="message === selectedMessage"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
           [searchTerm]="searchQuery"
           (answerSelected)="selectAnswer($event)"
+          (messageOptionsRequested)="openMessageOptions($event)"
         ></app-message-bubble>
       } @empty {
         <div class="empty-state">
@@ -47,6 +54,10 @@
         </div>
       }
     </ng-scrollbar>
+
+    @if (editingMessage) {
+      <div class="edit-mode-scrim" aria-hidden="true"></div>
+    }
 
     @if (awayFromBottom) {
       <button
@@ -62,6 +73,9 @@
     <app-chat-input-component
       theme="light"
       [chat]="chat"
+      [value]="editDraft"
+      [placeholder]="editingMessage ? 'Edit message' : 'Type a message'"
+      [allowAttachments]="!editingMessage"
       (messageSubmit)="sendMessage($event)"
       (fileSubmit)="openPreviewPage($event)"
     ></app-chat-input-component>
