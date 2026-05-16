@@ -133,7 +133,6 @@ export class ChatService {
     this.attachMessagePersistence(chat);
     this.attachSupporterPersistence(chat);
     supporter.setAgent(initialAgent);
-    initialAgent.lastQuestion = this.findLastSupporterQuestion(chat.messages);
     return chat;
   }
 
@@ -169,12 +168,6 @@ export class ChatService {
       question.validationErrorMessage = record.validationErrorMessage;
     }
     return question;
-  }
-
-  private findLastSupporterQuestion(messages: Message[]): Question | undefined {
-    return [...messages]
-      .reverse()
-      .find((message): message is Question => message instanceof Question && message.from === 'supporter');
   }
 
   private attachMessagePersistence(chat: Chat): void {

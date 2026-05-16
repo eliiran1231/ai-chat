@@ -54,7 +54,7 @@ export class Message {
     delete(): void {
         if (!this.deletable || !this._chat) return;
         this._chat.onMessageDeleted.next(this);
-        const index = this._chat.messages.indexOf(this);
+        const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
         index >= 0 && this._chat.messages.splice(index, 1);
     }
 }
