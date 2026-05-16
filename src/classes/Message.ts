@@ -46,8 +46,7 @@ export class Message {
     edit(newValue: string): void {
         if (!this.editable || this.from === 'supporter' || !this._chat) return;
         this.value = newValue;
-        this.time = new Date();
-        this.editedAt = this.time;
+        this.editedAt = new Date();
         this._chat.onMessageEdited.next(this);
     }
 

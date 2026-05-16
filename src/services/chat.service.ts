@@ -219,7 +219,6 @@ export class ChatService {
       await this.dbService.updateMessage({
         id: message.id,
         value: message.value,
-        time: message.time.toISOString(),
         editedAt: message.editedAt?.toISOString() ?? message.time.toISOString(),
       });
     };

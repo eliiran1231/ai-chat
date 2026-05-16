@@ -69,7 +69,7 @@
       </div>
     }
     <time class="message-time">
-      {{ message.time | date: 'HH:mm' }}
+      {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
       @if (message.editedAt) {
         <span class="message-edited-mark">(edited)</span>
       }
