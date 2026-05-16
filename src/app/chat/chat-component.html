@@ -39,6 +39,10 @@
       appearance="compact"
       class="chat-thread"
     >
+      @if (editingMessage) {
+        <div class="edit-mode-scrim" aria-hidden="true"></div>
+      }
+
       @for (message of chat.messages; track message.id) {
         <app-message-bubble
           [message]="message"
@@ -54,10 +58,6 @@
         </div>
       }
     </ng-scrollbar>
-
-    @if (editingMessage) {
-      <div class="edit-mode-scrim" aria-hidden="true"></div>
-    }
 
     @if (awayFromBottom) {
       <button
