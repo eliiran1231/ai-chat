@@ -51,7 +51,6 @@ export interface MessagePayload {
 export interface UpdateMessagePayload {
   id: number;
   value: string;
-  time: string;
   editedAt: string;
 }
 
@@ -298,11 +297,10 @@ export class MessageService {
       `
         UPDATE messages
         SET value = ?,
-            time = ?,
             edited_at = ?
         WHERE id = ? AND editable = 1
       `,
-      [message.value, message.time, message.editedAt, message.id],
+      [message.value, message.editedAt, message.id],
     );
 
     return result.changes > 0;
