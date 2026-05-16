@@ -46,6 +46,7 @@ export class Supporter{
         await this.agent.respond();
     }
     setAgent(agent: Agent){
+        this.agent?.onDestroy();
         this.agent = agent;
         this.agent.init(this.chat, this);
         this.onAgentSwitch.next(agent);

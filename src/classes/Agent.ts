@@ -13,7 +13,6 @@ export class Agent{
     lastMessage?: Message;
     private onMessageDeletedHandler?: Subscription;
     private onMessageEditedHandler?: Subscription;
-    private onDestroyHandler?: Subscription;
 
     constructor(injector: Injector) {}
 
@@ -33,8 +32,7 @@ export class Agent{
         this.lastQuestion = this.findLastSupporterQuestion(chat.messages);
         this.onMessageDeletedHandler = chat.onMessageDeleted.subscribe(this.onMessageDeleted.bind(this));
         this.onMessageEditedHandler = chat.onMessageEdited.subscribe(this.onMessageEdited.bind(this));
-        chat.setFileUrlProcessor(this.handleFile);
-        this.onDestroyHandler = supporter.onAgentSwitch.subscribe(this.onDestroy.bind(this));
+        chat.setFileUrlProcessor(this.handleFile.bind(this));
     }
 
     respond() {
@@ -56,7 +54,6 @@ export class Agent{
     }
 
     onMessageEdited(message: Message){
-        return;
         for (let i = this.chat.messages.length - 1; i >= 0; i--) {
             const msg = this.chat.messages[i];
             if (msg.id === message.id) break;
@@ -78,6 +75,5 @@ export class Agent{
     onDestroy(){
         this.onMessageDeletedHandler?.unsubscribe();
         this.onMessageEditedHandler?.unsubscribe();
-        this.onDestroyHandler?.unsubscribe();
     }
 } 
