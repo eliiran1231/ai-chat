@@ -46,6 +46,7 @@ export class Supporter{
         await this.agent.respond();
     }
     setAgent(agent: Agent){
+        this.agent?.onDestroy();
         this.agent = agent;
         this.agent.init(this.chat, this);
         this.onAgentSwitch.next(agent);
@@ -59,6 +60,7 @@ export class Supporter{
     }
     private appendMessage(message: Message){
         message.from = "supporter";
+        message.setChat(this.chat);
         this.chat.messages.push(message);
         if(!this.chat.active) this.chat.unreadCount++;
         else message.isRead = true;

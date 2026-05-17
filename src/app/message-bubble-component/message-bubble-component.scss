@@ -62,6 +62,30 @@
     outline-color 0.2s ease;
 }
 
+.message-options-button {
+  position: absolute;
+  top: .18rem;
+  right: .18rem;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 0;
+  border-radius: 50%;
+  color: #54656f;
+  background: #fffd;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+
+.message-bubble:hover .message-options-button,
+.message-options-button:focus-visible,
+.message-row--selected .message-options-button {
+  opacity: 1;
+}
+
 .message-bubble::after {
   content: '';
   position: absolute;
@@ -84,6 +108,10 @@
 .message-bubble--user {
   background: var(--wa-user-bubble);
   border-top-right-radius: 0.2rem;
+}
+
+.message-bubble--user .message-options-button {
+  background: #dfdc;
 }
 
 .message-bubble--user::after {

@@ -1,3 +1,4 @@
+import { Subject } from 'rxjs';
 import { Message } from './Message';
 import { Supporter } from './Supporter';
 import { Client } from './Client';
@@ -18,6 +19,8 @@ export class Chat {
   supporter: Supporter;
   user: Client;
   active: boolean = false;
+  public readonly onMessageEdited = new Subject<Message>();
+  public readonly onMessageDeleted = new Subject<Message>();
 
   constructor(
     id: number,

@@ -126,12 +126,13 @@ export class ChatService {
       tipLabel: record.tipLabel,
     });
     for (const messageRecord of messageRecords) {
-      chat.messages.push(this.hydrateMessage(messageRecord));
+      const message = this.hydrateMessage(messageRecord);
+      message.setChat(chat);
+      chat.messages.push(message);
     }
     this.attachMessagePersistence(chat);
     this.attachSupporterPersistence(chat);
     supporter.setAgent(initialAgent);
-    initialAgent.lastQuestion = this.findLastSupporterQuestion(chat.messages);
     return chat;
   }
 
@@ -146,7 +147,10 @@ export class ChatService {
     message.from = record.from;
     message.tag = record.tag ?? 'general';
     message.time = new Date(record.time);
+    message.editedAt = record.editedAt ? new Date(record.editedAt) : undefined;
     message.isRead = record.isRead;
+    message.editable = record.editable;
+    message.deletable = record.deletable;
     return message;
   }
 
@@ -166,13 +170,9 @@ export class ChatService {
     return question;
   }
 
-  private findLastSupporterQuestion(messages: Message[]): Question | undefined {
-    return [...messages]
-      .reverse()
-      .find((message): message is Question => message instanceof Question && message.from === 'supporter');
-  }
-
   private attachMessagePersistence(chat: Chat): void {
+    const pendingMessagePersists = new WeakMap<Message, Promise<void>>();
+
     const persistMessage = async (message: Message) => {
       const messageType = message instanceof Answer ? "answer" : message instanceof Question ? "question" : "message";
       const record = await this.dbService.createMessage({
@@ -183,7 +183,10 @@ export class ChatService {
         value: message.value,
         tag: message.tag,
         time: message.time.toISOString(),
+        editedAt: message.editedAt?.toISOString(),
         isRead: message.isRead,
+        editable: message.editable,
+        deletable: message.deletable,
         attachment: message.attachment,
         possibleAnswers: message instanceof Question
           ? message.possibleAnswers.map((possibleAnswer) =>
@@ -199,13 +202,44 @@ export class ChatService {
       });
       message.id = record.id;
       message.isRead = record.isRead;
+      message.editable = record.editable;
+      message.deletable = record.deletable;
     };
 
+    const persistMessageEdit = async (message: Message) => {
+      await pendingMessagePersists.get(message);
+      if (!message.id) return;
+      await this.dbService.updateMessage({
+        id: message.id,
+        value: message.value,
+        editedAt: message.editedAt?.toISOString() ?? message.time.toISOString(),
+      });
+    };
+
+    const persistMessageDelete = async (message: Message) => {
+      await pendingMessagePersists.get(message);
+      if (!message.id) return;
+      await this.dbService.deleteMessage(message.id);
+    };
+
+    chat.onMessageEdited.subscribe((message) => {
+      void persistMessageEdit(message);
+    });
+    chat.onMessageDeleted.subscribe((message) => {
+      void persistMessageDelete(message);
+    });
+
     chat.supporter.onMessageAdded.subscribe((message) => {
-      void persistMessage(message);
+      const persisted = persistMessage(message);
+      pendingMessagePersists.set(message, persisted);
+      void persisted.finally(() => pendingMessagePersists.delete(message));
+      void persisted;
     });
     chat.user.onMessageAdded.subscribe((message) => {
-      void persistMessage(message);
+      const persisted = persistMessage(message);
+      pendingMessagePersists.set(message, persisted);
+      void persisted.finally(() => pendingMessagePersists.delete(message));
+      void persisted;
     });
   }
 

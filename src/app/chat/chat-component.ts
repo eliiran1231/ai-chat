@@ -6,7 +6,7 @@ import { ChatNavbarComponent } from '../chat-navbar-component/chat-navbar-compon
 import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
 import { FilePreviewComponent } from "../file-preview-component/file-preview-component";
-import { MessageOptions } from '../../classes/Message';
+import { Message, MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
@@ -36,6 +36,9 @@ export class ChatComponent {
   searchQuery = '';
   matchingMessageIds: number[] = [];
   activeSearchResultIndex = -1;
+  selectedMessage?: Message;
+  editingMessage?: Message;
+  editDraft = '';
   awayFromBottom = false;
   isScrolling = false;
 
@@ -51,6 +54,12 @@ export class ChatComponent {
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
   sendMessage(messageValue: string, options?: MessageOptions): void {
+    if (this.editingMessage) {
+      this.editingMessage.edit(messageValue);
+      this.closeMessageOptions();
+      return;
+    }
+
     this.chat.supporter.expects == 'question' ?
       this.chat.user.ask(new Question(messageValue, options)) : 
       this.chat.user.answer(new Answer(messageValue, options));
@@ -92,6 +101,35 @@ export class ChatComponent {
     this.searchQuery = '';
     this.matchingMessageIds = [];
     this.activeSearchResultIndex = -1;
+  }
+
+  openMessageOptions(message: Message): void {
+    if (this.editingMessage) {
+      return;
+    }
+
+    this.selectedMessage = message;
+  }
+
+  closeMessageOptions(): void {
+    this.selectedMessage = undefined;
+    this.editingMessage = undefined;
+    this.editDraft = '';
+  }
+
+  editMessage(message: Message): void {
+    if (message.from === 'supporter' || !message.editable) {
+      return;
+    }
+
+    this.selectedMessage = message;
+    this.editingMessage = message;
+    this.editDraft = message.value;
+  }
+
+  deleteMessage(message: Message): void {
+    message.delete();
+    this.closeMessageOptions();
   }
 
   stepInSearch(steps: number = 1) {

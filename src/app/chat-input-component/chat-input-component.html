@@ -3,12 +3,15 @@
   class="chat-composer"
   [class.chat-composer--dark]="theme === 'dark'"
   [class.chat-composer--light]="theme !== 'dark'"
+  [class.chat-composer--compact]="!allowAttachments"
   (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
 >
-  <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" aria-label="Attach file">
-    <lucide-angular [img]="attachIcon" aria-hidden="true" />
-  </button>
-  <button type="button" class="composer-action" aria-label="Emoji">:)</button>
+  @if (allowAttachments) {
+    <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" aria-label="Attach file">
+      <lucide-angular [img]="attachIcon" aria-hidden="true" />
+    </button>
+    <button type="button" class="composer-action" aria-label="Emoji">:)</button>
+  }
 
   <label class="composer-field" for="message-input">
     <textarea
@@ -25,7 +28,7 @@
       [(ngModel)]="caption"
       (input)="syncComposerOverflow(autosize, messageInput)"
       (keydown)="handleComposerKeydown($event)"
-      placeholder="Type a message"
+      [placeholder]="placeholder"
       autocomplete="off"
     ></textarea>
   </label>

@@ -1,10 +1,12 @@
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { Chat } from '../../classes/Chat';
+import { Message } from '../../classes/Message';
 import { AppMenu, AppMenuItem } from "../shared/app-menu/app-menu";
 import {
   ChevronDown,
   ChevronLeft,
   ChevronUp,
+  Edit3,
   EllipsisVertical,
   LucideAngularModule,
   Search,
@@ -23,11 +25,25 @@ export class ChatNavbarComponent {
   @Input() showBackButton = false;
   @Input() resultCount = 0;
   @Input() currentResultIndex = -1;
+  @Input() editMode = false;
+  private _selectedMessage?: Message;
+  @Input() set selectedMessage(message: Message | undefined) {
+    this._selectedMessage = message;
+    if (message) {
+      this.searchMode = false;
+    }
+  }
+  get selectedMessage(): Message | undefined {
+    return this._selectedMessage;
+  }
   @Output() back = new EventEmitter<void>();
   @Output() searchChange = new EventEmitter<string>();
   @Output() nextMatch = new EventEmitter<void>();
   @Output() previousMatch = new EventEmitter<void>();
   @Output() searchClosed = new EventEmitter<void>();
+  @Output() messageOptionsClosed = new EventEmitter<void>();
+  @Output() editMessage = new EventEmitter<Message>();
+  @Output() deleteMessage = new EventEmitter<Message>();
   searchMode = false;
   searchQuery = '';
 
@@ -37,6 +53,7 @@ export class ChatNavbarComponent {
   readonly closeSearchIcon = X;
   readonly backIcon = ChevronLeft;
   readonly searchIcon = Search;
+  readonly editIcon = Edit3;
   readonly menuIcon = EllipsisVertical;
   readonly deleteIcon = Trash2;
   readonly menuItems: AppMenuItem[] = [
@@ -52,6 +69,7 @@ export class ChatNavbarComponent {
     this.searchMode && searchInput.nativeElement.focus();
   }
   openSearch(): void {
+    this.messageOptionsClosed.emit();
     this.searchMode = true;
   }
 
@@ -100,5 +118,13 @@ export class ChatNavbarComponent {
     }
 
     return `${this.currentResultIndex + 1}/${this.resultCount}`;
+  }
+
+  get messageOptionsMode(): boolean {
+    return !!this.selectedMessage && !this.searchMode;
+  }
+
+  get canEditSelectedMessage(): boolean {
+    return this.selectedMessage?.from === 'client' && this.selectedMessage.editable;
   }
 }
