@@ -18,7 +18,7 @@ export type MessageOptions = {
 }
 
 export class Message {
-    id?: number;
+    id: number;
     from?: MessageSender;
     time: Date = new Date();
     editedAt?: Date;
@@ -37,7 +37,7 @@ export class Message {
     constructor(value: string, options?: MessageOptions) {
         this.value = value;
         this.attachment = options?.attachment;
-        this.id = options?.id;
+        this.id = options?.id ?? 0;
         this.editable = options?.editable ?? true;
         this.deletable = options?.deletable ?? true;
         this.tag = options?.tag ?? 'general';
