@@ -4,9 +4,16 @@ import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
 
+export type AnswerSelectedEvent = {
+    answer: Answer;
+    associatedQuestion: Question;
+    associatedQuestionIndex: number;
+}
+
 export class Client {
     private chat: Chat;
     public readonly onMessageAdded = new Subject<Message>();
+    public readonly onAnswerSelected = new Subject<AnswerSelectedEvent>();
     constructor(chat: Chat){
         this.chat = chat;
     }

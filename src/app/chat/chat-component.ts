@@ -10,6 +10,7 @@ import { Message, MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
+import { AnswerSelectedEvent } from '../../classes/Client';
 
 @Component({
   selector: 'app-chat',
@@ -66,8 +67,8 @@ export class ChatComponent {
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
-  selectAnswer(answer: Answer): void {
-    this.chat.user.answer(answer);
+  selectAnswer(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number): void {
+    this.chat.user.onAnswerSelected.next({ answer, associatedQuestion, associatedQuestionIndex });
     this.awayFromBottom = false;
   }
 

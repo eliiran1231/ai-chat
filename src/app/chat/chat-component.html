@@ -49,7 +49,7 @@
           [isSelected]="message === selectedMessage"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
           [searchTerm]="searchQuery"
-          (answerSelected)="selectAnswer($event)"
+          (answerSelected)="selectAnswer($event.answer, $event.associatedQuestion, $index)"
           (messageOptionsRequested)="openMessageOptions($event)"
         ></app-message-bubble>
       } @empty {

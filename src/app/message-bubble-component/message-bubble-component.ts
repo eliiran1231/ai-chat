@@ -7,6 +7,7 @@ import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
 import { HighlightPipe } from '../../pipes/highlight.pipe';
+import { AnswerSelectedEvent } from '../../classes/Client';
 @Component({
   selector: 'app-message-bubble',
   imports: [DatePipe, MarkdownComponent, NgxFilesizeModule, HighlightPipe, LucideAngularModule],
@@ -18,7 +19,7 @@ export class MessageBubbleComponent {
   @Input() isActiveSearchMatch = false;
   @Input() isSelected = false;
   @Input() searchTerm = '';
-  @Output() answerSelected = new EventEmitter<Answer>();
+  @Output() answerSelected = new EventEmitter<{ answer: Answer; associatedQuestion: Question }>();
   @Output() messageOptionsRequested = new EventEmitter<Message>();
 
   questionType = Question;
@@ -31,7 +32,10 @@ export class MessageBubbleComponent {
   }
 
   selectAnswer(answer: Answer): void {
-    this.answerSelected.emit(answer);
+    this.answerSelected.emit({
+      answer,
+      associatedQuestion: this.message as Question,
+    });
   }
 
   openMessageOptions(event: MouseEvent): void {
