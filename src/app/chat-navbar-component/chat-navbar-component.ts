@@ -1,18 +1,21 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { AppMenu, AppMenuItem } from "../shared/app-menu/app-menu";
 import {
   ChevronDown,
   ChevronLeft,
+  ChevronRight,
   ChevronUp,
   Edit3,
   EllipsisVertical,
+  LucideIconData,
   LucideAngularModule,
   Search,
   Trash2,
   X,
 } from 'lucide-angular';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-chat-navbar-component',
@@ -21,6 +24,7 @@ import {
   styleUrl: './chat-navbar-component.scss',
 })
 export class ChatNavbarComponent {
+  readonly language = inject(LanguageService);
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Input() resultCount = 0;
@@ -51,19 +55,27 @@ export class ChatNavbarComponent {
   readonly previousMatchIcon = ChevronUp;
   readonly nextMatchIcon = ChevronDown;
   readonly closeSearchIcon = X;
-  readonly backIcon = ChevronLeft;
+  readonly backLeftIcon = ChevronLeft;
+  readonly backRightIcon = ChevronRight;
   readonly searchIcon = Search;
   readonly editIcon = Edit3;
   readonly menuIcon = EllipsisVertical;
   readonly deleteIcon = Trash2;
-  readonly menuItems: AppMenuItem[] = [
-    {
-      id: 'delete-chat',
-      label: 'Delete chat',
-      icon: this.deleteIcon,
-      tone: 'danger',
-    },
-  ];
+
+  get backIcon(): LucideIconData {
+    return this.language.isRtl() ? this.backRightIcon : this.backLeftIcon;
+  }
+
+  get menuItems(): AppMenuItem[] {
+    return [
+      {
+        id: 'delete-chat',
+        label: this.language.t('chat.deleteChat'),
+        icon: this.deleteIcon,
+        tone: 'danger',
+      },
+    ];
+  }
 
   @ViewChild('searchInput') set inputRef(searchInput: ElementRef) {
     this.searchMode && searchInput.nativeElement.focus();

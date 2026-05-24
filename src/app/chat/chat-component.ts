@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output, ViewChild } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -10,7 +10,7 @@ import { Message, MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
-import { AnswerSelectedEvent } from '../../classes/Client';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-chat',
@@ -27,6 +27,7 @@ import { AnswerSelectedEvent } from '../../classes/Client';
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
+  readonly language = inject(LanguageService);
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();

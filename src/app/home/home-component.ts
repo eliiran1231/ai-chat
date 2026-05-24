@@ -1,4 +1,4 @@
-import { Component, HostListener, Injector, OnInit } from '@angular/core';
+import { Component, HostBinding, HostListener, Injector, OnInit } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
@@ -10,6 +10,7 @@ import { ProfileService } from '../../services/profile.service';
 import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
 import { AiAgent } from '../../agents/AiAgent/AiAgent';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-home',
@@ -42,7 +43,18 @@ export class HomeComponent implements OnInit {
     private chatService: ChatService,
     private injector: Injector,
     private profileService: ProfileService,
+    readonly language: LanguageService,
     ) {
+  }
+
+  @HostBinding('attr.dir')
+  get direction(): string {
+    return this.language.direction();
+  }
+
+  @HostBinding('attr.lang')
+  get lang(): string {
+    return this.language.language();
   }
 
   async ngOnInit(): Promise<void> {
@@ -125,12 +137,12 @@ export class HomeComponent implements OnInit {
     const chatNumber = this.chats.length + 1;
     this.pendingCreateChat = (async () => {
       const chat = await this.chatService.createChat(
-        `New chat ${chatNumber}`,
-        'Online now',
+        `${this.language.t('chat.newChatTitle')} ${chatNumber}`,
+        this.language.t('chat.onlineNow'),
         initialAgent,
         {
-          subtitle: 'Tap to start chatting',
-          timeLabel: 'now',
+          subtitle: this.language.t('chat.tapToStart'),
+          timeLabel: this.language.t('chat.now'),
         },
       );
       this.chats = [...this.chats, chat];

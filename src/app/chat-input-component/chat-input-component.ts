@@ -1,8 +1,9 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LucideAngularModule, Paperclip, SendHorizontal } from 'lucide-angular';
 import { Chat } from '../../classes/Chat';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-chat-input-component',
@@ -12,6 +13,7 @@ import { Chat } from '../../classes/Chat';
 })
 export class 
 ChatInputComponent {
+  readonly language = inject(LanguageService);
   readonly composerMaxRows = 5;
   readonly attachIcon = Paperclip;
   readonly sendIcon = SendHorizontal;
@@ -22,11 +24,15 @@ ChatInputComponent {
   @Input() set value(value: string) {
     this.caption = value;
   }
-  @Input() placeholder = 'Type a message';
+  @Input() placeholder?: string;
   @Input() allowAttachments = true;
   @Output() messageSubmit = new EventEmitter<string>();
   @Output() fileSubmit = new EventEmitter<File>();
   caption = ''
+
+  get resolvedPlaceholder(): string {
+    return this.placeholder ?? this.language.t('chat.typeMessage');
+  }
 
   submitMessage(form?: NgForm): void {
     const trimmedMessage = this.caption.trim();

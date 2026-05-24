@@ -17,8 +17,8 @@
 .message-row {
   display: flex;
   scroll-margin-block: 5.5rem;
-  padding-left: .75rem;
-  padding-right: .75rem;
+  direction: ltr;
+  padding-inline: .75rem;
   padding-top: 0.225rem;
   padding-bottom: 0.225rem;
 }
@@ -136,8 +136,7 @@
 .message-text,
 .message-markdown,
 .possible-answers-container {
-  margin-left: 0.3rem;
-  margin-right: 0.3rem;
+  margin-inline: 0.3rem;
 }
 
 .message-markdown {

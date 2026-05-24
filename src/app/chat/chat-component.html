@@ -54,7 +54,7 @@
         ></app-message-bubble>
       } @empty {
         <div class="empty-state">
-          <p>No messages yet</p>
+          <p>{{ language.t('chat.noMessages') }}</p>
         </div>
       }
     </ng-scrollbar>
@@ -63,7 +63,7 @@
       <button
         type="button"
         class="scroll-bottom-button"
-        aria-label="Scroll to bottom"
+        [attr.aria-label]="language.t('chat.scrollToBottom')"
         (click)="scrollToBottom()"
       >
         <lucide-angular [img]="scrollDownIcon" aria-hidden="true" />
@@ -74,7 +74,7 @@
       theme="light"
       [chat]="chat"
       [value]="editDraft"
-      [placeholder]="editingMessage ? 'Edit message' : 'Type a message'"
+      [placeholder]="editingMessage ? language.t('chat.editMessagePlaceholder') : language.t('chat.typeMessage')"
       [allowAttachments]="!editingMessage"
       (messageSubmit)="sendMessage($event)"
       (fileSubmit)="openPreviewPage($event)"

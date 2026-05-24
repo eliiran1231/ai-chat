@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Input, OnInit, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Attachment, MessageOptions } from '../../classes/Message';
 import { NgxFilesizeModule } from 'ngx-filesize';
 import { ChatInputComponent } from "../chat-input-component/chat-input-component";
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-file-preview-component',
@@ -11,6 +12,7 @@ import { ChatInputComponent } from "../chat-input-component/chat-input-component
   styleUrl: './file-preview-component.scss',
 })
 export class FilePreviewComponent implements OnInit {
+  readonly language = inject(LanguageService);
   @Input({ required: true }) file!: File;
   @Input() fileAlt?: string; 
   @Input({ required: true }) processFileUrl!: (file: File) => string | Promise<string>;
