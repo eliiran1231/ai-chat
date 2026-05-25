@@ -2,9 +2,10 @@ import { Subject } from 'rxjs';
 import { Message } from './Message';
 import { Supporter } from './Supporter';
 import { Client } from './Client';
+import { Uuid } from '../interfaces/db/Uuid';
 
 export class Chat {
-  id: number;
+  id: Uuid;
   name: string;
   status: string;
   avatar: string;
@@ -23,7 +24,7 @@ export class Chat {
   public readonly onMessageDeleted = new Subject<Message>();
 
   constructor(
-    id: number,
+    id: Uuid,
     name: string,
     status: string,
     avatar: string,

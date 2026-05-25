@@ -7,6 +7,8 @@ import {
 } from '../services/chat.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
+type Uuid = string;
+
 export function registerChatHandlers(): void {
   ipcMain.handle(
     'db:getChats',
@@ -26,7 +28,7 @@ export function registerChatHandlers(): void {
   );
   ipcMain.handle(
     'db:deleteChat',
-    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: number) =>
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: Uuid) =>
       chatService.deleteChat(chatId),
     ),
   );

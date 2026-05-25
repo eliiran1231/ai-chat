@@ -1,5 +1,7 @@
+import type { Uuid } from './Uuid';
+
 export interface UpdateMessageInput {
-  id: number;
+  id: Uuid;
   value: string;
   editedAt: string;
 }

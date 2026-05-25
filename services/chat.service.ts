@@ -1,7 +1,10 @@
 import { dbService, type DbService } from './db.service.js';
+import { randomUUID } from 'crypto';
+
+type Uuid = string;
 
 interface ChatRow {
-  id: number;
+  id: Uuid;
   name: string;
   status: string;
   avatar: string;
@@ -28,7 +31,7 @@ export interface ChatPayload {
 }
 
 export interface UpdateChatTitlePayload {
-  chatId: number;
+  chatId: Uuid;
   name: string;
 }
 
@@ -38,7 +41,7 @@ export class ChatService {
   async initialize(): Promise<void> {
     await this.db.run(`
       CREATE TABLE IF NOT EXISTS chats (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         status TEXT NOT NULL,
         avatar TEXT NOT NULL,
@@ -78,9 +81,11 @@ export class ChatService {
 
   async createChat(chat: ChatPayload) {
     const now = new Date().toISOString();
-    const result = await this.db.run(
+    const chatId = randomUUID();
+    await this.db.run(
       `
         INSERT INTO chats (
+          id,
           name,
           status,
           avatar,
@@ -93,9 +98,10 @@ export class ChatService {
           created_at,
           updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
+        chatId,
         chat.name,
         chat.status,
         chat.avatar,
@@ -128,11 +134,11 @@ export class ChatService {
         FROM chats
         WHERE id = ?
       `,
-      [result.lastID],
+      [chatId],
     );
 
     if (!row) {
-      throw new Error(`Created chat ${result.lastID} could not be loaded.`);
+      throw new Error(`Created chat ${chatId} could not be loaded.`);
     }
 
     return this.mapChatRow(row);
@@ -178,7 +184,7 @@ export class ChatService {
     return this.mapChatRow(row);
   }
 
-  async deleteChat(chatId: number): Promise<boolean> {
+  async deleteChat(chatId: Uuid): Promise<boolean> {
     await this.db.run(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
     await this.db.run(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
     const result = await this.db.run(`DELETE FROM chats WHERE id = ?`, [chatId]);

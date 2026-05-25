@@ -1,5 +1,7 @@
+import type { Uuid } from './Uuid';
+
 export interface CreateSupporterRecordInput {
-  chatId: number;
+  chatId: Uuid;
   agentName: string;
   context?: string;
 }

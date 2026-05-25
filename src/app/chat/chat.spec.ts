@@ -33,7 +33,7 @@ describe('ChatComponent', () => {
 
   async function renderChat(draftMessage: string | Message[] = ''): Promise<Chat> {
     const supporter = new Supporter();
-    const chat = new Chat(1, 'Test Chat', 'Online', 'TC', supporter);
+    const chat = new Chat('test-chat-id', 'Test Chat', 'Online', 'TC', supporter);
     supporter.setAgent(new Agent(TestBed.inject(Injector)));
     if (typeof draftMessage === 'string') {
       chat.draftMessage = draftMessage;
