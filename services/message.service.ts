@@ -21,10 +21,6 @@ interface MessageRow {
   deletable: number;
 }
 
-interface TableColumnRow {
-  name: string;
-}
-
 interface AttachmentPayload {
   name: string;
   extension: string;
@@ -96,63 +92,6 @@ export class MessageService {
         FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
       )
     `);
-
-    const messageColumns = await this.db.all<TableColumnRow>(`PRAGMA table_info(messages)`);
-    const hasIsReadColumn = messageColumns.some((column) => column.name === 'is_read');
-    const hasPossibleAnswersColumn = messageColumns.some(
-      (column) => column.name === 'possible_answers',
-    );
-    const hasMessageTypeColumn = messageColumns.some((column) => column.name === 'message_type');
-    const hasValidatorSpecColumn = messageColumns.some(
-      (column) => column.name === 'validator_spec',
-    );
-    const hasValidationErrorMessageColumn = messageColumns.some(
-      (column) => column.name === 'validation_error_message',
-    );
-    const hasAttachmentColumn = messageColumns.some((column) => column.name === 'attachment');
-    const hasEditedAtColumn = messageColumns.some((column) => column.name === 'edited_at');
-    const hasEditableColumn = messageColumns.some((column) => column.name === 'editable');
-    const hasDeletableColumn = messageColumns.some((column) => column.name === 'deletable');
-
-    if (!hasIsReadColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN is_read INTEGER NOT NULL DEFAULT 0`);
-      await this.db.run(`
-        UPDATE messages
-        SET is_read = CASE WHEN sender = 'user' THEN 1 ELSE 0 END
-        WHERE is_read = 0
-      `);
-    }
-    if (!hasPossibleAnswersColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN possible_answers TEXT`);
-    }
-    if (!hasMessageTypeColumn) {
-      await this.db.run(
-        `ALTER TABLE messages ADD COLUMN message_type TEXT NOT NULL DEFAULT 'message'`,
-      );
-      await this.db.run(`
-        UPDATE messages
-        SET message_type = 'question'
-        WHERE possible_answers IS NOT NULL
-      `);
-    }
-    if (!hasValidatorSpecColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN validator_spec TEXT`);
-    }
-    if (!hasValidationErrorMessageColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN validation_error_message TEXT`);
-    }
-    if (!hasAttachmentColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN attachment TEXT`);
-    }
-    if (!hasEditedAtColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN edited_at TEXT`);
-    }
-    if (!hasEditableColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN editable INTEGER NOT NULL DEFAULT 1`);
-    }
-    if (!hasDeletableColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN deletable INTEGER NOT NULL DEFAULT 1`);
-    }
   }
 
   async getChatMessages(chatId: Uuid) {

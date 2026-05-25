@@ -12,10 +12,6 @@ interface SupporterRow {
   updated_at: string;
 }
 
-interface TableColumnRow {
-  name: string;
-}
-
 export interface SupporterPayload {
   chatId: Uuid;
   agentName: string;
@@ -47,14 +43,6 @@ export class SupporterService {
         FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
       )
     `);
-
-    const supporterColumns = await this.db.all<TableColumnRow>(`PRAGMA table_info(supporters)`);
-    if (supporterColumns.length > 0) {
-      const hasContextColumn = supporterColumns.some((column) => column.name === 'context');
-      if (!hasContextColumn) {
-        await this.db.run(`ALTER TABLE supporters ADD COLUMN context TEXT NOT NULL DEFAULT ''`);
-      }
-    }
   }
 
   async getChatSupporter(chatId: Uuid) {
