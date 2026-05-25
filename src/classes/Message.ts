@@ -1,5 +1,5 @@
 import { Chat } from "./Chat";
-import { createUuid, Uuid } from "../interfaces/db/Uuid";
+import { Uuid } from "../interfaces/db/Uuid";
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
@@ -19,7 +19,7 @@ export type MessageOptions = {
 }
 
 export class Message {
-    id: Uuid;
+    id!: Uuid;
     from?: MessageSender;
     time: Date = new Date();
     editedAt?: Date;
@@ -38,7 +38,7 @@ export class Message {
     constructor(value: string, options?: MessageOptions) {
         this.value = value;
         this.attachment = options?.attachment;
-        this.id = options?.id ?? createUuid();
+        if (options?.id) this.id = options.id;
         this.editable = options?.editable ?? true;
         this.deletable = options?.deletable ?? true;
         this.tag = options?.tag ?? 'general';

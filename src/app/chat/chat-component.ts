@@ -92,8 +92,7 @@ export class ChatComponent {
 
     this.matchingMessageIds = this.chat.messages
       .filter((message) => message.value.toLocaleLowerCase().includes(normalizedQuery))
-      .map((message) => message.id)
-      .filter((messageId): messageId is Uuid => messageId !== undefined);
+      .map((message) => message.id);
 
     this.activeSearchResultIndex = this.matchingMessageIds.length ? 0 : -1;
     this.scrollToActiveSearchResult();
@@ -144,7 +143,7 @@ export class ChatComponent {
     this.scrollToActiveSearchResult();
   }
 
-  isActiveSearchMatch(messageId: Uuid | undefined): boolean {
+  isActiveSearchMatch(messageId: Uuid): boolean {
     return !!messageId && this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
   }
 
