@@ -64,7 +64,6 @@ export class Agent {
         for(let i = 1; !(responseToEdit instanceof Answer && responseToEdit.from === "client"); i++){
             responseToEdit = this.chat.messages[associatedQuestionIndex + i];
         }
-        console.log(associatedQuestionIndex, this.chat.messages.length, responseToEdit);
         responseToEdit?.edit(answer.value);
     }
 
