@@ -1,31 +1,30 @@
 import { dbService, type DbService } from './db.service.js';
+import { randomUUID } from 'crypto';
+
+type Uuid = string;
 
 interface SupporterRow {
-  id: number;
-  chat_id: number;
+  id: Uuid;
+  chat_id: Uuid;
   agent_name: string;
   context: string | null;
   created_at: string;
   updated_at: string;
 }
 
-interface TableColumnRow {
-  name: string;
-}
-
 export interface SupporterPayload {
-  chatId: number;
+  chatId: Uuid;
   agentName: string;
   context?: string | null;
 }
 
 export interface UpdateSupporterAgentPayload {
-  chatId: number;
+  chatId: Uuid;
   agentName: string;
 }
 
 export interface UpdateSupporterContextPayload {
-  chatId: number;
+  chatId: Uuid;
   context?: string | null;
 }
 
@@ -35,8 +34,8 @@ export class SupporterService {
   async initialize(): Promise<void> {
     await this.db.run(`
       CREATE TABLE IF NOT EXISTS supporters (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        chat_id INTEGER NOT NULL UNIQUE,
+        id TEXT PRIMARY KEY,
+        chat_id TEXT NOT NULL UNIQUE,
         agent_name TEXT NOT NULL,
         context TEXT NOT NULL DEFAULT '',
         created_at TEXT NOT NULL,
@@ -44,17 +43,9 @@ export class SupporterService {
         FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
       )
     `);
-
-    const supporterColumns = await this.db.all<TableColumnRow>(`PRAGMA table_info(supporters)`);
-    if (supporterColumns.length > 0) {
-      const hasContextColumn = supporterColumns.some((column) => column.name === 'context');
-      if (!hasContextColumn) {
-        await this.db.run(`ALTER TABLE supporters ADD COLUMN context TEXT NOT NULL DEFAULT ''`);
-      }
-    }
   }
 
-  async getChatSupporter(chatId: number) {
+  async getChatSupporter(chatId: Uuid) {
     const row = await this.db.get<SupporterRow>(
       `
         SELECT
@@ -75,18 +66,20 @@ export class SupporterService {
 
   async createSupporter(supporter: SupporterPayload) {
     const now = new Date().toISOString();
-    const result = await this.db.run(
+    const supporterId = randomUUID();
+    await this.db.run(
       `
         INSERT INTO supporters (
+          id,
           chat_id,
           agent_name,
           context,
           created_at,
           updated_at
         )
-        VALUES (?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?)
       `,
-      [supporter.chatId, supporter.agentName, supporter.context ?? '', now, now],
+      [supporterId, supporter.chatId, supporter.agentName, supporter.context ?? '', now, now],
     );
 
     const row = await this.db.get<SupporterRow>(
@@ -101,11 +94,11 @@ export class SupporterService {
         FROM supporters
         WHERE id = ?
       `,
-      [result.lastID],
+      [supporterId],
     );
 
     if (!row) {
-      throw new Error(`Created supporter ${result.lastID} could not be loaded.`);
+      throw new Error(`Created supporter ${supporterId} could not be loaded.`);
     }
 
     return this.mapSupporterRow(row);

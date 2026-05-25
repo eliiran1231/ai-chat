@@ -1,4 +1,6 @@
+import type { Uuid } from './Uuid';
+
 export interface UpdateSupporterContextInput {
-  chatId: number;
+  chatId: Uuid;
   context: any;
 }

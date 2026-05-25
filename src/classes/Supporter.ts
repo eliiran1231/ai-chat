@@ -4,8 +4,10 @@ import { Answer } from "./Answer";
 import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
+import { Uuid } from "../interfaces/db/Uuid";
 
 export class Supporter{
+    public id!: Uuid;
     private chat!: Chat;
     private agent: Agent | undefined;
     public readonly onMessageAdded = new Subject<Message>();
@@ -14,7 +16,7 @@ export class Supporter{
     public expects: "message" | "question" | "answer" = "question";
     private _context: any; 
     public name = "Supporter";
-    public id?: number;
+    
     get context(){
         return this._context;
     }

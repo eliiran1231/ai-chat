@@ -11,6 +11,7 @@ import { ChatRecord } from '../interfaces/db/ChatRecord';
 import { MessageRecord } from '../interfaces/db/MessageRecord';
 import { SupporterRecord } from '../interfaces/db/SupporterRecord';
 import { DbService } from './db.service';
+import { Uuid } from '../interfaces/db/Uuid';
 
 @Injectable({
   providedIn: 'root'
@@ -81,11 +82,11 @@ export class ChatService {
     );
   }
 
-  async deleteChat(chatId: number): Promise<boolean> {
+  async deleteChat(chatId: Uuid): Promise<boolean> {
     return this.dbService.deleteChat(chatId);
   }
 
-  async markChatRead(chatId: number): Promise<boolean> {
+  async markChatRead(chatId: Uuid): Promise<boolean> {
     return this.dbService.markChatRead(chatId);
   }
 
@@ -110,7 +111,9 @@ export class ChatService {
     supporterRecord?: SupporterRecord | null,
   ): Chat {
     const supporter = new Supporter();
-    supporter.id = supporterRecord?.id;
+    if (supporterRecord) {
+      supporter.id = supporterRecord.id;
+    }
     try{
       supporter.setContext(JSON.parse(supporterRecord?.context ?? '{}'));
     }
@@ -176,7 +179,7 @@ export class ChatService {
     const persistMessage = async (message: Message) => {
       const messageType = message instanceof Answer ? "answer" : message instanceof Question ? "question" : "message";
       const record = await this.dbService.createMessage({
-        id: message.id == 0 ? undefined : message.id,
+        id: message.id,
         chatId: chat.id,
         from: message.from,
         messageType,
@@ -208,7 +211,6 @@ export class ChatService {
 
     const persistMessageEdit = async (message: Message) => {
       await pendingMessagePersists.get(message);
-      if (!message.id) return;
       await this.dbService.updateMessage({
         id: message.id,
         value: message.value,
@@ -218,7 +220,6 @@ export class ChatService {
 
     const persistMessageDelete = async (message: Message) => {
       await pendingMessagePersists.get(message);
-      if (!message.id) return;
       await this.dbService.deleteMessage(message.id);
     };
 
