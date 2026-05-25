@@ -4,10 +4,10 @@ import { Answer } from "./Answer";
 import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
-import { createUuid, Uuid } from "../interfaces/db/Uuid";
+import { Uuid } from "../interfaces/db/Uuid";
 
 export class Supporter{
-    public id: Uuid = createUuid();
+    public id!: Uuid;
     private chat!: Chat;
     private agent: Agent | undefined;
     public readonly onMessageAdded = new Subject<Message>();
