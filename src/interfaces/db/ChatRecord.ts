@@ -1,5 +1,7 @@
+import type { Uuid } from './Uuid';
+
 export interface ChatRecord {
-  id: number;
+  id: Uuid;
   name: string;
   status: string;
   avatar: string;

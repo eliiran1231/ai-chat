@@ -8,10 +8,12 @@ import {
 } from '../services/supporter.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
+type Uuid = string;
+
 export function registerSupporterHandlers(): void {
   ipcMain.handle(
     'db:getChatSupporter',
-    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: number) =>
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: Uuid) =>
       supporterService.getChatSupporter(chatId),
     ),
   );

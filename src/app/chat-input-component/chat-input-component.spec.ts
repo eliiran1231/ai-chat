@@ -16,7 +16,7 @@ describe('ChatInputComponent', () => {
     }).compileComponents();
 
     const supporter = new Supporter();
-    chat = new Chat(1, 'Test Chat', 'Online', 'TC', supporter);
+    chat = new Chat('test-chat-id', 'Test Chat', 'Online', 'TC', supporter);
     supporter.setAgent(new Agent(TestBed.inject(Injector)));
 
     fixture = TestBed.createComponent(ChatInputComponent);

@@ -4,10 +4,12 @@ import { messageService, type MessagePayload } from '../services/message.service
 import type { UpdateMessagePayload } from '../services/message.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
+type Uuid = string;
+
 export function registerMessageHandlers(): void {
   ipcMain.handle(
     'db:getChatMessages',
-    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: number) =>
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: Uuid) =>
       messageService.getChatMessages(chatId),
     ),
   );
@@ -25,13 +27,13 @@ export function registerMessageHandlers(): void {
   );
   ipcMain.handle(
     'db:deleteMessage',
-    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, messageId: number) =>
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, messageId: Uuid) =>
       messageService.deleteMessage(messageId),
     ),
   );
   ipcMain.handle(
     'db:markChatRead',
-    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: number) =>
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: Uuid) =>
       messageService.markChatRead(chatId),
     ),
   );

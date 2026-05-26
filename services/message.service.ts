@@ -1,8 +1,11 @@
 import { dbService, type DbService } from './db.service.js';
+import { randomUUID } from 'crypto';
+
+type Uuid = string;
 
 interface MessageRow {
-  id: number;
-  chat_id: number;
+  id: Uuid;
+  chat_id: Uuid;
   sender: string;
   message_type: string | null;
   value: string;
@@ -18,10 +21,6 @@ interface MessageRow {
   deletable: number;
 }
 
-interface TableColumnRow {
-  name: string;
-}
-
 interface AttachmentPayload {
   name: string;
   extension: string;
@@ -31,8 +30,8 @@ interface AttachmentPayload {
 }
 
 export interface MessagePayload {
-  id?: number;
-  chatId: number;
+  id?: Uuid;
+  chatId: Uuid;
   from: string;
   messageType?: string;
   value: string;
@@ -49,7 +48,7 @@ export interface MessagePayload {
 }
 
 export interface UpdateMessagePayload {
-  id: number;
+  id: Uuid;
   value: string;
   editedAt: string;
 }
@@ -75,8 +74,8 @@ export class MessageService {
   async initialize(): Promise<void> {
     await this.db.run(`
       CREATE TABLE IF NOT EXISTS messages (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        chat_id INTEGER NOT NULL,
+        id TEXT PRIMARY KEY,
+        chat_id TEXT NOT NULL,
         sender TEXT NOT NULL,
         message_type TEXT NOT NULL DEFAULT 'message',
         value TEXT NOT NULL,
@@ -93,66 +92,9 @@ export class MessageService {
         FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
       )
     `);
-
-    const messageColumns = await this.db.all<TableColumnRow>(`PRAGMA table_info(messages)`);
-    const hasIsReadColumn = messageColumns.some((column) => column.name === 'is_read');
-    const hasPossibleAnswersColumn = messageColumns.some(
-      (column) => column.name === 'possible_answers',
-    );
-    const hasMessageTypeColumn = messageColumns.some((column) => column.name === 'message_type');
-    const hasValidatorSpecColumn = messageColumns.some(
-      (column) => column.name === 'validator_spec',
-    );
-    const hasValidationErrorMessageColumn = messageColumns.some(
-      (column) => column.name === 'validation_error_message',
-    );
-    const hasAttachmentColumn = messageColumns.some((column) => column.name === 'attachment');
-    const hasEditedAtColumn = messageColumns.some((column) => column.name === 'edited_at');
-    const hasEditableColumn = messageColumns.some((column) => column.name === 'editable');
-    const hasDeletableColumn = messageColumns.some((column) => column.name === 'deletable');
-
-    if (!hasIsReadColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN is_read INTEGER NOT NULL DEFAULT 0`);
-      await this.db.run(`
-        UPDATE messages
-        SET is_read = CASE WHEN sender = 'user' THEN 1 ELSE 0 END
-        WHERE is_read = 0
-      `);
-    }
-    if (!hasPossibleAnswersColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN possible_answers TEXT`);
-    }
-    if (!hasMessageTypeColumn) {
-      await this.db.run(
-        `ALTER TABLE messages ADD COLUMN message_type TEXT NOT NULL DEFAULT 'message'`,
-      );
-      await this.db.run(`
-        UPDATE messages
-        SET message_type = 'question'
-        WHERE possible_answers IS NOT NULL
-      `);
-    }
-    if (!hasValidatorSpecColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN validator_spec TEXT`);
-    }
-    if (!hasValidationErrorMessageColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN validation_error_message TEXT`);
-    }
-    if (!hasAttachmentColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN attachment TEXT`);
-    }
-    if (!hasEditedAtColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN edited_at TEXT`);
-    }
-    if (!hasEditableColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN editable INTEGER NOT NULL DEFAULT 1`);
-    }
-    if (!hasDeletableColumn) {
-      await this.db.run(`ALTER TABLE messages ADD COLUMN deletable INTEGER NOT NULL DEFAULT 1`);
-    }
   }
 
-  async getChatMessages(chatId: number) {
+  async getChatMessages(chatId: Uuid) {
     const rows = await this.db.all<MessageRow>(
       `
         SELECT
@@ -182,14 +124,11 @@ export class MessageService {
   }
 
   async createMessage(message: MessagePayload) {
-    const explicitMessageId =
-      typeof message.id === 'number' && Number.isInteger(message.id) && message.id > 0
-        ? message.id
-        : undefined;
-    const persistWithExplicitId = explicitMessageId !== undefined;
+    const messageId = message.id ?? randomUUID();
     const commonArgs = [
+      messageId,
       message.chatId,
-      message.from,
+      message.from ?? 'client',
       message.messageType ?? 'message',
       message.value,
       message.tag ?? null,
@@ -204,8 +143,7 @@ export class MessageService {
       message.deletable === false ? 0 : 1,
     ];
 
-    const sql = persistWithExplicitId
-      ? `
+    const sql = `
           INSERT INTO messages (
             id,
             chat_id,
@@ -224,30 +162,9 @@ export class MessageService {
             deletable
           )
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `
-      : `
-          INSERT INTO messages (
-            chat_id,
-            sender,
-            message_type,
-            value,
-            tag,
-            time,
-            edited_at,
-            attachment,
-            possible_answers,
-            validator_spec,
-            validation_error_message,
-            is_read,
-            editable,
-            deletable
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
-    const args = persistWithExplicitId ? [explicitMessageId, ...commonArgs] : commonArgs;
 
-    const result = await this.db.run(sql, args);
-    const insertedMessageId = explicitMessageId ?? result.lastID;
+    await this.db.run(sql, commonArgs);
 
     if (!message.isRead) {
       await this.db.run(
@@ -282,11 +199,11 @@ export class MessageService {
         FROM messages
         WHERE id = ?
       `,
-      [insertedMessageId],
+      [messageId],
     );
 
     if (!row) {
-      throw new Error(`Created message ${insertedMessageId} could not be loaded.`);
+      throw new Error(`Created message ${messageId} could not be loaded.`);
     }
 
     return this.mapMessageRow(row);
@@ -306,7 +223,7 @@ export class MessageService {
     return result.changes > 0;
   }
 
-  async deleteMessage(messageId: number): Promise<boolean> {
+  async deleteMessage(messageId: Uuid): Promise<boolean> {
     const result = await this.db.run(
       `
         DELETE FROM messages
@@ -318,7 +235,7 @@ export class MessageService {
     return result.changes > 0;
   }
 
-  async markChatRead(chatId: number): Promise<boolean> {
+  async markChatRead(chatId: Uuid): Promise<boolean> {
     const now = new Date().toISOString();
     await this.db.run(
       `
@@ -362,7 +279,7 @@ export class MessageService {
     };
   }
 
-  private parseJsonColumn(value: string | null, fieldName: string, rowId: number): unknown {
+  private parseJsonColumn(value: string | null, fieldName: string, rowId: Uuid): unknown {
     if (!value) {
       return undefined;
     }
@@ -378,7 +295,7 @@ export class MessageService {
   private parseStringArrayColumn(
     value: string | null,
     fieldName: string,
-    rowId: number,
+    rowId: Uuid,
   ): string[] | undefined {
     const parsedValue = this.parseJsonColumn(value, fieldName, rowId);
     if (parsedValue === undefined) {
@@ -396,7 +313,7 @@ export class MessageService {
   private parseAttachmentColumn(
     value: string | null,
     fieldName: string,
-    rowId: number,
+    rowId: Uuid,
   ): AttachmentPayload | undefined {
     const parsedValue = this.parseJsonColumn(value, fieldName, rowId);
     if (parsedValue === undefined) {

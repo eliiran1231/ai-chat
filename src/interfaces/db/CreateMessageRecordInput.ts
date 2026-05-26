@@ -1,9 +1,10 @@
 import type { Attachment, MessageType } from '../../classes/Message';
+import type { Uuid } from './Uuid';
 import type { ValidatorSpec } from '../validation/ValidatorSpec';
 
 export interface CreateMessageRecordInput {
-  id?: number;
-  chatId: number;
+  id?: Uuid;
+  chatId: Uuid;
   from?: 'client' | 'supporter';
   messageType?: MessageType;
   value: string;

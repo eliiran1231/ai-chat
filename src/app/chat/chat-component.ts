@@ -11,6 +11,8 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
 import { LanguageService } from '../../services/language.service';
+import { AnswerSelectedEvent } from '../../classes/Client';
+import { Uuid } from '../../interfaces/db/Uuid';
 
 @Component({
   selector: 'app-chat',
@@ -36,7 +38,7 @@ export class ChatComponent {
   @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
   searchQuery = '';
-  matchingMessageIds: number[] = [];
+  matchingMessageIds: Uuid[] = [];
   activeSearchResultIndex = -1;
   selectedMessage?: Message;
   editingMessage?: Message;
@@ -92,8 +94,7 @@ export class ChatComponent {
 
     this.matchingMessageIds = this.chat.messages
       .filter((message) => message.value.toLocaleLowerCase().includes(normalizedQuery))
-      .map((message) => message.id)
-      .filter((messageId): messageId is number => messageId !== undefined);
+      .map((message) => message.id);
 
     this.activeSearchResultIndex = this.matchingMessageIds.length ? 0 : -1;
     this.scrollToActiveSearchResult();
@@ -144,7 +145,7 @@ export class ChatComponent {
     this.scrollToActiveSearchResult();
   }
 
-  isActiveSearchMatch(messageId: number | undefined): boolean {
+  isActiveSearchMatch(messageId: Uuid): boolean {
     return !!messageId && this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
   }
 

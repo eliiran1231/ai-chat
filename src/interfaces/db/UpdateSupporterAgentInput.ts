@@ -1,4 +1,6 @@
+import type { Uuid } from './Uuid';
+
 export interface UpdateSupporterAgentInput {
-  chatId: number;
+  chatId: Uuid;
   agentName: string;
 }
