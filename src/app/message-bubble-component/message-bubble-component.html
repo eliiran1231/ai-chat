@@ -1,6 +1,7 @@
 <article
   [id]="message.id"
   class="message-row"
+  [attr.dir]="language.direction()"
   [class.message-row--supporter]="isSupporterMessage(message)"
   [class.message-row--user]="!isSupporterMessage(message)"
   [class.message-row--search-active]="isActiveSearchMatch"
