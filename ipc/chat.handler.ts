@@ -32,4 +32,8 @@ export function registerChatHandlers(): void {
       chatService.deleteChat(chatId),
     ),
   );
+  
+  ipcMain.handle('db:updateChatAvatar', async (_event, { chatId, avatar }) => {
+    chatService.updateChatAvatar(chatId, avatar);
+  });
 }

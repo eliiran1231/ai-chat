@@ -1,6 +1,6 @@
 import { Avatar } from '../../classes/Chat';
 
 export interface UpdateChatAvatarInput {
-  chatId: number;
+  chatId: string;
   avatar: Avatar;
 }
