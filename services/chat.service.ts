@@ -18,10 +18,15 @@ interface ChatRow {
   updated_at: string;
 }
 
+interface AvatarPayload {
+  type: 'image' | 'text';
+  value: string;
+}
+
 export interface ChatPayload {
   name: string;
   status: string;
-  avatar: string;
+  avatar: AvatarPayload;
   subtitle?: string | null;
   timeLabel?: string | null;
   unreadCount?: number | null;
@@ -35,7 +40,10 @@ export interface UpdateChatTitlePayload {
   name: string;
 }
 
-
+export interface UpdateChatAvatarPayload {
+  chatId: Uuid;
+  avatar: AvatarPayload;
+}
 
 export class ChatService {
   constructor(private readonly db: DbService) {}
@@ -146,26 +154,26 @@ export class ChatService {
     return this.mapChatRow(row);
   }
 
-  public parseAvatarColumn(value : string | null, rowId: Uuid) {
-  const parsedValue = this.db.parseJsonColumn(value, 'avatar', rowId);
-  if (parsedValue === undefined) {
+  public parseAvatarColumn(value: string | null, rowId: Uuid) {
+    const parsedValue = this.db.parseJsonColumn(value, 'avatar', rowId);
+    if (parsedValue === undefined) {
+      return value;
+    }
+
+    if (
+      parsedValue &&
+      typeof parsedValue === 'object' &&
+      typeof parsedValue.type === 'string' &&
+      typeof parsedValue.value === 'string'
+    ) {
+      return parsedValue;
+    }
+
+    console.warn(`Unexpected avatar payload for chat ${rowId}.`, parsedValue);
     return value;
   }
 
-  if (
-    parsedValue &&
-    typeof parsedValue === 'object' &&
-    typeof parsedValue.type === 'string' &&
-    typeof parsedValue.value === 'string'
-  ) {
-    return parsedValue;
-  }
-
-  console.warn(`Unexpected avatar payload for chat ${rowId}.`, parsedValue);
-  return value;
-}
-
-  async updateChatAvatar(chatId: any, avatar: any) {
+  async updateChatAvatar({ chatId, avatar }: UpdateChatAvatarPayload) {
     const now = new Date().toISOString();
     await this.db.run(
       `
@@ -177,7 +185,7 @@ export class ChatService {
       [JSON.stringify(avatar), now, chatId],
     );
 
-    const  row = await this.db.get<ChatRow>(
+    const row = await this.db.get<ChatRow>(
       `
         SELECT
           id,

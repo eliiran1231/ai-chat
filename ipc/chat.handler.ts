@@ -3,6 +3,7 @@ import type { IpcMainInvokeEvent } from 'electron';
 import {
   chatService,
   type ChatPayload,
+  type UpdateChatAvatarPayload,
   type UpdateChatTitlePayload,
 } from '../services/chat.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
@@ -33,7 +34,10 @@ export function registerChatHandlers(): void {
     ),
   );
   
-  ipcMain.handle('db:updateChatAvatar', async (_event, { chatId, avatar }) => {
-    chatService.updateChatAvatar(chatId, avatar);
-  });
+  ipcMain.handle(
+    'db:updateChatAvatar',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, payload: UpdateChatAvatarPayload) =>
+      chatService.updateChatAvatar(payload),
+    ),
+  );
 }
