@@ -31,7 +31,7 @@ At the moment, the home screen loads chats with `AiAgent` by default in [src/app
 
 High-level flow:
 
-1. Electron starts from [main.js](main.js).
+1. Electron starts from `main.js`, the compiled output generated from [main.ts](main.ts).
 2. The Angular app is loaded from `dist/ai-chat/browser/index.html`.
 3. SQLite tables for chats and messages are initialized in the Electron process.
 4. Angular loads chats through `ChatService`.
@@ -41,7 +41,8 @@ High-level flow:
 
 Important files:
 
-- [main.js](main.js): Electron app bootstrapping, SQLite schema, IPC handlers
+- [main.ts](main.ts): Electron app bootstrapping and service/handler registration
+- [ipc/](ipc/): Electron IPC handlers compiled by `tsconfig.electron.json`
 - [preload.js](preload.js): exposes safe IPC bridge to the renderer
 - [src/services/db.service.ts](src/services/db.service.ts): Angular wrapper around Electron IPC database calls
 - [src/services/chat.service.ts](src/services/chat.service.ts): chat creation, hydration, persistence
@@ -89,6 +90,7 @@ Notes:
 - `npm start` is the main way to run the desktop app
 - `npm run watch` rebuilds Angular in watch mode, but does not restart Electron by itself
 - chat and message data are stored in a SQLite database under Electron's user data directory
+- Electron TypeScript is compiled with `tsconfig.electron.json`; `package.json` points to the emitted `main.js`. TypeScript imports use `.js` extensions because `module` and `moduleResolution` are set to `NodeNext`.
 
 ## Using the AI agent
 
@@ -256,7 +258,7 @@ src/
   app/          Angular UI components
   classes/      Core chat, message, question, client, supporter models
   services/     AI, database, Electron, profile, and chat services
-main.js         Electron main process and SQLite logic
+main.ts         Electron main process and SQLite logic
 preload.js      Electron preload bridge
 ```
 

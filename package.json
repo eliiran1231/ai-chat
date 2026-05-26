@@ -5,8 +5,9 @@
   "main": "main.js",
   "scripts": {
     "ng": "ng",
-    "start": "ng build --base-href ./ && electron .",
-    "build": "ng build",
+    "start": "ng build --base-href ./ && npm run build:electron && electron .",
+    "build": "ng build && npm run build:electron",
+    "build:electron": "tsc --project tsconfig.electron.json",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

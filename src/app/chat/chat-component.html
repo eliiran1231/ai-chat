@@ -1,23 +1,27 @@
-@if(attachmentFile){
-  <app-file-preview-component 
+@if (attachmentFile) {
+  <app-file-preview-component
     [file]="attachmentFile"
     [processFileUrl]="(file)=>chat.processFileUrl(file)"
     (submitted)="closePreviewPage(); sendMessage($event.value, $event.options)"
     (closed)="closePreviewPage()"
-    ></app-file-preview-component>
-}
-@else {
-  <section class="chat-shell">
+  ></app-file-preview-component>
+} @else {
+  <section class="chat-shell" [class.chat-shell--editing]="editingMessage">
     <app-chat-navbar-component
       [chat]="chat"
       [showBackButton]="showBackButton"
       [resultCount]="matchingMessageIds.length"
       [currentResultIndex]="activeSearchResultIndex"
+      [selectedMessage]="selectedMessage"
+      [editMode]="!!editingMessage"
       (back)="back.emit()"
       (searchChange)="updateSearch($event)"
       (nextMatch)="stepInSearch(1)"
       (previousMatch)="stepInSearch(-1)"
       (searchClosed)="clearSearch()"
+      (messageOptionsClosed)="closeMessageOptions()"
+      (editMessage)="editMessage($event)"
+      (deleteMessage)="deleteMessage($event)"
       (deleteChat)="deleteChat.emit($event)"
     ></app-chat-navbar-component>
 
@@ -25,6 +29,9 @@
       #chatScrollbar
       [reachedBottomOffset]="SCROLLBAR_OFFSET"
       [droppedBottomOffset]="SCROLLBAR_OFFSET"
+      [class.is-scrolling]="isScrolling"
+      (scroll)="onScroll()"
+      (scrollend)="onChatScrollEnd()"
       (droppedBottom)="showScrollButton()"
       (reachedBottom)="hideScrollButton()"
       (afterUpdate)="!awayFromBottom && scrollToBottom()"
@@ -32,12 +39,18 @@
       appearance="compact"
       class="chat-thread"
     >
+      @if (editingMessage) {
+        <div class="edit-mode-scrim" aria-hidden="true"></div>
+      }
+
       @for (message of chat.messages; track message.id) {
         <app-message-bubble
           [message]="message"
+          [isSelected]="message === selectedMessage"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
           [searchTerm]="searchQuery"
-          (answerSelected)="selectAnswer($event)"
+          (answerSelected)="selectAnswer($event.answer, $event.associatedQuestion, $index)"
+          (messageOptionsRequested)="openMessageOptions($event)"
         ></app-message-bubble>
       } @empty {
         <div class="empty-state">
@@ -53,13 +66,16 @@
         aria-label="Scroll to bottom"
         (click)="scrollToBottom()"
       >
-        <span aria-hidden="true">⌄</span>
+        <lucide-angular [img]="scrollDownIcon" aria-hidden="true" />
       </button>
     }
 
     <app-chat-input-component
       theme="light"
       [chat]="chat"
+      [value]="editDraft"
+      [placeholder]="editingMessage ? 'Edit message' : 'Type a message'"
+      [allowAttachments]="!editingMessage"
       (messageSubmit)="sendMessage($event)"
       (fileSubmit)="openPreviewPage($event)"
     ></app-chat-input-component>

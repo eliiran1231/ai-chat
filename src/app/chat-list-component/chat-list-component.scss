@@ -26,7 +26,9 @@
 
 .search-box__icon {
   color: #7a8a96;
-  font-size: 0.82rem;
+  width: 1rem;
+  height: 1rem;
+  stroke-width: 2.1;
 }
 
 .search-box input {
@@ -223,10 +225,17 @@
   height: 3rem;//do not edit without also changing chat-list padding-bottom.
   border: 0;
   border-radius: 50%;
+  display: grid;
+  place-items: center;
   background: linear-gradient(180deg, #16c79a, #05a884);
   color: #fff;
   box-shadow: 0 0.9rem 1.6rem rgba(0, 168, 132, 0.32);
-  font-size: 1.5rem;
   text-transform: lowercase;
   cursor: pointer;
+}
+
+.floating-compose lucide-angular {
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke-width: 2.2;
 }

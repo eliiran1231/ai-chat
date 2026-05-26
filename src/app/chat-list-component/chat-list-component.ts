@@ -1,14 +1,17 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { LucideAngularModule, Search, SquarePen } from 'lucide-angular';
 import { Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
 @Component({
   selector: 'app-chat-list-component',
-  imports: [FormsModule],
+  imports: [FormsModule, LucideAngularModule],
   templateUrl: './chat-list-component.html',
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {
+  readonly searchIcon = Search;
+  readonly composeIcon = SquarePen;
   @Input({ required: true }) chats: Chat[] = [];
   @Input() searchTerm = '';
   @Input() selectedChat: Chat | null = null;

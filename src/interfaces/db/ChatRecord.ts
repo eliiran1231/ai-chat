@@ -1,7 +1,8 @@
 import { Avatar } from '../../classes/Chat';
+import type { Uuid } from './Uuid';
 
 export interface ChatRecord {
-  id: number;
+  id: Uuid;
   name: string;
   status: string;
   avatar: Avatar | string;

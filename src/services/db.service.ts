@@ -8,8 +8,10 @@ import { MessageRecord } from '../interfaces/db/MessageRecord';
 import { SupporterRecord } from '../interfaces/db/SupporterRecord';
 import { UpdateChatAvatarInput } from '../interfaces/db/UpdateChatAvatarInput';
 import { UpdateChatTitleInput } from '../interfaces/db/UpdateChatTitleInput';
+import { UpdateMessageInput } from '../interfaces/db/UpdateMessageInput';
 import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgentInput';
 import { UpdateSupporterContextInput } from '../interfaces/db/UpdateSupporterContextInput';
+import { Uuid } from '../interfaces/db/Uuid';
 
 @Injectable({
   providedIn: 'root',
@@ -29,11 +31,11 @@ export class DbService {
     return this.electronService.invoke<ChatRecord>('db:createChat', chat);
   }
 
-  async deleteChat(chatId: number): Promise<boolean> {
+  async deleteChat(chatId: Uuid): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:deleteChat', chatId);
   }
 
-  async getChatMessages(chatId: number): Promise<MessageRecord[]> {
+  async getChatMessages(chatId: Uuid): Promise<MessageRecord[]> {
     return this.electronService.invoke<MessageRecord[]>('db:getChatMessages', chatId);
   }
 
@@ -41,7 +43,15 @@ export class DbService {
     return this.electronService.invoke<MessageRecord>('db:createMessage', message);
   }
 
-  async getChatSupporter(chatId: number): Promise<SupporterRecord | null> {
+  async updateMessage(message: UpdateMessageInput): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:updateMessage', message);
+  }
+
+  async deleteMessage(messageId: Uuid): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:deleteMessage', messageId);
+  }
+
+  async getChatSupporter(chatId: Uuid): Promise<SupporterRecord | null> {
     return this.electronService.invoke<SupporterRecord | null>('db:getChatSupporter', chatId);
   }
 
@@ -49,7 +59,7 @@ export class DbService {
     return this.electronService.invoke<SupporterRecord>('db:createSupporter', supporter);
   }
 
-  async markChatRead(chatId: number): Promise<boolean> {
+  async markChatRead(chatId: Uuid): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:markChatRead', chatId);
   }
 

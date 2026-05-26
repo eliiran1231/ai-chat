@@ -1,5 +1,44 @@
 <header class="chat-navbar">
-  @if(searchMode){
+  @if (messageOptionsMode) {
+    <div class="message-options-mode" aria-label="Message options">
+      <button
+        type="button"
+        class="back-button"
+        aria-label="Back to conversation"
+        title="Back"
+        (click)="messageOptionsClosed.emit()"
+      >
+        <lucide-angular [img]="backIcon" aria-hidden="true" />
+      </button>
+
+      <div class="message-options-spacer"></div>
+
+      @if (!editMode && selectedMessage?.from === 'client') {
+        <button
+          type="button"
+          class="icon-button"
+          aria-label="Edit message"
+          title="Edit"
+          [disabled]="!canEditSelectedMessage"
+          (click)="canEditSelectedMessage && selectedMessage && editMessage.emit(selectedMessage)"
+        >
+          <lucide-angular [img]="editIcon" aria-hidden="true" />
+        </button>
+      }
+      @if (!editMode) {
+        <button
+          type="button"
+          class="icon-button icon-button--danger"
+          aria-label="Delete message"
+          title="Delete"
+          [disabled]="!selectedMessage?.deletable"
+          (click)="selectedMessage && deleteMessage.emit(selectedMessage)"
+        >
+          <lucide-angular [img]="deleteIcon" aria-hidden="true" />
+        </button>
+      }
+    </div>
+  } @else if (searchMode) {
     <div id="search-mode-container">
       <div class="search-result-count" [class.search-result-count--empty]="!hasResults">
         {{ currentResultLabel }}
@@ -12,7 +51,7 @@
           (click)="previousMatch.emit()"
           aria-label="Previous match"
         >
-          ^
+          <lucide-angular [img]="previousMatchIcon" aria-hidden="true" />
         </button>
         <button
           type="button"
@@ -21,7 +60,7 @@
           (click)="nextMatch.emit()"
           aria-label="Next match"
         >
-          v
+          <lucide-angular [img]="nextMatchIcon" aria-hidden="true" />
         </button>
       </div>
       <div class="search-input-shell">
@@ -35,10 +74,16 @@
           aria-label="Search in chat"
         />
       </div>
-      <button type="button" class="search-close-button" (click)="closeSearch()" aria-label="Close search">x</button>
+      <button
+        type="button"
+        class="search-close-button"
+        (click)="closeSearch()"
+        aria-label="Close search"
+      >
+        <lucide-angular [img]="closeSearchIcon" aria-hidden="true" />
+      </button>
     </div>
-  }
-  @else {
+  } @else {
     <div class="contact-block">
       @if (showBackButton) {
         <button
@@ -47,7 +92,7 @@
           aria-label="Back to chat list"
           (click)="back.emit()"
         >
-          &lt;
+          <lucide-angular [img]="backIcon" aria-hidden="true" />
         </button>
       }
 
@@ -62,16 +107,17 @@
       <button
         type="button"
         class="icon-button"
-        (click)="openSearch();"
+        (click)="openSearch()"
         aria-label="Search conversation"
       >
-        <span class="search-icon" aria-hidden="true"></span>
+        <lucide-angular [img]="searchIcon" class="search-icon" aria-hidden="true" />
       </button>
-        <app-menu
-          [menuIcon]="menuIcon"
-          [items]="menuItems"
-          (itemSelected)="onMenuItemSelected($event)"
-        ></app-menu>
+      <app-menu
+        class ="chat-menu"
+        [menuIcon]="menuIcon"
+        [items]="menuItems"
+        (itemSelected)="onMenuItemSelected($event)"
+      ></app-menu>
     </div>
   }
 </header>

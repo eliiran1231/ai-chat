@@ -4,8 +4,10 @@ import { Answer } from "./Answer";
 import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
+import { Uuid } from "../interfaces/db/Uuid";
 
 export class Supporter{
+    public id!: Uuid;
     private chat!: Chat;
     private agent: Agent | undefined;
     public readonly onMessageAdded = new Subject<Message>();
@@ -14,7 +16,7 @@ export class Supporter{
     public expects: "message" | "question" | "answer" = "question";
     private _context: any; 
     public name = "Supporter";
-    public id?: number;
+    
     get context(){
         return this._context;
     }
@@ -46,11 +48,12 @@ export class Supporter{
         await this.agent.respond();
     }
     setAgent(agent: Agent){
+        this.agent?.onDestroy();
         this.agent = agent;
         this.agent.init(this.chat, this);
         this.onAgentSwitch.next(agent);
     }
-    setContext(context: string){
+    setContext(context: any){
         this._context = context;
         this.onContextChange.next(context);
     }
@@ -59,6 +62,7 @@ export class Supporter{
     }
     private appendMessage(message: Message){
         message.from = "supporter";
+        message.setChat(this.chat);
         this.chat.messages.push(message);
         if(!this.chat.active) this.chat.unreadCount++;
         else message.isRead = true;

@@ -1,4 +1,6 @@
+import type { Uuid } from './Uuid';
+
 export interface UpdateChatTitleInput {
-  chatId: number;
+  chatId: Uuid;
   name: string;
 }

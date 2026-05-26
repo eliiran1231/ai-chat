@@ -10,7 +10,6 @@ export class MockAgent extends Agent {
     }
     override init(chat: Chat, supporter: Supporter) {
         super.init(chat, supporter);
-        this.lastQuestion = undefined;
         if (!this.chat.messages.find(msg => msg.tag == "greeting")) {
             this
             const possibleAnswers = ["hi", "hello", "hey"];

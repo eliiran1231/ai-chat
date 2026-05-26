@@ -47,6 +47,19 @@
   font-size: 1rem;
 }
 
+.composer-action--icon,
+.send-button {
+  display: grid;
+  place-items: center;
+}
+
+.composer-action--icon lucide-angular,
+.send-button lucide-angular {
+  width: 1.15rem;
+  height: 1.15rem;
+  stroke-width: 2.2;
+}
+
 .composer-field {
   display: block;
   min-width: 0;
@@ -107,6 +120,10 @@
   --composer-send-text: #ffffff;
 }
 
+.chat-composer--compact {
+  grid-template-columns: 1fr auto;
+}
+
 .chat-composer--dark {
   --composer-accent: linear-gradient(180deg, #2dcf73, #179e55);
   --composer-accent-shadow: rgba(0, 0, 0, 0.3);
@@ -124,6 +141,10 @@
 @media (max-width: 780px) {
   .chat-composer {
     grid-template-columns: auto 1fr auto;
+  }
+
+  .chat-composer--compact {
+    grid-template-columns: 1fr auto;
   }
 
   .chat-composer .composer-action:nth-child(2) {

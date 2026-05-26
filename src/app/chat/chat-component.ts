@@ -6,13 +6,24 @@ import { ChatNavbarComponent } from '../chat-navbar-component/chat-navbar-compon
 import { MessageBubbleComponent } from '../message-bubble-component/message-bubble-component';
 import { Question } from '../../classes/Question';
 import { FilePreviewComponent } from "../file-preview-component/file-preview-component";
-import { MessageOptions } from '../../classes/Message';
+import { Message, MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
+import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
+import { AnswerSelectedEvent } from '../../classes/Client';
+import { Uuid } from '../../interfaces/db/Uuid';
 
 @Component({
   selector: 'app-chat',
-  imports: [MessageBubbleComponent, ChatInputComponent, FilePreviewComponent, ChatNavbarComponent, NgScrollbar, NgScrollReachDrop],
+  imports: [
+    MessageBubbleComponent,
+    ChatInputComponent,
+    FilePreviewComponent,
+    ChatNavbarComponent,
+    NgScrollbar,
+    NgScrollReachDrop,
+    LucideAngularModule
+  ],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
 })
@@ -21,24 +32,44 @@ export class ChatComponent {
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
   readonly SCROLLBAR_OFFSET = 40;
+  readonly scrollDownIcon = ChevronsDown;
   @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
   searchQuery = '';
-  matchingMessageIds: number[] = [];
+  matchingMessageIds: Uuid[] = [];
   activeSearchResultIndex = -1;
+  selectedMessage?: Message;
+  editingMessage?: Message;
+  editDraft = '';
   awayFromBottom = false;
+  isScrolling = false;
+
+  onScroll(): void {
+    if (!this.isScrolling) {
+      this.isScrolling = true;
+    }
+  }
+  onChatScrollEnd(): void {
+    this.isScrolling = false;
+  }
 
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
   sendMessage(messageValue: string, options?: MessageOptions): void {
+    if (this.editingMessage) {
+      this.editingMessage.edit(messageValue);
+      this.closeMessageOptions();
+      return;
+    }
+
     this.chat.supporter.expects == 'question' ?
       this.chat.user.ask(new Question(messageValue, options)) : 
       this.chat.user.answer(new Answer(messageValue, options));
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
-  selectAnswer(answer: Answer): void {
-    this.chat.user.answer(answer);
+  selectAnswer(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number): void {
+    this.chat.user.onAnswerSelected.next({ answer, associatedQuestion, associatedQuestionIndex });
     this.awayFromBottom = false;
   }
 
@@ -46,7 +77,7 @@ export class ChatComponent {
     this.attachmentFile = undefined;
   }
 
-  openPreviewPage(file: File){
+  openPreviewPage(file: File) {
     this.attachmentFile = file;
   }
 
@@ -61,8 +92,7 @@ export class ChatComponent {
 
     this.matchingMessageIds = this.chat.messages
       .filter((message) => message.value.toLocaleLowerCase().includes(normalizedQuery))
-      .map((message) => message.id)
-      .filter((messageId): messageId is number => messageId !== undefined);
+      .map((message) => message.id);
 
     this.activeSearchResultIndex = this.matchingMessageIds.length ? 0 : -1;
     this.scrollToActiveSearchResult();
@@ -74,17 +104,47 @@ export class ChatComponent {
     this.activeSearchResultIndex = -1;
   }
 
-  stepInSearch(steps: number = 1){
+  openMessageOptions(message: Message): void {
+    if (this.editingMessage) {
+      return;
+    }
+
+    this.selectedMessage = message;
+  }
+
+  closeMessageOptions(): void {
+    this.selectedMessage = undefined;
+    this.editingMessage = undefined;
+    this.editDraft = '';
+  }
+
+  editMessage(message: Message): void {
+    if (message.from === 'supporter' || !message.editable) {
+      return;
+    }
+
+    this.selectedMessage = message;
+    this.editingMessage = message;
+    this.editDraft = message.value;
+  }
+
+  deleteMessage(message: Message): void {
+    message.delete();
+    this.closeMessageOptions();
+  }
+
+  stepInSearch(steps: number = 1) {
     if (!this.matchingMessageIds.length) {
       return;
     }
 
-    this.activeSearchResultIndex = (this.activeSearchResultIndex + steps) % this.matchingMessageIds.length;
+    this.activeSearchResultIndex =
+      (this.activeSearchResultIndex + steps) % this.matchingMessageIds.length;
     this.scrollToActiveSearchResult();
   }
 
-  isActiveSearchMatch(messageId: number | undefined): boolean {
-    return this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
+  isActiveSearchMatch(messageId: Uuid): boolean {
+    return !!messageId && this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
   }
 
   private scrollToActiveSearchResult(): void {
@@ -102,18 +162,18 @@ export class ChatComponent {
     });
   }
 
-  showScrollButton(){
+  showScrollButton() {
     this.awayFromBottom = true;
   }
-  
-  hideScrollButton(){
+
+  hideScrollButton() {
     this.awayFromBottom = false;
   }
 
   scrollToBottom() {
     return this.scrollbar.scrollTo({
       bottom: 0,
-      duration: 0
+      duration: 0,
     });
   }
 }

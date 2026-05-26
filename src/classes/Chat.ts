@@ -1,6 +1,8 @@
+import { Subject } from 'rxjs';
 import { Message } from './Message';
 import { Supporter } from './Supporter';
 import { Client } from './Client';
+import { Uuid } from '../interfaces/db/Uuid';
 
 export type Avatar = {
   type: 'image' | 'text';
@@ -8,7 +10,7 @@ export type Avatar = {
 };
 
 export class Chat {
-  id: number;
+  id: Uuid;
   name: string;
   status: string;
   avatar: Avatar;
@@ -23,9 +25,11 @@ export class Chat {
   supporter: Supporter;
   user: Client;
   active: boolean = false;
+  public readonly onMessageEdited = new Subject<Message>();
+  public readonly onMessageDeleted = new Subject<Message>();
 
   constructor(
-    id: number,
+    id: Uuid,
     name: string,
     status: string,
     avatar: Avatar,
