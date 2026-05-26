@@ -32,7 +32,7 @@ describe('ChatInputComponent', () => {
 
   it('emits a trimmed message and clears the draft on submit', () => {
     const emittedMessages: string[] = [];
-    chat.draftMessage = '  hello world  ';
+    component.updateCaption('  hello world  ');
     component.messageSubmit.subscribe((message) => emittedMessages.push(message));
 
     component.submitMessage();

@@ -25,7 +25,7 @@ export class ChatListComponent {
     const chats = !query
       ? [...this.chats]
       : this.chats.filter((chat) => {
-          const lastMessage = this.lastMessageText(chat).toLowerCase();
+          const lastMessage = this.previewText(chat).toLowerCase();
           return (
             chat.name.toLowerCase().includes(query) ||
             chat.status.toLowerCase().includes(query) ||
@@ -54,6 +54,26 @@ export class ChatListComponent {
       '', 
       { ALLOWED_TAGS: [] }
     );
+  }
+
+  hasDraft(chat: Chat): boolean {
+    return !!chat.draftMessage.trim();
+  }
+
+  draftText(chat: Chat): string {
+    return chat.draftMessage.trim();
+  }
+
+  draftLabel(chat: Chat): string {
+    return 'Draft:';//todo: add hebrew support after marging with hebrew branch
+  }
+
+  previewText(chat: Chat): string {
+    if (this.hasDraft(chat)) {
+      return `${this.draftLabel(chat)} ${this.draftText(chat)}`;
+    }
+
+    return this.lastMessageText(chat);
   }
 
   lastMessageTime(chat: Chat): string {
