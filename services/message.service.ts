@@ -274,30 +274,19 @@ export class MessageService {
       deletable: Boolean(row.deletable),
       attachment: this.parseAttachmentColumn(row.attachment, 'attachment', row.id),
       possibleAnswers: this.parseStringArrayColumn(row.possible_answers, 'possible_answers', row.id),
-      validatorSpec: this.parseJsonColumn(row.validator_spec, 'validator_spec', row.id),
+      validatorSpec: this.db.parseJsonColumn(row.validator_spec, 'validator_spec', row.id),
       validationErrorMessage: row.validation_error_message ?? undefined,
     };
   }
 
-  private parseJsonColumn(value: string | null, fieldName: string, rowId: Uuid): unknown {
-    if (!value) {
-      return undefined;
-    }
-
-    try {
-      return JSON.parse(value);
-    } catch (error) {
-      console.warn(`Failed to parse ${fieldName} for message ${rowId}.`, error);
-      return undefined;
-    }
-  }
+  
 
   private parseStringArrayColumn(
     value: string | null,
     fieldName: string,
     rowId: Uuid,
   ): string[] | undefined {
-    const parsedValue = this.parseJsonColumn(value, fieldName, rowId);
+    const parsedValue = this.db.parseJsonColumn(value, fieldName, rowId);
     if (parsedValue === undefined) {
       return undefined;
     }
@@ -315,7 +304,7 @@ export class MessageService {
     fieldName: string,
     rowId: Uuid,
   ): AttachmentPayload | undefined {
-    const parsedValue = this.parseJsonColumn(value, fieldName, rowId);
+    const parsedValue = this.db.parseJsonColumn(value, fieldName, rowId);
     if (parsedValue === undefined) {
       return undefined;
     }

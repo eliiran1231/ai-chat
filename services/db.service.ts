@@ -6,6 +6,7 @@ export type SqlParameter = string | number | null;
 export type RunResult = { lastID: number; changes: number };
 
 const sqlite = sqlite3.verbose();
+type Uuid = string;
 
 export class DbService {
   private database?: sqlite3.Database;
@@ -13,6 +14,19 @@ export class DbService {
   close(): void {
     this.database?.close();
     this.database = undefined;
+  }
+
+  public parseJsonColumn(value: string | null, fieldName: string, rowId: Uuid) {
+    if (!value) {
+      return undefined;
+    }
+
+    try {
+      return JSON.parse(value);
+    } catch (error) {
+      console.warn(`Failed to parse ${fieldName} for message ${rowId}.`, error);
+      return undefined;
+    }
   }
 
   run(sql: string, params: SqlParameter[] = []): Promise<RunResult> {

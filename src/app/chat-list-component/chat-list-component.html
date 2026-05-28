@@ -21,12 +21,15 @@
         [class.chat-list-item--active]="selectedChat?.id === chat.id"
         (click)="onOpenChat(chat)"
       >
-        <div
-          class="chat-list-item__avatar-wrap"
-          [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing"
-        >
-          <div class="chat-list-item__avatar">{{ avatarFor(chat) }}</div>
+        <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing">
+        <div class="chat-list-item__avatar">
+          @if (chat.avatar.type === 'image') {
+            <img [src]="chat.avatar.value" alt="avatar" class="chat-list-item__avatar-img" />
+          } @else {
+            {{ chat.avatar.value }}
+          }
         </div>
+      </div>
         <div class="chat-list-item__content">
           <div class="chat-list-item__top">
             <strong>{{ chat.name }}</strong>

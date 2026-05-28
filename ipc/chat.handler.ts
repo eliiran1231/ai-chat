@@ -3,6 +3,7 @@ import type { IpcMainInvokeEvent } from 'electron';
 import {
   chatService,
   type ChatPayload,
+  type UpdateChatAvatarPayload,
   type UpdateChatTitlePayload,
 } from '../services/chat.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
@@ -30,6 +31,13 @@ export function registerChatHandlers(): void {
     'db:deleteChat',
     withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: Uuid) =>
       chatService.deleteChat(chatId),
+    ),
+  );
+  
+  ipcMain.handle(
+    'db:updateChatAvatar',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, payload: UpdateChatAvatarPayload) =>
+      chatService.updateChatAvatar(payload),
     ),
   );
 }

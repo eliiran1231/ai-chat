@@ -96,7 +96,13 @@
         </button>
       }
 
-      <div class="avatar" aria-hidden="true">{{ chat.avatar }}</div>
+      <div class="avatar" aria-hidden="true">
+        @if (chat.avatar.type === 'image') {
+          <img [src]="chat.avatar.value" alt="" class="avatar__image" />
+        } @else {
+          {{ chat.avatar.value }}
+        }
+      </div>
       <div class="contact-meta">
         <h1>{{ chat.name }}</h1>
         <p>{{ chat.status }}</p>

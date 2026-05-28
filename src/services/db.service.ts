@@ -6,6 +6,7 @@ import { CreateMessageRecordInput } from '../interfaces/db/CreateMessageRecordIn
 import { CreateSupporterRecordInput } from '../interfaces/db/CreateSupporterRecordInput';
 import { MessageRecord } from '../interfaces/db/MessageRecord';
 import { SupporterRecord } from '../interfaces/db/SupporterRecord';
+import { UpdateChatAvatarInput } from '../interfaces/db/UpdateChatAvatarInput';
 import { UpdateChatTitleInput } from '../interfaces/db/UpdateChatTitleInput';
 import { UpdateMessageInput } from '../interfaces/db/UpdateMessageInput';
 import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgentInput';
@@ -64,6 +65,10 @@ export class DbService {
 
   async updateChatTitle(input: UpdateChatTitleInput): Promise<ChatRecord> {
     return this.electronService.invoke<ChatRecord>('db:updateChatTitle', input);
+  }
+
+  async updateChatAvatar(input: UpdateChatAvatarInput): Promise<ChatRecord> {
+    return this.electronService.invoke<ChatRecord>('db:updateChatAvatar', input);
   }
 
   async updateSupporterAgent(input: UpdateSupporterAgentInput): Promise<boolean> {
