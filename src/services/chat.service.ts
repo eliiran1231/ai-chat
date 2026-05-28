@@ -114,11 +114,7 @@ export class ChatService {
       avatar,
     });
 
-    chat.updateAvatar(this.normalizeAvatar(record.avatar));
-  }
-
-  private normalizeAvatar(avatar: Avatar | string): Avatar {
-    return typeof avatar === 'string' ? { type: 'text', value: avatar } : avatar;
+    chat.updateAvatar(record.avatar);
   }
 
   hydrateChat(
@@ -137,7 +133,7 @@ export class ChatService {
     catch{
       supporter.setContext(supporterRecord?.context ?? '{}');
     }
-    const chat = new Chat(record.id, record.name, record.status, this.normalizeAvatar(record.avatar), supporter, {
+    const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {
       subtitle: record.subtitle,
       timeLabel: record.timeLabel,
       unreadCount: record.unreadCount,

@@ -5,7 +5,7 @@ export interface ChatRecord {
   id: Uuid;
   name: string;
   status: string;
-  avatar: Avatar | string;
+  avatar: Avatar;
   subtitle?: string;
   timeLabel?: string;
   unreadCount?: number;
