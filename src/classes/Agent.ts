@@ -81,6 +81,10 @@ export class Agent {
         //override to handle message deletions
     }
 
+    suggestAnswer(answer: string | Answer) {
+        this.supporter.suggestAnswer(answer);
+    }
+
     handleFile(file: File): string | Promise<string> {
         //override to handle file attachments
         return URL.createObjectURL(file);

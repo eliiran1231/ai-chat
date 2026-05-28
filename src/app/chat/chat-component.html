@@ -72,10 +72,11 @@
 
     <app-chat-input-component
       theme="light"
-      [chat]="chat"
-      [value]="editDraft"
+      [chat]="editingMessage ? undefined : chat"
+      [value]="composerValue"
       [placeholder]="editingMessage ? 'Edit message' : 'Type a message'"
       [allowAttachments]="!editingMessage"
+      (valueChange)="updateComposerValue($event)"
       (messageSubmit)="sendMessage($event)"
       (fileSubmit)="openPreviewPage($event)"
     ></app-chat-input-component>

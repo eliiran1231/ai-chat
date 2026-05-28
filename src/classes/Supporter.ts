@@ -40,6 +40,9 @@ export class Supporter{
         var msg = message instanceof Message ? message : new Message(message);
         this.appendMessage(msg);
     }
+    suggestAnswer(message: string | Answer) {
+        this.chat.draftMessage = message instanceof Answer ? message.value : message;
+    }
     async respond(){
         if(!this.agent) {
             console.error("no agent was set! please set an agent to respond to the client"); 

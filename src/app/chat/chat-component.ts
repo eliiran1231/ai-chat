@@ -65,7 +65,21 @@ export class ChatComponent {
     this.chat.supporter.expects == 'question' ?
       this.chat.user.ask(new Question(messageValue, options)) : 
       this.chat.user.answer(new Answer(messageValue, options));
+    this.chat.draftMessage = '';
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
+  }
+
+  get composerValue(): string {
+    return this.editingMessage ? this.editDraft : this.chat.draftMessage;
+  }
+
+  updateComposerValue(value: string): void {
+    if (this.editingMessage) {
+      this.editDraft = value;
+      return;
+    }
+
+    this.chat.draftMessage = value;
   }
 
   selectAnswer(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number): void {

@@ -16,8 +16,18 @@ ChatInputComponent {
   readonly attachIcon = Paperclip;
   readonly sendIcon = SendHorizontal;
   composerHasOverflow = false;
+  private activeChat?: Chat;
   @Input() theme: 'light' | 'dark' = 'light';
-  @Input() chat: Chat | undefined;
+  @Input() set chat(chat: Chat | undefined) {
+    const chatChanged = chat !== this.activeChat;
+    this.activeChat = chat;
+    if (chat && chatChanged) {
+      this.caption = chat.draftMessage;
+    }
+  }
+  get chat(): Chat | undefined {
+    return this.activeChat;
+  }
   @Input() requiredContent = true;
   @Input() set value(value: string) {
     this.caption = value;
@@ -26,11 +36,15 @@ ChatInputComponent {
   @Input() allowAttachments = true;
   @Output() messageSubmit = new EventEmitter<string>();
   @Output() fileSubmit = new EventEmitter<File>();
-  caption = ''
+  @Output() valueChange = new EventEmitter<string>();
+  caption = '';
 
   submitMessage(form?: NgForm): void {
     const trimmedMessage = this.caption.trim();
-    (!this.requiredContent || trimmedMessage) && this.messageSubmit.emit(trimmedMessage);
+    if (!this.requiredContent || trimmedMessage) {
+      this.messageSubmit.emit(trimmedMessage);
+      this.updateCaption('');
+    }
     this.composerHasOverflow = false;
     form?.resetForm({ message: '' });
   }
@@ -51,11 +65,18 @@ ChatInputComponent {
 
 
   handleComposerKeydown(event: KeyboardEvent): void {
-    if(this.chat) this.chat.draftMessage = this.caption; 
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
       event.preventDefault();
       (event.target as HTMLTextAreaElement).form?.requestSubmit();
     }
+  }
+
+  updateCaption(value: string): void {
+    this.caption = value;
+    if (this.chat) {
+      this.chat.draftMessage = value;
+    }
+    this.valueChange.emit(value);
   }
 
   syncComposerOverflow(autosize: CdkTextareaAutosize, textarea: HTMLTextAreaElement): void {
