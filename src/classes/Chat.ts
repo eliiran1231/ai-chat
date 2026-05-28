@@ -4,11 +4,16 @@ import { Supporter } from './Supporter';
 import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
 
+export type Avatar = {
+  type: 'image' | 'text';
+  value: string;
+};
+
 export class Chat {
   id: Uuid;
   name: string;
   status: string;
-  avatar: string;
+  avatar: Avatar;
   subtitle?: string;
   timeLabel?: string;
   unreadCount: number;
@@ -27,7 +32,7 @@ export class Chat {
     id: Uuid,
     name: string,
     status: string,
-    avatar: string,
+    avatar: Avatar,
     supporter: Supporter,
     options: {
       subtitle?: string;
@@ -59,6 +64,9 @@ export class Chat {
   }
   processFileUrl(file: File): string | Promise<string> {
     return this._processFileUrlDriver(file);
+  }
+  updateAvatar(avatar: Avatar) {
+    this.avatar = avatar;
   }
   setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
     this._processFileUrlDriver = processor;

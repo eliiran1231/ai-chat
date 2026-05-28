@@ -29,6 +29,10 @@ export class AiAgent extends Agent {
     const lastMessage = this.chat.messages.at(-1) as Message;
     this.aiService.sendMessage(lastMessage.value as string).subscribe((response) => {
       void this.chatService.setChatTitle(this.chat, response.model);
+      void this.chatService.updateChatAvatar(this.chat, {
+        type: 'text',
+        value: response.model.slice(0, 2).toUpperCase(),
+      });
       const aiMessage = response.choices[0].message.content;
       this.supporter.sendMessage(aiMessage);
     });

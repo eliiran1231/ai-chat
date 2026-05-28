@@ -37,12 +37,9 @@ export class ChatListComponent {
         });
 
     return chats.sort(
-      (a, b) => (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
+      (a, b) =>
+        (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
     );
-  }
-
-  avatarFor(chat: Chat): string {
-    return chat.avatar;
   }
 
   lastMessageText(chat: Chat): string {
@@ -51,12 +48,9 @@ export class ChatListComponent {
       return chat.subtitle || this.language.instant('chatList.startConversation');
     }
 
-    return DOMPurify.sanitize(
-      lastMessage.value || 
-      lastMessage.attachment?.name || 
-      '', 
-      { ALLOWED_TAGS: [] }
-    );
+    return DOMPurify.sanitize(lastMessage.value || lastMessage.attachment?.name || '', {
+      ALLOWED_TAGS: [],
+    });
   }
 
   lastMessageTime(chat: Chat): string {

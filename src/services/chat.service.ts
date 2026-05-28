@@ -4,7 +4,7 @@ import { Message } from '../classes/Message';
 import { coerceValidatorSpec } from '../classes/MessageValidator';
 import { Question, getPersistableValidationErrorMessage } from '../classes/Question';
 import { Supporter } from '../classes/Supporter';
-import { Chat } from '../classes/Chat';
+import { Avatar, Chat } from '../classes/Chat';
 import { Agent } from '../classes/Agent';
 import { AgentsService } from './agents.service';
 import { ChatRecord } from '../interfaces/db/ChatRecord';
@@ -38,7 +38,7 @@ export class ChatService {
     const record = await this.dbService.createChat({
       name,
       status,
-      avatar: name.slice(0, 2).toUpperCase(),
+      avatar: { type: 'text', value: name.slice(0, 2).toUpperCase() },
       subtitle: options.subtitle,
       timeLabel: options.timeLabel,
       unreadCount: options.unreadCount,
@@ -102,6 +102,19 @@ export class ChatService {
     });
 
     chat.name = record.name;
+  }
+
+  async updateChatAvatar(chat: Chat, avatar: Avatar): Promise<void> {
+    if (chat.avatar.type === avatar.type && chat.avatar.value === avatar.value) {
+      return;
+    }
+
+    const record = await this.dbService.updateChatAvatar({
+      chatId: chat.id,
+      avatar,
+    });
+
+    chat.updateAvatar(record.avatar);
   }
 
   hydrateChat(
