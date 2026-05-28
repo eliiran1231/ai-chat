@@ -1,0 +1,81 @@
+{
+  "app": {
+    "menu": "Menu",
+    "whatsappLogoAlt": "WhatsApp logo"
+  },
+  "tabs": {
+    "primarySections": "Primary sections",
+    "profile": "Profile",
+    "chats": "Chats",
+    "calls": "Calls"
+  },
+  "placeholder": {
+    "selectChatTitle": "Select a chat",
+    "selectChatBody": "Pick an existing conversation or create a new one from the sidebar."
+  },
+  "menu": {
+    "enterFullscreen": "Enter fullscreen",
+    "exitFullscreen": "Exit fullscreen"
+  },
+  "language": {
+    "english": "English",
+    "hebrew": "Hebrew"
+  },
+  "profile": {
+    "username": "User name",
+    "computerName": "Computer name",
+    "ipAddress": "IP address",
+    "languageLabel": "Language",
+    "currentLanguage": "Current language"
+  },
+  "chatList": {
+    "searchPlaceholder": "Search or start a new chat",
+    "empty": "No chats match your search.",
+    "newChat": "New chat",
+    "startConversation": "Start the conversation"
+  },
+  "chat": {
+    "newChatTitle": "New chat",
+    "onlineNow": "Online now",
+    "tapToStart": "Tap to start chatting",
+    "now": "now",
+    "noMessages": "No messages yet",
+    "scrollToBottom": "Scroll to bottom",
+    "typeMessage": "Type a message",
+    "editMessagePlaceholder": "Edit message",
+    "messageOptions": "Message options",
+    "backToConversation": "Back to conversation",
+    "back": "Back",
+    "editMessage": "Edit message",
+    "edit": "Edit",
+    "deleteMessage": "Delete message",
+    "delete": "Delete",
+    "searchNavigation": "Search navigation",
+    "previousMatch": "Previous match",
+    "nextMatch": "Next match",
+    "searchInChat": "Search in chat",
+    "closeSearch": "Close search",
+    "backToChatList": "Back to chat list",
+    "actions": "Chat actions",
+    "searchConversation": "Search conversation",
+    "actionsMenu": "Chat actions menu",
+    "deleteChat": "Delete chat"
+  },
+  "composer": {
+    "attachFile": "Attach file",
+    "emoji": "Emoji",
+    "sendMessage": "Send message"
+  },
+  "message": {
+    "openOptions": "Open message options",
+    "optionsTitle": "Message options",
+    "openAttachment": "Open attachment",
+    "edited": "edited"
+  },
+  "filePreview": {
+    "close": "Close file preview",
+    "size": "Size",
+    "type": "Type",
+    "loading": "Loading..."
+  }
+}

@@ -8,6 +8,7 @@ import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
 import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AiAgent } from '../../agents/AiAgent/AiAgent';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
 import { LanguageService } from '../../services/language.service';
@@ -21,6 +22,7 @@ import { LanguageService } from '../../services/language.service';
     ChatListComponent,
     ProfileComponent,
     CommonModule,
+    TranslatePipe,
   ],
   templateUrl: './home-component.html',
   styleUrl: './home-component.scss',
@@ -137,12 +139,12 @@ export class HomeComponent implements OnInit {
     const chatNumber = this.chats.length + 1;
     this.pendingCreateChat = (async () => {
       const chat = await this.chatService.createChat(
-        `${this.language.t('chat.newChatTitle')} ${chatNumber}`,
-        this.language.t('chat.onlineNow'),
+        `${this.language.instant('chat.newChatTitle')} ${chatNumber}`,
+        this.language.instant('chat.onlineNow'),
         initialAgent,
         {
-          subtitle: this.language.t('chat.tapToStart'),
-          timeLabel: this.language.t('chat.now'),
+          subtitle: this.language.instant('chat.tapToStart'),
+          timeLabel: this.language.instant('chat.now'),
         },
       );
       this.chats = [...this.chats, chat];

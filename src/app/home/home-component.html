@@ -7,7 +7,7 @@
             <img
               class="brand-title__logo"
               [src]="whatsappLogoUrl"
-              [alt]="language.t('app.whatsappLogoAlt')"
+              [alt]="'app.whatsappLogoAlt' | translate"
             />
           }
           <h1>WhatsApp</h1>
@@ -21,14 +21,14 @@
         ></app-sidebar-menu>
       </div>
 
-      <nav class="top-tabs" [attr.aria-label]="language.t('tabs.primarySections')">
+      <nav class="top-tabs" [attr.aria-label]="'tabs.primarySections' | translate">
         <button
           type="button"
           class="top-tab"
           [class.top-tab--active]="selectedTab === 'profile'"
           (click)="selectedTab = 'profile'"
         >
-          {{ language.t('tabs.profile') }}
+          {{ 'tabs.profile' | translate }}
         </button>
         <button
           type="button"
@@ -36,7 +36,7 @@
           [class.top-tab--active]="selectedTab === 'chats'"
           (click)="selectedTab = 'chats'"
         >
-          {{ language.t('tabs.chats') }}
+          {{ 'tabs.chats' | translate }}
           @if (unreadChatsCount > 0) {
             <span class="top-tab__badge">{{ unreadChatsCount }}</span>
           }
@@ -47,7 +47,7 @@
           [class.top-tab--active]="selectedTab === 'calls'"
           (click)="selectedTab = 'calls'"
         >
-          {{ language.t('tabs.calls') }}
+          {{ 'tabs.calls' | translate }}
         </button>
       </nav>
     </header>
@@ -78,8 +78,8 @@
       <section class="chat-placeholder">
         <div class="chat-placeholder__card">
           <div class="chat-placeholder__icon">WA</div>
-          <h2>{{ language.t('placeholder.selectChatTitle') }}</h2>
-          <p>{{ language.t('placeholder.selectChatBody') }}</p>
+          <h2>{{ 'placeholder.selectChatTitle' | translate }}</h2>
+          <p>{{ 'placeholder.selectChatBody' | translate }}</p>
         </div>
       </section>
     }

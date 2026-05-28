@@ -8,7 +8,7 @@
         name="chat-search"
         [ngModel]="searchTerm"
         (ngModelChange)="onSearchTermChange($event)"
-        [placeholder]="language.t('chatList.searchPlaceholder')"
+        [placeholder]="'chatList.searchPlaceholder' | translate"
       />
     </label>
   </div>
@@ -46,7 +46,7 @@
       </button>
     } @empty {
       <div class="chat-list-empty">
-        <p>{{ language.t('chatList.empty') }}</p>
+        <p>{{ 'chatList.empty' | translate }}</p>
       </div>
     }
   </div>
@@ -54,7 +54,7 @@
 <button
   type="button"
   class="floating-compose"
-  [attr.aria-label]="language.t('chatList.newChat')"
+  [attr.aria-label]="'chatList.newChat' | translate"
   (click)="onCreateChat()"
 >
   <lucide-angular [img]="composeIcon" aria-hidden="true" />

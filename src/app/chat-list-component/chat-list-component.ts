@@ -1,12 +1,13 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, SquarePen } from 'lucide-angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
 import { LanguageService } from '../../services/language.service';
 @Component({
   selector: 'app-chat-list-component',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './chat-list-component.html',
   styleUrl: './chat-list-component.scss',
 })
@@ -47,7 +48,7 @@ export class ChatListComponent {
   lastMessageText(chat: Chat): string {
     const lastMessage = chat.messages.at(-1);
     if (!lastMessage) {
-      return chat.subtitle || this.language.t('chatList.startConversation');
+      return chat.subtitle || this.language.instant('chatList.startConversation');
     }
 
     return DOMPurify.sanitize(

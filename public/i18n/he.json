@@ -1,0 +1,81 @@
+{
+  "app": {
+    "menu": "תפריט",
+    "whatsappLogoAlt": "לוגו WhatsApp"
+  },
+  "tabs": {
+    "primarySections": "אזורים ראשיים",
+    "profile": "פרופיל",
+    "chats": "צ׳אטים",
+    "calls": "שיחות"
+  },
+  "placeholder": {
+    "selectChatTitle": "בחרו צ׳אט",
+    "selectChatBody": "בחרו שיחה קיימת או צרו שיחה חדשה מהסרגל הצדדי."
+  },
+  "menu": {
+    "enterFullscreen": "כניסה למסך מלא",
+    "exitFullscreen": "יציאה ממסך מלא"
+  },
+  "language": {
+    "english": "אנגלית",
+    "hebrew": "עברית"
+  },
+  "profile": {
+    "username": "שם משתמש",
+    "computerName": "שם מחשב",
+    "ipAddress": "כתובת IP",
+    "languageLabel": "שפה",
+    "currentLanguage": "השפה הנוכחית"
+  },
+  "chatList": {
+    "searchPlaceholder": "חיפוש או התחלת צ׳אט חדש",
+    "empty": "לא נמצאו צ׳אטים שתואמים לחיפוש.",
+    "newChat": "צ׳אט חדש",
+    "startConversation": "התחילו את השיחה"
+  },
+  "chat": {
+    "newChatTitle": "צ׳אט חדש",
+    "onlineNow": "מחובר עכשיו",
+    "tapToStart": "הקישו כדי להתחיל לצ׳וטט",
+    "now": "עכשיו",
+    "noMessages": "אין הודעות עדיין",
+    "scrollToBottom": "גלילה לתחתית",
+    "typeMessage": "הקלידו הודעה",
+    "editMessagePlaceholder": "עריכת הודעה",
+    "messageOptions": "אפשרויות הודעה",
+    "backToConversation": "חזרה לשיחה",
+    "back": "חזרה",
+    "editMessage": "עריכת הודעה",
+    "edit": "עריכה",
+    "deleteMessage": "מחיקת הודעה",
+    "delete": "מחיקה",
+    "searchNavigation": "ניווט בחיפוש",
+    "previousMatch": "תוצאה קודמת",
+    "nextMatch": "תוצאה הבאה",
+    "searchInChat": "חיפוש בצ׳אט",
+    "closeSearch": "סגירת החיפוש",
+    "backToChatList": "חזרה לרשימת הצ׳אטים",
+    "actions": "פעולות צ׳אט",
+    "searchConversation": "חיפוש בשיחה",
+    "actionsMenu": "תפריט פעולות צ׳אט",
+    "deleteChat": "מחיקת צ׳אט"
+  },
+  "composer": {
+    "attachFile": "צירוף קובץ",
+    "emoji": "אימוג׳י",
+    "sendMessage": "שליחת הודעה"
+  },
+  "message": {
+    "openOptions": "פתיחת אפשרויות הודעה",
+    "optionsTitle": "אפשרויות הודעה",
+    "openAttachment": "פתיחת קובץ מצורף",
+    "edited": "נערכה"
+  },
+  "filePreview": {
+    "close": "סגירת תצוגת הקובץ",
+    "size": "גודל",
+    "type": "סוג",
+    "loading": "טוען..."
+  }
+}

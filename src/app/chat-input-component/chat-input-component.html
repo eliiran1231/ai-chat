@@ -11,11 +11,11 @@
       (click)="pickFile()"
       type="button"
       class="composer-action composer-action--icon"
-      [attr.aria-label]="language.t('composer.attachFile')"
+      [attr.aria-label]="'composer.attachFile' | translate"
     >
       <lucide-angular [img]="attachIcon" aria-hidden="true" />
     </button>
-    <button type="button" class="composer-action" [attr.aria-label]="language.t('composer.emoji')">:)</button>
+    <button type="button" class="composer-action" [attr.aria-label]="'composer.emoji' | translate">:)</button>
   }
 
   <label class="composer-field" for="message-input">
@@ -41,7 +41,7 @@
   <button
     type="submit"
     class="send-button"
-    [attr.aria-label]="language.t('composer.sendMessage')"
+    [attr.aria-label]="'composer.sendMessage' | translate"
     [disabled]="requiredContent && !caption.trim()"
   >
     <lucide-angular [img]="sendIcon" aria-hidden="true" />

@@ -1,11 +1,11 @@
 <header class="chat-navbar">
   @if (messageOptionsMode) {
-    <div class="message-options-mode" [attr.aria-label]="language.t('chat.messageOptions')">
+    <div class="message-options-mode" [attr.aria-label]="'chat.messageOptions' | translate">
       <button
         type="button"
         class="back-button"
-        [attr.aria-label]="language.t('chat.backToConversation')"
-        [title]="language.t('chat.back')"
+        [attr.aria-label]="'chat.backToConversation' | translate"
+        [title]="'chat.back' | translate"
         (click)="messageOptionsClosed.emit()"
       >
         <lucide-angular [img]="backIcon" aria-hidden="true" />
@@ -17,8 +17,8 @@
         <button
           type="button"
           class="icon-button"
-          [attr.aria-label]="language.t('chat.editMessage')"
-          [title]="language.t('chat.edit')"
+          [attr.aria-label]="'chat.editMessage' | translate"
+          [title]="'chat.edit' | translate"
           [disabled]="!canEditSelectedMessage"
           (click)="canEditSelectedMessage && selectedMessage && editMessage.emit(selectedMessage)"
         >
@@ -29,8 +29,8 @@
         <button
           type="button"
           class="icon-button icon-button--danger"
-          [attr.aria-label]="language.t('chat.deleteMessage')"
-          [title]="language.t('chat.delete')"
+          [attr.aria-label]="'chat.deleteMessage' | translate"
+          [title]="'chat.delete' | translate"
           [disabled]="!selectedMessage?.deletable"
           (click)="selectedMessage && deleteMessage.emit(selectedMessage)"
         >
@@ -43,13 +43,13 @@
       <div class="search-result-count" [class.search-result-count--empty]="!hasResults">
         {{ currentResultLabel }}
       </div>
-      <div class="search-navigation" [attr.aria-label]="language.t('chat.searchNavigation')">
+      <div class="search-navigation" [attr.aria-label]="'chat.searchNavigation' | translate">
         <button
           type="button"
           class="search-nav-button"
           [disabled]="!hasResults"
           (click)="previousMatch.emit()"
-          [attr.aria-label]="language.t('chat.previousMatch')"
+          [attr.aria-label]="'chat.previousMatch' | translate"
         >
           <lucide-angular [img]="previousMatchIcon" aria-hidden="true" />
         </button>
@@ -58,7 +58,7 @@
           class="search-nav-button"
           [disabled]="!hasResults"
           (click)="nextMatch.emit()"
-          [attr.aria-label]="language.t('chat.nextMatch')"
+          [attr.aria-label]="'chat.nextMatch' | translate"
         >
           <lucide-angular [img]="nextMatchIcon" aria-hidden="true" />
         </button>
@@ -70,15 +70,15 @@
           (input)="updateSearch($any($event.target).value)"
           (keydown)="onSearchKeydown($event)"
           type="text"
-          [placeholder]="language.t('chat.searchInChat')"
-          [attr.aria-label]="language.t('chat.searchInChat')"
+          [placeholder]="'chat.searchInChat' | translate"
+          [attr.aria-label]="'chat.searchInChat' | translate"
         />
       </div>
       <button
         type="button"
         class="search-close-button"
         (click)="closeSearch()"
-        [attr.aria-label]="language.t('chat.closeSearch')"
+        [attr.aria-label]="'chat.closeSearch' | translate"
       >
         <lucide-angular [img]="closeSearchIcon" aria-hidden="true" />
       </button>
@@ -89,7 +89,7 @@
         <button
           type="button"
           class="back-button"
-          [attr.aria-label]="language.t('chat.backToChatList')"
+          [attr.aria-label]="'chat.backToChatList' | translate"
           (click)="back.emit()"
         >
           <lucide-angular [img]="backIcon" aria-hidden="true" />
@@ -103,12 +103,12 @@
       </div>
     </div>
 
-    <div class="navbar-actions" [attr.aria-label]="language.t('chat.actions')">
+    <div class="navbar-actions" [attr.aria-label]="'chat.actions' | translate">
       <button
         type="button"
         class="icon-button"
         (click)="openSearch()"
-        [attr.aria-label]="language.t('chat.searchConversation')"
+        [attr.aria-label]="'chat.searchConversation' | translate"
       >
         <lucide-angular [img]="searchIcon" class="search-icon" aria-hidden="true" />
       </button>
@@ -116,7 +116,7 @@
         class ="chat-menu"
         [menuIcon]="menuIcon"
         [items]="menuItems"
-        [ariaLabel]="language.t('chat.actionsMenu')"
+        [ariaLabel]="'chat.actionsMenu' | translate"
         (itemSelected)="onMenuItemSelected($event)"
       ></app-menu>
     </div>

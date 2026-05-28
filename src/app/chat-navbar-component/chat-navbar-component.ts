@@ -15,11 +15,12 @@ import {
   Trash2,
   X,
 } from 'lucide-angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-chat-navbar-component',
-  imports: [AppMenu, LucideAngularModule],
+  imports: [AppMenu, LucideAngularModule, TranslatePipe],
   templateUrl: './chat-navbar-component.html',
   styleUrl: './chat-navbar-component.scss',
 })
@@ -70,7 +71,7 @@ export class ChatNavbarComponent {
     return [
       {
         id: 'delete-chat',
-        label: this.language.t('chat.deleteChat'),
+        label: this.language.instant('chat.deleteChat'),
         icon: this.deleteIcon,
         tone: 'danger',
       },

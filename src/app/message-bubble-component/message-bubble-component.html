@@ -18,8 +18,8 @@
         type="button"
         class="message-options-button"
         (click)="openMessageOptions($event)"
-        [attr.aria-label]="language.t('message.openOptions')"
-        [title]="language.t('message.optionsTitle')"
+        [attr.aria-label]="'message.openOptions' | translate"
+        [title]="'message.optionsTitle' | translate"
       >
         <lucide-angular [img]="optionsIcon" aria-hidden="true" />
       </button>
@@ -36,7 +36,7 @@
             [attr.download]="message.attachment.name + '.' + message.attachment.extension"
             target="_blank"
             rel="noopener noreferrer"
-            [attr.aria-label]="language.t('message.openAttachment') + ' ' + message.attachment.name"
+            [attr.aria-label]="('message.openAttachment' | translate) + ' ' + message.attachment.name"
           >
             <div class="message-file-card__content">
               <p class="message-file-card__name">
@@ -73,7 +73,7 @@
     <time class="message-time">
       {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
       @if (message.editedAt) {
-        <span class="message-edited-mark">({{ language.t('message.edited') }})</span>
+        <span class="message-edited-mark">({{ 'message.edited' | translate }})</span>
       }
     </time>
   </div>

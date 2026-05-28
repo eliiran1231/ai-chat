@@ -2,7 +2,7 @@
   <button
     type="button"
     class="close-button"
-    [attr.aria-label]="language.t('filePreview.close')"
+    [attr.aria-label]="'filePreview.close' | translate"
     (click)="closePreview()"
   >
     x
@@ -16,13 +16,13 @@
       @else {
         <div class="file-details">
           <h3 class="file-name">{{ fileInfo.name }}</h3>
-          <p class="file-size">{{ language.t('filePreview.size') }}: {{ fileInfo.size | filesize }}</p>
-          <p class="file-extension">{{ language.t('filePreview.type') }}: {{ fileInfo.extension }}</p>
+          <p class="file-size">{{ 'filePreview.size' | translate }}: {{ fileInfo.size | filesize }}</p>
+          <p class="file-extension">{{ 'filePreview.type' | translate }}: {{ fileInfo.extension }}</p>
         </div>
       }
     }
     @else {
-      <div id="loading-preview">{{ language.t('filePreview.loading') }}</div>
+      <div id="loading-preview">{{ 'filePreview.loading' | translate }}</div>
     }
   </div>
 

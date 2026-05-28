@@ -13,7 +13,7 @@
         <lucide-angular [img]="usernameIcon" />
       </div>
       <div class="profile-card__content">
-        <h2>{{ language.t('profile.username') }}</h2>
+        <h2>{{ 'profile.username' | translate }}</h2>
         <p>{{ username }}</p>
       </div>
     </article>
@@ -23,7 +23,7 @@
         <lucide-angular [img]="computerNameIcon" />
       </div>
       <div class="profile-card__content">
-        <h2>{{ language.t('profile.computerName') }}</h2>
+        <h2>{{ 'profile.computerName' | translate }}</h2>
         <p>{{ computerName }}</p>
       </div>
     </article>
@@ -33,7 +33,7 @@
         <lucide-angular [img]="ipIcon" />
       </div>
       <div class="profile-card__content">
-        <h2>{{ language.t('profile.ipAddress') }}</h2>
+        <h2>{{ 'profile.ipAddress' | translate }}</h2>
         <p>{{ ip }}</p>
       </div>
     </article>
@@ -47,12 +47,12 @@
           type="button"
           class="language-trigger"
           [attr.aria-expanded]="isLanguagePickerOpen"
-          [attr.aria-label]="language.t('profile.languageLabel') + ': ' + currentLanguageLabel"
+          [attr.aria-label]="('profile.languageLabel' | translate) + ': ' + (language.currentOption.labelKey | translate)"
           (click)="toggleLanguagePicker()"
         >
           <span class="language-trigger__copy">
-            <span class="language-trigger__title">{{ language.t('profile.languageLabel') }}</span>
-            <span class="language-trigger__value">{{ currentLanguageLabel }}</span>
+            <span class="language-trigger__title">{{ 'profile.languageLabel' | translate }}</span>
+            <span class="language-trigger__value">{{ language.currentOption.labelKey | translate }}</span>
           </span>
 
           <lucide-angular
@@ -66,7 +66,7 @@
           <div
             class="language-options"
             role="radiogroup"
-            [attr.aria-label]="language.t('profile.languageLabel')"
+            [attr.aria-label]="'profile.languageLabel' | translate"
           >
             @for (option of language.languageOptions; track option.code) {
               <button
@@ -79,13 +79,13 @@
               >
                 <span>
                   <strong>{{ option.nativeLabel }}</strong>
-                  <small>{{ languageLabel(option.code) }}</small>
+                  <small>{{ option.labelKey | translate }}</small>
                 </span>
 
                 @if (language.language() === option.code) {
                   <span
                     class="language-option__check"
-                    [attr.aria-label]="language.t('profile.currentLanguage')"
+                    [attr.aria-label]="'profile.currentLanguage' | translate"
                   >
                     <lucide-angular [img]="checkIcon" aria-hidden="true" />
                   </span>

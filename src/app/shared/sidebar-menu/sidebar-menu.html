@@ -1,6 +1,6 @@
 <app-menu
   [menuIcon]="menuIcon"
   [items]="menuItems"
-  [ariaLabel]="language.t('app.menu')"
+  [ariaLabel]="'app.menu' | translate"
   (itemSelected)="onMenuItemSelected($event)"
 ></app-menu>

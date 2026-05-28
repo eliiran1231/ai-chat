@@ -9,11 +9,12 @@ import {
   Monitor,
   UserRound,
 } from 'lucide-angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ProfileService } from '../../services/profile.service';
 import { AppLanguage, LanguageService } from '../../services/language.service';
 @Component({
   selector: 'app-profile-component',
-  imports: [LucideAngularModule],
+  imports: [LucideAngularModule, TranslatePipe],
   templateUrl: './profile-component.html',
   styleUrl: './profile-component.scss',
 })
@@ -43,14 +44,6 @@ export class ProfileComponent {
 
   get ip(): string {
     return this.profileService.basicInfo.ip;
-  }
-
-  get currentLanguageLabel(): string {
-    return this.languageLabel(this.language.language());
-  }
-
-  languageLabel(code: AppLanguage): string {
-    return code === 'en' ? this.language.t('language.english') : this.language.t('language.hebrew');
   }
 
   toggleLanguagePicker(): void {
