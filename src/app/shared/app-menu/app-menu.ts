@@ -19,6 +19,7 @@ export interface AppMenuItem {
 export class AppMenu {
   @Input({ required: true }) menuIcon!: LucideIconData;
   @Input({ required: true }) items: AppMenuItem[] = [];
+  @Input() ariaLabel = 'Menu';
 
   @Output() itemSelected = new EventEmitter<string>();
 

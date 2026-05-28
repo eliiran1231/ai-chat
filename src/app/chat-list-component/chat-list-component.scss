@@ -60,7 +60,7 @@
   padding: 1rem 1rem 0.95rem;
   border: 0;
   background: #fff;
-  text-align: left;
+  text-align: start;
   cursor: pointer;
   position: relative;
 }
@@ -68,8 +68,8 @@
 .chat-list-item::after {
   content: '';
   position: absolute;
-  left: 5.4rem;
-  right: 0;
+  inset-inline-start: 5.4rem;
+  inset-inline-end: 0;
   bottom: 0;
   height: 1px;
   background: #eff1f2;
@@ -219,7 +219,7 @@
 
 .floating-compose {
   position: absolute;
-  right: 1rem;
+  inset-inline-end: 1rem;
   bottom: 2rem;//do not edit without also changing chat-list padding-bottom.
   width: 3rem;
   height: 3rem;//do not edit without also changing chat-list padding-bottom.

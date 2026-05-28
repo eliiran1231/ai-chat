@@ -4,7 +4,7 @@
       <div class="profile-avatar__head"></div>
       <div class="profile-avatar__body"></div>
     </div>
-    <h1>{{ profile.displayName }}</h1>
+    <h1>{{ displayName }}</h1>
   </div>
 
   <div class="profile-sections">
@@ -13,8 +13,8 @@
         <lucide-angular [img]="usernameIcon" />
       </div>
       <div class="profile-card__content">
-        <h2>{{ profile.usernameLabel }}</h2>
-        <p>{{ profile.usernameValue }}</p>
+        <h2>{{ 'profile.username' | translate }}</h2>
+        <p>{{ username }}</p>
       </div>
     </article>
 
@@ -23,8 +23,8 @@
         <lucide-angular [img]="computerNameIcon" />
       </div>
       <div class="profile-card__content">
-        <h2>{{ profile.computerNameLabel }}</h2>
-        <p>{{ profile.computerNameValue }}</p>
+        <h2>{{ 'profile.computerName' | translate }}</h2>
+        <p>{{ computerName }}</p>
       </div>
     </article>
 
@@ -33,8 +33,67 @@
         <lucide-angular [img]="ipIcon" />
       </div>
       <div class="profile-card__content">
-        <h2>{{ profile.ipLabel }}</h2>
-        <p>{{ profile.ipValue }}</p>
+        <h2>{{ 'profile.ipAddress' | translate }}</h2>
+        <p>{{ ip }}</p>
+      </div>
+    </article>
+
+    <article class="profile-card profile-card--language">
+      <div class="profile-card__icon" aria-hidden="true">
+        <lucide-angular [img]="languageIcon" />
+      </div>
+      <div class="profile-card__content">
+        <button
+          type="button"
+          class="language-trigger"
+          [attr.aria-expanded]="isLanguagePickerOpen"
+          [attr.aria-label]="('profile.languageLabel' | translate) + ': ' + (language.currentOption.labelKey | translate)"
+          (click)="toggleLanguagePicker()"
+        >
+          <span class="language-trigger__copy">
+            <span class="language-trigger__title">{{ 'profile.languageLabel' | translate }}</span>
+            <span class="language-trigger__value">{{ language.currentOption.labelKey | translate }}</span>
+          </span>
+
+          <lucide-angular
+            class="language-trigger__icon"
+            [img]="isLanguagePickerOpen ? collapseLanguageIcon : expandLanguageIcon"
+            aria-hidden="true"
+          />
+        </button>
+
+        @if (isLanguagePickerOpen) {
+          <div
+            class="language-options"
+            role="radiogroup"
+            [attr.aria-label]="'profile.languageLabel' | translate"
+          >
+            @for (option of language.languageOptions; track option.code) {
+              <button
+                type="button"
+                class="language-option"
+                role="radio"
+                [class.language-option--active]="language.language() === option.code"
+                [attr.aria-checked]="language.language() === option.code"
+                (click)="selectLanguage(option.code)"
+              >
+                <span>
+                  <strong>{{ option.nativeLabel }}</strong>
+                  <small>{{ option.labelKey | translate }}</small>
+                </span>
+
+                @if (language.language() === option.code) {
+                  <span
+                    class="language-option__check"
+                    [attr.aria-label]="'profile.currentLanguage' | translate"
+                  >
+                    <lucide-angular [img]="checkIcon" aria-hidden="true" />
+                  </span>
+                }
+              </button>
+            }
+          </div>
+        }
       </div>
     </article>
   </div>

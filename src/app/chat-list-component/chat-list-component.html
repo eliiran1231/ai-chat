@@ -8,7 +8,7 @@
         name="chat-search"
         [ngModel]="searchTerm"
         (ngModelChange)="onSearchTermChange($event)"
-        placeholder="Search or start a new chat"
+        [placeholder]="'chatList.searchPlaceholder' | translate"
       />
     </label>
   </div>
@@ -49,11 +49,16 @@
       </button>
     } @empty {
       <div class="chat-list-empty">
-        <p>No chats match your search.</p>
+        <p>{{ 'chatList.empty' | translate }}</p>
       </div>
     }
   </div>
 </div>
-<button type="button" class="floating-compose" aria-label="New chat" (click)="onCreateChat()">
+<button
+  type="button"
+  class="floating-compose"
+  [attr.aria-label]="'chatList.newChat' | translate"
+  (click)="onCreateChat()"
+>
   <lucide-angular [img]="composeIcon" aria-hidden="true" />
 </button>

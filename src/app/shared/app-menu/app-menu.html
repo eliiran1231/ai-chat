@@ -1,5 +1,10 @@
 <div class="app-menu">
-  <button type="button" class="app-menu__trigger" aria-label="Menu" [cdkMenuTriggerFor]="menu">
+  <button
+    type="button"
+    class="app-menu__trigger"
+    [attr.aria-label]="ariaLabel"
+    [cdkMenuTriggerFor]="menu"
+  >
     <lucide-angular [img]="menuIcon" class="app-menu__trigger-icon" />
   </button>
 
