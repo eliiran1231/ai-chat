@@ -115,7 +115,7 @@ export class MessageService {
           deletable
         FROM messages
         WHERE chat_id = ?
-        ORDER BY time ASC, id ASC
+        ORDER BY time ASC
       `,
       [chatId],
     );
@@ -273,13 +273,15 @@ export class MessageService {
       editable: Boolean(row.editable),
       deletable: Boolean(row.deletable),
       attachment: this.parseAttachmentColumn(row.attachment, 'attachment', row.id),
-      possibleAnswers: this.parseStringArrayColumn(row.possible_answers, 'possible_answers', row.id),
+      possibleAnswers: this.parseStringArrayColumn(
+        row.possible_answers,
+        'possible_answers',
+        row.id,
+      ),
       validatorSpec: this.db.parseJsonColumn(row.validator_spec, 'validator_spec', row.id),
       validationErrorMessage: row.validation_error_message ?? undefined,
     };
   }
-
-  
 
   private parseStringArrayColumn(
     value: string | null,
