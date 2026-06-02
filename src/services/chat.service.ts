@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Answer } from '../classes/Answer';
-import { Message } from '../classes/Message';
+import { Message, MessageOptions } from '../classes/Message';
 import { coerceValidatorSpec } from '../classes/MessageValidator';
-import { Question, getPersistableValidationErrorMessage } from '../classes/Question';
+import { Question, QuestionOptions, getPersistableValidationErrorMessage } from '../classes/Question';
 import { Supporter } from '../classes/Supporter';
 import { Avatar, Chat } from '../classes/Chat';
 import { Agent } from '../classes/Agent';
@@ -21,7 +21,7 @@ export class ChatService {
     private dbService: DbService,
     private agentsService: AgentsService,
   ) {}
-
+  private pendingCommits: Record<string, number> = {};
   async createChat(
     name: string,
     status: string,
@@ -152,43 +152,37 @@ export class ChatService {
     return chat;
   }
 
+  attachMessageChangeUpdates(target: Message, prop: string | Symbol, newValue: any){
+    clearTimeout(this.pendingCommits[target.id]);
+    this.pendingCommits[target.id] = setTimeout(async () => {
+        await this.dbService.commitMessage({
+        ...target, 
+        time: target.time.toISOString(),
+        editedAt: target.editedAt?.toISOString()
+      });
+      delete this.pendingCommits[target.id];
+    }, 500);
+  };
+
   private hydrateMessage(record: MessageRecord): Message {
     const messageType = record.messageType ?? 'message';
-    const {attachment, id} = record
-    const message = messageType === 'question'
-      ? this.hydrateQuestion(record)
-      : messageType === 'answer'
-        ? new Answer(record.value, {attachment, id})
-        : new Message(record.value, {attachment, id});
-    message.from = record.from;
-    message.tag = record.tag ?? 'general';
-    message.time = new Date(record.time);
-    message.editedAt = record.editedAt ? new Date(record.editedAt) : undefined;
-    message.isRead = record.isRead;
-    message.editable = record.editable;
-    message.deletable = record.deletable;
-    return message;
-  }
+    const options: MessageOptions = { 
+      ...record,
+      time: new Date(record.time),
+      editedAt: record.editedAt ? new Date(record.editedAt) : undefined,
+    };
 
-  private hydrateQuestion(record: MessageRecord): Question {
-    const question = new Question(record.value, {
-      attachment: record.attachment,
-      id: record.id,
-    });
-    question.from = record.from;
-    question.setPossibleAnswers(record.possibleAnswers ?? []);
-    const validatorSpec = coerceValidatorSpec(record.validatorSpec);
-    if (validatorSpec) {
-      question.setValidator(validatorSpec, record.validationErrorMessage);
-    } else if (record.validationErrorMessage) {
-      question.validationErrorMessage = record.validationErrorMessage;
-    }
-    return question;
+    const message = messageType === 'question'
+      ? new Question(record.value, options)
+      : messageType === 'answer'
+        ? new Answer(record.value, options)
+        : new Message(record.value, options);
+      message.onChanges = this.attachMessageChangeUpdates.bind(this);
+    return message;
   }
 
   private attachMessagePersistence(chat: Chat): void {
     const pendingMessagePersists = new WeakMap<Message, Promise<void>>();
-
     const persistMessage = async (message: Message) => {
       const messageType = message instanceof Answer ? "answer" : message instanceof Question ? "question" : "message";
       const record = await this.dbService.createMessage({
@@ -220,6 +214,7 @@ export class ChatService {
       message.isRead = record.isRead;
       message.editable = record.editable;
       message.deletable = record.deletable;
+      message.onChanges = this.attachMessageChangeUpdates.bind(this);
     };
 
     const persistMessageEdit = async (message: Message) => {

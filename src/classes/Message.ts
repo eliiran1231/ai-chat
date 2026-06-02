@@ -1,5 +1,7 @@
 import { Chat } from "./Chat";
 import { Uuid } from "../interfaces/db/Uuid";
+import { repeat, Subject } from "rxjs";
+import { createDbProxy } from "../utils/DBProxy";
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
@@ -16,6 +18,10 @@ export type MessageOptions = {
     attachment?: Attachment,
     editable?: boolean,
     deletable?: boolean,
+    time?: Date,
+    from?: MessageSender,
+    isRead?: boolean,
+    editedAt?: Date
 }
 
 export class Message {
@@ -29,6 +35,7 @@ export class Message {
     attachment?: Attachment;
     editable: boolean;
     deletable: boolean;
+    onChanges = (target: Message, prop: string | Symbol, newValue: any)=>{};
     private _chat?: Chat;
 
     setChat(chat: Chat) {
@@ -42,6 +49,7 @@ export class Message {
         this.editable = options?.editable ?? true;
         this.deletable = options?.deletable ?? true;
         this.tag = options?.tag ?? 'general';
+        return createDbProxy(this);
     }
 
     edit(newValue: string): void {
@@ -57,4 +65,6 @@ export class Message {
         const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
         index >= 0 && this._chat.messages.splice(index, 1);
     }
+
+
 }
