@@ -61,6 +61,10 @@ export class Message extends DBEntity {
         this._chat.onMessageEdited.next(this);
     }
 
+    setAttachment(attachment?: Attachment): void {
+        this.attachment = attachment;
+    }
+
     delete(): void {
         if (!this.deletable || !this._chat) return;
         this._chat.onMessageDeleted.next(this);

@@ -14,7 +14,6 @@ export class Chat extends DBEntity {
   id: Uuid;
   name: string;
   status: string;
-  avatar: Avatar;
   subtitle?: string;
   timeLabel?: string;
   unreadCount: number;
@@ -26,8 +25,13 @@ export class Chat extends DBEntity {
   supporter: Supporter;
   user: Client;
   active: boolean = false;
+  private _avatar: Avatar;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
+
+  get avatar(): Readonly<Avatar> {
+    return this._avatar;
+  }
 
   constructor(
     id: Uuid,
@@ -48,7 +52,7 @@ export class Chat extends DBEntity {
     this.id = id;
     this.name = name;
     this.status = status;
-    this.avatar = avatar;
+    this._avatar = avatar;
     this.messages = []
     this.supporter = supporter;
     this.supporter.setChat(this);
@@ -69,7 +73,8 @@ export class Chat extends DBEntity {
     return this._processFileUrlDriver(file);
   }
   updateAvatar(avatar: Avatar) {
-    this.avatar = avatar;
+    this._avatar = avatar;
+    this.saveChanges();
   }
   setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
     this._processFileUrlDriver = processor;
