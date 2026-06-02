@@ -35,6 +35,19 @@ export interface ChatPayload {
   tipLabel?: string | null;
 }
 
+export interface CommitChatPayload {
+  id: Uuid;
+  name: string;
+  status: string;
+  avatar: AvatarPayload;
+  subtitle?: string | null;
+  timeLabel?: string | null;
+  unreadCount: number;
+  highlightTime?: boolean;
+  avatarRing?: boolean;
+  tipLabel?: string | null;
+}
+
 export interface UpdateChatTitlePayload {
   chatId: Uuid;
   name: string;
@@ -152,6 +165,41 @@ export class ChatService {
     }
 
     return this.mapChatRow(row);
+  }
+
+  async commitChat(chat: CommitChatPayload): Promise<boolean> {
+    const now = new Date().toISOString();
+    const result = await this.db.run(
+      `
+        UPDATE chats
+        SET name = ?,
+            status = ?,
+            avatar = ?,
+            subtitle = ?,
+            time_label = ?,
+            unread_count = ?,
+            highlight_time = ?,
+            avatar_ring = ?,
+            tip_label = ?,
+            updated_at = ?
+        WHERE id = ?
+      `,
+      [
+        chat.name,
+        chat.status,
+        JSON.stringify(chat.avatar),
+        chat.subtitle ?? null,
+        chat.timeLabel ?? null,
+        chat.unreadCount,
+        chat.highlightTime ? 1 : 0,
+        chat.avatarRing ? 1 : 0,
+        chat.tipLabel ?? null,
+        now,
+        chat.id,
+      ],
+    );
+
+    return result.changes > 0;
   }
 
   public parseAvatarColumn(value: string | null, rowId: Uuid) {

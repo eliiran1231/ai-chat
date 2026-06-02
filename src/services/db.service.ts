@@ -13,6 +13,7 @@ import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgent
 import { UpdateSupporterContextInput } from '../interfaces/db/UpdateSupporterContextInput';
 import { Uuid } from '../interfaces/db/Uuid';
 import { CommitMessageInput } from '../interfaces/db/CommitMessageInput';
+import { CommitChatInput } from '../interfaces/db/CommitChatInput';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +35,10 @@ export class DbService {
 
   async deleteChat(chatId: Uuid): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:deleteChat', chatId);
+  }
+
+  async commitChat(chat: CommitChatInput): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:commitChat', chat);
   }
 
   async getChatMessages(chatId: Uuid): Promise<MessageRecord[]> {

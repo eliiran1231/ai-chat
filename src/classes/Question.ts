@@ -38,6 +38,7 @@ export class Question extends Message {
         if (options?.possibleAnswers) {
             this.setPossibleAnswers(options.possibleAnswers);
         }
+        this.enableDbChanges();
     }
 
     setValidator(validator: RegExp | ValidatorSpec, validationErrorMessage?: string | Message) {

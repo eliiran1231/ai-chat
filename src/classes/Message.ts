@@ -1,7 +1,6 @@
 import { Chat } from "./Chat";
 import { Uuid } from "../interfaces/db/Uuid";
-import { repeat, Subject } from "rxjs";
-import { createDbProxy } from "../utils/DBProxy";
+import { DBEntity } from "./DBEntity";
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
@@ -24,7 +23,7 @@ export type MessageOptions = {
     editedAt?: Date
 }
 
-export class Message {
+export class Message extends DBEntity {
     id!: Uuid;
     from?: MessageSender;
     time: Date;
@@ -35,7 +34,6 @@ export class Message {
     attachment?: Attachment;
     editable: boolean;
     deletable: boolean;
-    onChanges = (target: Message, prop: string | Symbol, newValue: any)=>{};
     private _chat?: Chat;
 
     setChat(chat: Chat) {
@@ -43,6 +41,7 @@ export class Message {
     }
 
     constructor(value: string, options?: MessageOptions) {
+        super();
         this.value = value;
         this.attachment = options?.attachment;
         if (options?.id) this.id = options.id;
@@ -52,7 +51,7 @@ export class Message {
         this.from = options?.from;
         this.time = options?.time ?? new Date();
         this.isRead = options?.isRead ?? false;
-        return createDbProxy(this);
+        if (new.target === Message) this.enableDbChanges();
     }
 
     edit(newValue: string): void {
@@ -68,6 +67,4 @@ export class Message {
         const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
         index >= 0 && this._chat.messages.splice(index, 1);
     }
-
-
 }

@@ -74,8 +74,8 @@ export class MockAgent extends Agent {
     override async respond(): Promise<void> {
         super.respond();
         if (!this.lastQuestion) return;
-
-        if (this.lastMessage instanceof Question) {
+        if (this.lastMessage instanceof Question) {        
+            this.chat.name = "Agent Smith " + Math.floor(Math.random() * 1000);
             this.supporter.sendMessage("a supporter will get back to you on that");
             return;
         }

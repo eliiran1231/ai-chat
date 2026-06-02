@@ -21,7 +21,8 @@ export class ChatService {
     private dbService: DbService,
     private agentsService: AgentsService,
   ) {}
-  private pendingCommits: Record<string, number> = {};
+  private pendingMessageCommits: Record<string, number> = {};
+  private pendingChatCommits: Record<string, number> = {};
   async createChat(
     name: string,
     status: string,
@@ -96,12 +97,7 @@ export class ChatService {
       return;
     }
 
-    const record = await this.dbService.updateChatTitle({
-      chatId: chat.id,
-      name: trimmedTitle,
-    });
-
-    chat.name = record.name;
+    chat.name = trimmedTitle;
   }
 
   async updateChatAvatar(chat: Chat, avatar: Avatar): Promise<void> {
@@ -109,12 +105,7 @@ export class ChatService {
       return;
     }
 
-    const record = await this.dbService.updateChatAvatar({
-      chatId: chat.id,
-      avatar,
-    });
-
-    chat.updateAvatar(record.avatar);
+    chat.updateAvatar(avatar);
   }
 
   hydrateChat(
@@ -141,6 +132,7 @@ export class ChatService {
       avatarRing: record.avatarRing,
       tipLabel: record.tipLabel,
     });
+    chat.onChanges = this.attachChatChangeUpdates.bind(this);
     for (const messageRecord of messageRecords) {
       const message = this.hydrateMessage(messageRecord);
       message.setChat(chat);
@@ -152,9 +144,44 @@ export class ChatService {
     return chat;
   }
 
+  attachChatChangeUpdates(target: Chat, prop: string | Symbol, newValue: any) {
+    const persistableFields = new Set<string | Symbol>([
+      'name',
+      'status',
+      'avatar',
+      'subtitle',
+      'timeLabel',
+      'unreadCount',
+      'highlightTime',
+      'avatarRing',
+      'tipLabel',
+    ]);
+
+    if (!persistableFields.has(prop)) {
+      return;
+    }
+
+    clearTimeout(this.pendingChatCommits[target.id]);
+    this.pendingChatCommits[target.id] = setTimeout(async () => {
+      await this.dbService.commitChat({
+        id: target.id,
+        name: target.name,
+        status: target.status,
+        avatar: target.avatar,
+        subtitle: target.subtitle,
+        timeLabel: target.timeLabel,
+        unreadCount: target.unreadCount,
+        highlightTime: target.highlightTime,
+        avatarRing: target.avatarRing,
+        tipLabel: target.tipLabel,
+      });
+      delete this.pendingChatCommits[target.id];
+    }, 500);
+  }
+
   attachMessageChangeUpdates(target: Message, prop: string | Symbol, newValue: any){
-    clearTimeout(this.pendingCommits[target.id]);
-    this.pendingCommits[target.id] = setTimeout(async () => {
+    clearTimeout(this.pendingMessageCommits[target.id]);
+    this.pendingMessageCommits[target.id] = setTimeout(async () => {
       const messageType = target instanceof Answer ? 'answer' : target instanceof Question ? 'question' : 'message';
       await this.dbService.commitMessage({
         id: target.id,
@@ -176,7 +203,7 @@ export class ChatService {
           ? getPersistableValidationErrorMessage(target.validationErrorMessage)
           : undefined,
       });
-      delete this.pendingCommits[target.id];
+      delete this.pendingMessageCommits[target.id];
     }, 500);
   };
 
@@ -250,23 +277,11 @@ export class ChatService {
       message.onChanges = this.attachMessageChangeUpdates.bind(this);
     };
 
-    const persistMessageEdit = async (message: Message) => {
-      await pendingMessagePersists.get(message);
-      await this.dbService.updateMessage({
-        id: message.id,
-        value: message.value,
-        editedAt: message.editedAt?.toISOString() ?? message.time.toISOString(),
-      });
-    };
-
     const persistMessageDelete = async (message: Message) => {
       await pendingMessagePersists.get(message);
       await this.dbService.deleteMessage(message.id);
     };
-
-    chat.onMessageEdited.subscribe((message) => {
-      void persistMessageEdit(message);
-    });
+    
     chat.onMessageDeleted.subscribe((message) => {
       void persistMessageDelete(message);
     });

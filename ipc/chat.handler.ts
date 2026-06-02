@@ -3,6 +3,7 @@ import type { IpcMainInvokeEvent } from 'electron';
 import {
   chatService,
   type ChatPayload,
+  type CommitChatPayload,
   type UpdateChatAvatarPayload,
   type UpdateChatTitlePayload,
 } from '../services/chat.service.js';
@@ -19,6 +20,12 @@ export function registerChatHandlers(): void {
     'db:createChat',
     withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chat: ChatPayload) =>
       chatService.createChat(chat),
+    ),
+  );
+  ipcMain.handle(
+    'db:commitChat',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chat: CommitChatPayload) =>
+      chatService.commitChat(chat),
     ),
   );
   ipcMain.handle(
