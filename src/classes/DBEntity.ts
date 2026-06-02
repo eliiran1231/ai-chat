@@ -4,8 +4,11 @@ export type DBEntityChangeHandler = (
   newValue: any,
 ) => void;
 
+export type DBEntitySaveHandler = () => Promise<void> | void;
+
 export class DBEntity {
   private dbChangesEnabled = false;
+  private saveChangesHandler?: DBEntitySaveHandler;
   onChanges: DBEntityChangeHandler = () => {};
 
   constructor() {
@@ -30,7 +33,20 @@ export class DBEntity {
     this.dbChangesEnabled = false;
   }
 
+  setSaveChangesHandler(handler: DBEntitySaveHandler): void {
+    this.saveChangesHandler = handler;
+  }
+
+  async saveChanges(): Promise<void> {
+    await this.saveChangesHandler?.();
+  }
+
   protected shouldEmitDbChange(prop: string | Symbol): boolean {
-    return this.dbChangesEnabled && prop !== 'onChanges' && prop !== 'dbChangesEnabled';
+    return (
+      this.dbChangesEnabled &&
+      prop !== 'onChanges' &&
+      prop !== 'dbChangesEnabled' &&
+      prop !== 'saveChangesHandler'
+    );
   }
 }
