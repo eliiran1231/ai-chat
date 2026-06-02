@@ -53,6 +53,23 @@ export interface UpdateMessagePayload {
   editedAt: string;
 }
 
+export interface CommitMessagePayload {
+  id: Uuid;
+  from?: string;
+  messageType?: string;
+  value: string;
+  tag?: string | null;
+  time: string;
+  editedAt?: string | null;
+  attachment?: AttachmentPayload | null;
+  possibleAnswers?: string[] | null;
+  validatorSpec?: unknown;
+  validationErrorMessage?: string | null;
+  isRead: boolean;
+  editable: boolean;
+  deletable: boolean;
+}
+
 function isJsonObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
@@ -218,6 +235,46 @@ export class MessageService {
         WHERE id = ? AND editable = 1
       `,
       [message.value, message.editedAt, message.id],
+    );
+
+    return result.changes > 0;
+  }
+
+  async commitMessage(message: CommitMessagePayload): Promise<boolean> {
+    const result = await this.db.run(
+      `
+        UPDATE messages
+        SET sender = COALESCE(?, sender),
+            message_type = COALESCE(?, message_type),
+            value = ?,
+            tag = ?,
+            time = ?,
+            edited_at = ?,
+            attachment = ?,
+            possible_answers = ?,
+            validator_spec = ?,
+            validation_error_message = ?,
+            is_read = ?,
+            editable = ?,
+            deletable = ?
+        WHERE id = ?
+      `,
+      [
+        message.from ?? null,
+        message.messageType ?? null,
+        message.value,
+        message.tag ?? null,
+        message.time,
+        message.editedAt ?? null,
+        message.attachment ? JSON.stringify(message.attachment) : null,
+        message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
+        message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
+        message.validationErrorMessage ?? null,
+        message.isRead ? 1 : 0,
+        message.editable ? 1 : 0,
+        message.deletable ? 1 : 0,
+        message.id,
+      ],
     );
 
     return result.changes > 0;

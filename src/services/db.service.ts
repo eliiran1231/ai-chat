@@ -12,6 +12,7 @@ import { UpdateMessageInput } from '../interfaces/db/UpdateMessageInput';
 import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgentInput';
 import { UpdateSupporterContextInput } from '../interfaces/db/UpdateSupporterContextInput';
 import { Uuid } from '../interfaces/db/Uuid';
+import { CommitMessageInput } from '../interfaces/db/CommitMessageInput';
 
 @Injectable({
   providedIn: 'root',
@@ -45,6 +46,10 @@ export class DbService {
 
   async updateMessage(message: UpdateMessageInput): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:updateMessage', message);
+  }
+
+  async commitMessage(message: CommitMessageInput){
+    return this.electronService.invoke<boolean>('db:commitMessage', message)
   }
 
   async deleteMessage(messageId: Uuid): Promise<boolean> {
