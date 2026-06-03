@@ -4,7 +4,7 @@ import { Message, MessageOptions } from '../classes/Message';
 import { coerceValidatorSpec } from '../classes/MessageValidator';
 import { Question, QuestionOptions, getPersistableValidationErrorMessage } from '../classes/Question';
 import { Supporter } from '../classes/Supporter';
-import { Avatar, Chat } from '../classes/Chat';
+import { Chat } from '../classes/Chat';
 import { Agent } from '../classes/Agent';
 import { AgentsService } from './agents.service';
 import { ChatRecord } from '../interfaces/db/ChatRecord';
@@ -21,8 +21,7 @@ export class ChatService {
     private dbService: DbService,
     private agentsService: AgentsService,
   ) {}
-  private pendingMessageCommits: Record<string, number> = {};
-  private pendingChatCommits: Record<string, number> = {};
+  private pendingCommits: Record<string, number> = {};
   async createChat(
     name: string,
     status: string,
@@ -91,13 +90,21 @@ export class ChatService {
     return this.dbService.markChatRead(chatId);
   }
 
-  async setChatTitle(chat: Chat, title: string): Promise<void> {
-    const trimmedTitle = title.trim();
-    if (!trimmedTitle || chat.name === trimmedTitle) {
-      return;
-    }
+  private async commitSupporterChanges(supporter: Supporter): Promise<void> {
+    await this.dbService.commitSupporter({
+      id: supporter.id,
+      name: supporter.name,
+      expects: supporter.expects,
+      context: supporter.context,
+    } as any);
+  }
 
-    chat.name = trimmedTitle;
+  requestCommitSupporterChanges(supporter: Supporter) {
+    clearTimeout(this.pendingCommits[supporter.id]);
+    this.pendingCommits[supporter.id] = setTimeout(async () => {
+      await this.commitSupporterChanges(supporter);
+      delete this.pendingCommits[supporter.id];
+    }, 500);
   }
 
   hydrateChat(
@@ -106,16 +113,19 @@ export class ChatService {
     messageRecords: MessageRecord[],
     supporterRecord?: SupporterRecord | null,
   ): Chat {
-    const supporter = new Supporter();
-    if (supporterRecord) {
-      supporter.id = supporterRecord.id;
-    }
+    let context;
     try{
-      supporter.setContext(JSON.parse(supporterRecord?.context ?? '{}'));
+      context = supporterRecord ? JSON.parse(supporterRecord.context) : '{}';
     }
     catch{
-      supporter.setContext(supporterRecord?.context ?? '{}');
+      context = '{}';
     }
+    const supporter = new Supporter(
+      supporterRecord?.id, 
+      supporterRecord?.name, 
+      supporterRecord?.expects, 
+      context
+    );
     const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {
       subtitle: record.subtitle,
       timeLabel: record.timeLabel,
@@ -131,7 +141,11 @@ export class ChatService {
       chat.messages.push(message);
     }
     this.attachMessagePersistence(chat);
-    this.attachSupporterPersistence(chat);
+    supporter.setSaveChangesHandler(this.requestCommitSupporterChanges.bind(this));
+    supporter.onAgentSwitch.subscribe((agent) => this.dbService.updateSupporterAgent({
+      chatId: chat.id,
+      agentName: this.agentsService.getAgentName(agent),
+    }));
     supporter.setAgent(initialAgent);
     return chat;
   }
@@ -153,24 +167,24 @@ export class ChatService {
       return;
     }
 
-    clearTimeout(this.pendingChatCommits[target.id]);
-    this.pendingChatCommits[target.id] = setTimeout(async () => {
+    clearTimeout(this.pendingCommits[target.id]);
+    this.pendingCommits[target.id] = setTimeout(async () => {
       await this.commitChatChanges(target);
-      delete this.pendingChatCommits[target.id];
+      delete this.pendingCommits[target.id];
     }, 500);
   }
 
   requestCommitMessageChanges(target: Message){
-    clearTimeout(this.pendingMessageCommits[target.id]);
-    this.pendingMessageCommits[target.id] = setTimeout(async () => {
+    clearTimeout(this.pendingCommits[target.id]);
+    this.pendingCommits[target.id] = setTimeout(async () => {
       await this.commitMessageChanges(target);
-      delete this.pendingMessageCommits[target.id];
+      delete this.pendingCommits[target.id];
     }, 500);
   };
 
   private async commitChatChanges(chat: Chat): Promise<void> {
-    clearTimeout(this.pendingChatCommits[chat.id]);
-    delete this.pendingChatCommits[chat.id];
+    clearTimeout(this.pendingCommits[chat.id]);
+    delete this.pendingCommits[chat.id];
 
     await this.dbService.commitChat({
       id: chat.id,
@@ -300,22 +314,6 @@ export class ChatService {
       pendingMessagePersists.set(message, persisted);
       void persisted.finally(() => pendingMessagePersists.delete(message));
       void persisted;
-    });
-  }
-
-  private attachSupporterPersistence(chat: Chat): void {
-    chat.supporter.onAgentSwitch.subscribe((agent) => {
-      void this.dbService.updateSupporterAgent({
-        chatId: chat.id,
-        agentName: this.agentsService.getAgentName(agent),
-      });
-    });
-    chat.supporter.onContextChange.subscribe((context) => {
-      if (context === null) return;
-      void this.dbService.updateSupporterContext({
-        chatId: chat.id,
-        context,
-      });
     });
   }
 }

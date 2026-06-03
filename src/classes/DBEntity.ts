@@ -35,7 +35,7 @@ export class DBEntity {
   }
 
   async saveChanges(): Promise<void> {
-    await this.onChanges?.();
+    await this.onChanges?.(this, 'all');
   }
 
   protected shouldEmitDbChange(prop: string | Symbol): boolean {

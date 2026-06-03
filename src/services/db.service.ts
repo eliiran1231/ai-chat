@@ -94,4 +94,19 @@ export class DbService {
     }
     return this.electronService.invoke<boolean>('db:updateSupporterContext', input);
   }
+
+  async commitSupporter(supporter: { id: Uuid; context?: any }): Promise<boolean> {
+    const payload: any = {
+      id: supporter.id,
+      name: (supporter as any).name ?? undefined,
+      expects: (supporter as any).expects ?? undefined,
+      context: supporter.context ?? '',
+    };
+    try {
+      payload.context = JSON.stringify(payload.context);
+    } catch {
+      payload.context = String(payload.context);
+    }
+    return this.electronService.invoke<boolean>('db:commitSupporter', payload as any);
+  }
 }

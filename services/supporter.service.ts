@@ -7,14 +7,19 @@ interface SupporterRow {
   id: Uuid;
   chat_id: Uuid;
   agent_name: string;
+  name: string;
+  expects: string | null;
   context: string | null;
   created_at: string;
   updated_at: string;
 }
 
 export interface SupporterPayload {
+  id?: Uuid;
   chatId: Uuid;
   agentName: string;
+  name?: string | null;
+  expects?: string | null;
   context?: string | null;
 }
 
@@ -28,6 +33,13 @@ export interface UpdateSupporterContextPayload {
   context?: string | null;
 }
 
+export interface CommitSupporterPayload {
+  id: Uuid;
+  name?: string | null;
+  expects?: string | null;
+  context?: string | null;
+}
+
 export class SupporterService {
   constructor(private readonly db: DbService) {}
 
@@ -37,6 +49,8 @@ export class SupporterService {
         id TEXT PRIMARY KEY,
         chat_id TEXT NOT NULL UNIQUE,
         agent_name TEXT NOT NULL,
+        name TEXT NOT NULL DEFAULT 'Supporter',
+        expects TEXT NOT NULL DEFAULT 'question',
         context TEXT NOT NULL DEFAULT '',
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
@@ -52,6 +66,8 @@ export class SupporterService {
           id,
           chat_id,
           agent_name,
+          name,
+          expects,
           context,
           created_at,
           updated_at
@@ -66,20 +82,31 @@ export class SupporterService {
 
   async createSupporter(supporter: SupporterPayload) {
     const now = new Date().toISOString();
-    const supporterId = randomUUID();
+    const supporterId = supporter.id || randomUUID();
     await this.db.run(
       `
         INSERT INTO supporters (
           id,
           chat_id,
           agent_name,
+          name,
+          expects,
           context,
           created_at,
           updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
-      [supporterId, supporter.chatId, supporter.agentName, supporter.context ?? '', now, now],
+      [
+        supporterId,
+        supporter.chatId,
+        supporter.agentName,
+        supporter.name ?? 'Supporter',
+        supporter.expects ?? 'question',
+        supporter.context ?? '',
+        now,
+        now,
+      ],
     );
 
     const row = await this.db.get<SupporterRow>(
@@ -88,6 +115,8 @@ export class SupporterService {
           id,
           chat_id,
           agent_name,
+          name,
+          expects,
           context,
           created_at,
           updated_at
@@ -138,6 +167,22 @@ export class SupporterService {
     return result.changes > 0;
   }
 
+  async commitSupporter({ id, name, expects, context }: CommitSupporterPayload): Promise<boolean> {
+    const result = await this.db.run(
+      `
+        UPDATE supporters
+        SET context = ?,
+            name = COALESCE(?, name),
+            expects = COALESCE(?, expects),
+            updated_at = ?
+        WHERE id = ?
+      `,
+      [context ?? '', name ?? null, expects ?? null, new Date().toISOString(), id],
+    );
+
+    return result.changes > 0;
+  }
+
   private mapSupporterRow(row: SupporterRow | undefined) {
     if (!row) {
       return null;
@@ -147,6 +192,8 @@ export class SupporterService {
       id: row.id,
       chatId: row.chat_id,
       agentName: row.agent_name,
+      name: row.name,
+      expects: row.expects ?? 'question',
       context: row.context ?? '',
       createdAt: row.created_at,
       updatedAt: row.updated_at,
