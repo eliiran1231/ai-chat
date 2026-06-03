@@ -100,14 +100,6 @@ export class ChatService {
     chat.name = trimmedTitle;
   }
 
-  async updateChatAvatar(chat: Chat, avatar: Avatar): Promise<void> {
-    if (chat.avatar.type === avatar.type && chat.avatar.value === avatar.value) {
-      return;
-    }
-
-    chat.updateAvatar(avatar);
-  }
-
   hydrateChat(
     record: ChatRecord,
     initialAgent: Agent,
@@ -132,8 +124,7 @@ export class ChatService {
       avatarRing: record.avatarRing,
       tipLabel: record.tipLabel,
     });
-    chat.onChanges = this.attachChatChangeUpdates.bind(this);
-    chat.setSaveChangesHandler(() => this.commitChatChanges(chat));
+    chat.setSaveChangesHandler((target, prop) => this.requestCommitChatChanges(target, prop || ''));
     for (const messageRecord of messageRecords) {
       const message = this.hydrateMessage(messageRecord);
       message.setChat(chat);
@@ -145,7 +136,7 @@ export class ChatService {
     return chat;
   }
 
-  attachChatChangeUpdates(target: Chat, prop: string | Symbol, newValue: any) {
+  requestCommitChatChanges(target: Chat, prop: string | Symbol) {
     const persistableFields = new Set<string | Symbol>([
       'name',
       'status',
@@ -169,7 +160,7 @@ export class ChatService {
     }, 500);
   }
 
-  attachMessageChangeUpdates(target: Message, prop: string | Symbol, newValue: any){
+  requestCommitMessageChanges(target: Message){
     clearTimeout(this.pendingMessageCommits[target.id]);
     this.pendingMessageCommits[target.id] = setTimeout(async () => {
       await this.commitMessageChanges(target);
@@ -196,9 +187,6 @@ export class ChatService {
   }
 
   private async commitMessageChanges(message: Message): Promise<void> {
-    clearTimeout(this.pendingMessageCommits[message.id]);
-    delete this.pendingMessageCommits[message.id];
-
     const messageType = message instanceof Answer ? 'answer' : message instanceof Question ? 'question' : 'message';
     await this.dbService.commitMessage({
       id: message.id,
@@ -235,8 +223,7 @@ export class ChatService {
       : messageType === 'answer'
         ? new Answer(record.value, options)
         : new Message(record.value, options);
-    message.onChanges = this.attachMessageChangeUpdates.bind(this);
-    message.setSaveChangesHandler(() => this.commitMessageChanges(message));
+    message.setSaveChangesHandler(() => this.requestCommitMessageChanges(message));
     return message;
   }
 
@@ -290,8 +277,7 @@ export class ChatService {
       message.isRead = record.isRead;
       message.editable = record.editable;
       message.deletable = record.deletable;
-      message.onChanges = this.attachMessageChangeUpdates.bind(this);
-      message.setSaveChangesHandler(() => this.commitMessageChanges(message));
+      message.setSaveChangesHandler(() => this.requestCommitMessageChanges(message));
     };
 
     const persistMessageDelete = async (message: Message) => {

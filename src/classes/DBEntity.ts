@@ -1,15 +1,12 @@
 export type DBEntityChangeHandler = (
-  target: any,
-  prop: string | Symbol,
-  newValue: any,
-) => void;
-
-export type DBEntitySaveHandler = () => Promise<void> | void;
+  target?: any,
+  prop?: string | Symbol,
+  newValue?: any,
+) => void | Promise<void>;
 
 export class DBEntity {
   private dbChangesEnabled = false;
-  private saveChangesHandler?: DBEntitySaveHandler;
-  onChanges: DBEntityChangeHandler = () => {};
+  private onChanges: DBEntityChangeHandler = () => {};
 
   constructor() {
     return new Proxy(this, {
@@ -33,12 +30,12 @@ export class DBEntity {
     this.dbChangesEnabled = false;
   }
 
-  setSaveChangesHandler(handler: DBEntitySaveHandler): void {
-    this.saveChangesHandler = handler;
+  setSaveChangesHandler(handler: DBEntityChangeHandler): void {
+    this.onChanges = handler;
   }
 
   async saveChanges(): Promise<void> {
-    await this.saveChangesHandler?.();
+    await this.onChanges?.();
   }
 
   protected shouldEmitDbChange(prop: string | Symbol): boolean {

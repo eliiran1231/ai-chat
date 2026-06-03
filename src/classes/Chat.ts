@@ -72,9 +72,9 @@ export class Chat extends DBEntity {
   processFileUrl(file: File): string | Promise<string> {
     return this._processFileUrlDriver(file);
   }
-  updateAvatar(avatar: Avatar) {
+  async updateAvatar(avatar: Avatar) {
     this._avatar = avatar;
-    this.saveChanges();
+    await this.saveChanges();
   }
   setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
     this._processFileUrlDriver = processor;
