@@ -27,7 +27,6 @@ export class Supporter extends DBEntity {
         this.name = name ?? "Supporter";
         this.expects = expects ?? "question";
         if(context) this._context = context;
-        this.enableDbChanges();
     }
 
     
@@ -60,6 +59,7 @@ export class Supporter extends DBEntity {
         this.agent = agent;
         this.agent.init(this.chat, this);
         this.onAgentSwitch.next(agent);
+        this.enableDbChanges();
     }
     async setContext(context: any){
         this._context = context;

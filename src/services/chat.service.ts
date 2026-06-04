@@ -21,7 +21,6 @@ export class ChatService {
     private dbService: DbService,
     private agentsService: AgentsService,
   ) {}
-  private pendingCommits: Record<string, number> = {};
   async createChat(
     name: string,
     status: string,
@@ -99,14 +98,6 @@ export class ChatService {
     } as any);
   }
 
-  requestCommitSupporterChanges(supporter: Supporter) {
-    clearTimeout(this.pendingCommits[supporter.id]);
-    this.pendingCommits[supporter.id] = setTimeout(async () => {
-      await this.commitSupporterChanges(supporter);
-      delete this.pendingCommits[supporter.id];
-    }, 500);
-  }
-
   hydrateChat(
     record: ChatRecord,
     initialAgent: Agent,
@@ -115,10 +106,10 @@ export class ChatService {
   ): Chat {
     let context;
     try{
-      context = supporterRecord ? JSON.parse(supporterRecord.context) : '{}';
+      context = supporterRecord ? JSON.parse(supporterRecord.context) : {};
     }
     catch{
-      context = '{}';
+      context = {};
     }
     const supporter = new Supporter(
       supporterRecord?.id, 
@@ -126,6 +117,7 @@ export class ChatService {
       supporterRecord?.expects, 
       context
     );
+    console.log(supporter)
     const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {
       subtitle: record.subtitle,
       timeLabel: record.timeLabel,
@@ -134,14 +126,14 @@ export class ChatService {
       avatarRing: record.avatarRing,
       tipLabel: record.tipLabel,
     });
-    chat.setSaveChangesHandler((target, prop) => this.requestCommitChatChanges(target, prop || ''));
+    chat.setSaveChangesHandler((target)=>this.commitChatChanges(target));
     for (const messageRecord of messageRecords) {
       const message = this.hydrateMessage(messageRecord);
       message.setChat(chat);
       chat.messages.push(message);
     }
     this.attachMessagePersistence(chat);
-    supporter.setSaveChangesHandler(this.requestCommitSupporterChanges.bind(this));
+    supporter.setSaveChangesHandler((target)=>this.commitSupporterChanges(target));
     supporter.onAgentSwitch.subscribe((agent) => this.dbService.updateSupporterAgent({
       chatId: chat.id,
       agentName: this.agentsService.getAgentName(agent),
@@ -150,42 +142,7 @@ export class ChatService {
     return chat;
   }
 
-  requestCommitChatChanges(target: Chat, prop: string | Symbol) {
-    const persistableFields = new Set<string | Symbol>([
-      'name',
-      'status',
-      'avatar',
-      'subtitle',
-      'timeLabel',
-      'unreadCount',
-      'highlightTime',
-      'avatarRing',
-      'tipLabel',
-    ]);
-
-    if (!persistableFields.has(prop)) {
-      return;
-    }
-
-    clearTimeout(this.pendingCommits[target.id]);
-    this.pendingCommits[target.id] = setTimeout(async () => {
-      await this.commitChatChanges(target);
-      delete this.pendingCommits[target.id];
-    }, 500);
-  }
-
-  requestCommitMessageChanges(target: Message){
-    clearTimeout(this.pendingCommits[target.id]);
-    this.pendingCommits[target.id] = setTimeout(async () => {
-      await this.commitMessageChanges(target);
-      delete this.pendingCommits[target.id];
-    }, 500);
-  };
-
   private async commitChatChanges(chat: Chat): Promise<void> {
-    clearTimeout(this.pendingCommits[chat.id]);
-    delete this.pendingCommits[chat.id];
-
     await this.dbService.commitChat({
       id: chat.id,
       name: chat.name,
@@ -237,7 +194,7 @@ export class ChatService {
       : messageType === 'answer'
         ? new Answer(record.value, options)
         : new Message(record.value, options);
-    message.setSaveChangesHandler(() => this.requestCommitMessageChanges(message));
+    message.setSaveChangesHandler((target)=>this.commitMessageChanges(target));
     return message;
   }
 
@@ -291,7 +248,7 @@ export class ChatService {
       message.isRead = record.isRead;
       message.editable = record.editable;
       message.deletable = record.deletable;
-      message.setSaveChangesHandler(() => this.requestCommitMessageChanges(message));
+      message.setSaveChangesHandler((target)=>this.commitMessageChanges(target));
     };
 
     const persistMessageDelete = async (message: Message) => {
