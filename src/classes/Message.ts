@@ -1,6 +1,6 @@
 import { Chat } from "./Chat";
 import { Uuid } from "../interfaces/db/Uuid";
-import { DBEntity } from "./DBEntity";
+import { DBEntity, dbProperty } from "./DBEntity";
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
@@ -25,14 +25,23 @@ export type MessageOptions = {
 
 export class Message extends DBEntity {
     id!: Uuid;
+    @dbProperty
     from?: MessageSender;
+    @dbProperty
     time: Date;
+    @dbProperty
     editedAt?: Date;
+    @dbProperty
     tag: string;
+    @dbProperty
     value: string;
+    @dbProperty
     isRead: boolean;
+    @dbProperty
     attachment?: Attachment;
+    @dbProperty
     editable: boolean;
+    @dbProperty
     deletable: boolean;
     private _chat?: Chat;
 

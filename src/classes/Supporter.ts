@@ -5,7 +5,7 @@ import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
 import { Uuid } from "../interfaces/db/Uuid";
-import { DBEntity } from "./DBEntity";
+import { DBEntity, dbProperty } from "./DBEntity";
 
 export class Supporter extends DBEntity {
     public id!: Uuid;
@@ -14,8 +14,10 @@ export class Supporter extends DBEntity {
     public readonly onMessageAdded = new Subject<Message>();
     public readonly onAgentSwitch = new Subject<Agent>();
     public readonly onContextChange = new Subject<any>();
+    @dbProperty
     public expects: "message" | "question" | "answer";
     private _context: any; 
+    @dbProperty
     public name;
     
     get context(){

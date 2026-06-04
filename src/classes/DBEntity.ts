@@ -4,6 +4,14 @@ export type DBEntityChangeHandler = (
   newValue?: any,
 ) => void | Promise<void>;
 
+const dbProperties = new WeakMap<object, Set<string | symbol>>();
+
+export function dbProperty(target: object, propertyKey: string | symbol): void {
+  const entityProperties = dbProperties.get(target) ?? new Set<string | symbol>();
+  entityProperties.add(propertyKey);
+  dbProperties.set(target, entityProperties);
+}
+
 export class DBEntity {
   private dbChangesEnabled = false;
   private onChanges: DBEntityChangeHandler = () => {};
@@ -53,9 +61,21 @@ export class DBEntity {
     await this.onChanges?.(this, 'all');
   }
 
+  private isDbProperty(prop: string | symbol): boolean {
+    let prototype = Object.getPrototypeOf(this);
+    while (prototype) {
+      if (dbProperties.get(prototype)?.has(prop)) {
+        return true;
+      }
+      prototype = Object.getPrototypeOf(prototype);
+    }
+    return false;
+  }
+
   protected shouldEmitDbChange(prop: string | symbol): boolean {
     return (
       this.dbChangesEnabled &&
+      this.isDbProperty(prop) &&
       prop !== 'id' &&
       prop !== 'onChanges' &&
       prop !== 'dbChangesEnabled' &&

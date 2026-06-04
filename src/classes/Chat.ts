@@ -3,7 +3,7 @@ import { Message } from './Message';
 import { Supporter } from './Supporter';
 import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
-import { DBEntity } from './DBEntity';
+import { DBEntity, dbProperty } from './DBEntity';
 
 export type Avatar = {
   type: 'image' | 'text';
@@ -12,13 +12,21 @@ export type Avatar = {
 
 export class Chat extends DBEntity {
   id: Uuid;
+  @dbProperty
   name: string;
+  @dbProperty
   status: string;
+  @dbProperty
   subtitle?: string;
+  @dbProperty
   timeLabel?: string;
+  @dbProperty
   unreadCount: number;
+  @dbProperty
   highlightTime?: boolean;
+  @dbProperty
   avatarRing?: boolean;
+  @dbProperty
   tipLabel?: string;
   draftMessage: string;
   messages: Message[];
