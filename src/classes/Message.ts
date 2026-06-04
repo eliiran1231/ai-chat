@@ -50,6 +50,7 @@ export class Message extends DBEntity {
         this.tag = options?.tag ?? 'general';
         this.from = options?.from;
         this.time = options?.time ?? new Date();
+        this.editedAt = options?.editedAt;
         this.isRead = options?.isRead ?? false;
         if (new.target === Message) this.enableDbChanges();
     }
