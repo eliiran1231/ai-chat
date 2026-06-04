@@ -14,10 +14,10 @@ export class DBEntity {
       set: (target, prop, newValue) => {
         const dbTarget = target as DBEntity & { id?: unknown };
         if (prop === 'id' && 'id' in target && dbTarget.id) return false;
-        if (prop !== 'id' && this.shouldEmitDbChange(prop)) {
+        Reflect.set(target, prop, newValue);
+        if (this.shouldEmitDbChange(prop)) {
           this.debounceOnChanges(target, prop, newValue)
         }
-        else Reflect.set(target, prop, newValue);
         return true;
       },
     });
@@ -27,7 +27,6 @@ export class DBEntity {
     clearTimeout(this.lastTaskId);
     this.lastTaskId = setTimeout(async () => {
       await this.onChanges?.(target, prop, newValue);
-      Reflect.set(target, prop, newValue);
       this.lastTaskId = 0;
     }, 500);
   }
@@ -51,6 +50,7 @@ export class DBEntity {
   protected shouldEmitDbChange(prop: string | symbol): boolean {
     return (
       this.dbChangesEnabled &&
+      prop !== 'id' &&
       prop !== 'onChanges' &&
       prop !== 'dbChangesEnabled' &&
       prop !== 'saveChangesHandler'
