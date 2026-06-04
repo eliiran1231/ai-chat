@@ -33,6 +33,16 @@ export class Chat extends DBEntity {
     return this._avatar;
   }
 
+  get isRead(): boolean {
+    return this.unreadCount === 0 && this.messages.every((message) => message.isRead);
+  }
+
+  set isRead(isRead: boolean) {
+    if (!isRead) return;
+    this.unreadCount = 0;
+    this.messages.forEach((message) => (message.isRead = true));
+  }
+
   constructor(
     id: Uuid,
     name: string,

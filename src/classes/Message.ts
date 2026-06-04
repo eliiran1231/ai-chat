@@ -55,7 +55,7 @@ export class Message extends DBEntity {
     }
 
     edit(newValue: string): void {
-        if (!this.editable || this.from === 'supporter' || !this._chat) return;
+        if (!this.editable || this.from === 'supporter' || !this._chat || this.value === newValue) return;
         this.value = newValue;
         this.editedAt = new Date();
         this._chat.onMessageEdited.next(this);

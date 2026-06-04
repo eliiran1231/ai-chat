@@ -59,13 +59,7 @@ export class HomeComponent implements OnInit {
   async openChat(chat: Chat): Promise<void> {
     this.selectedChat = chat;
     chat.active = true;
-    await this.markChatRead(chat);
-  }
-
-  async markChatRead(chat: Chat): Promise<void> {
-    chat.unreadCount = 0;
-    chat.messages.forEach((message) => (message.isRead = true));
-    await this.chatService.markChatRead(chat.id);
+    chat.isRead = true;
   }
 
   closeChat(): void {

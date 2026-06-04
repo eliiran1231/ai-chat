@@ -47,12 +47,6 @@ export interface MessagePayload {
   deletable?: boolean;
 }
 
-export interface UpdateMessagePayload {
-  id: Uuid;
-  value: string;
-  editedAt: string;
-}
-
 export interface CommitMessagePayload {
   id: Uuid;
   from?: string;
@@ -226,20 +220,6 @@ export class MessageService {
     return this.mapMessageRow(row);
   }
 
-  async updateMessage(message: UpdateMessagePayload): Promise<boolean> {
-    const result = await this.db.run(
-      `
-        UPDATE messages
-        SET value = ?,
-            edited_at = ?
-        WHERE id = ? AND editable = 1
-      `,
-      [message.value, message.editedAt, message.id],
-    );
-
-    return result.changes > 0;
-  }
-
   async commitMessage(message: CommitMessagePayload): Promise<boolean> {
     const result = await this.db.run(
       `
@@ -287,30 +267,6 @@ export class MessageService {
         WHERE id = ? AND deletable = 1
       `,
       [messageId],
-    );
-
-    return result.changes > 0;
-  }
-
-  async markChatRead(chatId: Uuid): Promise<boolean> {
-    const now = new Date().toISOString();
-    await this.db.run(
-      `
-        UPDATE messages
-        SET is_read = 1
-        WHERE chat_id = ? AND is_read = 0
-      `,
-      [chatId],
-    );
-
-    const result = await this.db.run(
-      `
-        UPDATE chats
-        SET unread_count = 0,
-            updated_at = ?
-        WHERE id = ?
-      `,
-      [now, chatId],
     );
 
     return result.changes > 0;

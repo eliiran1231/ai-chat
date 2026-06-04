@@ -85,10 +85,6 @@ export class ChatService {
     return this.dbService.deleteChat(chatId);
   }
 
-  async markChatRead(chatId: Uuid): Promise<boolean> {
-    return this.dbService.markChatRead(chatId);
-  }
-
   private async commitSupporterChanges(supporter: Supporter): Promise<void> {
     await this.dbService.commitSupporter({
       id: supporter.id,
@@ -117,7 +113,6 @@ export class ChatService {
       supporterRecord?.expects, 
       context
     );
-    console.log(supporter)
     const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {
       subtitle: record.subtitle,
       timeLabel: record.timeLabel,
