@@ -4,7 +4,6 @@ import {
   supporterService,
   type SupporterPayload,
   type UpdateSupporterAgentPayload,
-  type UpdateSupporterContextPayload,
   type CommitSupporterPayload,
 } from '../services/supporter.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
@@ -28,13 +27,6 @@ export function registerSupporterHandlers(): void {
     'db:updateSupporterAgent',
     withIpcErrorHandling(async (_event: IpcMainInvokeEvent, payload: UpdateSupporterAgentPayload) =>
       supporterService.updateSupporterAgent(payload),
-    ),
-  );
-  ipcMain.handle(
-    'db:updateSupporterContext',
-    withIpcErrorHandling(
-      async (_event: IpcMainInvokeEvent, payload: UpdateSupporterContextPayload) =>
-        supporterService.updateSupporterContext(payload),
     ),
   );
   ipcMain.handle(

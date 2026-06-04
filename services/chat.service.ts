@@ -48,16 +48,6 @@ export interface CommitChatPayload {
   tipLabel?: string | null;
 }
 
-export interface UpdateChatTitlePayload {
-  chatId: Uuid;
-  name: string;
-}
-
-export interface UpdateChatAvatarPayload {
-  chatId: Uuid;
-  avatar: AvatarPayload;
-}
-
 export class ChatService {
   constructor(private readonly db: DbService) {}
 
@@ -219,85 +209,6 @@ export class ChatService {
 
     console.warn(`Unexpected avatar payload for chat ${rowId}.`, parsedValue);
     return value;
-  }
-
-  async updateChatAvatar({ chatId, avatar }: UpdateChatAvatarPayload) {
-    const now = new Date().toISOString();
-    await this.db.run(
-      `
-        UPDATE chats
-        SET avatar = ?,
-            updated_at = ?
-        WHERE id = ?
-      `,
-      [JSON.stringify(avatar), now, chatId],
-    );
-
-    const row = await this.db.get<ChatRow>(
-      `
-        SELECT
-          id,
-          name,
-          status,
-          avatar,
-          subtitle,
-          time_label,
-          unread_count,
-          highlight_time,
-          avatar_ring,
-          tip_label,
-          created_at,
-          updated_at
-        FROM chats
-        WHERE id = ?
-      `,
-      [chatId],
-    );
-    if (!row) {
-      throw new Error(`Updated avatar for chat ${chatId} could not be loaded.`);
-    }
-
-    return this.mapChatRow(row);
-  }
-  
-  async updateChatTitle({ chatId, name }: UpdateChatTitlePayload) {
-    const now = new Date().toISOString();
-    await this.db.run(
-      `
-        UPDATE chats
-        SET name = ?,
-            updated_at = ?
-        WHERE id = ?
-      `,
-      [name, now, chatId],
-    );
-
-    const row = await this.db.get<ChatRow>(
-      `
-        SELECT
-          id,
-          name,
-          status,
-          avatar,
-          subtitle,
-          time_label,
-          unread_count,
-          highlight_time,
-          avatar_ring,
-          tip_label,
-          created_at,
-          updated_at
-        FROM chats
-        WHERE id = ?
-      `,
-      [chatId],
-    );
-
-    if (!row) {
-      throw new Error(`Updated chat ${chatId} could not be loaded.`);
-    }
-
-    return this.mapChatRow(row);
   }
 
   async deleteChat(chatId: Uuid): Promise<boolean> {

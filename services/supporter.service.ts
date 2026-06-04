@@ -28,11 +28,6 @@ export interface UpdateSupporterAgentPayload {
   agentName: string;
 }
 
-export interface UpdateSupporterContextPayload {
-  chatId: Uuid;
-  context?: string | null;
-}
-
 export interface CommitSupporterPayload {
   id: Uuid;
   name?: string | null;
@@ -145,23 +140,6 @@ export class SupporterService {
         WHERE chat_id = ?
       `,
       [agentName, new Date().toISOString(), chatId],
-    );
-
-    return result.changes > 0;
-  }
-
-  async updateSupporterContext({
-    chatId,
-    context,
-  }: UpdateSupporterContextPayload): Promise<boolean> {
-    const result = await this.db.run(
-      `
-        UPDATE supporters
-        SET context = ?,
-            updated_at = ?
-        WHERE chat_id = ?
-      `,
-      [context ?? '', new Date().toISOString(), chatId],
     );
 
     return result.changes > 0;

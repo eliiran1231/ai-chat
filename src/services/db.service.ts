@@ -6,10 +6,7 @@ import { CreateMessageRecordInput } from '../interfaces/db/CreateMessageRecordIn
 import { CreateSupporterRecordInput } from '../interfaces/db/CreateSupporterRecordInput';
 import { MessageRecord } from '../interfaces/db/MessageRecord';
 import { SupporterRecord } from '../interfaces/db/SupporterRecord';
-import { UpdateChatAvatarInput } from '../interfaces/db/UpdateChatAvatarInput';
-import { UpdateChatTitleInput } from '../interfaces/db/UpdateChatTitleInput';
 import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgentInput';
-import { UpdateSupporterContextInput } from '../interfaces/db/UpdateSupporterContextInput';
 import { Uuid } from '../interfaces/db/Uuid';
 import { CommitMessageInput } from '../interfaces/db/CommitMessageInput';
 import { CommitChatInput } from '../interfaces/db/CommitChatInput';
@@ -64,26 +61,8 @@ export class DbService {
     return this.electronService.invoke<SupporterRecord>('db:createSupporter', supporter);
   }
 
-  async updateChatTitle(input: UpdateChatTitleInput): Promise<ChatRecord> {
-    return this.electronService.invoke<ChatRecord>('db:updateChatTitle', input);
-  }
-
-  async updateChatAvatar(input: UpdateChatAvatarInput): Promise<ChatRecord> {
-    return this.electronService.invoke<ChatRecord>('db:updateChatAvatar', input);
-  }
-
   async updateSupporterAgent(input: UpdateSupporterAgentInput): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:updateSupporterAgent', input);
-  }
-
-  async updateSupporterContext(input: UpdateSupporterContextInput): Promise<boolean> {
-    try{
-      input.context = JSON.stringify(input.context);
-    }
-    catch{
-      input.context = input.context.toString();
-    }
-    return this.electronService.invoke<boolean>('db:updateSupporterContext', input);
   }
 
   async commitSupporter(supporter: { id: Uuid; context?: any }): Promise<boolean> {
