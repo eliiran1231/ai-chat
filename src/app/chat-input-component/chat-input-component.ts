@@ -19,14 +19,11 @@ ChatInputComponent {
   @Input() theme: 'light' | 'dark' = 'light';
   @Input() chat: Chat | undefined;
   @Input() requiredContent = true;
-  @Input() set value(value: string) {
-    this.caption = value;
-  }
   @Input() placeholder = 'Type a message';
   @Input() allowAttachments = true;
   @Output() messageSubmit = new EventEmitter<string>();
   @Output() fileSubmit = new EventEmitter<File>();
-  caption = ''
+  @Input() caption = '';
 
   submitMessage(form?: NgForm): void {
     const trimmedMessage = this.caption.trim();
