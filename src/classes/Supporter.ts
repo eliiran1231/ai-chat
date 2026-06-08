@@ -59,7 +59,7 @@ export class Supporter extends DBEntity {
     async setAgent(agent: Agent){
         await this.agent?.onDestroy();
         this.agent = agent;
-        this.agent.init(this.chat, this);
+        await this.agent.init(this.chat, this);
         this.onAgentSwitch.next(agent);
         this.enableDbChanges();
     }

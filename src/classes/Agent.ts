@@ -27,7 +27,7 @@ export class Agent {
         return undefined;
     }
 
-    init(chat: Chat, supporter: Supporter) {
+    init(chat: Chat, supporter: Supporter): void | Promise<void> {
         this.chat = chat;
         this.supporter = supporter;
         this.lastQuestion = this.findLastSupporterQuestion(chat.messages);
