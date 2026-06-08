@@ -40,7 +40,15 @@
             </div>
           </div>
           <div class="chat-list-item__bottom">
-            <p>{{ lastMessageText(chat) }}</p>
+            <p>
+              @if (chat.draftMessage.trim()) {
+                <span class="chat-list-item__draft-label">Draft:</span>
+                <span> {{ chat.draftMessage.trim() }}</span>
+              }
+              @else {
+                {{ lastMessageText(chat) }}
+              }
+            </p>
             @if (chat.unreadCount) {
               <span class="chat-list-item__badge">{{ chat.unreadCount }}</span>
             }
