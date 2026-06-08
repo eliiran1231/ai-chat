@@ -71,6 +71,9 @@ export class Supporter extends DBEntity {
     setChat(chat: Chat){
         this.chat = chat;
     }
+    suggestAnswer(suggestedAnswer: string){
+        this.chat.draftMessage = suggestedAnswer;
+    }
     private appendMessage(message: Message){
         message.from = "supporter";
         message.setChat(this.chat);

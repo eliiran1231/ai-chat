@@ -40,7 +40,6 @@ export class ChatComponent {
   activeSearchResultIndex = -1;
   selectedMessage?: Message;
   editingMessage?: Message;
-  editDraft = '';
   awayFromBottom = false;
   isScrolling = false;
 
@@ -115,7 +114,7 @@ export class ChatComponent {
   closeMessageOptions(): void {
     this.selectedMessage = undefined;
     this.editingMessage = undefined;
-    this.editDraft = '';
+    this.chat.draftMessage = '';
   }
 
   editMessage(message: Message): void {
@@ -125,7 +124,7 @@ export class ChatComponent {
 
     this.selectedMessage = message;
     this.editingMessage = message;
-    this.editDraft = message.value;
+    this.chat.draftMessage = message.value;
   }
 
   deleteMessage(message: Message): void {

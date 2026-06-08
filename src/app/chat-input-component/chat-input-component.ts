@@ -19,14 +19,12 @@ ChatInputComponent {
   @Input() theme: 'light' | 'dark' = 'light';
   @Input() chat: Chat | undefined;
   @Input() requiredContent = true;
-  @Input() set value(value: string) {
-    this.caption = value;
-  }
   @Input() placeholder = 'Type a message';
   @Input() allowAttachments = true;
   @Output() messageSubmit = new EventEmitter<string>();
   @Output() fileSubmit = new EventEmitter<File>();
-  caption = ''
+  @Input() caption = '';
+  @Output() captionChange = new EventEmitter<string>();
 
   submitMessage(form?: NgForm): void {
     const trimmedMessage = this.caption.trim();
@@ -51,7 +49,6 @@ ChatInputComponent {
 
 
   handleComposerKeydown(event: KeyboardEvent): void {
-    if(this.chat) this.chat.draftMessage = this.caption; 
     if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
       event.preventDefault();
       (event.target as HTMLTextAreaElement).form?.requestSubmit();
@@ -59,6 +56,7 @@ ChatInputComponent {
   }
 
   syncComposerOverflow(autosize: CdkTextareaAutosize, textarea: HTMLTextAreaElement): void {
+    this.captionChange.emit(textarea.value)
     autosize.resizeToFitContent(true);
     this.composerHasOverflow = textarea.scrollHeight > textarea.clientHeight;
   }

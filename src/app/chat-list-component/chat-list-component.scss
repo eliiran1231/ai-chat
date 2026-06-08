@@ -75,6 +75,11 @@
   background: #eff1f2;
 }
 
+.chat-list-item__draft-label {
+  color: #21b15d;
+  font-weight: bold;
+}
+
 .chat-list-item:hover,
 .chat-list-item--active {
   background: #f8f9f9;
