@@ -37,7 +37,7 @@ export class Agent {
         chat.setFileUrlProcessor(this.handleFile.bind(this));
     }
 
-    respond() : void | Promise<void> {
+    respond(edited = false) : void | Promise<void> {
         this.lastMessage = this.chat.messages.at(-1);
         if (!this.lastMessage) {
             throw new Error("respond was called but there is nothing to respond to");
@@ -57,7 +57,7 @@ export class Agent {
 
     onAnswerSelected(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number) {
         if (associatedQuestionIndex >= this.chat.messages.length - 1) {
-            this.chat.user.answer(answer);
+            this.chat.user.answer(structuredClone(answer));
             return;
         }
         let responseToEdit;
@@ -74,7 +74,7 @@ export class Agent {
             msg.delete();
         }
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages);
-        this.respond();
+        this.respond(true);
     }
 
     onMessageDeleted(message: Message) {
