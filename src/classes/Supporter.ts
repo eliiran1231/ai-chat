@@ -5,22 +5,31 @@ import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
 import { Uuid } from "../interfaces/db/Uuid";
+import { DBEntity, dbProperty } from "./DBEntity";
 
-export class Supporter{
+export class Supporter extends DBEntity {
     public id!: Uuid;
     private chat!: Chat;
     private agent: Agent | undefined;
     public readonly onMessageAdded = new Subject<Message>();
     public readonly onAgentSwitch = new Subject<Agent>();
     public readonly onContextChange = new Subject<any>();
-    public expects: "message" | "question" | "answer" = "question";
+    @dbProperty
+    public expects: "message" | "question" | "answer";
     private _context: any; 
-    public name = "Supporter";
+    @dbProperty
+    public name;
     
     get context(){
         return this._context;
     }
-    constructor(){}
+    constructor(id?: Uuid, name?: string, expects?: "message" | "question" | "answer", context?: any){
+        super();
+        if(id) this.id = id;
+        this.name = name ?? "Supporter";
+        this.expects = expects ?? "question";
+        if(context) this._context = context;
+    }
 
     
     ask(message : string | Question){
@@ -47,14 +56,16 @@ export class Supporter{
         }
         await this.agent.respond();
     }
-    setAgent(agent: Agent){
-        this.agent?.onDestroy();
+    async setAgent(agent: Agent){
+        await this.agent?.onDestroy();
         this.agent = agent;
-        this.agent.init(this.chat, this);
+        await this.agent.init(this.chat, this);
         this.onAgentSwitch.next(agent);
+        this.enableDbChanges();
     }
-    setContext(context: any){
+    async setContext(context: any){
         this._context = context;
+        await this.saveChanges();
         this.onContextChange.next(context);
     }
     setChat(chat: Chat){

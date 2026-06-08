@@ -28,8 +28,8 @@ export class AiAgent extends Agent {
     super.respond();
     const lastMessage = this.chat.messages.at(-1) as Message;
     this.aiService.sendMessage(lastMessage.value as string).subscribe((response) => {
-      void this.chatService.setChatTitle(this.chat, response.model);
-      void this.chatService.updateChatAvatar(this.chat, {
+      this.chat.name = response.model;
+      this.chat.updateAvatar({
         type: 'text',
         value: response.model.slice(0, 2).toUpperCase(),
       });

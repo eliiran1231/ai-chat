@@ -47,10 +47,21 @@ export interface MessagePayload {
   deletable?: boolean;
 }
 
-export interface UpdateMessagePayload {
+export interface CommitMessagePayload {
   id: Uuid;
+  from?: string;
+  messageType?: string;
   value: string;
-  editedAt: string;
+  tag?: string | null;
+  time: string;
+  editedAt?: string | null;
+  attachment?: AttachmentPayload | null;
+  possibleAnswers?: string[] | null;
+  validatorSpec?: unknown;
+  validationErrorMessage?: string | null;
+  isRead: boolean;
+  editable: boolean;
+  deletable: boolean;
 }
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
@@ -209,15 +220,41 @@ export class MessageService {
     return this.mapMessageRow(row);
   }
 
-  async updateMessage(message: UpdateMessagePayload): Promise<boolean> {
+  async commitMessage(message: CommitMessagePayload): Promise<boolean> {
     const result = await this.db.run(
       `
         UPDATE messages
-        SET value = ?,
-            edited_at = ?
-        WHERE id = ? AND editable = 1
+        SET sender = COALESCE(?, sender),
+            message_type = COALESCE(?, message_type),
+            value = ?,
+            tag = ?,
+            time = ?,
+            edited_at = ?,
+            attachment = ?,
+            possible_answers = ?,
+            validator_spec = ?,
+            validation_error_message = ?,
+            is_read = ?,
+            editable = ?,
+            deletable = ?
+        WHERE id = ?
       `,
-      [message.value, message.editedAt, message.id],
+      [
+        message.from ?? null,
+        message.messageType ?? null,
+        message.value,
+        message.tag ?? null,
+        message.time,
+        message.editedAt ?? null,
+        message.attachment ? JSON.stringify(message.attachment) : null,
+        message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
+        message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
+        message.validationErrorMessage ?? null,
+        message.isRead ? 1 : 0,
+        message.editable ? 1 : 0,
+        message.deletable ? 1 : 0,
+        message.id,
+      ],
     );
 
     return result.changes > 0;
@@ -230,30 +267,6 @@ export class MessageService {
         WHERE id = ? AND deletable = 1
       `,
       [messageId],
-    );
-
-    return result.changes > 0;
-  }
-
-  async markChatRead(chatId: Uuid): Promise<boolean> {
-    const now = new Date().toISOString();
-    await this.db.run(
-      `
-        UPDATE messages
-        SET is_read = 1
-        WHERE chat_id = ? AND is_read = 0
-      `,
-      [chatId],
-    );
-
-    const result = await this.db.run(
-      `
-        UPDATE chats
-        SET unread_count = 0,
-            updated_at = ?
-        WHERE id = ?
-      `,
-      [now, chatId],
     );
 
     return result.changes > 0;
