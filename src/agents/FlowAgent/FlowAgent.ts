@@ -5,7 +5,6 @@ import { Answer } from "../../classes/Answer";
 import { Chat } from "../../classes/Chat";
 import { Question } from "../../classes/Question";
 import { Supporter } from "../../classes/Supporter";
-import { DbService } from "../../services/db.service";
 import { MockAgent } from "../MockAgent/MockAgent";
 import { mockFlowMachine } from "./mockFlow.machine";
 
@@ -13,11 +12,9 @@ import { mockFlowMachine } from "./mockFlow.machine";
 export class FlowAgent extends Agent {
     private actions!: Record<string, any>;
     private actor!: ActorRefFrom<typeof mockFlowMachine>;
-    private dbService: DbService
 
     constructor(private injector: Injector) {
         super(injector);
-        this.dbService = injector.get(DbService);
     }
 
     buildActions() {
@@ -52,10 +49,7 @@ export class FlowAgent extends Agent {
             snapshot: supporter.context.context && supporter.context
         });
         this.actor.subscribe((state) => {
-            this.dbService.updateSupporterContext({
-                chatId: this.chat.id,
-                context: state.toJSON()
-            })
+            void this.supporter.setContext(state.toJSON());
         });
         this.actor.start();
     }

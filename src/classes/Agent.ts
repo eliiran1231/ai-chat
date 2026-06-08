@@ -27,7 +27,7 @@ export class Agent {
         return undefined;
     }
 
-    init(chat: Chat, supporter: Supporter) {
+    init(chat: Chat, supporter: Supporter): void | Promise<void> {
         this.chat = chat;
         this.supporter = supporter;
         this.lastQuestion = this.findLastSupporterQuestion(chat.messages);
@@ -37,7 +37,7 @@ export class Agent {
         chat.setFileUrlProcessor(this.handleFile.bind(this));
     }
 
-    respond() {
+    respond() : void | Promise<void> {
         this.lastMessage = this.chat.messages.at(-1);
         if (!this.lastMessage) {
             throw new Error("respond was called but there is nothing to respond to");
@@ -86,7 +86,7 @@ export class Agent {
         return URL.createObjectURL(file);
     }
 
-    onDestroy() {
+    onDestroy(): void | Promise<void> {
         this.onMessageDeletedHandler?.unsubscribe();
         this.onMessageEditedHandler?.unsubscribe();
         this.onAnswerSelectedHandler?.unsubscribe();

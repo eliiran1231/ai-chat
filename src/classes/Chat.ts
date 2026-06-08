@@ -3,30 +3,53 @@ import { Message } from './Message';
 import { Supporter } from './Supporter';
 import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
+import { DBEntity, dbProperty } from './DBEntity';
 
 export type Avatar = {
   type: 'image' | 'text';
   value: string;
 };
 
-export class Chat {
+export class Chat extends DBEntity {
   id: Uuid;
+  @dbProperty
   name: string;
+  @dbProperty
   status: string;
-  avatar: Avatar;
+  @dbProperty
   subtitle?: string;
+  @dbProperty
   timeLabel?: string;
+  @dbProperty
   unreadCount: number;
+  @dbProperty
   highlightTime?: boolean;
+  @dbProperty
   avatarRing?: boolean;
+  @dbProperty
   tipLabel?: string;
   draftMessage: string;
   messages: Message[];
   supporter: Supporter;
   user: Client;
   active: boolean = false;
+  private _avatar: Avatar;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
+
+  get avatar(): Readonly<Avatar> {
+    return this._avatar;
+  }
+
+  get isRead(): boolean {
+    return this.unreadCount === 0 && this.messages.every((message) => message.isRead);
+  }
+
+  set isRead(isRead: boolean) {
+    if (!isRead) return;
+    this.unreadCount = 0;
+    this.messages.forEach((message) => (message.isRead = true));
+  }
 
   constructor(
     id: Uuid,
@@ -43,10 +66,11 @@ export class Chat {
       tipLabel?: string;
     } = {},
   ) {
+    super();
     this.id = id;
     this.name = name;
     this.status = status;
-    this.avatar = avatar;
+    this._avatar = avatar;
     this.messages = []
     this.supporter = supporter;
     this.supporter.setChat(this);
@@ -58,6 +82,7 @@ export class Chat {
     this.highlightTime = options.highlightTime;
     this.avatarRing = options.avatarRing;
     this.tipLabel = options.tipLabel;
+    this.enableDbChanges();
   }
   private _processFileUrlDriver(file: File) : string | Promise<string>{
     return URL.createObjectURL(file);
@@ -65,8 +90,9 @@ export class Chat {
   processFileUrl(file: File): string | Promise<string> {
     return this._processFileUrlDriver(file);
   }
-  updateAvatar(avatar: Avatar) {
-    this.avatar = avatar;
+  async updateAvatar(avatar: Avatar) {
+    this._avatar = avatar;
+    await this.saveChanges();
   }
   setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
     this._processFileUrlDriver = processor;
