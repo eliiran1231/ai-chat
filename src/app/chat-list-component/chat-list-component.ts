@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, SquarePen } from 'lucide-angular';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Chat } from '../../classes/Chat';
+import { Avatar, Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
 import { LanguageService } from '../../services/language.service';
 @Component({
@@ -37,11 +37,12 @@ export class ChatListComponent {
         });
 
     return chats.sort(
-      (a, b) => (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
+      (a, b) =>
+        (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
     );
   }
 
-  avatarFor(chat: Chat): string {
+  avatarFor(chat: Chat): Avatar {
     return chat.avatar;
   }
 
@@ -51,12 +52,9 @@ export class ChatListComponent {
       return chat.subtitle;
     }
 
-    return DOMPurify.sanitize(
-      lastMessage.value || 
-      lastMessage.attachment?.name || 
-      '', 
-      { ALLOWED_TAGS: [] }
-    );
+    return DOMPurify.sanitize(lastMessage.value || lastMessage.attachment?.name || '', {
+      ALLOWED_TAGS: [],
+    });
   }
 
   lastMessageTime(chat: Chat): string {
