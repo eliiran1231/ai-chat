@@ -28,11 +28,11 @@ export class ChatListComponent {
     const chats = !query
       ? [...this.chats]
       : this.chats.filter((chat) => {
-          const lastMessage = this.lastMessageText(chat).toLowerCase();
+          const lastMessage = this.lastMessageText(chat)?.toLowerCase();
           return (
             chat.name.toLowerCase().includes(query) ||
             chat.status.toLowerCase().includes(query) ||
-            lastMessage.includes(query)
+            lastMessage?.includes(query)
           );
         });
 
@@ -45,10 +45,10 @@ export class ChatListComponent {
     return chat.avatar;
   }
 
-  lastMessageText(chat: Chat): string {
+  lastMessageText(chat: Chat): string | undefined {
     const lastMessage = chat.messages.at(-1);
     if (!lastMessage) {
-      return chat.subtitle || this.language.instant('chatList.startConversation');
+      return chat.subtitle;
     }
 
     return DOMPurify.sanitize(

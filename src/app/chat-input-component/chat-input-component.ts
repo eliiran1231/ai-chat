@@ -31,9 +31,6 @@ ChatInputComponent {
   @Output() fileSubmit = new EventEmitter<File>();
   caption = ''
 
-  get resolvedPlaceholder(): string {
-    return this.placeholder ?? this.language.instant('chat.typeMessage');
-  }
 
   submitMessage(form?: NgForm): void {
     const trimmedMessage = this.caption.trim();

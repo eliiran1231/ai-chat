@@ -33,7 +33,7 @@
       [(ngModel)]="caption"
       (input)="syncComposerOverflow(autosize, messageInput)"
       (keydown)="handleComposerKeydown($event)"
-      [placeholder]="resolvedPlaceholder"
+      [placeholder]="placeholder || ('chat.typeMessage' | translate)"
       autocomplete="off"
     ></textarea>
   </label>

@@ -25,9 +25,7 @@ export class SidebarMenuComponent {
     return [
       {
         id: 'fullscreen',
-        label: this.isFullscreen
-          ? this.language.instant('menu.exitFullscreen')
-          : this.language.instant('menu.enterFullscreen'),
+        label: this.isFullscreen ? 'menu.exitFullscreen' : 'menu.enterFullscreen',
         icon: this.isFullscreen ? this.exitFullscreenIcon : this.enterFullscreenIcon,
       },
     ];

@@ -67,16 +67,14 @@ export class ChatNavbarComponent {
     return this.language.isRtl() ? this.backRightIcon : this.backLeftIcon;
   }
 
-  get menuItems(): AppMenuItem[] {
-    return [
-      {
-        id: 'delete-chat',
-        label: this.language.instant('chat.deleteChat'),
-        icon: this.deleteIcon,
+  menuItems: AppMenuItem[] = [
+    {
+      id: 'delete-chat',
+      label: 'chat.deleteChat',
+      icon: this.deleteIcon,
         tone: 'danger',
       },
     ];
-  }
 
   @ViewChild('searchInput') set inputRef(searchInput: ElementRef) {
     this.searchMode && searchInput.nativeElement.focus();
