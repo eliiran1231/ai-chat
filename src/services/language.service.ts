@@ -27,6 +27,7 @@ export class LanguageService {
   private readonly languageSignal = signal<AppLanguage>(this.getInitialLanguage());
 
   readonly language = this.languageSignal.asReadonly();
+  readonly currentLanguage = this.language;
   readonly direction = computed(() => this.currentOption.direction);
   readonly isRtl = computed(() => this.direction() === 'rtl');
 
@@ -35,16 +36,9 @@ export class LanguageService {
 
     effect(() => {
       const language = this.language();
-      const direction = this.direction();
 
       this.persistLanguage(language);
-      this.translate.use(language).subscribe();
-
-      if (typeof document !== 'undefined') {
-        document.documentElement.lang = language;
-        document.documentElement.dir = direction;
-        document.body.dir = direction;
-      }
+      this.translate.use(language);
     });
   }
 
@@ -70,7 +64,7 @@ export class LanguageService {
     }
 
     const storedLanguage = localStorage.getItem(STORAGE_KEY);
-    return storedLanguage === 'he' || storedLanguage === 'en' ? storedLanguage : 'en';
+    return LANGUAGE_OPTIONS.find((option) => option.code === storedLanguage)?.code ?? 'en';
   }
 
   private persistLanguage(language: AppLanguage): void {

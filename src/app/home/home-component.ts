@@ -1,4 +1,4 @@
-import { Component, HostBinding, HostListener, Injector, OnInit } from '@angular/core';
+import { Component, HostListener, Injector, OnInit } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
@@ -47,16 +47,6 @@ export class HomeComponent implements OnInit {
     private profileService: ProfileService,
     readonly language: LanguageService,
     ) {
-  }
-
-  @HostBinding('attr.dir')
-  get direction(): string {
-    return this.language.direction();
-  }
-
-  @HostBinding('attr.lang')
-  get lang(): string {
-    return this.language.language();
   }
 
   async ngOnInit(): Promise<void> {
