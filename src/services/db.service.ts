@@ -6,12 +6,10 @@ import { CreateMessageRecordInput } from '../interfaces/db/CreateMessageRecordIn
 import { CreateSupporterRecordInput } from '../interfaces/db/CreateSupporterRecordInput';
 import { MessageRecord } from '../interfaces/db/MessageRecord';
 import { SupporterRecord } from '../interfaces/db/SupporterRecord';
-import { UpdateChatAvatarInput } from '../interfaces/db/UpdateChatAvatarInput';
-import { UpdateChatTitleInput } from '../interfaces/db/UpdateChatTitleInput';
-import { UpdateMessageInput } from '../interfaces/db/UpdateMessageInput';
 import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgentInput';
-import { UpdateSupporterContextInput } from '../interfaces/db/UpdateSupporterContextInput';
 import { Uuid } from '../interfaces/db/Uuid';
+import { CommitMessageInput } from '../interfaces/db/CommitMessageInput';
+import { CommitChatInput } from '../interfaces/db/CommitChatInput';
 
 @Injectable({
   providedIn: 'root',
@@ -35,6 +33,10 @@ export class DbService {
     return this.electronService.invoke<boolean>('db:deleteChat', chatId);
   }
 
+  async commitChat(chat: CommitChatInput): Promise<boolean> {
+    return this.electronService.invoke<boolean>('db:commitChat', chat);
+  }
+
   async getChatMessages(chatId: Uuid): Promise<MessageRecord[]> {
     return this.electronService.invoke<MessageRecord[]>('db:getChatMessages', chatId);
   }
@@ -43,8 +45,8 @@ export class DbService {
     return this.electronService.invoke<MessageRecord>('db:createMessage', message);
   }
 
-  async updateMessage(message: UpdateMessageInput): Promise<boolean> {
-    return this.electronService.invoke<boolean>('db:updateMessage', message);
+  async commitMessage(message: CommitMessageInput){
+    return this.electronService.invoke<boolean>('db:commitMessage', message)
   }
 
   async deleteMessage(messageId: Uuid): Promise<boolean> {
@@ -59,29 +61,22 @@ export class DbService {
     return this.electronService.invoke<SupporterRecord>('db:createSupporter', supporter);
   }
 
-  async markChatRead(chatId: Uuid): Promise<boolean> {
-    return this.electronService.invoke<boolean>('db:markChatRead', chatId);
-  }
-
-  async updateChatTitle(input: UpdateChatTitleInput): Promise<ChatRecord> {
-    return this.electronService.invoke<ChatRecord>('db:updateChatTitle', input);
-  }
-
-  async updateChatAvatar(input: UpdateChatAvatarInput): Promise<ChatRecord> {
-    return this.electronService.invoke<ChatRecord>('db:updateChatAvatar', input);
-  }
-
   async updateSupporterAgent(input: UpdateSupporterAgentInput): Promise<boolean> {
     return this.electronService.invoke<boolean>('db:updateSupporterAgent', input);
   }
 
-  async updateSupporterContext(input: UpdateSupporterContextInput): Promise<boolean> {
-    try{
-      input.context = JSON.stringify(input.context);
+  async commitSupporter(supporter: { id: Uuid; context?: any }): Promise<boolean> {
+    const payload: any = {
+      id: supporter.id,
+      name: (supporter as any).name ?? undefined,
+      expects: (supporter as any).expects ?? undefined,
+      context: supporter.context ?? '',
+    };
+    try {
+      payload.context = JSON.stringify(payload.context);
+    } catch {
+      payload.context = String(payload.context);
     }
-    catch{
-      input.context = input.context.toString();
-    }
-    return this.electronService.invoke<boolean>('db:updateSupporterContext', input);
+    return this.electronService.invoke<boolean>('db:commitSupporter', payload as any);
   }
 }
