@@ -1,10 +1,10 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, SquarePen } from 'lucide-angular';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Avatar, Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
-import { LanguageService } from '../../services/language.service';
+
 @Component({
   selector: 'app-chat-list-component',
   imports: [FormsModule, LucideAngularModule, TranslatePipe],
@@ -12,7 +12,6 @@ import { LanguageService } from '../../services/language.service';
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {
-  readonly language = inject(LanguageService);
   readonly searchIcon = Search;
   readonly composeIcon = SquarePen;
   @Input({ required: true }) chats: Chat[] = [];

@@ -1,10 +1,9 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LucideAngularModule, Paperclip, SendHorizontal } from 'lucide-angular';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Chat } from '../../classes/Chat';
-import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-chat-input-component',
@@ -14,7 +13,6 @@ import { LanguageService } from '../../services/language.service';
 })
 export class 
 ChatInputComponent {
-  readonly language = inject(LanguageService);
   readonly composerMaxRows = 5;
   readonly attachIcon = Paperclip;
   readonly sendIcon = SendHorizontal;

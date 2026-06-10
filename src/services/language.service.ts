@@ -26,8 +26,7 @@ export class LanguageService {
 
   private readonly languageSignal = signal<AppLanguage>(this.getInitialLanguage());
 
-  readonly language = this.languageSignal.asReadonly();
-  readonly currentLanguage = this.language;
+  readonly currentLanguage = this.languageSignal.asReadonly();
   readonly direction = computed(() => this.currentOption.direction);
   readonly isRtl = computed(() => this.direction() === 'rtl');
 
@@ -35,7 +34,7 @@ export class LanguageService {
     this.translate.setFallbackLang('en');
 
     effect(() => {
-      const language = this.language();
+      const language = this.currentLanguage();
 
       this.persistLanguage(language);
       this.translate.use(language);
@@ -55,7 +54,10 @@ export class LanguageService {
   }
 
   get currentOption(): AppLanguageOption {
-    return this.languageOptions.find((option) => option.code === this.language()) ?? this.languageOptions[0]!;
+    return (
+      this.languageOptions.find((option) => option.code === this.currentLanguage()) ??
+      this.languageOptions[0]!
+    );
   }
 
   private getInitialLanguage(): AppLanguage {

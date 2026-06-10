@@ -73,8 +73,8 @@
                 type="button"
                 class="language-option"
                 role="radio"
-                [class.language-option--active]="language.language() === option.code"
-                [attr.aria-checked]="language.language() === option.code"
+                [class.language-option--active]="language.currentLanguage() === option.code"
+                [attr.aria-checked]="language.currentLanguage() === option.code"
                 (click)="selectLanguage(option.code)"
               >
                 <span>
@@ -82,7 +82,7 @@
                   <small>{{ option.labelKey | translate }}</small>
                 </span>
 
-                @if (language.language() === option.code) {
+                @if (language.currentLanguage() === option.code) {
                   <span
                     class="language-option__check"
                     [attr.aria-label]="'profile.currentLanguage' | translate"
