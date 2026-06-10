@@ -32,7 +32,8 @@
     "searchPlaceholder": "Search or start a new chat",
     "empty": "No chats match your search.",
     "newChat": "New chat",
-    "startConversation": "Start the conversation"
+    "startConversation": "Start the conversation",
+    "draft": "Draft"
   },
   "chat": {
     "newChatTitle": "New chat",

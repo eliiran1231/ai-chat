@@ -42,7 +42,9 @@
           <div class="chat-list-item__bottom">
             <p>
               @if (chat.draftMessage.trim()) {
-                <span class="chat-list-item__draft-label">Draft:</span>
+                <span class="chat-list-item__draft-label">{{
+                  'chatList.draft' | translate
+                }}:</span>
                 <span> {{ chat.draftMessage.trim() }}</span>
               }
               @else {

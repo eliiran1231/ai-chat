@@ -32,7 +32,8 @@
     "searchPlaceholder": "חיפוש או התחלת צ׳אט חדש",
     "empty": "לא נמצאו צ׳אטים שתואמים לחיפוש.",
     "newChat": "צ׳אט חדש",
-    "startConversation": "התחילו את השיחה"
+    "startConversation": "התחילו את השיחה",
+    "draft": "טיוטה"
   },
   "chat": {
     "newChatTitle": "צ׳אט חדש",
