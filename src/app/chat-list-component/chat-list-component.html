@@ -40,7 +40,15 @@
             </div>
           </div>
           <div class="chat-list-item__bottom">
-            <p>{{ lastMessageText(chat) || ('chatList.startConversation' | translate) }}</p>
+            <p>
+              @if (chat.draftMessage.trim()) {
+                <span class="chat-list-item__draft-label">Draft:</span>
+                <span> {{ chat.draftMessage.trim() }}</span>
+              }
+              @else {
+                {{ lastMessageText(chat) || ('chatList.startConversation' | translate) }}
+              }
+            </p>
             @if (chat.unreadCount) {
               <span class="chat-list-item__badge">{{ chat.unreadCount }}</span>
             }

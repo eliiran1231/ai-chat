@@ -73,7 +73,7 @@
     <app-chat-input-component
       theme="light"
       [chat]="chat"
-      [value]="editDraft"
+      [(caption)]="chat.draftMessage"
       [placeholder]="editingMessage ? ('chat.editMessagePlaceholder' | translate) : ('chat.typeMessage' | translate)"
       [allowAttachments]="!editingMessage"
       (messageSubmit)="sendMessage($event)"

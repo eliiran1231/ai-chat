@@ -1,5 +1,6 @@
 import { Chat } from "./Chat";
 import { Uuid } from "../interfaces/db/Uuid";
+import { DBEntity, dbProperty } from "./DBEntity";
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
@@ -16,18 +17,31 @@ export type MessageOptions = {
     attachment?: Attachment,
     editable?: boolean,
     deletable?: boolean,
+    time?: Date,
+    from?: MessageSender,
+    isRead?: boolean,
+    editedAt?: Date
 }
 
-export class Message {
+export class Message extends DBEntity {
     id!: Uuid;
+    @dbProperty
     from?: MessageSender;
-    time: Date = new Date();
+    @dbProperty
+    time: Date;
+    @dbProperty
     editedAt?: Date;
+    @dbProperty
     tag: string;
+    @dbProperty
     value: string;
-    isRead: boolean = false;
+    @dbProperty
+    isRead: boolean;
+    @dbProperty
     attachment?: Attachment;
+    @dbProperty
     editable: boolean;
+    @dbProperty
     deletable: boolean;
     private _chat?: Chat;
 
@@ -36,19 +50,29 @@ export class Message {
     }
 
     constructor(value: string, options?: MessageOptions) {
+        super();
         this.value = value;
         this.attachment = options?.attachment;
         if (options?.id) this.id = options.id;
         this.editable = options?.editable ?? true;
         this.deletable = options?.deletable ?? true;
         this.tag = options?.tag ?? 'general';
+        this.from = options?.from;
+        this.time = options?.time ?? new Date();
+        this.editedAt = options?.editedAt;
+        this.isRead = options?.isRead ?? false;
+        if (new.target === Message) this.enableDbChanges();
     }
 
     edit(newValue: string): void {
-        if (!this.editable || this.from === 'supporter' || !this._chat) return;
+        if (!this.editable || this.from === 'supporter' || !this._chat || this.value === newValue) return;
         this.value = newValue;
         this.editedAt = new Date();
         this._chat.onMessageEdited.next(this);
+    }
+
+    setAttachment(attachment?: Attachment): void {
+        this.attachment = attachment;
     }
 
     delete(): void {

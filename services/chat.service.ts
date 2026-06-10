@@ -35,14 +35,17 @@ export interface ChatPayload {
   tipLabel?: string | null;
 }
 
-export interface UpdateChatTitlePayload {
-  chatId: Uuid;
+export interface CommitChatPayload {
+  id: Uuid;
   name: string;
-}
-
-export interface UpdateChatAvatarPayload {
-  chatId: Uuid;
+  status: string;
   avatar: AvatarPayload;
+  subtitle?: string | null;
+  timeLabel?: string | null;
+  unreadCount: number;
+  highlightTime?: boolean;
+  avatarRing?: boolean;
+  tipLabel?: string | null;
 }
 
 export class ChatService {
@@ -154,6 +157,41 @@ export class ChatService {
     return this.mapChatRow(row);
   }
 
+  async commitChat(chat: CommitChatPayload): Promise<boolean> {
+    const now = new Date().toISOString();
+    const result = await this.db.run(
+      `
+        UPDATE chats
+        SET name = ?,
+            status = ?,
+            avatar = ?,
+            subtitle = ?,
+            time_label = ?,
+            unread_count = ?,
+            highlight_time = ?,
+            avatar_ring = ?,
+            tip_label = ?,
+            updated_at = ?
+        WHERE id = ?
+      `,
+      [
+        chat.name,
+        chat.status,
+        JSON.stringify(chat.avatar),
+        chat.subtitle ?? null,
+        chat.timeLabel ?? null,
+        chat.unreadCount,
+        chat.highlightTime ? 1 : 0,
+        chat.avatarRing ? 1 : 0,
+        chat.tipLabel ?? null,
+        now,
+        chat.id,
+      ],
+    );
+
+    return result.changes > 0;
+  }
+
   public parseAvatarColumn(value: string | null, rowId: Uuid) {
     const parsedValue = this.db.parseJsonColumn(value, 'avatar', rowId);
     if (parsedValue === undefined) {
@@ -171,85 +209,6 @@ export class ChatService {
 
     console.warn(`Unexpected avatar payload for chat ${rowId}.`, parsedValue);
     return value;
-  }
-
-  async updateChatAvatar({ chatId, avatar }: UpdateChatAvatarPayload) {
-    const now = new Date().toISOString();
-    await this.db.run(
-      `
-        UPDATE chats
-        SET avatar = ?,
-            updated_at = ?
-        WHERE id = ?
-      `,
-      [JSON.stringify(avatar), now, chatId],
-    );
-
-    const row = await this.db.get<ChatRow>(
-      `
-        SELECT
-          id,
-          name,
-          status,
-          avatar,
-          subtitle,
-          time_label,
-          unread_count,
-          highlight_time,
-          avatar_ring,
-          tip_label,
-          created_at,
-          updated_at
-        FROM chats
-        WHERE id = ?
-      `,
-      [chatId],
-    );
-    if (!row) {
-      throw new Error(`Updated avatar for chat ${chatId} could not be loaded.`);
-    }
-
-    return this.mapChatRow(row);
-  }
-  
-  async updateChatTitle({ chatId, name }: UpdateChatTitlePayload) {
-    const now = new Date().toISOString();
-    await this.db.run(
-      `
-        UPDATE chats
-        SET name = ?,
-            updated_at = ?
-        WHERE id = ?
-      `,
-      [name, now, chatId],
-    );
-
-    const row = await this.db.get<ChatRow>(
-      `
-        SELECT
-          id,
-          name,
-          status,
-          avatar,
-          subtitle,
-          time_label,
-          unread_count,
-          highlight_time,
-          avatar_ring,
-          tip_label,
-          created_at,
-          updated_at
-        FROM chats
-        WHERE id = ?
-      `,
-      [chatId],
-    );
-
-    if (!row) {
-      throw new Error(`Updated chat ${chatId} could not be loaded.`);
-    }
-
-    return this.mapChatRow(row);
   }
 
   async deleteChat(chatId: Uuid): Promise<boolean> {
