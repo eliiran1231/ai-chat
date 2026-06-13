@@ -2,6 +2,7 @@ import { ValidatorSpec } from "../interfaces/validation/ValidatorSpec";
 import { Answer } from "./Answer";
 import { MessageOptions, Message } from "./Message";
 import { coerceValidatorSpec, normalizeValidatorSpec, validateValue } from "./MessageValidator";
+import { dbProperty } from "./DBEntity";
 
 
 export function getPersistableValidationErrorMessage(
@@ -23,8 +24,11 @@ export type QuestionOptions = MessageOptions & {
 }
 
 export class Question extends Message {
+    @dbProperty
     private _possibleAnswers: Answer[] = [];
+    @dbProperty
     public validatorSpec?: ValidatorSpec;
+    @dbProperty
     public validationErrorMessage: string | Message  = "Invalid answer. Please try again.";
     public get possibleAnswers() {
         return this._possibleAnswers;
@@ -38,6 +42,7 @@ export class Question extends Message {
         if (options?.possibleAnswers) {
             this.setPossibleAnswers(options.possibleAnswers);
         }
+        this.enableDbChanges();
     }
 
     setValidator(validator: RegExp | ValidatorSpec, validationErrorMessage?: string | Message) {
