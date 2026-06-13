@@ -1,5 +1,6 @@
 import { CdkMenuModule } from '@angular/cdk/menu';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 
 export interface AppMenuItem {
@@ -12,13 +13,14 @@ export interface AppMenuItem {
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CdkMenuModule, LucideAngularModule],
+  imports: [CdkMenuModule, LucideAngularModule, TranslatePipe],
   templateUrl: './app-menu.html',
   styleUrl: './app-menu.scss',
 })
 export class AppMenu {
   @Input({ required: true }) menuIcon!: LucideIconData;
   @Input({ required: true }) items: AppMenuItem[] = [];
+  @Input() ariaLabel = 'Menu';
 
   @Output() itemSelected = new EventEmitter<string>();
 

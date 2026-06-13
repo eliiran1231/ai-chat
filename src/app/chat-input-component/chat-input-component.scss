@@ -60,6 +60,10 @@
   stroke-width: 2.2;
 }
 
+:host-context([dir='rtl']) .send-button lucide-angular {
+  transform: scaleX(-1);
+}
+
 .composer-field {
   display: block;
   min-width: 0;
