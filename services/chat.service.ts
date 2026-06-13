@@ -72,16 +72,6 @@ export class ChatService {
         updated_at TEXT NOT NULL
       )
     `);
-    // Ensure `manager_name` column exists on older databases
-    try {
-      const cols = await this.db.all<any>(`PRAGMA table_info(chats)`);
-      const hasManager = cols && cols.some((c) => c && c.name === 'manager_name');
-      if (!hasManager) {
-        await this.db.run(`ALTER TABLE chats ADD COLUMN manager_name TEXT`);
-      }
-    } catch (err) {
-      console.warn('Failed to ensure manager_name column exists on chats table.', err);
-    }
   }
 
   async getChats() {
