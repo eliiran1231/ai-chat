@@ -49,7 +49,7 @@ export class ChatService {
 
     const supporterRecord = await this.dbService.createSupporter({
       chatId: record.id,
-      agentName: this.agentsService.getAgentName(initialAgent),
+      agentName: initialAgent.name,
       context: '{}',
     });
 
@@ -66,9 +66,10 @@ export class ChatService {
         ]);
         if(!persistedSupporterRecord?.agentName) throw new Error("couldnt retrieve agent from SQL")
         const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
+        initialAgent.name = persistedSupporterRecord.agentName;
         const supporterRecord = persistedSupporterRecord ?? await this.dbService.createSupporter({
           chatId: record.id,
-          agentName: this.agentsService.getAgentName(initialAgent),
+          agentName: initialAgent.name,
           context: '',
         });
 
@@ -261,7 +262,7 @@ export class ChatService {
     chat.supporter.onAgentSwitch.subscribe((agent) => {
       void this.dbService.updateSupporterAgent({
         chatId: chat.id,
-        agentName: this.agentsService.getAgentName(agent),
+        agentName: agent.name,
       });
     });
     chat.supporter.onContextChange.subscribe((context) => {

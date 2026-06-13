@@ -5,6 +5,7 @@ import { Message } from "./Message";
 import { Question } from "./Question";
 import { Supporter } from "./Supporter";
 import { Subscription } from "rxjs";
+import { AgentsService } from "../services/agents.service";
 
 export class Agent {
     chat: Chat = null as any;
@@ -14,8 +15,19 @@ export class Agent {
     private onMessageDeletedHandler?: Subscription;
     private onMessageEditedHandler?: Subscription;
     private onAnswerSelectedHandler?: Subscription;
-
-    constructor(injector: Injector) { }
+    private _name?: string;
+    private agentService: AgentsService;
+    set name(name: string){
+        if(this._name) throw new Error("this agent name was already set and cannot be changed")
+    }
+    get name(): string {
+        if(!this._name) this._name = this.agentService.getAgentName(this);
+        return this._name;
+    }
+    
+    constructor(injector: Injector) {
+        this.agentService = injector.get(AgentsService);
+    }
 
     private findLastSupporterQuestion(messages: Message[]): Question | undefined {
         for (let i = this.chat.messages.length - 1; i >= 0; i--) {
