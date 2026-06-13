@@ -9,7 +9,9 @@ import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 
 import { routes } from './app.routes';
 import { AppAgentsModule } from './app-agents.module';
+import { AppChatManagersModule } from './app-chat-managers.module';
 import { provideAgents } from '../services/agents.module';
+import { provideChatManagers } from '../services/chat-managers.module';
 import DOMPurify from 'dompurify';
 
 DOMPurify.setConfig({
@@ -37,5 +39,6 @@ export const appConfig: ApplicationConfig = {
     }),
     provideRouter(routes),
     provideAgents(AppAgentsModule),
+    provideChatManagers(AppChatManagersModule),
   ],
 };
