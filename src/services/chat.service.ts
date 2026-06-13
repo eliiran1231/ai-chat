@@ -132,7 +132,7 @@ export class ChatService {
     supporter.setSaveChangesHandler((target)=>this.commitSupporterChanges(target));
     supporter.onAgentSwitch.subscribe((agent) => this.dbService.updateSupporterAgent({
       chatId: chat.id,
-      agentName: this.agentsService.getAgentName(agent),
+      agentName: agent.name,
     }));
     supporter.setAgent(initialAgent);
     return chat;
