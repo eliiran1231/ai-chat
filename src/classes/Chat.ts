@@ -4,6 +4,7 @@ import { Supporter } from './Supporter';
 import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
 import { DBEntity, dbProperty } from './DBEntity';
+import { ChatManager } from './ChatManager';
 
 export type Avatar = {
   type: 'image' | 'text';
@@ -31,6 +32,7 @@ export class Chat extends DBEntity {
   draftMessage: string;
   messages: Message[];
   supporter: Supporter;
+  chatManager: ChatManager;
   user: Client;
   active: boolean = false;
   private _avatar: Avatar;
@@ -57,6 +59,7 @@ export class Chat extends DBEntity {
     status: string,
     avatar: Avatar,
     supporter: Supporter,
+    chatManager: ChatManager,
     options: {
       subtitle?: string;
       timeLabel?: string;
@@ -73,6 +76,8 @@ export class Chat extends DBEntity {
     this._avatar = avatar;
     this.messages = []
     this.supporter = supporter;
+    this.chatManager = chatManager;
+    this.chatManager.init(this);
     this.supporter.setChat(this);
     this.user = new Client(this);
     this.draftMessage = '';

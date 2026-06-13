@@ -4,12 +4,12 @@ import { DBEntity, dbProperty } from "./DBEntity";
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
-export type Attachment = { 
+export type Attachment = {
     type: string,
     url: string,
     size: number,
     extension: string,
-    name: string 
+    name: string
 };
 export type MessageOptions = {
     id?: Uuid,
@@ -64,21 +64,33 @@ export class Message extends DBEntity {
         if (new.target === Message) this.enableDbChanges();
     }
 
-    edit(newValue: string): void {
-        if (!this.editable || this.from === 'supporter' || !this._chat || this.value === newValue) return;
+    async edit(newValue: string): Promise<boolean> {
+        if (
+            !this.editable ||
+            this.from === 'supporter' ||
+            !this._chat ||
+            this.value === newValue ||
+            !(await this._chat.chatManager.onEditRequested(this, newValue))
+        ) return false;
         this.value = newValue;
         this.editedAt = new Date();
         this._chat.onMessageEdited.next(this);
+        return true;
     }
 
     setAttachment(attachment?: Attachment): void {
         this.attachment = attachment;
     }
 
-    delete(): void {
-        if (!this.deletable || !this._chat) return;
+    async delete(): Promise<boolean> {
+        if (
+            !this.deletable ||
+            !this._chat ||
+            !(await this._chat.chatManager.onDeleteRequested(this))
+        ) return false;
         this._chat.onMessageDeleted.next(this);
         const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
         index >= 0 && this._chat.messages.splice(index, 1);
+        return true;
     }
 }
