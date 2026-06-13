@@ -37,4 +37,8 @@ export class ChatManager {
     onDeleteRequested(message: Message): boolean | Promise<boolean> {
         return true;
     }
+
+    onDestroy(): void | Promise<void> {
+        
+    }
 }

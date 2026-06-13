@@ -32,12 +32,13 @@ export class Chat extends DBEntity {
   draftMessage: string;
   messages: Message[];
   supporter: Supporter;
-  chatManager: ChatManager;
+  manager?: ChatManager;
   user: Client;
   active: boolean = false;
   private _avatar: Avatar;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
+  public readonly onManagerSwitch = new Subject<ChatManager>();
 
   get avatar(): Readonly<Avatar> {
     return this._avatar;
@@ -59,7 +60,6 @@ export class Chat extends DBEntity {
     status: string,
     avatar: Avatar,
     supporter: Supporter,
-    chatManager: ChatManager,
     options: {
       subtitle?: string;
       timeLabel?: string;
@@ -76,8 +76,6 @@ export class Chat extends DBEntity {
     this._avatar = avatar;
     this.messages = []
     this.supporter = supporter;
-    this.chatManager = chatManager;
-    this.chatManager.init(this);
     this.supporter.setChat(this);
     this.user = new Client(this);
     this.draftMessage = '';
@@ -101,5 +99,11 @@ export class Chat extends DBEntity {
   }
   setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
     this._processFileUrlDriver = processor;
+  }
+  async setManager(chatManager: ChatManager){
+    await this.manager?.onDestroy();
+    this.manager = chatManager
+    await this.manager.init(this);
+    this.onManagerSwitch.next(chatManager);
   }
 }
