@@ -17,23 +17,26 @@ export class Client {
     constructor(chat: Chat){
         this.chat = chat;
     }
-    ask(question : Question | string){
-        question instanceof Question ?
-        this.appendMessage(question) :
-        this.appendMessage(new Question(question));
-        this.chat.supporter.respond();
+    async ask(question : Question | string){
+        question = question instanceof Question ?
+        question :
+        new Question(question);
+        return this.appendMessage(question);
     }
-    answer(answer : Answer | string){
-        answer instanceof Answer ? 
-        this.appendMessage(answer) : 
-        this.appendMessage(new Answer(answer));
-        this.chat.supporter.respond();
+    async answer(answer : Answer | string){
+        answer = answer instanceof Answer ? 
+        answer :
+        new Answer(answer)
+        return this.appendMessage(answer);
     }
-    private appendMessage(message: Message){
+    private async appendMessage(message: Message){
         message.from = "client";
         message.setChat(this.chat);
         message.isRead = true;
+        if(await this.chat.manager?.onSendRequested(message) === false) return false;
         this.chat.messages.push(message);
         this.onMessageAdded.next(message);
+        this.chat.supporter.respond()
+        return true;
     }
 }
