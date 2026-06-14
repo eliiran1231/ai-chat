@@ -8,6 +8,7 @@ interface ChatRow {
   name: string;
   status: string;
   avatar: string;
+  manager_name: string | null;
   subtitle: string | null;
   time_label: string | null;
   unread_count: number | null;
@@ -33,6 +34,7 @@ export interface ChatPayload {
   highlightTime?: boolean;
   avatarRing?: boolean;
   tipLabel?: string | null;
+  managerName?: string | null;
 }
 
 export interface CommitChatPayload {
@@ -46,6 +48,7 @@ export interface CommitChatPayload {
   highlightTime?: boolean;
   avatarRing?: boolean;
   tipLabel?: string | null;
+  managerName?: string | null;
 }
 
 export class ChatService {
@@ -58,6 +61,7 @@ export class ChatService {
         name TEXT NOT NULL,
         status TEXT NOT NULL,
         avatar TEXT NOT NULL,
+        manager_name TEXT,
         subtitle TEXT,
         time_label TEXT,
         unread_count INTEGER DEFAULT 0,
@@ -77,6 +81,7 @@ export class ChatService {
         name,
         status,
         avatar,
+        manager_name,
         subtitle,
         time_label,
         unread_count,
@@ -102,6 +107,7 @@ export class ChatService {
           name,
           status,
           avatar,
+          manager_name,
           subtitle,
           time_label,
           unread_count,
@@ -111,13 +117,15 @@ export class ChatService {
           created_at,
           updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         chatId,
         chat.name,
         chat.status,
         JSON.stringify(chat.avatar),
+        chat.managerName ?? null,
+        
         chat.subtitle ?? null,
         chat.timeLabel ?? null,
         chat.unreadCount ?? 0,
@@ -136,6 +144,7 @@ export class ChatService {
           name,
           status,
           avatar,
+          manager_name,
           subtitle,
           time_label,
           unread_count,
@@ -165,6 +174,7 @@ export class ChatService {
         SET name = ?,
             status = ?,
             avatar = ?,
+            manager_name = ?,
             subtitle = ?,
             time_label = ?,
             unread_count = ?,
@@ -178,6 +188,7 @@ export class ChatService {
         chat.name,
         chat.status,
         JSON.stringify(chat.avatar),
+          chat.managerName ?? null,
         chat.subtitle ?? null,
         chat.timeLabel ?? null,
         chat.unreadCount,
@@ -224,6 +235,7 @@ export class ChatService {
       name: row.name,
       status: row.status,
       avatar: this.parseAvatarColumn(row.avatar, row.id),
+      managerName: (row as any).manager_name ?? undefined,
       subtitle: row.subtitle ?? undefined,
       timeLabel: row.time_label ?? undefined,
       unreadCount: row.unread_count ?? undefined,
@@ -233,6 +245,19 @@ export class ChatService {
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };
+  }
+
+  async updateChatManager({ chatId, managerName }: { chatId: Uuid; managerName?: string }): Promise<boolean> {
+    const result = await this.db.run(
+      `
+        UPDATE chats
+        SET manager_name = ?,
+            updated_at = ?
+        WHERE id = ?
+      `,
+      [managerName ?? null, new Date().toISOString(), chatId],
+    );
+    return result.changes > 0;
   }
 }
 

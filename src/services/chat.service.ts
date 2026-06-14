@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { Answer } from '../classes/Answer';
 import { Message, MessageOptions } from '../classes/Message';
 import { coerceValidatorSpec } from '../classes/MessageValidator';
@@ -12,6 +12,8 @@ import { MessageRecord } from '../interfaces/db/MessageRecord';
 import { SupporterRecord } from '../interfaces/db/SupporterRecord';
 import { DbService } from './db.service';
 import { Uuid } from '../interfaces/db/Uuid';
+import { ChatManager } from '../classes/ChatManager';
+import { ChatManagersService } from './chat-managers.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +22,8 @@ export class ChatService {
   constructor(
     private dbService: DbService,
     private agentsService: AgentsService,
+    private chatManagersService: ChatManagersService,
+    private injector: Injector
   ) {}
   async createChat(
     name: string,
@@ -52,13 +56,18 @@ export class ChatService {
       context: '{}',
     });
 
-    return this.hydrateChat(record, initialAgent, [], supporterRecord);
+    return this.hydrateChat(record, initialAgent, undefined, [], supporterRecord);
   }
 
   async getChats(): Promise<Chat[]> {
     const records = await this.dbService.getChats();
     return Promise.all(
       records.map(async (record) => {
+        let manager;
+        if (record.managerName) {
+          manager = this.chatManagersService.getManagerByName(record.managerName);
+          manager.name = record.managerName;
+        }
         const [messages, persistedSupporterRecord] = await Promise.all([
           this.dbService.getChatMessages(record.id),
           this.dbService.getChatSupporter(record.id),
@@ -75,6 +84,7 @@ export class ChatService {
         return this.hydrateChat(
           record,
           initialAgent,
+          manager,
           messages,
           supporterRecord,
         );
@@ -92,12 +102,13 @@ export class ChatService {
       name: supporter.name,
       expects: supporter.expects,
       context: supporter.context,
-    } as any);
+    });
   }
 
   hydrateChat(
     record: ChatRecord,
     initialAgent: Agent,
+    initialManager: ChatManager | undefined,
     messageRecords: MessageRecord[],
     supporterRecord?: SupporterRecord | null,
   ): Chat {
@@ -122,6 +133,7 @@ export class ChatService {
       avatarRing: record.avatarRing,
       tipLabel: record.tipLabel,
     });
+    initialManager && chat.setManager(initialManager);
     chat.setSaveChangesHandler((target)=>this.commitChatChanges(target));
     for (const messageRecord of messageRecords) {
       const message = this.hydrateMessage(messageRecord);
@@ -133,6 +145,10 @@ export class ChatService {
     supporter.onAgentSwitch.subscribe((agent) => this.dbService.updateSupporterAgent({
       chatId: chat.id,
       agentName: agent.name,
+    }));
+    chat.onManagerSwitch.subscribe(() => this.dbService.updateChatManager({
+      chatId: chat.id,
+      managerName: chat.manager?.name
     }));
     supporter.setAgent(initialAgent);
     return chat;

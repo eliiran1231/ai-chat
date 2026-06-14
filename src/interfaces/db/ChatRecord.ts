@@ -6,6 +6,7 @@ export interface ChatRecord {
   name: string;
   status: string;
   avatar: Avatar;
+  managerName?: string;
   subtitle?: string;
   timeLabel?: string;
   unreadCount?: number;

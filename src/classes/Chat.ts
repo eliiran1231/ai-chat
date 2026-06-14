@@ -4,6 +4,7 @@ import { Supporter } from './Supporter';
 import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
 import { DBEntity, dbProperty } from './DBEntity';
+import { ChatManager } from './ChatManager';
 
 export type Avatar = {
   type: 'image' | 'text';
@@ -31,11 +32,13 @@ export class Chat extends DBEntity {
   draftMessage: string;
   messages: Message[];
   supporter: Supporter;
+  manager?: ChatManager;
   user: Client;
   active: boolean = false;
   private _avatar: Avatar;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
+  public readonly onManagerSwitch = new Subject<ChatManager>();
 
   get avatar(): Readonly<Avatar> {
     return this._avatar;
@@ -96,5 +99,11 @@ export class Chat extends DBEntity {
   }
   setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
     this._processFileUrlDriver = processor;
+  }
+  async setManager(chatManager: ChatManager){
+    await this.manager?.onDestroy();
+    this.manager = chatManager
+    await this.manager.init(this);
+    this.onManagerSwitch.next(chatManager);
   }
 }

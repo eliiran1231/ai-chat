@@ -67,7 +67,7 @@ export class Agent {
         throw new Error("validation didnt pass");
     }
 
-    onAnswerSelected(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number) {
+    async onAnswerSelected(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number) {
         if (associatedQuestionIndex >= this.chat.messages.length - 1) {
             this.chat.user.answer(structuredClone(answer));
             return;
@@ -76,14 +76,14 @@ export class Agent {
         for(let i = 1; !(responseToEdit instanceof Answer && responseToEdit.from === "client"); i++){
             responseToEdit = this.chat.messages[associatedQuestionIndex + i];
         }
-        responseToEdit?.edit(answer.value);
+        await responseToEdit?.edit(answer.value);
     }
 
-    onMessageEdited(message: Message) {
+    async onMessageEdited(message: Message) {
         for (let i = this.chat.messages.length - 1; i >= 0; i--) {
             const msg = this.chat.messages[i];
             if (msg.id === message.id) break;
-            msg.delete();
+            await msg.delete();
         }
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages);
         this.respond(true);
