@@ -18,13 +18,13 @@ export class Client {
     constructor(chat: Chat){
         this.chat = chat;
     }
-    async ask(question : Question | string){
+    ask(question : Question | string){
         question = question instanceof Question ?
         question :
         new Question(question);
         return this.appendMessage(question);
     }
-    async answer(answer : Answer | string){
+    answer(answer : Answer | string){
         answer = answer instanceof Answer ? 
         answer :
         new Answer(answer)
@@ -33,14 +33,14 @@ export class Client {
     private async appendMessage(message: Message){
         message.from = "client";
         message.setChat(this.chat);
-        if(await this.chat.manager?.onSendRequested(message) === false) {
-            message.status = MessageStatus.Failed;
+        this.chat.messages.push(message);
+        if(await this.chat.manager?.requestSend(message) === false) {
             return false;
         }
-        message.status = MessageStatus.Read;
-        this.chat.messages.push(message);
+        message.status = MessageStatus.Sent;
         this.onMessageAdded.next(message);
         this.chat.supporter.respond()
+        
         return true;
     }
 }

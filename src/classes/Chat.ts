@@ -52,7 +52,9 @@ export class Chat extends DBEntity {
   set isRead(isRead: boolean) {
     if (!isRead) return;
     this.unreadCount = 0;
-    this.messages.forEach((message) => (message.status = MessageStatus.Read));
+    for (let message of this.messages) {
+      if(message.from == "supporter") message.status = MessageStatus.Read;
+    }
   }
 
   constructor(

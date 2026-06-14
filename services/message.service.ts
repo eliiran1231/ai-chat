@@ -184,18 +184,6 @@ export class MessageService {
 
     await this.db.run(sql, commonArgs);
 
-    if (message.status != MessageStatus.Read) {
-      await this.db.run(
-        `
-          UPDATE chats
-          SET unread_count = unread_count + 1,
-              updated_at = ?
-          WHERE id = ?
-        `,
-        [new Date().toISOString(), message.chatId],
-      );
-    }
-
     const row = await this.db.get<MessageRow>(
       `
         SELECT

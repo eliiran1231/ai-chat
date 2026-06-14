@@ -71,7 +71,7 @@ export class Message extends DBEntity {
             this.from === 'supporter' ||
             !this._chat ||
             this.value === newValue ||
-            await this._chat.manager?.onEditRequested(this, newValue) === false
+            await this._chat.manager?.requestEdit(this, newValue) === false
         ) return false;
         this.value = newValue;
         this.editedAt = new Date();
@@ -87,7 +87,7 @@ export class Message extends DBEntity {
         if (
             !this.deletable ||
             !this._chat ||
-            await this._chat.manager?.onDeleteRequested(this) === false
+            await this._chat.manager?.requestDelete(this) === false
         ) return false;
         this._chat.onMessageDeleted.next(this);
         const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
