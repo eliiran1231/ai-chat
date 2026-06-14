@@ -5,4 +5,8 @@ export class Answer extends Message {
         super(value, options);
         this.enableDbChanges();
     }
+
+    override clone(): Answer {
+        return new Answer(this.value, { ...this })
+    }
 }

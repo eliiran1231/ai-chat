@@ -69,7 +69,7 @@ export class Agent {
 
     onAnswerSelected(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number) {
         if (associatedQuestionIndex >= this.chat.messages.length - 1) {
-            this.chat.user.answer(structuredClone(answer));
+            this.chat.user.answer(answer.clone());
             return;
         }
         let responseToEdit;
