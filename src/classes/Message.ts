@@ -94,4 +94,8 @@ export class Message extends DBEntity {
         index >= 0 && this._chat.messages.splice(index, 1);
         return true;
     }
+
+    clone(): Message {
+        return new Message(this.value, { ...this })
+    }
 }
