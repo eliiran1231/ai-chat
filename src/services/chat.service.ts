@@ -179,7 +179,7 @@ export class ChatService {
       tag: message.tag,
       time: message.time.toISOString(),
       editedAt: message.editedAt?.toISOString(),
-      isRead: message.isRead,
+      status: message.status,
       editable: message.editable,
       deletable: message.deletable,
       attachment: message.attachment,
@@ -240,7 +240,7 @@ export class ChatService {
         tag: message.tag,
         time: message.time.toISOString(),
         editedAt: message.editedAt?.toISOString(),
-        isRead: message.isRead,
+        status: message.status,
         editable: message.editable,
         deletable: message.deletable,
         attachment: message.attachment,
@@ -257,7 +257,7 @@ export class ChatService {
           : undefined,
       });
       message.id = record.id;
-      message.isRead = record.isRead;
+      message.status = record.status;
       message.editable = record.editable;
       message.deletable = record.deletable;
       message.setSaveChangesHandler((target)=>this.commitMessageChanges(target));

@@ -6,6 +6,7 @@ import { Message } from "./Message";
 import { Question } from "./Question";
 import { Uuid } from "../interfaces/db/Uuid";
 import { DBEntity, dbProperty } from "./DBEntity";
+import { MessageStatus } from "../enums/MessagesStatus";
 
 export class Supporter extends DBEntity {
     public id!: Uuid;
@@ -77,10 +78,14 @@ export class Supporter extends DBEntity {
     private async appendMessage(message: Message){
         message.from = "supporter";
         message.setChat(this.chat);
-        if(await this.chat.manager?.onSendRequested(message) === false) return false;
+        message.status = MessageStatus.Pending;
         this.chat.messages.push(message);
+        if(await this.chat.manager?.onSendRequested(message) === false) {
+            message.status = MessageStatus.Failed;
+            return false;
+        }
         if(!this.chat.active) this.chat.unreadCount++;
-        else message.isRead = true;
+        else message.status = MessageStatus.Read;
         this.onMessageAdded.next(message);
         return true;
     }

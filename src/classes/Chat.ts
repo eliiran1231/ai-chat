@@ -1,5 +1,6 @@
 import { Subject } from 'rxjs';
 import { Message } from './Message';
+import { MessageStatus } from '../enums/MessagesStatus';
 import { Supporter } from './Supporter';
 import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
@@ -45,13 +46,13 @@ export class Chat extends DBEntity {
   }
 
   get isRead(): boolean {
-    return this.unreadCount === 0 && this.messages.every((message) => message.isRead);
+    return this.unreadCount === 0 && this.messages.every((message) => message.status === MessageStatus.Read);
   }
 
   set isRead(isRead: boolean) {
     if (!isRead) return;
     this.unreadCount = 0;
-    this.messages.forEach((message) => (message.isRead = true));
+    this.messages.forEach((message) => (message.status = MessageStatus.Read));
   }
 
   constructor(

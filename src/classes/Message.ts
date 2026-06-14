@@ -1,6 +1,7 @@
 import { Chat } from "./Chat";
 import { Uuid } from "../interfaces/db/Uuid";
 import { DBEntity, dbProperty } from "./DBEntity";
+import { MessageStatus } from "../enums/MessagesStatus";
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
@@ -19,7 +20,7 @@ export type MessageOptions = {
     deletable?: boolean,
     time?: Date,
     from?: MessageSender,
-    isRead?: boolean,
+    status?: MessageStatus,
     editedAt?: Date
 }
 
@@ -36,7 +37,7 @@ export class Message extends DBEntity {
     @dbProperty
     value: string;
     @dbProperty
-    isRead: boolean;
+    status: MessageStatus;
     @dbProperty
     attachment?: Attachment;
     @dbProperty
@@ -60,7 +61,7 @@ export class Message extends DBEntity {
         this.from = options?.from;
         this.time = options?.time ?? new Date();
         this.editedAt = options?.editedAt;
-        this.isRead = options?.isRead ?? false;
+        this.status = options?.status ?? MessageStatus.Pending;
         if (new.target === Message) this.enableDbChanges();
     }
 
