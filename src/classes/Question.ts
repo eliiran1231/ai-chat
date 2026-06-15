@@ -36,7 +36,7 @@ export type AnswerOptions = {
 export type PersistedAnswerOptions = Omit<AnswerOptions, 'possibleAnswers'>;
 
 export type AnswerOptionsInput = {
-    possibleAnswers: Answer[];
+    possibleAnswers: string[] | Answer[];
     selectionMode?: AnswerSelectionMode;
     sheetTitle?: string;
     minNumberToShowInSheet?: number;
@@ -65,7 +65,7 @@ export class Question extends Message {
         }
         else if (options?.possibleAnswers) {
             this.setAnswerOptions({
-                possibleAnswers: this.normalizeAnswers(options.possibleAnswers),
+                possibleAnswers: options.possibleAnswers,
                 selectionMode: 'single',
             });
         }
@@ -79,7 +79,7 @@ export class Question extends Message {
 
     setAnswerOptions(options: AnswerOptionsInput) {
         this.answerOptions = {
-            possibleAnswers: options.possibleAnswers,
+            possibleAnswers: this.normalizeAnswers(options.possibleAnswers),
             selectionMode: options.selectionMode ?? 'single',
             sheetTitle: options.sheetTitle,
             minNumberToShowInSheet:
@@ -89,7 +89,7 @@ export class Question extends Message {
 
     setPossibleAnswers(answers: string[] | Answer[]) {
         this.setAnswerOptions({
-            possibleAnswers: this.normalizeAnswers(answers),
+            possibleAnswers: answers,
             selectionMode: this.answerOptions?.selectionMode ?? 'single',
             sheetTitle: this.answerOptions?.sheetTitle,
             minNumberToShowInSheet: this.answerOptions?.minNumberToShowInSheet,
@@ -104,6 +104,13 @@ export class Question extends Message {
     }
     
     isAnswerValid(answer: Answer) {
+        if (this.answerOptions?.selectionMode === 'multiple') {
+            return !!answer.selectedAnswers?.length &&
+                answer.selectedAnswers.every(selectedAnswer =>
+                    validateValue(selectedAnswer.value, this.validatorSpec)
+                );
+        }
+
         return validateValue(answer.value, this.validatorSpec);
     }
 

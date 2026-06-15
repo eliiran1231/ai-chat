@@ -67,23 +67,45 @@ export class Agent {
         throw new Error("validation didnt pass");
     }
 
+    private normalizeSelectedAnswer(answer: Answer | Answer[]): Answer {
+        if (!Array.isArray(answer)) {
+            return answer.clone();
+        }
+
+        const selectedAnswers = answer.map(selectedAnswer => selectedAnswer.clone());
+        return new Answer(selectedAnswers.length === 1 ? selectedAnswers[0].value : '', {
+            selectedAnswers,
+        });
+    }
+
     onAnswerSelected(answer: Answer | Answer[], associatedQuestion: Question, associatedQuestionIndex: number) {
-        const normalizedAnswer = Array.isArray(answer)
-            ? new Answer(answer.map(selectedAnswer => selectedAnswer.value).join(', '), {
-                selectedAnswers: answer,
-            })
-            : answer;
+        const normalizedAnswer = this.normalizeSelectedAnswer(answer);
 
         if (associatedQuestionIndex >= this.chat.messages.length - 1) {
             this.chat.user.answer(normalizedAnswer);
             return;
         }
-        let responseToEdit;
-        for(let i = 1; !(responseToEdit instanceof Answer && responseToEdit.from === "client"); i++){
-            responseToEdit = this.chat.messages[associatedQuestionIndex + i];
+
+        let responseToEdit: Message | undefined;
+        for (let i = associatedQuestionIndex + 1; i < this.chat.messages.length; i++) {
+            const candidate = this.chat.messages[i];
+            if (candidate instanceof Answer && candidate.from === "client") {
+                responseToEdit = candidate;
+                break;
+            }
         }
-        responseToEdit?.edit(normalizedAnswer.value);
-        if (responseToEdit instanceof Answer) responseToEdit.selectedAnswers = normalizedAnswer.selectedAnswers;
+
+        if (!(responseToEdit instanceof Answer)) {
+            return;
+        }
+
+        responseToEdit.selectedAnswers = normalizedAnswer.selectedAnswers;
+        if (responseToEdit.value === normalizedAnswer.value) {
+            this.onMessageEdited(responseToEdit);
+            return;
+        }
+
+        responseToEdit.edit(normalizedAnswer.value);
     }
 
     onMessageEdited(message: Message) {
@@ -110,4 +132,4 @@ export class Agent {
         this.onMessageEditedHandler?.unsubscribe();
         this.onAnswerSelectedHandler?.unsubscribe();
     }
-} 
+}

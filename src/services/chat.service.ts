@@ -2,7 +2,12 @@ import { Injectable } from '@angular/core';
 import { Answer } from '../classes/Answer';
 import { Message, MessageOptions } from '../classes/Message';
 import { coerceValidatorSpec } from '../classes/MessageValidator';
-import { Question, QuestionOptions, getPersistableValidationErrorMessage } from '../classes/Question';
+import {
+  DEFAULT_MIN_NUMBER_TO_SHOW_IN_SHEET,
+  Question,
+  QuestionOptions,
+  getPersistableValidationErrorMessage,
+} from '../classes/Question';
 import { Supporter } from '../classes/Supporter';
 import { Chat } from '../classes/Chat';
 import { Agent } from '../classes/Agent';
@@ -170,10 +175,11 @@ export class ChatService {
       possibleAnswers: message instanceof Question
         ? message.possibleAnswers.map((answer) => answer.value)
         : undefined,
-      answerOptions: message instanceof Question ? {
+      answerOptions: message instanceof Question && message.possibleAnswers.length ? {
         selectionMode: message.answerOptions?.selectionMode ?? 'single',
         sheetTitle: message.answerOptions?.sheetTitle,
-        minNumberToShowInSheet: message.answerOptions?.minNumberToShowInSheet ?? 10,
+        minNumberToShowInSheet:
+          message.answerOptions?.minNumberToShowInSheet ?? DEFAULT_MIN_NUMBER_TO_SHOW_IN_SHEET,
       } : undefined,
       selectedAnswers: message instanceof Answer
         ? message.selectedAnswers?.map((answer) => answer.value)
@@ -210,7 +216,7 @@ export class ChatService {
     const questionOptions: QuestionOptions = {
       ...options,
       answerOptions: record.possibleAnswers ? {
-        possibleAnswers: record.possibleAnswers.map((answer) => new Answer(answer)),
+        possibleAnswers: record.possibleAnswers,
         selectionMode: record.answerOptions?.selectionMode ?? 'single',
         sheetTitle: record.answerOptions?.sheetTitle,
         minNumberToShowInSheet: record.answerOptions?.minNumberToShowInSheet,
@@ -251,10 +257,11 @@ export class ChatService {
                 : possibleAnswer.value
             )
           : undefined,
-        answerOptions: message instanceof Question ? {
+        answerOptions: message instanceof Question && message.possibleAnswers.length ? {
           selectionMode: message.answerOptions?.selectionMode ?? 'single',
           sheetTitle: message.answerOptions?.sheetTitle,
-          minNumberToShowInSheet: message.answerOptions?.minNumberToShowInSheet ?? 10,
+          minNumberToShowInSheet:
+            message.answerOptions?.minNumberToShowInSheet ?? DEFAULT_MIN_NUMBER_TO_SHOW_IN_SHEET,
         } : undefined,
         selectedAnswers: message instanceof Answer
           ? message.selectedAnswers?.map((answer) => answer.value)

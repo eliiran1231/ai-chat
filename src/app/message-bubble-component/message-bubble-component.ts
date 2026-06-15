@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
 import { NgxFilesizeModule } from 'ngx-filesize';
 import { Check, ChevronDown, List, LucideAngularModule, X } from 'lucide-angular';
@@ -10,13 +10,18 @@ import { HighlightPipe } from '../../pipes/highlight.pipe';
 
 const MIN_NUMBER_TO_SHOW_SEARCH = 15;
 
+type SheetAnswerOption = {
+  answer: Answer;
+  index: number;
+};
+
 @Component({
   selector: 'app-message-bubble',
   imports: [DatePipe, MarkdownComponent, NgxFilesizeModule, HighlightPipe, LucideAngularModule],
   templateUrl: './message-bubble-component.html',
   styleUrl: './message-bubble-component.scss',
 })
-export class MessageBubbleComponent {
+export class MessageBubbleComponent implements OnDestroy {
   @Input({ required: true }) message!: Message;
   @Input() isActiveSearchMatch = false;
   @Input() isSelected = false;
@@ -31,13 +36,29 @@ export class MessageBubbleComponent {
   readonly closeIcon = X;
   readonly checkIcon = Check;
   isSheetOpen = false;
-  selectedSheetAnswers = new Set<string>();
+  selectedSheetAnswers = new Set<number>();
   answerSearchTerm = '';
 
   constructor() {}
 
+  ngOnDestroy(): void {
+    if (this.isSheetOpen) {
+      this.answerSheetOpenChange.emit(false);
+    }
+  }
+
   isSupporterMessage(message: Message): boolean {
     return message.from === 'supporter';
+  }
+
+  get selectedAnswersDisplayText(): string {
+    if (!(this.message instanceof Answer) || !this.message.selectedAnswers?.length) {
+      return '';
+    }
+
+    return this.message.selectedAnswers.length > 1 || !this.message.value
+      ? this.message.selectedAnswers.map(answer => answer.value).join(', ')
+      : '';
   }
 
   selectAnswer(answer: Answer): void {
@@ -65,13 +86,13 @@ export class MessageBubbleComponent {
     this.answerSheetOpenChange.emit(false);
   }
 
-  selectSheetAnswer(answer: Answer): void {
+  selectSheetAnswer(answer: Answer, answerIndex: number): void {
     if (!(this.message instanceof Question)) {
       return;
     }
 
     if (this.message.answerOptions?.selectionMode === 'multiple') {
-      this.toggleSheetAnswer(answer);
+      this.toggleSheetAnswer(answerIndex);
       return;
     }
 
@@ -79,14 +100,13 @@ export class MessageBubbleComponent {
     this.closeAnswerSheet();
   }
 
-  toggleSheetAnswer(answer: Answer): void {
-    const value = answer.value;
-    if (this.selectedSheetAnswers.has(value)) {
-      this.selectedSheetAnswers.delete(value);
+  toggleSheetAnswer(answerIndex: number): void {
+    if (this.selectedSheetAnswers.has(answerIndex)) {
+      this.selectedSheetAnswers.delete(answerIndex);
       return;
     }
 
-    this.selectedSheetAnswers.add(value);
+    this.selectedSheetAnswers.add(answerIndex);
   }
 
   confirmSheetAnswers(): void {
@@ -94,16 +114,16 @@ export class MessageBubbleComponent {
       return;
     }
 
-    const selectedAnswers = this.message.possibleAnswers.filter(answer =>
-      this.selectedSheetAnswers.has(answer.value)
+    const selectedAnswers = this.message.possibleAnswers.filter((_answer, index) =>
+      this.selectedSheetAnswers.has(index)
     );
 
     this.answerSelected.emit({ answer: selectedAnswers, associatedQuestion: this.message });
     this.closeAnswerSheet();
   }
 
-  isSheetAnswerSelected(answer: Answer): boolean {
-    return this.selectedSheetAnswers.has(answer.value);
+  isSheetAnswerSelected(answerIndex: number): boolean {
+    return this.selectedSheetAnswers.has(answerIndex);
   }
 
   get showInlineAnswers(): boolean {
@@ -133,17 +153,18 @@ export class MessageBubbleComponent {
       : '';
   }
 
-  get filteredSheetAnswers(): Answer[] {
+  get filteredSheetAnswers(): SheetAnswerOption[] {
     if (!(this.message instanceof Question)) {
       return [];
     }
 
+    const answers = this.message.possibleAnswers.map((answer, index) => ({ answer, index }));
     const normalizedSearchTerm = this.answerSearchTerm.trim().toLocaleLowerCase();
     if (!normalizedSearchTerm) {
-      return this.message.possibleAnswers;
+      return answers;
     }
 
-    return this.message.possibleAnswers.filter(answer =>
+    return answers.filter(({ answer }) =>
       answer.value.toLocaleLowerCase().includes(normalizedSearchTerm)
     );
   }

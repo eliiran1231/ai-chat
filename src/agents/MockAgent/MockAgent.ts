@@ -1,11 +1,12 @@
 import { Injector } from "@angular/core";
 import { Agent } from "../../classes/Agent";
-import { Answer } from "../../classes/Answer";
 import { Chat } from "../../classes/Chat";
 import { Question } from "../../classes/Question";
 import { Supporter } from "../../classes/Supporter";
 
 export class MockAgent extends Agent {
+    private readonly contactPreferenceAnswers = ["chat", "email", "phone"];
+
     private readonly nextQuestionByTag: Record<string, () => Question> = {
         greeting: () => new Question("what is your name?", {
             validator: /^[a-zA-Z]+$/,
@@ -29,7 +30,7 @@ export class MockAgent extends Agent {
             },
             validationErrorMessage: "please choose one of the available topics",
             answerOptions: {
-                possibleAnswers: ["billing", "technical issue", "account", "other"].map(answer => new Answer(answer)),
+                possibleAnswers: ["billing", "technical issue", "account", "other"],
             },
             tag: "topic"
         }),
@@ -40,13 +41,18 @@ export class MockAgent extends Agent {
             },
             validationErrorMessage: "please choose low, normal, or urgent",
             answerOptions: {
-                possibleAnswers: ["low", "normal", "urgent"].map(answer => new Answer(answer)),
+                possibleAnswers: ["low", "normal", "urgent"],
             },
             tag: "urgency"
         }),
         urgency: () => new Question("how would you prefer we follow up?", {
+            validator: {
+                type: "oneOf",
+                values: this.contactPreferenceAnswers
+            },
+            validationErrorMessage: "please choose one or more available follow up channels",
             answerOptions: {
-                possibleAnswers: ["chat", "email", "phone","in person", "other", "not sure","efdzsedf", "efdsxzvc", "af", "afsc", "asfdsxzv", "גה", "zvc", "dszf", "zdvsdzv","dfvdv"].map(answer => new Answer(answer)),
+                possibleAnswers: this.contactPreferenceAnswers,
                 selectionMode: "multiple",
                 sheetTitle: "choose follow up channels",
             },
@@ -69,7 +75,7 @@ export class MockAgent extends Agent {
                 },
                 validationErrorMessage: "i do not understand you",
                 answerOptions: {
-                    possibleAnswers: possibleAnswers.map(answer => new Answer(answer)),
+                    possibleAnswers,
                     sheetTitle: "press here to choose",
                 },
                 tag: "greeting"
@@ -78,10 +84,11 @@ export class MockAgent extends Agent {
             return;
         }
     }
+
     override async respond(): Promise<void> {
         super.respond();
         if (!this.lastQuestion) return;
-        if (this.lastMessage instanceof Question) {        
+        if (this.lastMessage instanceof Question) {
             this.supporter.sendMessage("a supporter will get back to you on that");
             return;
         }

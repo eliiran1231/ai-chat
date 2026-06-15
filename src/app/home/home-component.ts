@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
 import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
-import { MockAgent } from '../../agents/MockAgent/MockAgent';
+import { AiAgent } from '../../agents/AiAgent/AiAgent';
 
 @Component({
   selector: 'app-home',
@@ -109,7 +109,7 @@ export class HomeComponent implements OnInit {
 
   async createNewChat(
     openChat = true,
-    initialAgent: Agent = new MockAgent(this.injector),
+    initialAgent: Agent = new AiAgent(this.injector),
   ): Promise<Chat> {
     if (this.isCreatingChat && this.pendingCreateChat) {
       return this.pendingCreateChat;

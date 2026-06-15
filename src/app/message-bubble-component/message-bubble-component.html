@@ -55,7 +55,12 @@
         }
       </div>
     }
-    <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
+    @if (selectedAnswersDisplayText) {
+      <div class="message-markdown" markdown [data]="selectedAnswersDisplayText | highlight: searchTerm"></div>
+    }
+    @else {
+      <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
+    }
     @if (showInlineAnswers && message instanceof questionType) {
       <div class="possible-answers-container possible-answers-container--inline">
         @for (possibleAnswer of message.possibleAnswers; track $index) {
@@ -118,20 +123,20 @@
     }
 
     <div class="answer-sheet__options">
-      @for (possibleAnswer of filteredSheetAnswers; track $index) {
+      @for (sheetAnswer of filteredSheetAnswers; track sheetAnswer.index) {
         <button
           type="button"
           class="answer-sheet__option"
-          [class.answer-sheet__option--selected]="isSheetAnswerSelected(possibleAnswer)"
-          (click)="selectSheetAnswer(possibleAnswer)"
+          [class.answer-sheet__option--selected]="isSheetAnswerSelected(sheetAnswer.index)"
+          (click)="selectSheetAnswer(sheetAnswer.answer, sheetAnswer.index)"
         >
-          <span>{{ possibleAnswer.value }}</span>
+          <span>{{ sheetAnswer.answer.value }}</span>
           <span
             class="answer-sheet__mark"
             [class.answer-sheet__mark--checkbox]="isMultipleSelection"
             aria-hidden="true"
           >
-            @if (isSheetAnswerSelected(possibleAnswer)) {
+            @if (isSheetAnswerSelected(sheetAnswer.index)) {
               <lucide-angular [img]="checkIcon" aria-hidden="true" />
             }
           </span>

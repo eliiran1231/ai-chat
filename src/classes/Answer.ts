@@ -13,7 +13,7 @@ export class Answer extends Message {
         super(value, options);
         if (options?.selectedAnswers) {
             this.selectedAnswers = options.selectedAnswers.map(answer =>
-                answer instanceof Answer ? answer : new Answer(answer)
+                answer instanceof Answer ? new Answer(answer.value) : new Answer(answer)
             );
         }
         this.enableDbChanges();
