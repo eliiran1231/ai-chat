@@ -81,4 +81,8 @@ export class Message extends DBEntity {
         const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
         index >= 0 && this._chat.messages.splice(index, 1);
     }
+
+    clone(): Message {
+        return new Message(this.value, { ...this })
+    }
 }

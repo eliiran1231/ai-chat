@@ -6,8 +6,8 @@ import { REGISTERED_AGENTS } from './agents.module';
   providedIn: 'root',
 })
 export class AgentsService {
-  entries: [string, Type<Agent>][];
-  cache = new Map<string, string>();
+  private entries: [string, Type<Agent>][];
+  private cache = new Map<string, string>();
   private agents: Record<string, Type<Agent>>;
   
   constructor(
@@ -23,7 +23,8 @@ export class AgentsService {
     if (!AgentClass) {
       throw new Error(`Agent "${name}" is not registered.`);
     }
-    return new AgentClass(this.injector);
+    this.cache.set(AgentClass.constructor.name, name)
+    return new AgentClass(this.injector, name);
   }
 
   getAgentName(agent: Agent): string {

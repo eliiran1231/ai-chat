@@ -18,4 +18,8 @@ export class Answer extends Message {
         }
         this.enableDbChanges();
     }
+
+    override clone(): Answer {
+        return new Answer(this.value, { ...this })
+    }
 }

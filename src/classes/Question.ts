@@ -106,4 +106,8 @@ export class Question extends Message {
     isAnswerValid(answer: Answer) {
         return validateValue(answer.value, this.validatorSpec);
     }
+
+    override clone(): Question {
+        return new Question(this.value, { ...this })
+    }
 }
