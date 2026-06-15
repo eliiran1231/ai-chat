@@ -5,7 +5,7 @@ import { Message } from "./Message";
 import { Question } from "./Question";
 
 export type AnswerSelectedEvent = {
-    answer: Answer;
+    answer: Answer | Answer[];
     associatedQuestion: Question;
     associatedQuestionIndex: number;
 }

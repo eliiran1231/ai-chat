@@ -1,5 +1,6 @@
 import { Injector } from "@angular/core";
 import { Agent } from "../../classes/Agent";
+import { Answer } from "../../classes/Answer";
 import { Chat } from "../../classes/Chat";
 import { Question } from "../../classes/Question";
 import { Supporter } from "../../classes/Supporter";
@@ -27,7 +28,9 @@ export class MockAgent extends Agent {
                 values: ["billing", "technical issue", "account", "other"]
             },
             validationErrorMessage: "please choose one of the available topics",
-            possibleAnswers: ["billing", "technical issue", "account", "other"],
+            answerOptions: {
+                possibleAnswers: ["billing", "technical issue", "account", "other"].map(answer => new Answer(answer)),
+            },
             tag: "topic"
         }),
         topic: () => new Question("how urgent is this?", {
@@ -36,16 +39,17 @@ export class MockAgent extends Agent {
                 values: ["low", "normal", "urgent"]
             },
             validationErrorMessage: "please choose low, normal, or urgent",
-            possibleAnswers: ["low", "normal", "urgent"],
+            answerOptions: {
+                possibleAnswers: ["low", "normal", "urgent"].map(answer => new Answer(answer)),
+            },
             tag: "urgency"
         }),
         urgency: () => new Question("how would you prefer we follow up?", {
-            validator: {
-                type: "oneOf",
-                values: ["chat", "email", "phone"]
+            answerOptions: {
+                possibleAnswers: ["chat", "email", "phone","in person", "other", "not sure","efdzsedf", "efdsxzvc", "af", "afsc", "asfdsxzv", "גה", "zvc", "dszf", "zdvsdzv","dfvdv"].map(answer => new Answer(answer)),
+                selectionMode: "multiple",
+                sheetTitle: "choose follow up channels",
             },
-            validationErrorMessage: "please choose chat, email, or phone",
-            possibleAnswers: ["chat", "email", "phone"],
             tag: "contactPreference"
         })
     };
@@ -64,7 +68,10 @@ export class MockAgent extends Agent {
                     values: possibleAnswers
                 },
                 validationErrorMessage: "i do not understand you",
-                possibleAnswers,
+                answerOptions: {
+                    possibleAnswers: possibleAnswers.map(answer => new Answer(answer)),
+                    sheetTitle: "press here to choose",
+                },
                 tag: "greeting"
             });
             this.supporter.ask(question);

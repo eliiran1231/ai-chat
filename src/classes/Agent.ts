@@ -55,16 +55,23 @@ export class Agent {
         throw new Error("validation didnt pass");
     }
 
-    onAnswerSelected(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number) {
+    onAnswerSelected(answer: Answer | Answer[], associatedQuestion: Question, associatedQuestionIndex: number) {
+        const normalizedAnswer = Array.isArray(answer)
+            ? new Answer(answer.map(selectedAnswer => selectedAnswer.value).join(', '), {
+                selectedAnswers: answer,
+            })
+            : answer;
+
         if (associatedQuestionIndex >= this.chat.messages.length - 1) {
-            this.chat.user.answer(structuredClone(answer));
+            this.chat.user.answer(normalizedAnswer);
             return;
         }
         let responseToEdit;
         for(let i = 1; !(responseToEdit instanceof Answer && responseToEdit.from === "client"); i++){
             responseToEdit = this.chat.messages[associatedQuestionIndex + i];
         }
-        responseToEdit?.edit(answer.value);
+        responseToEdit?.edit(normalizedAnswer.value);
+        if (responseToEdit instanceof Answer) responseToEdit.selectedAnswers = normalizedAnswer.selectedAnswers;
     }
 
     onMessageEdited(message: Message) {

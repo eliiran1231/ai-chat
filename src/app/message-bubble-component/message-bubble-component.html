@@ -10,6 +10,7 @@
     class="message-bubble"
     [class.message-bubble--supporter]="isSupporterMessage(message)"
     [class.message-bubble--user]="!isSupporterMessage(message)"
+    [class.message-bubble--inline-answers]="showInlineAnswers"
   >
     @if (hasMessageOptions) {
       <button
@@ -55,8 +56,8 @@
       </div>
     }
     <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
-    @if (message instanceof questionType && message.possibleAnswers.length) {
-      <div class="possible-answers-container">
+    @if (showInlineAnswers && message instanceof questionType) {
+      <div class="possible-answers-container possible-answers-container--inline">
         @for (possibleAnswer of message.possibleAnswers; track $index) {
           <button
             type="button"
@@ -68,6 +69,18 @@
         }
       </div>
     }
+    @if (showSheetTrigger && message instanceof questionType) {
+      <div class="possible-answers-container possible-answers-container--sheet">
+        <button
+          type="button"
+          class="possible-answer possible-answer--sheet-trigger"
+          (click)="openAnswerSheet()"
+        >
+          <lucide-angular [img]="listIcon" aria-hidden="true" />
+          {{ sheetTitle }}
+        </button>
+      </div>
+    }
     <time class="message-time">
       {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
       @if (message.editedAt) {
@@ -76,3 +89,65 @@
     </time>
   </div>
 </article>
+
+@if (isSheetOpen && message instanceof questionType) {
+  <div class="answer-sheet-backdrop" (click)="closeAnswerSheet()"></div>
+  <section class="answer-sheet" role="dialog" aria-modal="true" [attr.aria-label]="sheetTitle">
+    <div class="answer-sheet__handle" aria-hidden="true"></div>
+    <header class="answer-sheet__header">
+      <button
+        type="button"
+        class="answer-sheet__close"
+        (click)="closeAnswerSheet()"
+        aria-label="Close"
+      >
+        <lucide-angular [img]="closeIcon" aria-hidden="true" />
+      </button>
+      <h2>{{ sheetTitle }}</h2>
+    </header>
+
+    @if (shouldShowAnswerSearch) {
+      <label class="answer-sheet__search">
+        <input
+          type="search"
+          [value]="answerSearchTerm"
+          (input)="answerSearchTerm = $any($event.target).value"
+          placeholder="Search"
+        />
+      </label>
+    }
+
+    <div class="answer-sheet__options">
+      @for (possibleAnswer of filteredSheetAnswers; track $index) {
+        <button
+          type="button"
+          class="answer-sheet__option"
+          [class.answer-sheet__option--selected]="isSheetAnswerSelected(possibleAnswer)"
+          (click)="selectSheetAnswer(possibleAnswer)"
+        >
+          <span>{{ possibleAnswer.value }}</span>
+          <span
+            class="answer-sheet__mark"
+            [class.answer-sheet__mark--checkbox]="isMultipleSelection"
+            aria-hidden="true"
+          >
+            @if (isSheetAnswerSelected(possibleAnswer)) {
+              <lucide-angular [img]="checkIcon" aria-hidden="true" />
+            }
+          </span>
+        </button>
+      }
+    </div>
+
+    @if (isMultipleSelection) {
+      <button
+        type="button"
+        class="answer-sheet__confirm"
+        [disabled]="!selectedSheetAnswers.size"
+        (click)="confirmSheetAnswers()"
+      >
+        Confirm
+      </button>
+    }
+  </section>
+}
