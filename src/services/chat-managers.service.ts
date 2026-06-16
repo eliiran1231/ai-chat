@@ -1,4 +1,4 @@
-import { Inject, Injectable, Injector, Type } from '@angular/core';
+import { inject, Inject, Injectable, Injector, Type } from '@angular/core';
 import { ChatManager } from '../classes/ChatManager';
 import { REGISTERED_CHAT_MANAGERS } from './chat-managers.module';
 
@@ -24,7 +24,7 @@ export class ChatManagersService {
       throw new Error(`ChatManager "${name}" is not registered.`);
     }
     this.cache.set(ManagerClass.name, name);
-    return new ManagerClass(this.injector);
+    return this.injector.get(ManagerClass);
   }
 
   getManagerName(manager: ChatManager): string {

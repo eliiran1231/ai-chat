@@ -33,13 +33,13 @@ export class Supporter extends DBEntity {
     }
 
     
-    async ask(message : string | Question){
+    ask(message : string | Question){
         var question = message instanceof Question ? message : new Question(message);
         if(this.agent) this.agent.lastQuestion = question;
         this.expects = 'answer';
         return this.appendMessage(question);
     }
-    async answer(message : string | Answer){
+    answer(message : string | Answer){
         this.expects = 'question';
         var answer = message instanceof Answer ?
         message :
@@ -78,14 +78,13 @@ export class Supporter extends DBEntity {
     private async appendMessage(message: Message){
         message.from = "supporter";
         message.setChat(this.chat);
-        message.status = MessageStatus.Pending;
         this.chat.messages.push(message);
-        if(await this.chat.manager?.onSendRequested(message) === false) {
-            message.status = MessageStatus.Failed;
+        message.status = await this.chat.manager?.requestSend(message) || MessageStatus.Read;
+        if (message.status === MessageStatus.Failed) {
             return false;
         }
         if(!this.chat.active) this.chat.unreadCount++;
-        else message.isRead = true;
+        else message.status = MessageStatus.Read;
         this.onMessageAdded.next(message);
         return true;
     }

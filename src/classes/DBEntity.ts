@@ -16,6 +16,7 @@ export class DBEntity {
   private dbChangesEnabled = false;
   private onChanges: DBEntityChangeHandler = () => {};
   private lastTaskId?: ReturnType<typeof setTimeout>;
+  uiInstance = this;
 
   constructor() {
     return new Proxy(this, {

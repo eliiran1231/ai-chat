@@ -31,6 +31,6 @@ export function provideChatManagers(moduleType: Type<unknown>): Provider {
 
   return {
     provide: REGISTERED_CHAT_MANAGERS,
-    useValue: metadata,
+    useValue: metadata.managers,
   };
 }

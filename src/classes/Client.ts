@@ -3,6 +3,7 @@ import { Answer } from "./Answer";
 import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
+import { MessageStatus } from "../enums/MessagesStatus";
 
 export type AnswerSelectedEvent = {
     answer: Answer;
@@ -17,13 +18,13 @@ export class Client {
     constructor(chat: Chat){
         this.chat = chat;
     }
-    async ask(question : Question | string){
+    ask(question : Question | string){
         question = question instanceof Question ?
         question :
         new Question(question);
         return this.appendMessage(question);
     }
-    async answer(answer : Answer | string){
+    answer(answer : Answer | string){
         answer = answer instanceof Answer ? 
         answer :
         new Answer(answer)
@@ -32,11 +33,14 @@ export class Client {
     private async appendMessage(message: Message){
         message.from = "client";
         message.setChat(this.chat);
-        message.isRead = true;
-        if(await this.chat.manager?.onSendRequested(message) === false) return false;
         this.chat.messages.push(message);
+        message.status = await this.chat.manager?.requestSend(message) ?? MessageStatus.Read;
+        if (message.status === MessageStatus.Failed) {
+            return false;
+        }
         this.onMessageAdded.next(message);
         this.chat.supporter.respond()
+        
         return true;
     }
 }

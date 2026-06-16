@@ -1,9 +1,9 @@
-import { ChatManager } from '../classes/ChatManager';
+import { DefaultManager } from '../chat-managers/DefaultManager';
 import { ChatManagersModule } from '../services/chat-managers.module';
 
 @ChatManagersModule({
   managers: {
-    ChatManager
+    DefaultManager,
   },
 })
 export class AppChatManagersModule {}

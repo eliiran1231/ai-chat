@@ -71,8 +71,8 @@ export class Message extends DBEntity {
             this.from === 'supporter' ||
             !this._chat ||
             this.value === newValue ||
-            await this._chat.manager?.onEditRequested(this, newValue) === false
-        ) return false;
+            await this._chat.manager?.requestEdit(this, newValue) == MessageStatus.Failed
+        ) return false;            
         this.value = newValue;
         this.editedAt = new Date();
         this._chat.onMessageEdited.next(this);
@@ -87,11 +87,16 @@ export class Message extends DBEntity {
         if (
             !this.deletable ||
             !this._chat ||
-            await this._chat.manager?.onDeleteRequested(this) === false
+            await this._chat.manager?.requestDelete(this) === MessageStatus.Failed
         ) return false;
         this._chat.onMessageDeleted.next(this);
         const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
         index >= 0 && this._chat.messages.splice(index, 1);
         return true;
+    }
+
+
+    clone(): Message {
+        return new Message(this.value, { ...this })
     }
 }
