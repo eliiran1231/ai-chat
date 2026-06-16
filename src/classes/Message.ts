@@ -45,6 +45,7 @@ export class Message extends DBEntity {
     @dbProperty
     deletable: boolean;
     private _chat?: Chat;
+    private lastAction = () => this._chat?.manager?.requestSend(this);
 
     setChat(chat: Chat) {
         this._chat = chat;
@@ -66,6 +67,7 @@ export class Message extends DBEntity {
     }
 
     async edit(newValue: string): Promise<boolean> {
+        this.lastAction = () => this._chat?.manager?.requestEdit(this, newValue);
         if (
             !this.editable ||
             this.from === 'supporter' ||
@@ -84,6 +86,7 @@ export class Message extends DBEntity {
     }
 
     async delete(): Promise<boolean> {
+        this.lastAction = () => this._chat?.manager?.requestDelete(this);
         if (
             !this.deletable ||
             !this._chat ||
@@ -95,6 +98,9 @@ export class Message extends DBEntity {
         return true;
     }
 
+    retry(){
+        return this.lastAction();
+    }
 
     clone(): Message {
         return new Message(this.value, { ...this })

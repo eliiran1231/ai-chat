@@ -132,6 +132,11 @@ export class ChatComponent {
     await message.delete();
   }
 
+  async retryMessage(message: Message) {
+    this.closeMessageOptions();
+    await message.retry();
+  }
+
   stepInSearch(steps: number = 1) {
     if (!this.matchingMessageIds.length) {
       return;
