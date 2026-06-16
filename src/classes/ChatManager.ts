@@ -45,9 +45,10 @@ export class ChatManager {
     }
 
     requestEdit(message: Message, newValue: string) {
+        let oldMessage = message.clone();
         message.uiInstance.value = newValue;
         message.uiInstance.editedAt = new Date();
-        return this.request(()=>this.onEditRequested(message, newValue), message);
+        return this.request(()=>this.onEditRequested(message, oldMessage), message);
     }
 
     requestDelete(message: Message) {
@@ -58,7 +59,7 @@ export class ChatManager {
         return MessageStatus.Read;
     }
 
-    onEditRequested(message: Message, newValue: string): MessageStatus | Promise<MessageStatus> {
+    onEditRequested(message: Message, oldMessage: Message): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 
