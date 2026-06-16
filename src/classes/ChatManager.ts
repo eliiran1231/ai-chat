@@ -4,8 +4,6 @@ import { Chat } from "./Chat";
 import { ChatManagersService } from "../services/chat-managers.service";
 import { MessageStatus } from "../enums/MessagesStatus";
 
-//TODO: make it injectable
-//get rid of the ngZone
 @Injectable({
     providedIn: 'root'
 })

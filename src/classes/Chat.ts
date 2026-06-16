@@ -33,7 +33,7 @@ export class Chat extends DBEntity {
   draftMessage: string;
   messages: Message[];
   supporter: Supporter;
-  manager?: ChatManager;
+  manager: ChatManager;
   user: Client;
   active: boolean = false;
   private _avatar: Avatar;
@@ -63,6 +63,7 @@ export class Chat extends DBEntity {
     status: string,
     avatar: Avatar,
     supporter: Supporter,
+    manager: ChatManager,
     options: {
       subtitle?: string;
       timeLabel?: string;
@@ -80,6 +81,8 @@ export class Chat extends DBEntity {
     this.messages = []
     this.supporter = supporter;
     this.supporter.setChat(this);
+    this.manager = manager;
+    this.manager.init(this);
     this.user = new Client(this);
     this.draftMessage = '';
     this.subtitle = options.subtitle;

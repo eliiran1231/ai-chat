@@ -14,6 +14,7 @@ import { DbService } from './db.service';
 import { Uuid } from '../interfaces/db/Uuid';
 import { ChatManager } from '../classes/ChatManager';
 import { ChatManagersService } from './chat-managers.service';
+import { DefaultManager } from '../chat-managers/DefaultManager';
 
 @Injectable({
   providedIn: 'root'
@@ -23,12 +24,13 @@ export class ChatService {
     private dbService: DbService,
     private agentsService: AgentsService,
     private chatManagersService: ChatManagersService,
-    private injector: Injector
+    private defaultChatManager: DefaultManager
   ) {}
   async createChat(
     name: string,
     status: string,
     initialAgent: Agent,
+    manager: ChatManager,
     options: {
       subtitle?: string;
       timeLabel?: string;
@@ -41,6 +43,7 @@ export class ChatService {
     const record = await this.dbService.createChat({
       name,
       status,
+      managerName: manager.name,
       avatar: { type: 'text', value: name.slice(0, 2).toUpperCase() },
       subtitle: options.subtitle,
       timeLabel: options.timeLabel,
@@ -56,17 +59,13 @@ export class ChatService {
       context: '{}',
     });
 
-    return this.hydrateChat(record, initialAgent, undefined, [], supporterRecord);
+    return this.hydrateChat(record, initialAgent, [], supporterRecord);
   }
 
   async getChats(): Promise<Chat[]> {
     const records = await this.dbService.getChats();
     return Promise.all(
       records.map(async (record) => {
-        let manager;
-        if (record.managerName) {
-          manager = this.chatManagersService.getManagerByName(record.managerName);
-        }
         const [messages, persistedSupporterRecord] = await Promise.all([
           this.dbService.getChatMessages(record.id),
           this.dbService.getChatSupporter(record.id),
@@ -83,9 +82,8 @@ export class ChatService {
         return this.hydrateChat(
           record,
           initialAgent,
-          manager,
           messages,
-          supporterRecord,
+          supporterRecord
         );
       }),
     );
@@ -107,9 +105,8 @@ export class ChatService {
   hydrateChat(
     record: ChatRecord,
     initialAgent: Agent,
-    initialManager: ChatManager | undefined,
     messageRecords: MessageRecord[],
-    supporterRecord?: SupporterRecord | null,
+    supporterRecord: SupporterRecord | null,
   ): Chat {
     let context;
     try{
@@ -124,7 +121,17 @@ export class ChatService {
       supporterRecord?.expects, 
       context
     );
-    const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, {
+    let manager;
+    if (record.managerName) {
+      try {
+        manager = this.chatManagersService.getManagerByName(record.managerName);
+      }
+      catch {
+        manager = this.defaultChatManager;
+      }
+    }
+    else manager = this.defaultChatManager;
+    const chat = new Chat(record.id, record.name, record.status, record.avatar, supporter, manager, {
       subtitle: record.subtitle,
       timeLabel: record.timeLabel,
       unreadCount: record.unreadCount,
@@ -132,7 +139,6 @@ export class ChatService {
       avatarRing: record.avatarRing,
       tipLabel: record.tipLabel,
     });
-    initialManager && chat.setManager(initialManager);
     chat.setSaveChangesHandler((target)=>this.commitChatChanges(target));
     for (const messageRecord of messageRecords) {
       const message = this.hydrateMessage(messageRecord);
@@ -147,7 +153,7 @@ export class ChatService {
     }));
     chat.onManagerSwitch.subscribe((manager) => this.dbService.updateChatManager({
       chatId: chat.id,
-      managerName: console.log(manager.name) as any|| manager.name,
+      managerName: manager.name,
     }));
     supporter.setAgent(initialAgent);
     return chat;
