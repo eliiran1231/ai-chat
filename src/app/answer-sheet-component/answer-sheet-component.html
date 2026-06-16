@@ -1,23 +1,41 @@
 <div class="answer-sheet-backdrop" (click)="close()"></div>
-<section class="answer-sheet" role="dialog" aria-modal="true" [attr.aria-label]="title">
+<section
+  class="answer-sheet"
+  [class.answer-sheet--tall]="isTall"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="title"
+>
   <div class="answer-sheet__handle" aria-hidden="true"></div>
   <header class="answer-sheet__header">
     <button type="button" class="answer-sheet__close" (click)="close()" aria-label="Close">
       <lucide-angular [img]="closeIcon" aria-hidden="true" />
     </button>
-    <h2>{{ title }}</h2>
-  </header>
 
-  @if (shouldShowSearch) {
-    <label class="answer-sheet__search">
-      <input
-        type="search"
-        [value]="answerSearchTerm"
-        (input)="answerSearchTerm = $any($event.target).value"
-        placeholder="Search"
-      />
-    </label>
-  }
+    @if (isSearchOpen) {
+      <label class="answer-sheet__search">
+        <lucide-angular [img]="searchIcon" aria-hidden="true" />
+        <input
+          type="search"
+          [value]="answerSearchTerm"
+          (input)="answerSearchTerm = $any($event.target).value"
+          placeholder="Search"
+        />
+      </label>
+    } @else {
+      <h2>{{ title }}</h2>
+      @if (shouldShowSearch) {
+        <button
+          type="button"
+          class="answer-sheet__search-toggle"
+          (click)="openSearch()"
+          aria-label="Search answers"
+        >
+          <lucide-angular [img]="searchIcon" aria-hidden="true" />
+        </button>
+      }
+    }
+  </header>
 
   <div class="answer-sheet__options">
     @for (sheetAnswer of filteredAnswers; track sheetAnswer.index) {
@@ -42,13 +60,15 @@
   </div>
 
   @if (isMultipleSelection) {
-    <button
-      type="button"
-      class="answer-sheet__confirm"
-      [disabled]="!selectedAnswerIndexes.size"
-      (click)="confirmAnswers()"
-    >
-      Confirm
-    </button>
+    <footer class="answer-sheet__footer">
+      <button
+        type="button"
+        class="answer-sheet__confirm"
+        [disabled]="!selectedAnswerIndexes.size"
+        (click)="confirmAnswers()"
+      >
+        Confirm
+      </button>
+    </footer>
   }
 </section>

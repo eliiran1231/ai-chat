@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Check, LucideAngularModule, X } from 'lucide-angular';
+import { Check, LucideAngularModule, Search, X } from 'lucide-angular';
 import { Answer } from '../../classes/Answer';
 
 const MIN_NUMBER_TO_SHOW_SEARCH = 15;
@@ -26,11 +26,17 @@ export class AnswerSheetComponent {
 
   readonly closeIcon = X;
   readonly checkIcon = Check;
+  readonly searchIcon = Search;
   selectedAnswerIndexes = new Set<number>();
   answerSearchTerm = '';
+  isSearchOpen = false;
 
   close(): void {
     this.closed.emit();
+  }
+
+  openSearch(): void {
+    this.isSearchOpen = true;
   }
 
   selectAnswer(answer: Answer, answerIndex: number): void {
@@ -78,6 +84,10 @@ export class AnswerSheetComponent {
   }
 
   get shouldShowSearch(): boolean {
+    return this.answers.length >= MIN_NUMBER_TO_SHOW_SEARCH;
+  }
+
+  get isTall(): boolean {
     return this.answers.length >= MIN_NUMBER_TO_SHOW_SEARCH;
   }
 }
