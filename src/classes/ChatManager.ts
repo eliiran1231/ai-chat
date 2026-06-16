@@ -27,6 +27,7 @@ export class ChatManager {
 
     init(chat: Chat): void | Promise<void>{
         this.chat = chat;
+        chat.setFileUrlProcessor(this.handleFile.bind(this));
     }
 
     private async request(func: () => MessageStatus | Promise<MessageStatus>, message: Message){   
@@ -63,6 +64,11 @@ export class ChatManager {
 
     onDeleteRequested(message: Message): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
+    }
+
+    handleFile(file: File): string | Promise<string> {
+        //override to handle file attachments
+        return URL.createObjectURL(file);
     }
 
     onDestroy(): void | Promise<void> {

@@ -46,7 +46,6 @@ export class Agent {
         this.onAnswerSelectedHandler = chat.user.onAnswerSelected.subscribe(({answer, associatedQuestion, associatedQuestionIndex }) => this.onAnswerSelected(answer, associatedQuestion, associatedQuestionIndex as number));
         this.onMessageDeletedHandler = chat.onMessageDeleted.subscribe(this.onMessageDeleted.bind(this));
         this.onMessageEditedHandler = chat.onMessageEdited.subscribe(this.onMessageEdited.bind(this));
-        chat.setFileUrlProcessor(this.handleFile.bind(this));
     }
 
     respond(edited = false) : void | Promise<void> {
@@ -91,11 +90,6 @@ export class Agent {
 
     onMessageDeleted(message: Message) {
         //override to handle message deletions
-    }
-
-    handleFile(file: File): string | Promise<string> {
-        //override to handle file attachments
-        return URL.createObjectURL(file);
     }
 
     onDestroy(): void | Promise<void> {
