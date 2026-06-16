@@ -8,8 +8,8 @@ import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
 import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
-import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
 import { AiAgent } from '../../agents/AiAgent/AiAgent';
+import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
 
 @Component({
   selector: 'app-home',

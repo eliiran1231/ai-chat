@@ -55,12 +55,7 @@
         }
       </div>
     }
-    @if (selectedAnswersDisplayText) {
-      <div class="message-markdown" markdown [data]="selectedAnswersDisplayText | highlight: searchTerm"></div>
-    }
-    @else {
-      <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
-    }
+    <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
     @if (showInlineAnswers && message instanceof questionType) {
       <div class="possible-answers-container possible-answers-container--inline">
         @for (possibleAnswer of message.possibleAnswers; track $index) {

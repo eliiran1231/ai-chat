@@ -14,8 +14,6 @@ interface MessageRow {
   edited_at: string | null;
   attachment: string | null;
   possible_answers: string | null;
-  answer_config: string | null;
-  selected_answers: string | null;
   validator_spec: string | null;
   validation_error_message: string | null;
   is_read: number;
@@ -42,8 +40,6 @@ export interface MessagePayload {
   editedAt?: string | null;
   attachment?: AttachmentPayload | null;
   possibleAnswers?: string[] | null;
-  answerOptions?: unknown;
-  selectedAnswers?: string[] | null;
   validatorSpec?: unknown;
   validationErrorMessage?: string | null;
   isRead?: boolean;
@@ -61,8 +57,6 @@ export interface CommitMessagePayload {
   editedAt?: string | null;
   attachment?: AttachmentPayload | null;
   possibleAnswers?: string[] | null;
-  answerOptions?: unknown;
-  selectedAnswers?: string[] | null;
   validatorSpec?: unknown;
   validationErrorMessage?: string | null;
   isRead: boolean;
@@ -101,8 +95,6 @@ export class MessageService {
         edited_at TEXT,
         attachment TEXT,
         possible_answers TEXT,
-        answer_config TEXT,
-        selected_answers TEXT,
         validator_spec TEXT,
         validation_error_message TEXT,
         is_read INTEGER NOT NULL DEFAULT 0,
@@ -111,17 +103,6 @@ export class MessageService {
         FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
       )
     `);
-    await this.ensureColumn('answer_config', 'TEXT');
-    await this.ensureColumn('selected_answers', 'TEXT');
-  }
-
-  private async ensureColumn(name: string, definition: string): Promise<void> {
-    const columns = await this.db.all<{ name: string }>(`PRAGMA table_info(messages)`);
-    if (columns.some((column) => column.name === name)) {
-      return;
-    }
-
-    await this.db.run(`ALTER TABLE messages ADD COLUMN ${name} ${definition}`);
   }
 
   async getChatMessages(chatId: Uuid) {
@@ -138,8 +119,6 @@ export class MessageService {
           edited_at,
           attachment,
           possible_answers,
-          answer_config,
-          selected_answers,
           validator_spec,
           validation_error_message,
           is_read,
@@ -168,8 +147,6 @@ export class MessageService {
       message.editedAt ?? null,
       message.attachment ? JSON.stringify(message.attachment) : null,
       message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
-      message.answerOptions ? JSON.stringify(message.answerOptions) : null,
-      message.selectedAnswers?.length ? JSON.stringify(message.selectedAnswers) : null,
       message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
       message.validationErrorMessage ?? null,
       message.isRead ? 1 : 0,
@@ -189,15 +166,13 @@ export class MessageService {
             edited_at,
             attachment,
             possible_answers,
-            answer_config,
-            selected_answers,
             validator_spec,
             validation_error_message,
             is_read,
             editable,
             deletable
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
     await this.db.run(sql, commonArgs);
@@ -227,8 +202,6 @@ export class MessageService {
           edited_at,
           attachment,
           possible_answers,
-          answer_config,
-          selected_answers,
           validator_spec,
           validation_error_message,
           is_read,
@@ -259,8 +232,6 @@ export class MessageService {
             edited_at = ?,
             attachment = ?,
             possible_answers = ?,
-            answer_config = ?,
-            selected_answers = ?,
             validator_spec = ?,
             validation_error_message = ?,
             is_read = ?,
@@ -277,8 +248,6 @@ export class MessageService {
         message.editedAt ?? null,
         message.attachment ? JSON.stringify(message.attachment) : null,
         message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
-        message.answerOptions ? JSON.stringify(message.answerOptions) : null,
-        message.selectedAnswers?.length ? JSON.stringify(message.selectedAnswers) : null,
         message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
         message.validationErrorMessage ?? null,
         message.isRead ? 1 : 0,
@@ -320,12 +289,6 @@ export class MessageService {
       possibleAnswers: this.parseStringArrayColumn(
         row.possible_answers,
         'possible_answers',
-        row.id,
-      ),
-      answerOptions: this.db.parseJsonColumn(row.answer_config, 'answer_config', row.id),
-      selectedAnswers: this.parseStringArrayColumn(
-        row.selected_answers,
-        'selected_answers',
         row.id,
       ),
       validatorSpec: this.db.parseJsonColumn(row.validator_spec, 'validator_spec', row.id),

@@ -5,8 +5,6 @@ import { Question } from "../../classes/Question";
 import { Supporter } from "../../classes/Supporter";
 
 export class MockAgent extends Agent {
-    private readonly contactPreferenceAnswers = ["chat", "email", "phone"];
-
     private readonly nextQuestionByTag: Record<string, () => Question> = {
         greeting: () => new Question("what is your name?", {
             validator: /^[a-zA-Z]+$/,
@@ -48,14 +46,15 @@ export class MockAgent extends Agent {
         urgency: () => new Question("how would you prefer we follow up?", {
             validator: {
                 type: "oneOf",
-                values: this.contactPreferenceAnswers
+                values: ["chat", "email", "phone"]
             },
-            validationErrorMessage: "please choose one or more available follow up channels",
             answerOptions: {
-                possibleAnswers: this.contactPreferenceAnswers,
+                possibleAnswers: ["chat", "email", "phone"],
                 selectionMode: "multiple",
-                sheetTitle: "choose follow up channels",
+                sheetTitle: "contact preference"
             },
+            validationErrorMessage: "please choose chat, email, or phone",
+                        
             tag: "contactPreference"
         })
     };
@@ -68,17 +67,16 @@ export class MockAgent extends Agent {
         super.init(chat, supporter);
         if (!this.chat.messages.find(msg => msg.tag == "greeting")) {
             const possibleAnswers = ["hi", "hello", "hey"];
-            const question = new Question("hello there how can I help you?", {
-                validator: {
-                    type: "oneOf",
-                    values: possibleAnswers
-                },
-                validationErrorMessage: "i do not understand you",
-                answerOptions: {
-                    possibleAnswers,
-                    sheetTitle: "press here to choose",
-                },
-                tag: "greeting"
+            const question = new Question('hello there how can I help you?', {
+              validator: {
+                type: 'oneOf',
+                values: possibleAnswers,
+              },
+              validationErrorMessage: 'i do not understand you',
+              answerOptions: {
+                possibleAnswers,
+              },
+              tag: 'greeting',
             });
             this.supporter.ask(question);
             return;

@@ -20,7 +20,6 @@ export function getPersistableValidationErrorMessage(
 export type QuestionOptions = MessageOptions & {
     validator?: RegExp | ValidatorSpec;
     validationErrorMessage?: string | Message;
-    possibleAnswers?: string[] | Answer[];
     answerOptions?: AnswerOptionsInput;
 }
 
@@ -63,11 +62,11 @@ export class Question extends Message {
         if (options?.answerOptions) {
             this.setAnswerOptions(options.answerOptions);
         }
-        else if (options?.possibleAnswers) {
-            this.setAnswerOptions({
-                possibleAnswers: options.possibleAnswers,
-                selectionMode: 'single',
-            });
+        else if (options?.answerOptions?.possibleAnswers) {
+          this.setAnswerOptions({
+            possibleAnswers: options.answerOptions.possibleAnswers,
+            selectionMode: 'single',
+          });
         }
         this.enableDbChanges();
     }
@@ -105,10 +104,12 @@ export class Question extends Message {
     
     isAnswerValid(answer: Answer) {
         if (this.answerOptions?.selectionMode === 'multiple') {
-            return !!answer.selectedAnswers?.length &&
-                answer.selectedAnswers.every(selectedAnswer =>
-                    validateValue(selectedAnswer.value, this.validatorSpec)
-                );
+            const answerValues = answer.value
+                .split(',')
+                .map(value => value.trim())
+                .filter(Boolean);
+            return !!answerValues.length &&
+                answerValues.every(value => validateValue(value, this.validatorSpec));
         }
 
         return validateValue(answer.value, this.validatorSpec);

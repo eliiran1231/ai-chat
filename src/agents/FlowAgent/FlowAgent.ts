@@ -70,7 +70,9 @@ export class FlowAgent extends Agent {
                 type: "oneOf",
                 values: possibleAnswers
             },
-            possibleAnswers: possibleAnswers
+            answerOptions: {
+                possibleAnswers: possibleAnswers
+            },
         });
         this.supporter.ask(question);
     }

@@ -351,6 +351,16 @@
   }
 }
 
+@media (min-width: 780px) {
+  .answer-sheet {
+    left: 50%;
+    right: auto;
+    width: min(44rem, vw);
+    min-width: 24rem;
+    transform: translateX(-50%);
+  }
+}
+
 .file-attchment-container{
   width: 100%;
   max-width: min(100%, 22rem);

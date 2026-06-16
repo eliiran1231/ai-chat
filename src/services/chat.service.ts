@@ -2,12 +2,7 @@ import { Injectable } from '@angular/core';
 import { Answer } from '../classes/Answer';
 import { Message, MessageOptions } from '../classes/Message';
 import { coerceValidatorSpec } from '../classes/MessageValidator';
-import {
-  DEFAULT_MIN_NUMBER_TO_SHOW_IN_SHEET,
-  Question,
-  QuestionOptions,
-  getPersistableValidationErrorMessage,
-} from '../classes/Question';
+import { Question, QuestionOptions, getPersistableValidationErrorMessage } from '../classes/Question';
 import { Supporter } from '../classes/Supporter';
 import { Chat } from '../classes/Chat';
 import { Agent } from '../classes/Agent';
@@ -175,15 +170,6 @@ export class ChatService {
       possibleAnswers: message instanceof Question
         ? message.possibleAnswers.map((answer) => answer.value)
         : undefined,
-      answerOptions: message instanceof Question && message.possibleAnswers.length ? {
-        selectionMode: message.answerOptions?.selectionMode ?? 'single',
-        sheetTitle: message.answerOptions?.sheetTitle,
-        minNumberToShowInSheet:
-          message.answerOptions?.minNumberToShowInSheet ?? DEFAULT_MIN_NUMBER_TO_SHOW_IN_SHEET,
-      } : undefined,
-      selectedAnswers: message instanceof Answer
-        ? message.selectedAnswers?.map((answer) => answer.value)
-        : undefined,
       validatorSpec: message instanceof Question ? message.validatorSpec : undefined,
       validationErrorMessage: message instanceof Question
         ? getPersistableValidationErrorMessage(message.validationErrorMessage)
@@ -202,10 +188,7 @@ export class ChatService {
     const message = messageType === 'question'
       ? this.hydrateQuestion(record, options)
       : messageType === 'answer'
-        ? new Answer(record.value, {
-          ...options,
-          selectedAnswers: record.selectedAnswers,
-        })
+        ? new Answer(record.value, options)
         : new Message(record.value, options);
     message.setSaveChangesHandler((target)=>this.commitMessageChanges(target));
     return message;
@@ -256,15 +239,6 @@ export class ChatService {
                 ? possibleAnswer
                 : possibleAnswer.value
             )
-          : undefined,
-        answerOptions: message instanceof Question && message.possibleAnswers.length ? {
-          selectionMode: message.answerOptions?.selectionMode ?? 'single',
-          sheetTitle: message.answerOptions?.sheetTitle,
-          minNumberToShowInSheet:
-            message.answerOptions?.minNumberToShowInSheet ?? DEFAULT_MIN_NUMBER_TO_SHOW_IN_SHEET,
-        } : undefined,
-        selectedAnswers: message instanceof Answer
-          ? message.selectedAnswers?.map((answer) => answer.value)
           : undefined,
         validatorSpec: message instanceof Question ? message.validatorSpec : undefined,
         validationErrorMessage: message instanceof Question

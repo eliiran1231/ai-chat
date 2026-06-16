@@ -51,16 +51,6 @@ export class MessageBubbleComponent implements OnDestroy {
     return message.from === 'supporter';
   }
 
-  get selectedAnswersDisplayText(): string {
-    if (!(this.message instanceof Answer) || !this.message.selectedAnswers?.length) {
-      return '';
-    }
-
-    return this.message.selectedAnswers.length > 1 || !this.message.value
-      ? this.message.selectedAnswers.map(answer => answer.value).join(', ')
-      : '';
-  }
-
   selectAnswer(answer: Answer): void {
     this.answerSelected.emit({
       answer,
@@ -114,11 +104,11 @@ export class MessageBubbleComponent implements OnDestroy {
       return;
     }
 
-    const selectedAnswers = this.message.possibleAnswers.filter((_answer, index) =>
+    const selectedAnswerOptions = this.message.possibleAnswers.filter((_answer, index) =>
       this.selectedSheetAnswers.has(index)
     );
 
-    this.answerSelected.emit({ answer: selectedAnswers, associatedQuestion: this.message });
+    this.answerSelected.emit({ answer: selectedAnswerOptions, associatedQuestion: this.message });
     this.closeAnswerSheet();
   }
 
