@@ -3,10 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { Attachment, MessageOptions } from '../../classes/Message';
 import { NgxFilesizeModule } from 'ngx-filesize';
 import { ChatInputComponent } from "../chat-input-component/chat-input-component";
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-file-preview-component',
-  imports: [FormsModule, NgxFilesizeModule, ChatInputComponent],
+  imports: [FormsModule, NgxFilesizeModule, ChatInputComponent, TranslatePipe],
   templateUrl: './file-preview-component.html',
   styleUrl: './file-preview-component.scss',
 })

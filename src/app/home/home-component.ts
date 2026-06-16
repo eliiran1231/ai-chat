@@ -8,8 +8,10 @@ import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
 import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AiAgent } from '../../agents/AiAgent/AiAgent';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-home',
@@ -20,6 +22,7 @@ import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
     ChatListComponent,
     ProfileComponent,
     CommonModule,
+    TranslatePipe,
   ],
   templateUrl: './home-component.html',
   styleUrl: './home-component.scss',
@@ -42,6 +45,7 @@ export class HomeComponent implements OnInit {
     private chatService: ChatService,
     private injector: Injector,
     private profileService: ProfileService,
+    readonly language: LanguageService,
     ) {
   }
 
@@ -119,12 +123,12 @@ export class HomeComponent implements OnInit {
     const chatNumber = this.chats.length + 1;
     this.pendingCreateChat = (async () => {
       const chat = await this.chatService.createChat(
-        `New chat ${chatNumber}`,
-        'Online now',
+        `${this.language.instant('chat.newChatTitle')} ${chatNumber}`,
+        this.language.instant('chat.onlineNow'),
         initialAgent,
         {
-          subtitle: 'Tap to start chatting',
-          timeLabel: 'now',
+          subtitle: this.language.instant('chat.tapToStart'),
+          timeLabel: this.language.instant('chat.now'),
         },
       );
       this.chats = [...this.chats, chat];

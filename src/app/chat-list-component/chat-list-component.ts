@@ -1,11 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, SquarePen } from 'lucide-angular';
-import { Chat } from '../../classes/Chat';
+import { TranslatePipe } from '@ngx-translate/core';
+import { Avatar, Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
+
 @Component({
   selector: 'app-chat-list-component',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideAngularModule, TranslatePipe],
   templateUrl: './chat-list-component.html',
   styleUrl: './chat-list-component.scss',
 })
@@ -25,11 +27,11 @@ export class ChatListComponent {
     const chats = !query
       ? [...this.chats]
       : this.chats.filter((chat) => {
-          const lastMessage = this.lastMessageText(chat).toLowerCase();
+          const lastMessage = this.lastMessageText(chat)?.toLowerCase();
           return (
             chat.name.toLowerCase().includes(query) ||
             chat.status.toLowerCase().includes(query) ||
-            lastMessage.includes(query)
+            lastMessage?.includes(query)
           );
         });
 
@@ -39,10 +41,14 @@ export class ChatListComponent {
     );
   }
 
-  lastMessageText(chat: Chat): string {
+  avatarFor(chat: Chat): Avatar {
+    return chat.avatar;
+  }
+
+  lastMessageText(chat: Chat): string | undefined {
     const lastMessage = chat.messages.at(-1);
     if (!lastMessage) {
-      return chat.subtitle || 'start the conversation';
+      return chat.subtitle;
     }
 
     return DOMPurify.sanitize(lastMessage.value || lastMessage.attachment?.name || '', {

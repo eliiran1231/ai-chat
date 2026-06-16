@@ -10,6 +10,7 @@ import { Message, MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AnswerSelectedEvent } from '../../classes/Client';
 import { Uuid } from '../../interfaces/db/Uuid';
 
@@ -22,7 +23,8 @@ import { Uuid } from '../../interfaces/db/Uuid';
     ChatNavbarComponent,
     NgScrollbar,
     NgScrollReachDrop,
-    LucideAngularModule
+    LucideAngularModule,
+    TranslatePipe
   ],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',

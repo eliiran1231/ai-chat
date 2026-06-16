@@ -7,10 +7,15 @@
   (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
 >
   @if (allowAttachments) {
-    <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" aria-label="Attach file">
+    <button
+      (click)="pickFile()"
+      type="button"
+      class="composer-action composer-action--icon"
+      [attr.aria-label]="'composer.attachFile' | translate"
+    >
       <lucide-angular [img]="attachIcon" aria-hidden="true" />
     </button>
-    <button type="button" class="composer-action" aria-label="Emoji">:)</button>
+    <button type="button" class="composer-action" [attr.aria-label]="'composer.emoji' | translate">:)</button>
   }
 
   <label class="composer-field" for="message-input">
@@ -28,7 +33,7 @@
       [(ngModel)]="caption"
       (input)="syncComposerOverflow(autosize, messageInput)"
       (keydown)="handleComposerKeydown($event)"
-      [placeholder]="placeholder"
+      [placeholder]="placeholder || ('chat.typeMessage' | translate)"
       autocomplete="off"
     ></textarea>
   </label>
@@ -36,7 +41,7 @@
   <button
     type="submit"
     class="send-button"
-    aria-label="Send message"
+    [attr.aria-label]="'composer.sendMessage' | translate"
     [disabled]="requiredContent && !caption.trim()"
   >
     <lucide-angular [img]="sendIcon" aria-hidden="true" />

@@ -1,6 +1,7 @@
 <article
   [id]="message.id"
   class="message-row"
+  [attr.dir]="language.direction()"
   [class.message-row--supporter]="isSupporterMessage(message)"
   [class.message-row--user]="!isSupporterMessage(message)"
   [class.message-row--search-active]="isActiveSearchMatch"
@@ -8,6 +9,7 @@
 >
   <div
     class="message-bubble"
+    dir="auto"
     [class.message-bubble--supporter]="isSupporterMessage(message)"
     [class.message-bubble--user]="!isSupporterMessage(message)"
   >
@@ -16,8 +18,8 @@
         type="button"
         class="message-options-button"
         (click)="openMessageOptions($event)"
-        aria-label="Open message options"
-        title="Message options"
+        [attr.aria-label]="'message.openOptions' | translate"
+        [title]="'message.optionsTitle' | translate"
       >
         <lucide-angular [img]="optionsIcon" aria-hidden="true" />
       </button>
@@ -34,7 +36,7 @@
             [attr.download]="message.attachment.name + '.' + message.attachment.extension"
             target="_blank"
             rel="noopener noreferrer"
-            [attr.aria-label]="'Open attachment ' + message.attachment.name"
+            [attr.aria-label]="('message.openAttachment' | translate) + ' ' + message.attachment.name"
           >
             <div class="message-file-card__content">
               <p class="message-file-card__name">
@@ -71,7 +73,7 @@
     <time class="message-time">
       {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
       @if (message.editedAt) {
-        <span class="message-edited-mark">(edited)</span>
+        <span class="message-edited-mark">({{ 'message.edited' | translate }})</span>
       }
     </time>
   </div>

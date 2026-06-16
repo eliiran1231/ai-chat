@@ -29,7 +29,7 @@ app-chat-list-component {
   display: flex;
   flex-direction: column;
   background: #fff;
-  border-right: 1px solid #d6dadd;
+  border-inline-end: 1px solid #d6dadd;
 }
 
 .mobile-appbar {
@@ -172,7 +172,7 @@ app-chat-list-component {
 }
 
 .footer-lock {
-  margin-right: 0.35rem;
+  margin-inline-end: 0.35rem;
   text-transform: lowercase;
 }
 

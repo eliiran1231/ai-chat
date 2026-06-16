@@ -4,7 +4,11 @@
       <div class="brand-row">
         <div class="brand-title">
           @if (whatsappLogoUrl) {
-            <img class="brand-title__logo" [src]="whatsappLogoUrl" alt="WhatsApp logo" />
+            <img
+              class="brand-title__logo"
+              [src]="whatsappLogoUrl"
+              [alt]="'app.whatsappLogoAlt' | translate"
+            />
           }
           <h1>WhatsApp</h1>
         </div>
@@ -17,14 +21,14 @@
         ></app-sidebar-menu>
       </div>
 
-      <nav class="top-tabs" aria-label="Primary sections">
+      <nav class="top-tabs" [attr.aria-label]="'tabs.primarySections' | translate">
         <button
           type="button"
           class="top-tab"
           [class.top-tab--active]="selectedTab === 'profile'"
           (click)="selectedTab = 'profile'"
         >
-          profile
+          {{ 'tabs.profile' | translate }}
         </button>
         <button
           type="button"
@@ -32,7 +36,7 @@
           [class.top-tab--active]="selectedTab === 'chats'"
           (click)="selectedTab = 'chats'"
         >
-          Chats
+          {{ 'tabs.chats' | translate }}
           @if (unreadChatsCount > 0) {
             <span class="top-tab__badge">{{ unreadChatsCount }}</span>
           }
@@ -43,7 +47,7 @@
           [class.top-tab--active]="selectedTab === 'calls'"
           (click)="selectedTab = 'calls'"
         >
-          Calls
+          {{ 'tabs.calls' | translate }}
         </button>
       </nav>
     </header>
@@ -74,8 +78,8 @@
       <section class="chat-placeholder">
         <div class="chat-placeholder__card">
           <div class="chat-placeholder__icon">WA</div>
-          <h2>Select a chat</h2>
-          <p>Pick an existing conversation or create a new one from the sidebar.</p>
+          <h2>{{ 'placeholder.selectChatTitle' | translate }}</h2>
+          <p>{{ 'placeholder.selectChatBody' | translate }}</p>
         </div>
       </section>
     }

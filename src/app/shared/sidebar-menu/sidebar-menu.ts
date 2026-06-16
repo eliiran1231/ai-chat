@@ -1,12 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { LucideIconData } from 'lucide-angular';
+import { TranslatePipe } from '@ngx-translate/core';
 
 import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
 
 @Component({
   selector: 'app-sidebar-menu',
   standalone: true,
-  imports: [AppMenu],
+  imports: [AppMenu, TranslatePipe],
   templateUrl: './sidebar-menu.html',
   styleUrl: './sidebar-menu.scss',
 })
@@ -22,7 +23,7 @@ export class SidebarMenuComponent {
     return [
       {
         id: 'fullscreen',
-        label: this.isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen',
+        label: this.isFullscreen ? 'menu.exitFullscreen' : 'menu.enterFullscreen',
         icon: this.isFullscreen ? this.exitFullscreenIcon : this.enterFullscreenIcon,
       },
     ];
