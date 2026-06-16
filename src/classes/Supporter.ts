@@ -80,7 +80,8 @@ export class Supporter extends DBEntity {
         message.setChat(this.chat);
         message.status = MessageStatus.Pending;
         this.chat.messages.push(message);
-        if(await this.chat.manager?.requestSend(message) === false) {
+        message.status = await this.chat.manager?.requestSend(message) || MessageStatus.Read;
+        if (message.status === MessageStatus.Failed) {
             return false;
         }
         if(!this.chat.active) this.chat.unreadCount++;

@@ -1,18 +1,20 @@
-import { Injector, NgZone } from "@angular/core";
+import { Injectable, Injector, NgZone } from "@angular/core";
 import { Message } from "./Message";
 import { Chat } from "./Chat";
 import { ChatManagersService } from "../services/chat-managers.service";
 import { MessageStatus } from "../enums/MessagesStatus";
 
+//TODO: make it injectable
+//get rid of the ngZone
+@Injectable({
+    providedIn: 'root'
+})
 export class ChatManager {
     protected chat!: Chat;
     private _name?: string;
-    private chatManagersService: ChatManagersService;
-    ngZone: NgZone;
 
-    constructor(protected injector: Injector) {
-        this.chatManagersService = injector.get(ChatManagersService);
-        this.ngZone = injector.get(NgZone);
+
+    constructor(private chatManagersService: ChatManagersService, private ngZone: NgZone) {
     }
 
     set name(name: string) {
@@ -29,13 +31,13 @@ export class ChatManager {
         this.chat = chat;
     }
 
-    private async request(func: () => boolean | Promise<boolean>, message: Message){
+    private async request(func: () => MessageStatus | Promise<MessageStatus>, message: Message){   
         message.status = MessageStatus.Pending
-        let isSuccessful = await func();
-        return this.ngZone.run(async()=>{    
-            if(!isSuccessful) message.status = MessageStatus.Failed;
-            return isSuccessful;
-        })
+        let status = await func();
+        return this.ngZone.run(() => {
+            message.status = status;
+            return status;
+        });
     }
 
     requestSend(message: Message) {
@@ -50,16 +52,16 @@ export class ChatManager {
         return this.request(()=>this.onDeleteRequested(message), message);
     }
 
-    onSendRequested(message: Message): boolean | Promise<boolean> {
-        return true;
+    onSendRequested(message: Message): MessageStatus | Promise<MessageStatus> {
+        return MessageStatus.Read;
     }
 
-    onEditRequested(message: Message, newValue: string): boolean | Promise<boolean> {
-        return true;
+    onEditRequested(message: Message, newValue: string): MessageStatus | Promise<MessageStatus> {
+        return MessageStatus.Read;
     }
 
-    onDeleteRequested(message: Message): boolean | Promise<boolean> {
-        return true;
+    onDeleteRequested(message: Message): MessageStatus | Promise<MessageStatus> {
+        return MessageStatus.Read;
     }
 
     onDestroy(): void | Promise<void> {

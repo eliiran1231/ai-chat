@@ -34,10 +34,10 @@ export class Client {
         message.from = "client";
         message.setChat(this.chat);
         this.chat.messages.push(message);
-        if(await this.chat.manager?.requestSend(message) === false) {
+        message.status = await this.chat.manager?.requestSend(message) ?? MessageStatus.Read;
+        if (message.status === MessageStatus.Failed) {
             return false;
         }
-        message.status = MessageStatus.Sent;
         this.onMessageAdded.next(message);
         this.chat.supporter.respond()
         

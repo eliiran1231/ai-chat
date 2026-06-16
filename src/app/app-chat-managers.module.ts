@@ -1,11 +1,9 @@
-import { DenyingManager } from '../agents/MockAgent/MockAgent';
-import { ChatManager } from '../classes/ChatManager';
+import { DefaultManager } from '../chat-managers/DefaultManager';
 import { ChatManagersModule } from '../services/chat-managers.module';
 
 @ChatManagersModule({
   managers: {
-    ChatManager,
-    DenyingManager,
+    DefaultManager,
   },
 })
 export class AppChatManagersModule {}

@@ -66,7 +66,6 @@ export class ChatService {
         let manager;
         if (record.managerName) {
           manager = this.chatManagersService.getManagerByName(record.managerName);
-          manager.name = record.managerName;
         }
         const [messages, persistedSupporterRecord] = await Promise.all([
           this.dbService.getChatMessages(record.id),
@@ -146,9 +145,9 @@ export class ChatService {
       chatId: chat.id,
       agentName: agent.name,
     }));
-    chat.onManagerSwitch.subscribe(() => this.dbService.updateChatManager({
+    chat.onManagerSwitch.subscribe((manager) => this.dbService.updateChatManager({
       chatId: chat.id,
-      managerName: chat.manager?.name
+      managerName: console.log(manager.name) as any|| manager.name,
     }));
     supporter.setAgent(initialAgent);
     return chat;
