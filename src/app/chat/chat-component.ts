@@ -55,8 +55,9 @@ export class ChatComponent {
 
   async sendMessage(messageValue: string, options?: MessageOptions) {
     if (this.editingMessage) {
-      await this.editingMessage.edit(messageValue);
+      let editingMessage = this.editingMessage;
       this.closeMessageOptions();
+      await editingMessage.edit(messageValue);
       return;
     }
 
@@ -127,8 +128,8 @@ export class ChatComponent {
   }
 
   async deleteMessage(message: Message) {
-    await message.delete();
     this.closeMessageOptions();
+    await message.delete();
   }
 
   stepInSearch(steps: number = 1) {
