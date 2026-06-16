@@ -170,6 +170,9 @@ export class ChatService {
       possibleAnswers: message instanceof Question
         ? message.possibleAnswers.map((answer) => answer.value)
         : undefined,
+      answerSelectionMode: message instanceof Question
+        ? message.answerSelectionMode
+        : undefined,
       validatorSpec: message instanceof Question ? message.validatorSpec : undefined,
       validationErrorMessage: message instanceof Question
         ? getPersistableValidationErrorMessage(message.validationErrorMessage)
@@ -198,12 +201,8 @@ export class ChatService {
     const validatorSpec = coerceValidatorSpec(record.validatorSpec);
     const questionOptions: QuestionOptions = {
       ...options,
-      answerOptions: record.possibleAnswers ? {
-        possibleAnswers: record.possibleAnswers,
-        selectionMode: record.answerOptions?.selectionMode ?? 'single',
-        sheetTitle: record.answerOptions?.sheetTitle,
-        minNumberToShowInSheet: record.answerOptions?.minNumberToShowInSheet,
-      } : undefined,
+      possibleAnswers: record.possibleAnswers,
+      answerSelectionMode: record.answerSelectionMode,
       validationErrorMessage: record.validationErrorMessage,
       validator: validatorSpec,
     };
@@ -239,6 +238,9 @@ export class ChatService {
                 ? possibleAnswer
                 : possibleAnswer.value
             )
+          : undefined,
+        answerSelectionMode: message instanceof Question
+          ? message.answerSelectionMode
           : undefined,
         validatorSpec: message instanceof Question ? message.validatorSpec : undefined,
         validationErrorMessage: message instanceof Question

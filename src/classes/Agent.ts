@@ -91,9 +91,8 @@ export class Agent {
             }
         }
 
-        if (responseToEdit) {
-            responseToEdit.edit(joinedAnswer.value);
-        }
+        responseToEdit?.edit(joinedAnswer.value);
+        
     }
 
     onMessageEdited(message: Message) {

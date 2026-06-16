@@ -27,9 +27,7 @@ export class MockAgent extends Agent {
                 values: ["billing", "technical issue", "account", "other"]
             },
             validationErrorMessage: "please choose one of the available topics",
-            answerOptions: {
-                possibleAnswers: ["billing", "technical issue", "account", "other"],
-            },
+            possibleAnswers: ["billing", "technical issue", "account", "other"],
             tag: "topic"
         }),
         topic: () => new Question("how urgent is this?", {
@@ -38,9 +36,7 @@ export class MockAgent extends Agent {
                 values: ["low", "normal", "urgent"]
             },
             validationErrorMessage: "please choose low, normal, or urgent",
-            answerOptions: {
-                possibleAnswers: ["low", "normal", "urgent"],
-            },
+            possibleAnswers: ["low", "normal", "urgent"],
             tag: "urgency"
         }),
         urgency: () => new Question("how would you prefer we follow up?", {
@@ -48,11 +44,8 @@ export class MockAgent extends Agent {
                 type: "oneOf",
                 values: ["chat", "email", "phone"]
             },
-            answerOptions: {
-                possibleAnswers: ["chat", "email", "phone"],
-                selectionMode: "multiple",
-                sheetTitle: "contact preference"
-            },
+            possibleAnswers: ["chat", "email", "phone"],
+            answerSelectionMode: "multiple",
             validationErrorMessage: "please choose chat, email, or phone",
                         
             tag: "contactPreference"
@@ -73,9 +66,7 @@ export class MockAgent extends Agent {
                 values: possibleAnswers,
               },
               validationErrorMessage: 'i do not understand you',
-              answerOptions: {
-                possibleAnswers,
-              },
+              possibleAnswers,
               tag: 'greeting',
             });
             this.supporter.ask(question);

@@ -2,22 +2,25 @@ import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
 import { NgxFilesizeModule } from 'ngx-filesize';
-import { Check, ChevronDown, List, LucideAngularModule, X } from 'lucide-angular';
+import { ChevronDown, List, LucideAngularModule } from 'lucide-angular';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
-import { DEFAULT_MIN_NUMBER_TO_SHOW_IN_SHEET, Question } from '../../classes/Question';
+import { Question } from '../../classes/Question';
 import { HighlightPipe } from '../../pipes/highlight.pipe';
+import { AnswerSheetComponent } from '../answer-sheet-component/answer-sheet-component';
 
-const MIN_NUMBER_TO_SHOW_SEARCH = 15;
-
-type SheetAnswerOption = {
-  answer: Answer;
-  index: number;
-};
+const MIN_ANSWERS_TO_SHOW_IN_SHEET = 10;
 
 @Component({
   selector: 'app-message-bubble',
-  imports: [DatePipe, MarkdownComponent, NgxFilesizeModule, HighlightPipe, LucideAngularModule],
+  imports: [
+    AnswerSheetComponent,
+    DatePipe,
+    MarkdownComponent,
+    NgxFilesizeModule,
+    HighlightPipe,
+    LucideAngularModule,
+  ],
   templateUrl: './message-bubble-component.html',
   styleUrl: './message-bubble-component.scss',
 })
@@ -33,11 +36,8 @@ export class MessageBubbleComponent implements OnDestroy {
   questionType = Question;
   readonly optionsIcon = ChevronDown;
   readonly listIcon = List;
-  readonly closeIcon = X;
-  readonly checkIcon = Check;
+  readonly answerSheetTitle = 'Choose an option';
   isSheetOpen = false;
-  selectedSheetAnswers = new Set<number>();
-  answerSearchTerm = '';
 
   constructor() {}
 
@@ -63,57 +63,27 @@ export class MessageBubbleComponent implements OnDestroy {
       return;
     }
 
-    this.selectedSheetAnswers.clear();
-    this.answerSearchTerm = '';
     this.isSheetOpen = true;
     this.answerSheetOpenChange.emit(true);
   }
 
   closeAnswerSheet(): void {
     this.isSheetOpen = false;
-    this.selectedSheetAnswers.clear();
-    this.answerSearchTerm = '';
     this.answerSheetOpenChange.emit(false);
   }
 
-  selectSheetAnswer(answer: Answer, answerIndex: number): void {
-    if (!(this.message instanceof Question)) {
-      return;
-    }
-
-    if (this.message.answerOptions?.selectionMode === 'multiple') {
-      this.toggleSheetAnswer(answerIndex);
-      return;
-    }
-
+  selectSheetAnswer(answer: Answer): void {
     this.selectAnswer(answer);
     this.closeAnswerSheet();
   }
 
-  toggleSheetAnswer(answerIndex: number): void {
-    if (this.selectedSheetAnswers.has(answerIndex)) {
-      this.selectedSheetAnswers.delete(answerIndex);
+  confirmSheetAnswers(answers: Answer[]): void {
+    if (!(this.message instanceof Question)) {
       return;
     }
 
-    this.selectedSheetAnswers.add(answerIndex);
-  }
-
-  confirmSheetAnswers(): void {
-    if (!(this.message instanceof Question) || !this.selectedSheetAnswers.size) {
-      return;
-    }
-
-    const selectedAnswerOptions = this.message.possibleAnswers.filter((_answer, index) =>
-      this.selectedSheetAnswers.has(index)
-    );
-
-    this.answerSelected.emit({ answer: selectedAnswerOptions, associatedQuestion: this.message });
+    this.answerSelected.emit({ answer: answers, associatedQuestion: this.message });
     this.closeAnswerSheet();
-  }
-
-  isSheetAnswerSelected(answerIndex: number): boolean {
-    return this.selectedSheetAnswers.has(answerIndex);
   }
 
   get showInlineAnswers(): boolean {
@@ -121,14 +91,11 @@ export class MessageBubbleComponent implements OnDestroy {
       return false;
     }
 
-    const answerOptions = this.message.answerOptions;
-    if (answerOptions?.selectionMode === 'multiple') {
+    if (this.message.answerSelectionMode === 'multiple') {
       return false;
     }
 
-    const minNumberToShowInSheet =
-      answerOptions?.minNumberToShowInSheet ?? DEFAULT_MIN_NUMBER_TO_SHOW_IN_SHEET;
-    return this.message.possibleAnswers.length < minNumberToShowInSheet;
+    return this.message.possibleAnswers.length < MIN_ANSWERS_TO_SHOW_IN_SHEET;
   }
 
   get showSheetTrigger(): boolean {
@@ -137,36 +104,9 @@ export class MessageBubbleComponent implements OnDestroy {
       !this.showInlineAnswers;
   }
 
-  get sheetTitle(): string {
-    return this.message instanceof Question
-      ? this.message.answerOptions?.sheetTitle ?? 'Choose an option'
-      : '';
-  }
-
-  get filteredSheetAnswers(): SheetAnswerOption[] {
-    if (!(this.message instanceof Question)) {
-      return [];
-    }
-
-    const answers = this.message.possibleAnswers.map((answer, index) => ({ answer, index }));
-    const normalizedSearchTerm = this.answerSearchTerm.trim().toLocaleLowerCase();
-    if (!normalizedSearchTerm) {
-      return answers;
-    }
-
-    return answers.filter(({ answer }) =>
-      answer.value.toLocaleLowerCase().includes(normalizedSearchTerm)
-    );
-  }
-
-  get shouldShowAnswerSearch(): boolean {
-    return this.message instanceof Question &&
-      this.message.possibleAnswers.length >= MIN_NUMBER_TO_SHOW_SEARCH;
-  }
-
   get isMultipleSelection(): boolean {
     return this.message instanceof Question &&
-      this.message.answerOptions?.selectionMode === 'multiple';
+      this.message.answerSelectionMode === 'multiple';
   }
 
   openMessageOptions(event: MouseEvent): void {
