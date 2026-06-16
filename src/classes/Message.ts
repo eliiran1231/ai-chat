@@ -70,11 +70,9 @@ export class Message extends DBEntity {
             !this.editable ||
             this.from === 'supporter' ||
             !this._chat ||
-            this.value === newValue
+            this.value === newValue ||
+            await this._chat.manager?.requestEdit(this, newValue) == MessageStatus.Failed
         ) return false;            
-        this.status = await this._chat.manager?.requestEdit(this, newValue) || MessageStatus.Read;
-        if (this.status === MessageStatus.Failed) return false;
-
         this.value = newValue;
         this.editedAt = new Date();
         this._chat.onMessageEdited.next(this);
@@ -96,6 +94,7 @@ export class Message extends DBEntity {
         index >= 0 && this._chat.messages.splice(index, 1);
         return true;
     }
+
 
     clone(): Message {
         return new Message(this.value, { ...this })

@@ -78,7 +78,6 @@ export class Supporter extends DBEntity {
     private async appendMessage(message: Message){
         message.from = "supporter";
         message.setChat(this.chat);
-        message.status = MessageStatus.Pending;
         this.chat.messages.push(message);
         message.status = await this.chat.manager?.requestSend(message) || MessageStatus.Read;
         if (message.status === MessageStatus.Failed) {

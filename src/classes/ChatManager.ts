@@ -32,10 +32,10 @@ export class ChatManager {
     }
 
     private async request(func: () => MessageStatus | Promise<MessageStatus>, message: Message){   
-        message.status = MessageStatus.Pending
+        message.uiInstance.status = MessageStatus.Pending
         let status = await func();
         return this.ngZone.run(() => {
-            message.status = status;
+            message.uiInstance.status = status;
             return status;
         });
     }
@@ -45,6 +45,8 @@ export class ChatManager {
     }
 
     requestEdit(message: Message, newValue: string) {
+        message.uiInstance.value = newValue;
+        message.uiInstance.editedAt = new Date();
         return this.request(()=>this.onEditRequested(message, newValue), message);
     }
 
