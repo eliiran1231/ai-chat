@@ -6,9 +6,9 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronUp,
-  Edit3,
   EllipsisVertical,
   LucideAngularModule,
+  PenLine,
   Search,
   Trash2,
   X,
@@ -53,7 +53,7 @@ export class ChatNavbarComponent {
   readonly closeSearchIcon = X;
   readonly backIcon = ChevronLeft;
   readonly searchIcon = Search;
-  readonly editIcon = Edit3;
+  readonly editIcon = PenLine;
   readonly menuIcon = EllipsisVertical;
   readonly deleteIcon = Trash2;
   readonly menuItems: AppMenuItem[] = [
