@@ -10,6 +10,7 @@ import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgent
 import { Uuid } from '../interfaces/db/Uuid';
 import { CommitMessageInput } from '../interfaces/db/CommitMessageInput';
 import { CommitChatInput } from '../interfaces/db/CommitChatInput';
+import { CommitSupporterInput } from '../interfaces/db/CommitSupporter';
 
 @Injectable({
   providedIn: 'root',
@@ -65,11 +66,11 @@ export class DbService {
     return this.electronService.invoke<boolean>('db:updateSupporterAgent', input);
   }
 
-  async commitSupporter(supporter: { id: Uuid; context?: any }): Promise<boolean> {
+  async commitSupporter(supporter: CommitSupporterInput): Promise<boolean> {
     const payload: any = {
       id: supporter.id,
-      name: (supporter as any).name ?? undefined,
-      expects: (supporter as any).expects ?? undefined,
+      name: supporter.name ?? undefined,
+      expects: supporter.expects ?? undefined,
       context: supporter.context ?? '',
     };
     try {
