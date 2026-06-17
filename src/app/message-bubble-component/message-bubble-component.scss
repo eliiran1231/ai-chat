@@ -54,7 +54,7 @@
   position: relative;
   max-width: min(78%, 34rem);
   border-radius: 0.55rem;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 1px 0.5px rgba(17, 27, 33, 0.13);
   transition:
     box-shadow 0.2s ease,
