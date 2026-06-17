@@ -71,7 +71,13 @@ export class DbService {
     return this.electronService.invoke<boolean>('db:updateChatManager', input);
   }
 
-  async commitSupporter(payload: CommitSupporterInput): Promise<boolean> {
+  async commitSupporter(supporter: CommitSupporterInput): Promise<boolean> {
+    const payload: any = {
+      id: supporter.id,
+      name: supporter.name ?? undefined,
+      expects: supporter.expects ?? undefined,
+      context: supporter.context ?? '',
+    };
     try {
       payload.context = JSON.stringify(payload.context);
     } catch {
