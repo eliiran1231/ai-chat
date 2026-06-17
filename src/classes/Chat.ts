@@ -49,10 +49,9 @@ export class Chat extends DBEntity {
   user: Client;
   active: boolean = false;
   private _avatar: Avatar;
-  private provider: ChatProvider;
+  provider: ChatProvider;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
-  public readonly onManagerSwitch = new Subject<ChatManager>();
 
   get avatar(): Readonly<Avatar> {
     return this._avatar;
@@ -99,13 +98,9 @@ export class Chat extends DBEntity {
     this.tipLabel = options.tipLabel;
     this.enableDbChanges();
   }
-  
-  private _processFileUrlDriver(file: File): string | Promise<string> {
-    return URL.createObjectURL(file);
-  }
 
   processFileUrl(file: File): string | Promise<string> {
-    return this._processFileUrlDriver(file);
+    return this.manager.handleFile(file);
   }
 
   async updateAvatar(avatar: Avatar) {
@@ -113,18 +108,7 @@ export class Chat extends DBEntity {
     await this.saveChanges();
   }
 
-  setFileUrlProcessor(processor: typeof this._processFileUrlDriver) {
-    this._processFileUrlDriver = processor;
-  }
-  
-  async setManager(chatManager: ChatManager){
-    await this.manager?.onDestroy();
-    this.manager = chatManager
-    await this.manager.init(this);
-    this.onManagerSwitch.next(chatManager);
-  }
-
   delete(){
-    return this.provider.deleteChat(this.id);
+    return this.manager.requestChatDelete();
   }
 }

@@ -1,33 +1,19 @@
-import { Injectable, Injector, NgZone } from "@angular/core";
+import { Injector, NgZone } from "@angular/core";
 import { Message } from "./Message";
 import { Chat } from "./Chat";
-import { ChatManagersService } from "../services/chat-managers.service";
 import { MessageStatus } from "../enums/MessagesStatus";
+import { DBEntity } from "./DBEntity";
 
-@Injectable({
-    providedIn: 'root'
-})
 export class ChatManager {
     protected chat!: Chat;
-    private _name?: string;
+    private ngZone: NgZone;
 
-
-    constructor(private chatManagersService: ChatManagersService, private ngZone: NgZone) {
-    }
-
-    set name(name: string) {
-        if (this._name) throw new Error("this chat manager name was already set and cannot be changed");
-        this._name = name;
-    }
-
-    get name(): string {
-        if (!this._name) this._name = this.chatManagersService.getManagerName(this);
-        return this._name;
+    constructor(injector: Injector) {
+        this.ngZone = injector.get(NgZone);
     }
 
     init(chat: Chat): void | Promise<void>{
         this.chat = chat;
-        chat.setFileUrlProcessor(this.handleFile.bind(this));
     }
 
     private async request(func: () => MessageStatus | Promise<MessageStatus>, message: Message){   
@@ -54,24 +40,32 @@ export class ChatManager {
         return this.request(()=>this.onDeleteRequested(message), message);
     }
 
-    onSendRequested(message: Message): MessageStatus | Promise<MessageStatus> {
+    requestChatDelete(){
+        return this.chat.provider.deleteChat(this.chat.id);
+    }
+
+    requestPropChange(target: DBEntity, prop: string | Symbol | undefined, newValue: any): void | Promise<void>{
+        return this.onPropChangeRequested(target, prop, newValue);
+    }
+
+    protected onSendRequested(message: Message): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 
-    onEditRequested(message: Message, oldMessage: Message): MessageStatus | Promise<MessageStatus> {
+    protected onEditRequested(message: Message, oldMessage: Message): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 
-    onDeleteRequested(message: Message): MessageStatus | Promise<MessageStatus> {
+    protected onPropChangeRequested(target: DBEntity, prop: string | Symbol | undefined, newValue: any){
+        
+    }
+
+    protected onDeleteRequested(message: Message): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 
     handleFile(file: File): string | Promise<string> {
         //override to handle file attachments
         return URL.createObjectURL(file);
-    }
-
-    onDestroy(): void | Promise<void> {
-        
     }
 }

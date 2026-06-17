@@ -7,9 +7,8 @@ export interface ChatProvider {
     createChat(        
         name: string,
         initialAgent: Agent,
-        manager: ChatManager,
         options?: ChatOptions
     ): Chat | Promise<Chat>;
     getChats(): Chat[] | Promise<Chat[]>;
-    deleteChat(chatId: Uuid): void | Promise<void> 
+    deleteChat(chatId: Uuid): void | Promise<void>;
 }

@@ -2,7 +2,6 @@ import { Avatar } from '../../classes/Chat';
 
 export interface CreateChatRecordInput {
   name: string;
-  managerName: string;
   status?: string;
   avatar?: Avatar;
   subtitle?: string;

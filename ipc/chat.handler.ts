@@ -32,10 +32,4 @@ export function registerChatHandlers(): void {
       chatService.deleteChat(chatId),
     ),
   );
-  ipcMain.handle(
-    'db:updateChatManager',
-    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, payload: { chatId: Uuid; managerName?: string }) =>
-      chatService.updateChatManager(payload),
-    ),
-  );
 }

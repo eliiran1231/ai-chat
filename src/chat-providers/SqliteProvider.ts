@@ -1,9 +1,9 @@
-import { inject, Injectable } from "@angular/core";
+import { inject, Injectable, Injector } from "@angular/core";
 import { ChatProvider } from "../interfaces/ChatProvider";
 import { Chat, ChatOptions } from "../classes/Chat";
 import { DbService } from "../services/db.service";
 import { AgentsService } from "../services/agents.service";
-import { getPersistableValidationErrorMessage, Question, QuestionOptions } from "../classes/Question";
+import { Question, QuestionOptions } from "../classes/Question";
 import { Message, MessageOptions } from "../classes/Message";
 import { Answer } from "../classes/Answer";
 import { coerceValidatorSpec } from "../classes/MessageValidator";
@@ -13,9 +13,7 @@ import { SupporterRecord } from "../interfaces/db/SupporterRecord";
 import { Agent } from "../classes/Agent";
 import { ChatRecord } from "../interfaces/db/ChatRecord";
 import { Uuid } from "../interfaces/db/Uuid";
-import { ChatManager } from "../classes/ChatManager";
-import { DefaultManager } from "../chat-managers/DefaultManager";
-import { ChatManagersService } from "../services/chat-managers.service";
+import { SqliteManager } from "../chat-managers/SqliteManager";
 
 @Injectable({
     providedIn: 'root'
@@ -23,9 +21,8 @@ import { ChatManagersService } from "../services/chat-managers.service";
 
 export class SqliteProvider implements ChatProvider {
     private dbService = inject(DbService);
-    private defaultManager = inject(DefaultManager);
     private agentsService = inject(AgentsService);
-    chatManagersService = inject(ChatManagersService);
+    injector: Injector = inject(Injector);
 
     async getChats(): Promise<Chat[]> {
         const records = await this.dbService.getChats();
@@ -57,14 +54,12 @@ export class SqliteProvider implements ChatProvider {
     async createChat(
         name: string,
         initialAgent: Agent,
-        manager: ChatManager,
         options: ChatOptions = {},
     ): Promise<Chat> {
         const record = await this.dbService.createChat({
             name,
             status: options.status,
             avatar: options.avatar,
-            managerName: manager.name,
             subtitle: options.subtitle,
             timeLabel: options.timeLabel,
             unreadCount: options.unreadCount,
@@ -105,16 +100,7 @@ export class SqliteProvider implements ChatProvider {
             supporterRecord?.expects,
             context
         );
-        let manager;
-        if (record.managerName) {
-            try {
-                manager = this.chatManagersService.getManagerByName(record.managerName);
-            }
-            catch {
-                manager = this.defaultManager;
-            }
-        } 
-        else manager = this.defaultManager;
+        const manager = new SqliteManager(this.injector);
         const chat = new Chat(record.id, record.name, supporter, manager, this, {
             status: record.status, 
             avatar: record.avatar,
@@ -125,75 +111,22 @@ export class SqliteProvider implements ChatProvider {
             avatarRing: record.avatarRing,
             tipLabel: record.tipLabel,
         });
-        chat.setSaveChangesHandler((target) => this.commitChatChanges(target));
+        chat.setSaveChangesHandler((target)=>void manager.commitChatChanges(target));
         for (const messageRecord of messageRecords) {
-            const message = this.hydrateMessage(messageRecord);
+            const message = this.hydrateMessage(messageRecord, manager);
             message.setChat(chat);
             chat.messages.push(message);
         }
-        this.attachMessagePersistence(chat);
-        supporter.setSaveChangesHandler((target) => this.commitSupporterChanges(target));
+        supporter.setSaveChangesHandler(manager.commitSupporterChanges.bind(manager));
         supporter.onAgentSwitch.subscribe((agent) => this.dbService.updateSupporterAgent({
             chatId: chat.id,
             agentName: agent.name,
         }));
-        chat.onManagerSwitch.subscribe(manager => this.dbService.updateChatManager({
-            chatId: chat.id,
-            managerName: manager.name
-        }))
         supporter.setAgent(initialAgent);
         return chat;
     }
 
-    private async commitSupporterChanges(supporter: Supporter): Promise<void> {
-        await this.dbService.commitSupporter({
-            id: supporter.id,
-            name: supporter.name,
-            expects: supporter.expects,
-            context: supporter.context,
-        });
-    }
-
-    private async commitChatChanges(chat: Chat): Promise<void> {
-        await this.dbService.commitChat({
-            id: chat.id,
-            name: chat.name,
-            status: chat.status,
-            avatar: chat.avatar,
-            subtitle: chat.subtitle,
-            timeLabel: chat.timeLabel,
-            unreadCount: chat.unreadCount,
-            highlightTime: chat.highlightTime,
-            avatarRing: chat.avatarRing,
-            tipLabel: chat.tipLabel,
-        });
-    }
-
-    private async commitMessageChanges(message: Message): Promise<void> {
-        const messageType = message instanceof Answer ? 'answer' : message instanceof Question ? 'question' : 'message';
-        await this.dbService.commitMessage({
-            id: message.id,
-            from: message.from,
-            messageType,
-            value: message.value,
-            tag: message.tag,
-            time: message.time.toISOString(),
-            editedAt: message.editedAt?.toISOString(),
-            status: message.status,
-            editable: message.editable,
-            deletable: message.deletable,
-            attachment: message.attachment,
-            possibleAnswers: message instanceof Question
-                ? message.possibleAnswers.map((answer) => answer.value)
-                : undefined,
-            validatorSpec: message instanceof Question ? message.validatorSpec : undefined,
-            validationErrorMessage: message instanceof Question
-                ? getPersistableValidationErrorMessage(message.validationErrorMessage)
-                : undefined,
-        });
-    }
-
-    private hydrateMessage(record: MessageRecord): Message {
+    private hydrateMessage(record: MessageRecord, manager: SqliteManager): Message {
         const messageType = record.messageType ?? 'message';
         const options: MessageOptions = {
             ...record,
@@ -206,7 +139,7 @@ export class SqliteProvider implements ChatProvider {
             : messageType === 'answer'
                 ? new Answer(record.value, options)
                 : new Message(record.value, options);
-        message.setSaveChangesHandler((target) => this.commitMessageChanges(target));
+        message.setSaveChangesHandler(target => void manager.commitMessageChanges(target));
         return message;
     }
 
@@ -225,64 +158,5 @@ export class SqliteProvider implements ChatProvider {
         }
 
         return question;
-    }
-
-    private attachMessagePersistence(chat: Chat): void {
-        const pendingMessagePersists = new WeakMap<Message, Promise<void>>();
-        const persistMessage = async (message: Message) => {
-            const messageType = message instanceof Answer ? "answer" : message instanceof Question ? "question" : "message";
-            const record = await this.dbService.createMessage({
-                id: message.id,
-                chatId: chat.id,
-                from: message.from,
-                messageType,
-                value: message.value,
-                tag: message.tag,
-                time: message.time.toISOString(),
-                editedAt: message.editedAt?.toISOString(),
-                status: message.status,
-                editable: message.editable,
-                deletable: message.deletable,
-                attachment: message.attachment,
-                possibleAnswers: message instanceof Question
-                    ? message.possibleAnswers.map((possibleAnswer) =>
-                        typeof possibleAnswer === 'string'
-                            ? possibleAnswer
-                            : possibleAnswer.value
-                    )
-                    : undefined,
-                validatorSpec: message instanceof Question ? message.validatorSpec : undefined,
-                validationErrorMessage: message instanceof Question
-                    ? getPersistableValidationErrorMessage(message.validationErrorMessage)
-                    : undefined,
-            });
-            message.id = record.id;
-            message.status = record.status;
-            message.editable = record.editable;
-            message.deletable = record.deletable;
-            message.setSaveChangesHandler((target) => this.commitMessageChanges(target));
-        };
-
-        const persistMessageDelete = async (message: Message) => {
-            await pendingMessagePersists.get(message);
-            await this.dbService.deleteMessage(message.id);
-        };
-
-        chat.onMessageDeleted.subscribe((message) => {
-            void persistMessageDelete(message);
-        });
-
-        chat.supporter.onMessageAdded.subscribe((message) => {
-            const persisted = persistMessage(message);
-            pendingMessagePersists.set(message, persisted);
-            void persisted.finally(() => pendingMessagePersists.delete(message));
-            void persisted;
-        });
-        chat.user.onMessageAdded.subscribe((message) => {
-            const persisted = persistMessage(message);
-            pendingMessagePersists.set(message, persisted);
-            void persisted.finally(() => pendingMessagePersists.delete(message));
-            void persisted;
-        });
     }
 }

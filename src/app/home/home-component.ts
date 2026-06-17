@@ -10,7 +10,6 @@ import { ProfileService } from '../../services/profile.service';
 import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
 import { AiAgent } from '../../agents/AiAgent/AiAgent';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
-import { DefaultManager } from '../../chat-managers/DefaultManager';
 import { SqliteProvider } from '../../chat-providers/SqliteProvider';
 import { ChatProvider } from '../../interfaces/ChatProvider';
 
@@ -45,7 +44,6 @@ export class HomeComponent implements OnInit {
     private chatService: ChatService,
     private injector: Injector,
     private profileService: ProfileService,
-    private defaultChatManager: DefaultManager,
     private defaultProvider: SqliteProvider
     ) {
   }
@@ -123,7 +121,6 @@ export class HomeComponent implements OnInit {
       const chat = await provider.createChat(
         `New chat ${chatNumber}`,
         initialAgent,
-        this.defaultChatManager,
         {
           subtitle: 'Tap to start chatting',
           timeLabel: 'now',
