@@ -44,6 +44,13 @@
       }
 
       @for (message of chat.messages; track message.id) {
+        @if (shouldShowDateSeparator(message, $index)) {
+          <div class="date-separator">
+            <time [attr.datetime]="getMessageDateIso(message)">
+              {{ getMessageDateSeparatorLabel(message.time) }}
+            </time>
+          </div>
+        }
         <app-message-bubble
           [message]="message"
           [isSelected]="message === selectedMessage"

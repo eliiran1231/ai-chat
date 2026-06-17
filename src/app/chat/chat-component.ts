@@ -28,6 +28,13 @@ import { Uuid } from '../../interfaces/db/Uuid';
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
+  private readonly dayNames = ['sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  private readonly fullDateFormatter = new Intl.DateTimeFormat('en-IL', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
@@ -147,7 +154,49 @@ export class ChatComponent {
   }
 
   shouldShowMessageTail(message: Message, index: number): boolean {
-    return index === 0 || this.chat.messages[index - 1]?.from !== message.from;
+    const previousMessage = this.chat.messages[index - 1];
+    return (
+      index === 0 ||
+      previousMessage?.from !== message.from ||
+      !this.isSameLocalDate(previousMessage.time, message.time)
+    );
+  }
+
+  shouldShowDateSeparator(message: Message, index: number): boolean {
+    const previousMessage = this.chat.messages[index - 1];
+    return index === 0 || !this.isSameLocalDate(previousMessage.time, message.time);
+  }
+
+  getMessageDateSeparatorLabel(messageDate: Date, referenceDate = new Date()): string {
+    const daysAgo = this.getLocalDayNumber(referenceDate) - this.getLocalDayNumber(messageDate);
+
+    if (daysAgo === 0) {
+      return 'Today';
+    }
+
+    if (daysAgo === 1) {
+      return 'Yesterday';
+    }
+
+    if (daysAgo >= 2 && daysAgo <= 6) {
+      return this.dayNames[messageDate.getDay()];
+    }
+
+    return this.fullDateFormatter.format(messageDate);
+  }
+
+  getMessageDateIso(message: Message): string {
+    const month = `${message.time.getMonth() + 1}`.padStart(2, '0');
+    const day = `${message.time.getDate()}`.padStart(2, '0');
+    return `${message.time.getFullYear()}-${month}-${day}`;
+  }
+
+  private isSameLocalDate(firstDate: Date, secondDate: Date): boolean {
+    return this.getLocalDayNumber(firstDate) === this.getLocalDayNumber(secondDate);
+  }
+
+  private getLocalDayNumber(date: Date): number {
+    return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000;
   }
 
   private scrollToActiveSearchResult(): void {

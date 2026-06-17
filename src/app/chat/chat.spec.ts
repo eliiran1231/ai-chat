@@ -6,6 +6,8 @@ import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
+import { Uuid } from '../../interfaces/db/Uuid';
+import { REGISTERED_AGENTS } from '../../services/agents.module';
 import { ChatComponent } from './chat-component';
 
 describe('ChatComponent', () => {
@@ -25,6 +27,10 @@ describe('ChatComponent', () => {
             },
           },
         }),
+        {
+          provide: REGISTERED_AGENTS,
+          useValue: {},
+        },
       ],
     }).compileComponents();
 
@@ -33,7 +39,13 @@ describe('ChatComponent', () => {
 
   async function renderChat(draftMessage: string | Message[] = ''): Promise<Chat> {
     const supporter = new Supporter();
-    const chat = new Chat('test-chat-id', 'Test Chat', 'Online', 'TC', supporter);
+    const chat = new Chat(
+      'test-chat-id',
+      'Test Chat',
+      'Online',
+      { type: 'text', value: 'TC' },
+      supporter,
+    );
     supporter.setAgent(new Agent(TestBed.inject(Injector)));
     if (typeof draftMessage === 'string') {
       chat.draftMessage = draftMessage;
@@ -46,6 +58,10 @@ describe('ChatComponent', () => {
     await fixture.whenStable();
 
     return chat;
+  }
+
+  function createMessage(id: string, value: string, time: Date, from: 'client' | 'supporter' = 'client'): Message {
+    return new Message(value, { id: id as Uuid, time, from });
   }
 
   it('renders a textarea composer with a max of 5 rows', async () => {
@@ -105,10 +121,53 @@ describe('ChatComponent', () => {
 
     const file = fixture.nativeElement.querySelector(
       '.message-markdown img',
-    ) as HTMLFileElement | null;
+    ) as HTMLImageElement | null;
     expect(file?.getAttribute('src')).toBe(
       'https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg',
     );
     expect(file?.getAttribute('alt')).toBe('A mushroom-head robot drinking bubble tea');
+  });
+
+  it('formats date separator labels like WhatsApp', () => {
+    const component = fixture.componentInstance;
+    const referenceDate = new Date(2026, 5, 17, 12);
+
+    expect(component.getMessageDateSeparatorLabel(new Date(2026, 5, 17, 9), referenceDate)).toBe(
+      'היום',
+    );
+    expect(component.getMessageDateSeparatorLabel(new Date(2026, 5, 16, 9), referenceDate)).toBe(
+      'אתמול',
+    );
+    expect(component.getMessageDateSeparatorLabel(new Date(2026, 5, 15, 9), referenceDate)).toBe(
+      'שני',
+    );
+    expect(component.getMessageDateSeparatorLabel(new Date(2026, 5, 11, 9), referenceDate)).toBe(
+      'חמישי',
+    );
+    expect(
+      component.getMessageDateSeparatorLabel(new Date(2026, 5, 10, 9), referenceDate),
+    ).toContain('2026');
+  });
+
+  it('renders one date separator per message day', async () => {
+    await renderChat([
+      createMessage('first', 'First', new Date(2026, 5, 15, 9)),
+      createMessage('second', 'Second', new Date(2026, 5, 15, 10)),
+      createMessage('third', 'Third', new Date(2026, 5, 16, 9)),
+    ]);
+
+    const separators = fixture.nativeElement.querySelectorAll('.date-separator time');
+
+    expect(separators).toHaveLength(2);
+  });
+
+  it('starts a new bubble group when the date changes', async () => {
+    const chat = await renderChat([
+      createMessage('first', 'First', new Date(2026, 5, 15, 9)),
+      createMessage('second', 'Second', new Date(2026, 5, 16, 9)),
+    ]);
+    const component = fixture.componentInstance;
+
+    expect(component.shouldShowMessageTail(chat.messages[1], 1)).toBe(true);
   });
 });
