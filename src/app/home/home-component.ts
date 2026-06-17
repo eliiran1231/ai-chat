@@ -1,4 +1,4 @@
-import { Component, HostListener, Injector, OnInit } from '@angular/core';
+import { Component, HostListener, inject, Injector, OnInit } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
@@ -10,6 +10,8 @@ import { ProfileService } from '../../services/profile.service';
 import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
 import { AiAgent } from '../../agents/AiAgent/AiAgent';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
+import { SqliteProvider } from '../../chat-providers/SqliteProvider';
+import { ChatProvider } from '../../interfaces/ChatProvider';
 
 @Component({
   selector: 'app-home',
@@ -42,6 +44,7 @@ export class HomeComponent implements OnInit {
     private chatService: ChatService,
     private injector: Injector,
     private profileService: ProfileService,
+    private defaultProvider: SqliteProvider
     ) {
   }
 
@@ -96,11 +99,7 @@ export class HomeComponent implements OnInit {
     await this.toggleFullscreen();
   }
   async deleteChat(chat: Chat): Promise<void> {
-    const deleted = await this.chatService.deleteChat(chat.id);
-    if (!deleted) {
-      return;
-    }
-
+    await chat.delete();
     this.chats = this.chats.filter((existingChat) => existingChat.id !== chat.id);
     if (this.selectedChat?.id === chat.id) {
       this.selectedChat = null;
@@ -110,6 +109,7 @@ export class HomeComponent implements OnInit {
   async createNewChat(
     openChat = true,
     initialAgent: Agent = new AiAgent(this.injector),
+    provider: ChatProvider = this.defaultProvider
   ): Promise<Chat> {
     if (this.isCreatingChat && this.pendingCreateChat) {
       return this.pendingCreateChat;
@@ -118,14 +118,9 @@ export class HomeComponent implements OnInit {
     this.isCreatingChat = true;
     const chatNumber = this.chats.length + 1;
     this.pendingCreateChat = (async () => {
-      const chat = await this.chatService.createChat(
+      const chat = await provider.createChat(
         `New chat ${chatNumber}`,
-        'Online now',
-        initialAgent,
-        {
-          subtitle: 'Tap to start chatting',
-          timeLabel: 'now',
-        },
+        initialAgent
       );
       this.chats = [...this.chats, chat];
       if (openChat) await this.openChat(chat);
