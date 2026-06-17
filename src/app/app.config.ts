@@ -11,7 +11,7 @@ import { routes } from './app.routes';
 import { AppAgentsModule } from './app-agents.module';
 import { provideAgents } from '../services/agents.module';
 import { AppChatProvidersModule } from './app-chat-providers.module';
-import { provideChatProviders } from '../services/chat-providers.module';
+import { importProvidersFrom } from '@angular/core';
 import DOMPurify from 'dompurify';
 
 DOMPurify.setConfig({
@@ -39,6 +39,6 @@ export const appConfig: ApplicationConfig = {
     }),
     provideRouter(routes),
     provideAgents(AppAgentsModule),
-    provideChatProviders(AppChatProvidersModule),
+    importProvidersFrom(AppChatProvidersModule),
   ],
 };
