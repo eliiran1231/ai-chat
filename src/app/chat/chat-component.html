@@ -48,6 +48,7 @@
           [message]="message"
           [isSelected]="message === selectedMessage"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
+          [showTail]="shouldShowMessageTail(message, $index)"
           [searchTerm]="searchQuery"
           (answerSelected)="selectAnswer($event.answer, $event.associatedQuestion, $index)"
           (messageOptionsRequested)="openMessageOptions($event)"

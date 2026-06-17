@@ -146,6 +146,10 @@ export class ChatComponent {
     return !!messageId && this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
   }
 
+  shouldShowMessageTail(message: Message, index: number): boolean {
+    return index === 0 || this.chat.messages[index - 1]?.from !== message.from;
+  }
+
   private scrollToActiveSearchResult(): void {
     const activeMessageId = this.matchingMessageIds[this.activeSearchResultIndex];
 

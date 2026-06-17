@@ -86,7 +86,7 @@
   opacity: 1;
 }
 
-.message-bubble::after {
+.message-bubble--with-tail::after {
   content: '';
   position: absolute;
   top: 0;
@@ -100,7 +100,7 @@
   border-top-left-radius: 0.2rem;
 }
 
-.message-bubble--supporter::after {
+.message-bubble--supporter.message-bubble--with-tail::after {
   left: -0.42rem;
   border-top-color: var(--wa-supporter-bubble);
 }
@@ -114,7 +114,7 @@
   background: #dfdc;
 }
 
-.message-bubble--user::after {
+.message-bubble--user.message-bubble--with-tail::after {
   right: -0.42rem;
   border-top-color: var(--wa-user-bubble);
 }
