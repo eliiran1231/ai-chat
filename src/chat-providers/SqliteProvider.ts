@@ -137,6 +137,10 @@ export class SqliteProvider implements ChatProvider {
             chatId: chat.id,
             agentName: agent.name,
         }));
+        chat.onManagerSwitch.subscribe(manager => this.dbService.updateChatManager({
+            chatId: chat.id,
+            managerName: manager.name
+        }))
         supporter.setAgent(initialAgent);
         return chat;
     }
