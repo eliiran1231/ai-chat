@@ -15,9 +15,15 @@ export class ChatService {
 
   async getChats(): Promise<Chat[]> {
     this.chatProviders ??= this.chatProviderTypes.map(type => this.injector.get(type));
-    let chatPromises = this.chatProviders.map(provider=>provider.getChats())
+    const fulfilledFilter = (result: PromiseSettledResult<Chat[]>) => {
+      if (result.status == 'rejected') {
+        console.error(result.reason);
+      }
+      return result.status == 'fulfilled';
+    }
+    let chatPromises = this.chatProviders.map(provider=>provider.getChats());
     let chats = (await Promise.allSettled(chatPromises))
-    .filter(r => r.status === 'fulfilled')
+    .filter(fulfilledFilter)
     .flatMap(r => r.value);
     return chats;
   }
