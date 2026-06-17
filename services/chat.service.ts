@@ -59,9 +59,9 @@ export class ChatService {
       CREATE TABLE IF NOT EXISTS chats (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        status TEXT NOT NULL,
-        avatar TEXT NOT NULL,
-        manager_name TEXT,
+        status TEXT,
+        avatar TEXT,
+        manager_name TEXT NOT NULL,
         subtitle TEXT,
         time_label TEXT,
         unread_count INTEGER DEFAULT 0,
