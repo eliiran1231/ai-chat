@@ -1,12 +1,10 @@
 import { Injector } from "@angular/core";
 import { ChatManager } from "../classes/ChatManager";
 import { Message } from "../classes/Message";
-import { getPersistableValidationErrorMessage, Question } from "../classes/Question";
 import { MessageStatus } from "../enums/MessagesStatus";
 import { DbService } from "../services/db.service";
-import { Answer } from "../classes/Answer";
 import { Chat } from "../classes/Chat";
-import { Supporter } from "../classes/Supporter";
+import { DBEntity } from "../classes/DBEntity";
 
 export class SqliteManager extends ChatManager {
   dbService: DbService;
@@ -28,7 +26,7 @@ export class SqliteManager extends ChatManager {
         this.pendingMessagePersists.set(message, persisted);
         void persisted.finally(() => this.pendingMessagePersists.delete(message));
         await persisted;
-        return MessageStatus.Read;
+        return MessageStatus.Sent;
     } catch (error) {
       console.error(error);
       return MessageStatus.Failed;
@@ -39,7 +37,7 @@ export class SqliteManager extends ChatManager {
     super.onEditRequested(message, oldMessage);
     try {
       await this.chat.provider.editMessage(message);
-      return MessageStatus.Read;
+      return MessageStatus.Sent;
     } catch (error) {
       console.error(error);
       return MessageStatus.Failed;
@@ -51,7 +49,7 @@ export class SqliteManager extends ChatManager {
     try {
       await this.pendingMessagePersists.get(message);
       await this.chat.provider.deleteMessage(message.id);
-      return MessageStatus.Read;
+      return MessageStatus.Sent;
     } catch (error) {
       console.error(error);
       return MessageStatus.Failed;

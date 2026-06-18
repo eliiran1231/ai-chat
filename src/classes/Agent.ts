@@ -6,6 +6,7 @@ import { Question } from "./Question";
 import { Supporter } from "./Supporter";
 import { Subscription } from "rxjs";
 import { AgentsService } from "../services/agents.service";
+import { MessageStatus } from "../enums/MessagesStatus";
 
 export class Agent {
     chat: Chat = null as any;
@@ -56,6 +57,7 @@ export class Agent {
         else if (this.lastMessage.from == "supporter") {
             throw new Error("respond was called but there is nothing to respond to. the last message is from the agent");
         }
+        this.lastMessage.status = MessageStatus.Read;
         if (this.lastQuestion && this.lastMessage instanceof Answer && !this.lastQuestion?.isAnswerValid(this.lastMessage)) {
             this.onInvalidAnswer(this.lastMessage, this.lastQuestion);
         }
