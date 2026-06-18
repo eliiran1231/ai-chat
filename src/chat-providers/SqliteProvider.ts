@@ -23,9 +23,9 @@ import { SqliteManager } from '../chat-managers/SqliteManager';
   providedIn: 'root',
 })
 export class SqliteProvider implements ChatProvider {
-  private dbService = inject(DbService);
-  private agentsService = inject(AgentsService);
-  injector: Injector = inject(Injector);
+    private dbService = inject(DbService);
+    private agentsService = inject(AgentsService);
+    private injector: Injector = inject(Injector);
 
   async addMessage(chatId: Uuid, message: Message): Promise<void> {
     await this.persistMessage(chatId, message);
@@ -192,8 +192,8 @@ export class SqliteProvider implements ChatProvider {
       supporterRecord?.expects,
       context,
     );
-    const manager = new SqliteManager(this.injector);
-    const chat = new Chat(record.id, record.name, supporter, manager, this, {
+    const manager = new SqliteManager(this.injector, this);
+    const chat = new Chat(record.id, record.name, supporter, manager, {
       status: record.status,
       avatar: record.avatar,
       subtitle: record.subtitle,

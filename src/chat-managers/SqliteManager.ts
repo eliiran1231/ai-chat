@@ -4,14 +4,14 @@ import { Message } from "../classes/Message";
 import { MessageStatus } from "../enums/MessagesStatus";
 import { DbService } from "../services/db.service";
 import { Chat } from "../classes/Chat";
-import { DBEntity } from "../classes/DBEntity";
+import { SqliteProvider } from "../chat-providers/SqliteProvider";
 
 export class SqliteManager extends ChatManager {
   dbService: DbService;
   pendingMessagePersists = new WeakMap<Message, Promise<void>>();
 
-  constructor(injector: Injector) {
-    super(injector);
+  constructor(injector: Injector, sqliteProvider: SqliteProvider) {
+    super(injector, sqliteProvider);
     this.dbService = injector.get(DbService);
   }
 
@@ -22,7 +22,7 @@ export class SqliteManager extends ChatManager {
   override async onSendRequested(message: Message): Promise<MessageStatus> {
     super.onSendRequested(message);
     try {
-        const persisted = this.chat.provider.addMessage(this.chat.id, message) as Promise<void>;
+        const persisted = this.chatProvider.addMessage(this.chat.id, message) as Promise<void>;
         this.pendingMessagePersists.set(message, persisted);
         void persisted.finally(() => this.pendingMessagePersists.delete(message));
         await persisted;
@@ -36,7 +36,7 @@ export class SqliteManager extends ChatManager {
   override async onEditRequested(message: Message, oldMessage: Message): Promise<MessageStatus> {
     super.onEditRequested(message, oldMessage);
     try {
-      await this.chat.provider.editMessage(message);
+      await this.chatProvider.editMessage(message);
       return MessageStatus.Sent;
     } catch (error) {
       console.error(error);
@@ -48,7 +48,7 @@ export class SqliteManager extends ChatManager {
     super.onDeleteRequested(message);
     try {
       await this.pendingMessagePersists.get(message);
-      await this.chat.provider.deleteMessage(message.id);
+      await this.chatProvider.deleteMessage(message.id);
       return MessageStatus.Sent;
     } catch (error) {
       console.error(error);

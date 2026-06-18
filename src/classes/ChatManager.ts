@@ -3,13 +3,16 @@ import { Message } from "./Message";
 import { Chat } from "./Chat";
 import { MessageStatus } from "../enums/MessagesStatus";
 import { DBEntity } from "./DBEntity";
+import { ChatProvider } from "../interfaces/ChatProvider";
 
 export class ChatManager {
     protected chat!: Chat;
     private ngZone: NgZone;
+    protected chatProvider: ChatProvider;
 
-    constructor(injector: Injector) {
+    constructor(injector: Injector, chatProvider: ChatProvider) {
         this.ngZone = injector.get(NgZone);
+        this.chatProvider = chatProvider;
     }
 
     init(chat: Chat): void | Promise<void>{
@@ -41,7 +44,7 @@ export class ChatManager {
     }
 
     requestChatDelete(){
-        return this.chat.provider.deleteChat(this.chat.id);
+        return this.chatProvider.deleteChat(this.chat.id);
     }
 
     requestPropChange(target: DBEntity, prop: string | Symbol | undefined, newValue: any): void | Promise<void>{

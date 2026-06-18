@@ -49,7 +49,6 @@ export class Chat extends DBEntity {
   user: Client;
   active: boolean = false;
   private _avatar: Avatar;
-  provider: ChatProvider;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
 
@@ -74,11 +73,9 @@ export class Chat extends DBEntity {
     name: string,
     supporter: Supporter,
     manager: ChatManager,
-    provider: ChatProvider,
     options: ChatOptions = {},
   ) {
     super();
-    this.provider = provider;
     this.id = id;
     this.name = name;
     this.status = options.status ?? '';
