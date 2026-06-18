@@ -75,16 +75,16 @@ export class MockAgent extends Agent {
         super.respond();
         if (!this.lastQuestion) return;
         if (this.lastMessage instanceof Question) {        
-            this.supporter.sendMessage("a supporter will get back to you on that");
+            await this.supporter.sendMessage("a supporter will get back to you on that");
             return;
         }
 
         if (this.lastQuestion.tag == "contactPreference") {
-            this.supporter.sendMessage("thanks, your request has been submitted and a supporter will review it soon");
+            await this.supporter.sendMessage("thanks, your request has been submitted and a supporter will review it soon");
             return;
         }
 
         const createNextQuestion = this.nextQuestionByTag[this.lastQuestion.tag];
-        if (createNextQuestion) this.supporter.ask(createNextQuestion());
+        if (createNextQuestion) await this.supporter.ask(createNextQuestion());
     }
 }

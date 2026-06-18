@@ -1,4 +1,4 @@
-import { inject, Inject, Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Chat } from '../classes/Chat';
 import { ChatProvider } from '../interfaces/ChatProvider';
 import { CHAT_PROVIDER } from './chat-providers.module';

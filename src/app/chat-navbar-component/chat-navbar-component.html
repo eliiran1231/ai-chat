@@ -13,19 +13,32 @@
 
       <div class="message-options-spacer"></div>
 
-      @if (!editMode && selectedMessage?.from === 'client') {
-        <button
-          type="button"
-          class="icon-button"
-          aria-label="Edit message"
-          title="Edit"
-          [disabled]="!canEditSelectedMessage"
-          (click)="canEditSelectedMessage && selectedMessage && editMessage.emit(selectedMessage)"
-        >
-          <lucide-angular [img]="editIcon" aria-hidden="true" />
-        </button>
-      }
       @if (!editMode) {
+        @if (selectedMessage?.from === 'client') {
+          <button
+            type="button"
+            class="icon-button"
+            aria-label="Edit message"
+            title="Edit"
+            [disabled]="!canEditSelectedMessage"
+            (click)="canEditSelectedMessage && selectedMessage && editMessage.emit(selectedMessage)"
+          >
+            <lucide-angular [img]="editIcon" aria-hidden="true" />
+          </button>
+        }
+
+        @if (selectedMessage && selectedMessage.status === messageStatus.Failed) {
+            <button
+              type="button"
+              class="icon-button"
+              aria-label="Retry sending message"
+              title="Retry"
+              (click)="retryMessage.emit(selectedMessage)"
+            >
+              <lucide-angular [img]="retryIcon" aria-hidden="true" />
+            </button>
+        }
+
         <button
           type="button"
           class="icon-button icon-button--danger"

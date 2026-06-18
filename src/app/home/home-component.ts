@@ -120,7 +120,11 @@ export class HomeComponent implements OnInit {
     this.pendingCreateChat = (async () => {
       const chat = await provider.createChat(
         `New chat ${chatNumber}`,
-        initialAgent
+        initialAgent,
+        {
+          subtitle: 'Tap to start chatting',
+          timeLabel: 'now',
+        }
       );
       this.chats = [...this.chats, chat];
       if (openChat) await this.openChat(chat);

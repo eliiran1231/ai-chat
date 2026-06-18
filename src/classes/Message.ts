@@ -1,15 +1,16 @@
 import { Chat } from "./Chat";
 import { Uuid } from "../interfaces/db/Uuid";
 import { DBEntity, dbProperty } from "./DBEntity";
+import { MessageStatus } from "../enums/MessagesStatus";
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
-export type Attachment = { 
+export type Attachment = {
     type: string,
     url: string,
     size: number,
     extension: string,
-    name: string 
+    name: string
 };
 export type MessageOptions = {
     id?: Uuid,
@@ -19,7 +20,7 @@ export type MessageOptions = {
     deletable?: boolean,
     time?: Date,
     from?: MessageSender,
-    isRead?: boolean,
+    status?: MessageStatus,
     editedAt?: Date
 }
 
@@ -36,7 +37,7 @@ export class Message extends DBEntity {
     @dbProperty
     value: string;
     @dbProperty
-    isRead: boolean;
+    status: MessageStatus;
     @dbProperty
     attachment?: Attachment;
     @dbProperty
@@ -44,6 +45,7 @@ export class Message extends DBEntity {
     @dbProperty
     deletable: boolean;
     private _chat?: Chat;
+    private lastAction = () => this._chat?.manager?.requestSend(this);
 
     setChat(chat: Chat) {
         this._chat = chat;
@@ -60,26 +62,44 @@ export class Message extends DBEntity {
         this.from = options?.from;
         this.time = options?.time ?? new Date();
         this.editedAt = options?.editedAt;
-        this.isRead = options?.isRead ?? false;
+        this.status = options?.status ?? MessageStatus.Pending;
         if (new.target === Message) this.enableDbChanges();
     }
 
-    edit(newValue: string): void {
-        if (!this.editable || this.from === 'supporter' || !this._chat || this.value === newValue) return;
+    async edit(newValue: string): Promise<boolean> {
+        this.lastAction = () => this._chat?.manager?.requestEdit(this, newValue);
+        if (
+            !this.editable ||
+            this.from === 'supporter' ||
+            !this._chat ||
+            this.value === newValue ||
+            await this._chat.manager?.requestEdit(this, newValue) == MessageStatus.Failed
+        ) return false;            
         this.value = newValue;
         this.editedAt = new Date();
         this._chat.onMessageEdited.next(this);
+        return true;
     }
 
     setAttachment(attachment?: Attachment): void {
         this.attachment = attachment;
     }
 
-    delete(): void {
-        if (!this.deletable || !this._chat) return;
+    async delete(): Promise<boolean> {
+        this.lastAction = () => this._chat?.manager?.requestDelete(this);
+        if (
+            !this.deletable ||
+            !this._chat ||
+            await this._chat.manager?.requestDelete(this) === MessageStatus.Failed
+        ) return false;
         this._chat.onMessageDeleted.next(this);
         const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
         index >= 0 && this._chat.messages.splice(index, 1);
+        return true;
+    }
+
+    retry(){
+        return this.lastAction();
     }
 
     clone(): Message {

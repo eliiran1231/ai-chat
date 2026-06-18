@@ -6,7 +6,6 @@ import {
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
-
 import { routes } from './app.routes';
 import { AppAgentsModule } from './app-agents.module';
 import { provideAgents } from '../services/agents.module';

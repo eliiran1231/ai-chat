@@ -10,7 +10,7 @@ import { UpdateSupporterAgentInput } from '../interfaces/db/UpdateSupporterAgent
 import { Uuid } from '../interfaces/db/Uuid';
 import { CommitMessageInput } from '../interfaces/db/CommitMessageInput';
 import { CommitChatInput } from '../interfaces/db/CommitChatInput';
-import { CommitSupporterInput } from '../interfaces/db/CommitSupporter';
+import { CommitSupporterInput } from '../interfaces/db/CommitSupporterInput';
 
 @Injectable({
   providedIn: 'root',
@@ -78,6 +78,6 @@ export class DbService {
     } catch {
       payload.context = String(payload.context);
     }
-    return this.electronService.invoke<boolean>('db:commitSupporter', payload as any);
+    return this.electronService.invoke<boolean>('db:commitSupporter', payload);
   }
 }

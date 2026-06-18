@@ -2,12 +2,20 @@ import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
 import { NgxFilesizeModule } from 'ngx-filesize';
-import { ChevronDown, LucideAngularModule } from 'lucide-angular';
+import { 
+  ChevronDown, 
+  LucideAngularModule, 
+  Check, 
+  CheckCheck, 
+  Clock, 
+  CircleAlert 
+} from 'lucide-angular';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
 import { HighlightPipe } from '../../pipes/highlight.pipe';
 import { AnswerSelectedEvent } from '../../classes/Client';
+import { MessageStatus } from '../../enums/MessagesStatus';
 @Component({
   selector: 'app-message-bubble',
   imports: [DatePipe, MarkdownComponent, NgxFilesizeModule, HighlightPipe, LucideAngularModule],
@@ -21,6 +29,12 @@ export class MessageBubbleComponent {
   @Input() searchTerm = '';
   @Output() answerSelected = new EventEmitter<{ answer: Answer; associatedQuestion: Question }>();
   @Output() messageOptionsRequested = new EventEmitter<Message>();
+  readonly statusIcons = {
+    [MessageStatus.Pending]: Clock,
+    [MessageStatus.Sent]: Check,
+    [MessageStatus.Read]: CheckCheck,
+    [MessageStatus.Failed]: CircleAlert,
+  };
 
   questionType = Question;
   readonly optionsIcon = ChevronDown;

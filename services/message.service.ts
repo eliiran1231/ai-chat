@@ -16,7 +16,7 @@ interface MessageRow {
   possible_answers: string | null;
   validator_spec: string | null;
   validation_error_message: string | null;
-  is_read: number;
+  status: number;
   editable: number;
   deletable: number;
 }
@@ -42,9 +42,16 @@ export interface MessagePayload {
   possibleAnswers?: string[] | null;
   validatorSpec?: unknown;
   validationErrorMessage?: string | null;
-  isRead?: boolean;
+  status?: MessageStatus;
   editable?: boolean;
   deletable?: boolean;
+}
+
+export enum MessageStatus {
+    Pending,
+    Sent,
+    Read,
+    Failed
 }
 
 export interface CommitMessagePayload {
@@ -59,7 +66,7 @@ export interface CommitMessagePayload {
   possibleAnswers?: string[] | null;
   validatorSpec?: unknown;
   validationErrorMessage?: string | null;
-  isRead: boolean;
+  status: MessageStatus;
   editable: boolean;
   deletable: boolean;
 }
@@ -97,7 +104,7 @@ export class MessageService {
         possible_answers TEXT,
         validator_spec TEXT,
         validation_error_message TEXT,
-        is_read INTEGER NOT NULL DEFAULT 0,
+        status INTEGER NOT NULL DEFAULT 0,
         editable INTEGER NOT NULL DEFAULT 1,
         deletable INTEGER NOT NULL DEFAULT 1,
         FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
@@ -121,7 +128,7 @@ export class MessageService {
           possible_answers,
           validator_spec,
           validation_error_message,
-          is_read,
+          status,
           editable,
           deletable
         FROM messages
@@ -149,7 +156,7 @@ export class MessageService {
       message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
       message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
       message.validationErrorMessage ?? null,
-      message.isRead ? 1 : 0,
+      message.status ?? MessageStatus.Pending,
       message.editable === false ? 0 : 1,
       message.deletable === false ? 0 : 1,
     ];
@@ -168,7 +175,7 @@ export class MessageService {
             possible_answers,
             validator_spec,
             validation_error_message,
-            is_read,
+            status,
             editable,
             deletable
           )
@@ -176,18 +183,6 @@ export class MessageService {
         `;
 
     await this.db.run(sql, commonArgs);
-
-    if (!message.isRead) {
-      await this.db.run(
-        `
-          UPDATE chats
-          SET unread_count = unread_count + 1,
-              updated_at = ?
-          WHERE id = ?
-        `,
-        [new Date().toISOString(), message.chatId],
-      );
-    }
 
     const row = await this.db.get<MessageRow>(
       `
@@ -204,7 +199,7 @@ export class MessageService {
           possible_answers,
           validator_spec,
           validation_error_message,
-          is_read,
+          status,
           editable,
           deletable
         FROM messages
@@ -234,7 +229,7 @@ export class MessageService {
             possible_answers = ?,
             validator_spec = ?,
             validation_error_message = ?,
-            is_read = ?,
+            status = ?,
             editable = ?,
             deletable = ?
         WHERE id = ?
@@ -250,7 +245,7 @@ export class MessageService {
         message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
         message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
         message.validationErrorMessage ?? null,
-        message.isRead ? 1 : 0,
+        message.status,
         message.editable ? 1 : 0,
         message.deletable ? 1 : 0,
         message.id,
@@ -282,7 +277,7 @@ export class MessageService {
       tag: row.tag ?? undefined,
       time: row.time,
       editedAt: row.edited_at ?? undefined,
-      isRead: Boolean(row.is_read),
+      status: row.status,
       editable: Boolean(row.editable),
       deletable: Boolean(row.deletable),
       attachment: this.parseAttachmentColumn(row.attachment, 'attachment', row.id),

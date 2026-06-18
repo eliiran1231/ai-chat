@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, NgZone, Output, ViewChild } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -10,7 +10,6 @@ import { Message, MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
-import { AnswerSelectedEvent } from '../../classes/Client';
 import { Uuid } from '../../interfaces/db/Uuid';
 
 @Component({
@@ -54,16 +53,17 @@ export class ChatComponent {
 
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
-  sendMessage(messageValue: string, options?: MessageOptions): void {
+  async sendMessage(messageValue: string, options?: MessageOptions) {
     if (this.editingMessage) {
-      this.editingMessage.edit(messageValue);
+      let editingMessage = this.editingMessage;
       this.closeMessageOptions();
+      await editingMessage.edit(messageValue);
       return;
     }
 
     this.chat.supporter.expects == 'question' ?
-      this.chat.user.ask(new Question(messageValue, options)) : 
-      this.chat.user.answer(new Answer(messageValue, options));
+      await this.chat.user.ask(new Question(messageValue, options)) :
+      await this.chat.user.answer(new Answer(messageValue, options));
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
@@ -127,9 +127,14 @@ export class ChatComponent {
     this.chat.draftMessage = message.value;
   }
 
-  deleteMessage(message: Message): void {
-    message.delete();
+  async deleteMessage(message: Message) {
     this.closeMessageOptions();
+    await message.delete();
+  }
+
+  async retryMessage(message: Message) {
+    this.closeMessageOptions();
+    await message.retry();
   }
 
   stepInSearch(steps: number = 1) {
