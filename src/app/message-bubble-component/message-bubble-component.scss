@@ -153,6 +153,25 @@
   color: var(--wa-text-soft);
 }
 
+.status-icon {
+  display: inline-flex;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+  
+  // Default color for Pending (0) and Sent (1) matches timestamp gray
+  color: var(--wa-text-soft);
+
+  &--2 { // MessageStatus.Read (Double Check)
+    color: #53bdeb; // WhatsApp Blue
+  }
+
+  &--3 { // MessageStatus.Failed (Alert)
+    color: #f15c5c; // Red
+  }
+}
+
 .possible-answers-container {
   display: flex;
   flex-wrap: wrap;

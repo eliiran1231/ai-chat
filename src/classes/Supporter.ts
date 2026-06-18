@@ -6,6 +6,7 @@ import { Message } from "./Message";
 import { Question } from "./Question";
 import { Uuid } from "../interfaces/db/Uuid";
 import { DBEntity, dbProperty } from "./DBEntity";
+import { MessageStatus } from "../enums/MessagesStatus";
 
 export class Supporter extends DBEntity {
     public id!: Uuid;
@@ -36,18 +37,18 @@ export class Supporter extends DBEntity {
         var question = message instanceof Question ? message : new Question(message);
         if(this.agent) this.agent.lastQuestion = question;
         this.expects = 'answer';
-        this.appendMessage(question);
+        return this.appendMessage(question);
     }
     answer(message : string | Answer){
         this.expects = 'question';
         var answer = message instanceof Answer ?
         message :
         new Answer(message);
-        this.appendMessage(answer);
+        return this.appendMessage(answer);
     }
-    sendMessage(message : string | Message){
+    async sendMessage(message : string | Message){
         var msg = message instanceof Message ? message : new Message(message);
-        this.appendMessage(msg);
+        return this.appendMessage(msg);
     }
     async respond(){
         if(!this.agent) {
@@ -74,12 +75,17 @@ export class Supporter extends DBEntity {
     suggestAnswer(suggestedAnswer: string){
         this.chat.draftMessage = suggestedAnswer;
     }
-    private appendMessage(message: Message){
+    private async appendMessage(message: Message){
         message.from = "supporter";
         message.setChat(this.chat);
         this.chat.messages.push(message);
+        message.status = await this.chat.manager?.requestSend(message) || MessageStatus.Read;
+        if (message.status === MessageStatus.Failed) {
+            return false;
+        }
         if(!this.chat.active) this.chat.unreadCount++;
-        else message.isRead = true;
+        else message.status = MessageStatus.Read;
         this.onMessageAdded.next(message);
+        return true;
     }
 }

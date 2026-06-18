@@ -6,6 +6,7 @@ import { Question } from "./Question";
 import { Supporter } from "./Supporter";
 import { Subscription } from "rxjs";
 import { AgentsService } from "../services/agents.service";
+import { MessageStatus } from "../enums/MessagesStatus";
 
 export class Agent {
     chat: Chat = null as any;
@@ -46,7 +47,6 @@ export class Agent {
         this.onAnswerSelectedHandler = chat.user.onAnswerSelected.subscribe(({answer, associatedQuestion, associatedQuestionIndex }) => this.onAnswerSelected(answer, associatedQuestion, associatedQuestionIndex as number));
         this.onMessageDeletedHandler = chat.onMessageDeleted.subscribe(this.onMessageDeleted.bind(this));
         this.onMessageEditedHandler = chat.onMessageEdited.subscribe(this.onMessageEdited.bind(this));
-        chat.setFileUrlProcessor(this.handleFile.bind(this));
     }
 
     respond(edited = false) : void | Promise<void> {
@@ -57,6 +57,7 @@ export class Agent {
         else if (this.lastMessage.from == "supporter") {
             throw new Error("respond was called but there is nothing to respond to. the last message is from the agent");
         }
+        this.lastMessage.status = MessageStatus.Read;
         if (this.lastQuestion && this.lastMessage instanceof Answer && !this.lastQuestion?.isAnswerValid(this.lastMessage)) {
             this.onInvalidAnswer(this.lastMessage, this.lastQuestion);
         }
@@ -67,7 +68,7 @@ export class Agent {
         throw new Error("validation didnt pass");
     }
 
-    onAnswerSelected(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number) {
+    async onAnswerSelected(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number) {
         if (associatedQuestionIndex >= this.chat.messages.length - 1) {
             this.chat.user.answer(answer.clone());
             return;
@@ -76,14 +77,14 @@ export class Agent {
         for(let i = 1; !(responseToEdit instanceof Answer && responseToEdit.from === "client"); i++){
             responseToEdit = this.chat.messages[associatedQuestionIndex + i];
         }
-        responseToEdit?.edit(answer.value);
+        await responseToEdit?.edit(answer.value);
     }
 
-    onMessageEdited(message: Message) {
+    async onMessageEdited(message: Message) {
         for (let i = this.chat.messages.length - 1; i >= 0; i--) {
             const msg = this.chat.messages[i];
             if (msg.id === message.id) break;
-            msg.delete();
+            await msg.delete();
         }
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages);
         this.respond(true);
@@ -91,11 +92,6 @@ export class Agent {
 
     onMessageDeleted(message: Message) {
         //override to handle message deletions
-    }
-
-    handleFile(file: File): string | Promise<string> {
-        //override to handle file attachments
-        return URL.createObjectURL(file);
     }
 
     onDestroy(): void | Promise<void> {

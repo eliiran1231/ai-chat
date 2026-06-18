@@ -6,10 +6,11 @@ import {
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
-
 import { routes } from './app.routes';
 import { AppAgentsModule } from './app-agents.module';
 import { provideAgents } from '../services/agents.module';
+import { AppChatProvidersModule } from './app-chat-providers.module';
+import { importProvidersFrom } from '@angular/core';
 import DOMPurify from 'dompurify';
 
 DOMPurify.setConfig({
@@ -37,5 +38,6 @@ export const appConfig: ApplicationConfig = {
     }),
     provideRouter(routes),
     provideAgents(AppAgentsModule),
+    importProvidersFrom(AppChatProvidersModule),
   ],
 };

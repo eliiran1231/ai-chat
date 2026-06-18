@@ -9,10 +9,12 @@ import {
   EllipsisVertical,
   LucideAngularModule,
   PenLine,
+  RotateCcw,
   Search,
   Trash2,
   X,
 } from 'lucide-angular';
+import { MessageStatus } from '../../enums/MessagesStatus';
 
 @Component({
   selector: 'app-chat-navbar-component',
@@ -44,6 +46,7 @@ export class ChatNavbarComponent {
   @Output() messageOptionsClosed = new EventEmitter<void>();
   @Output() editMessage = new EventEmitter<Message>();
   @Output() deleteMessage = new EventEmitter<Message>();
+  @Output() retryMessage = new EventEmitter<Message>();
   searchMode = false;
   searchQuery = '';
 
@@ -56,6 +59,8 @@ export class ChatNavbarComponent {
   readonly editIcon = PenLine;
   readonly menuIcon = EllipsisVertical;
   readonly deleteIcon = Trash2;
+  readonly retryIcon = RotateCcw;
+  readonly messageStatus = MessageStatus;
   readonly menuItems: AppMenuItem[] = [
     {
       id: 'delete-chat',

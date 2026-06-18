@@ -70,9 +70,17 @@
       </div>
     }
     <time class="message-time">
-      {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
       @if (message.editedAt) {
         <span class="message-edited-mark">(edited)</span>
+      }
+      {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
+      @if (!isSupporterMessage(message)) {
+        <lucide-angular
+          [img]="statusIcons[message.status]"
+          class="status-icon"
+          [class]="'status-icon--' + message.status"
+          aria-hidden="true"
+        />
       }
     </time>
   </div>
