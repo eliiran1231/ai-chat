@@ -6,7 +6,6 @@ import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
 import { DBEntity, dbProperty } from './DBEntity';
 import { ChatManager } from './ChatManager';
-import { ChatProvider } from '../interfaces/ChatProvider';
 
 export type Avatar = {
   type: 'image' | 'text';
