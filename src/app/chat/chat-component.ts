@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, NgZone, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, inject, Input, NgZone, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -24,6 +24,7 @@ import { Uuid } from '../../interfaces/db/Uuid';
     LucideAngularModule
   ],
   templateUrl: './chat-component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {

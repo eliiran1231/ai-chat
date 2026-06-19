@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, SquarePen } from 'lucide-angular';
 import { Chat } from '../../classes/Chat';
@@ -7,6 +7,7 @@ import DOMPurify from 'dompurify';
   selector: 'app-chat-list-component',
   imports: [FormsModule, LucideAngularModule],
   templateUrl: './chat-list-component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {
