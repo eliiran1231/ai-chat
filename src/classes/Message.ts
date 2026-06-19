@@ -44,8 +44,8 @@ export class Message extends DBEntity {
     editable: boolean;
     @dbProperty
     deletable: boolean;
-    private _chat?: Chat;
-    private lastAction = () => this._chat?.manager?.requestSend(this);
+    private _chat!: Chat;
+    private lastAction = () => this._chat['manager']?.requestSend(this);
 
     setChat(chat: Chat) {
         this._chat = chat;
@@ -67,13 +67,13 @@ export class Message extends DBEntity {
     }
 
     async edit(newValue: string): Promise<boolean> {
-        this.lastAction = () => this._chat?.manager?.requestEdit(this, newValue);
+        this.lastAction = () => this._chat['manager'].requestEdit(this, newValue);
         if (
             !this.editable ||
             this.from === 'supporter' ||
             !this._chat ||
             this.value === newValue ||
-            await this._chat.manager?.requestEdit(this, newValue) == MessageStatus.Failed
+            await this._chat['manager'].requestEdit(this, newValue) == MessageStatus.Failed
         ) return false;            
         this.value = newValue;
         this.editedAt = new Date();
@@ -86,11 +86,11 @@ export class Message extends DBEntity {
     }
 
     async delete(): Promise<boolean> {
-        this.lastAction = () => this._chat?.manager?.requestDelete(this);
+        this.lastAction = () => this._chat['manager'].requestDelete(this);
         if (
             !this.deletable ||
             !this._chat ||
-            await this._chat.manager?.requestDelete(this) === MessageStatus.Failed
+            await this._chat['manager'].requestDelete(this) === MessageStatus.Failed
         ) return false;
         this._chat.onMessageDeleted.next(this);
         const index = this._chat.messages.lastIndexOf(this);
