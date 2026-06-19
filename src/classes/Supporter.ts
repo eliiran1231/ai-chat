@@ -24,9 +24,9 @@ export class Supporter extends DBEntity {
     get context(){
         return this._context;
     }
-    constructor(id?: Uuid, name?: string, expects?: "message" | "question" | "answer", context?: any){
+    constructor(id: Uuid, name?: string, expects?: "message" | "question" | "answer", context?: any){
         super();
-        if(id) this.id = id;
+        this.id = id;
         this.name = name ?? "Supporter";
         this.expects = expects ?? "question";
         if(context) this._context = context;
