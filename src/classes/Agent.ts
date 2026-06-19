@@ -9,8 +9,8 @@ import { AgentsService } from "../services/agents.service";
 import { MessageStatus } from "../enums/MessagesStatus";
 
 export class Agent {
-    chat: Chat = null as any;
-    supporter: Supporter = new Supporter();
+    chat!: Chat;
+    supporter!: Supporter;
     lastQuestion?: Question;
     lastMessage?: Message;
     private onMessageDeletedHandler?: Subscription;
@@ -19,7 +19,8 @@ export class Agent {
     private _name?: string;
     private agentService: AgentsService;
     set name(name: string){
-        if(this._name) throw new Error("this agent name was already set and cannot be changed")
+        if(this._name) throw new Error("this agent name was already set and cannot be changed");
+        this._name = name;
     }
     get name(): string {
         if(!this._name) this._name = this.agentService.getAgentName(this);
