@@ -93,7 +93,7 @@ export class Message extends DBEntity {
             await this._chat.manager?.requestDelete(this) === MessageStatus.Failed
         ) return false;
         this._chat.onMessageDeleted.next(this);
-        const index = this._chat.messages.indexOf(this, this._chat.messages.length - 1);
+        const index = this._chat.messages.lastIndexOf(this);
         index >= 0 && this._chat.messages.splice(index, 1);
         return true;
     }
