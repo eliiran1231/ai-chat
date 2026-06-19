@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { AppMenu, AppMenuItem } from "../shared/app-menu/app-menu";
@@ -20,6 +20,7 @@ import { MessageStatus } from '../../enums/MessagesStatus';
   selector: 'app-chat-navbar-component',
   imports: [AppMenu, LucideAngularModule],
   templateUrl: './chat-navbar-component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-navbar-component.scss',
 })
 export class ChatNavbarComponent {

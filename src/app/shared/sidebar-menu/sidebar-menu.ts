@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { LucideIconData } from 'lucide-angular';
 
 import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
@@ -8,6 +8,7 @@ import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
   standalone: true,
   imports: [AppMenu],
   templateUrl: './sidebar-menu.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './sidebar-menu.scss',
 })
 export class SidebarMenuComponent {
