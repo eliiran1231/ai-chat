@@ -27,16 +27,16 @@ export type MessageOptions = {
 }
 
 export class Message extends SyncedEntity {
-    id: Signal<Uuid>;
-    from: SyncedSignal<MessageSender | undefined>;
-    time: SyncedSignal<Date>;
-    editedAt: SyncedSignal<Date | undefined>;
-    tag: SyncedSignal<string>;
-    value: SyncedSignal<string>;
-    status: SyncedSignal<MessageStatus>;
-    attachment: SyncedSignal<Attachment | undefined>;
-    editable: SyncedSignal<boolean>;
-    deletable: SyncedSignal<boolean>;
+    readonly id: Signal<Uuid>;
+    readonly from: SyncedSignal<MessageSender | undefined>;
+    readonly time: SyncedSignal<Date>;
+    readonly editedAt: SyncedSignal<Date | undefined>;
+    readonly tag: SyncedSignal<string>;
+    readonly value: SyncedSignal<string>;
+    readonly status: SyncedSignal<MessageStatus>;
+    readonly attachment: SyncedSignal<Attachment | undefined>;
+    readonly editable: SyncedSignal<boolean>;
+    readonly deletable: SyncedSignal<boolean>;
     private _chat!: Chat;
     private lastAction = () => this._chat['manager']?.requestSend(this);
 
@@ -46,7 +46,7 @@ export class Message extends SyncedEntity {
 
     constructor(value: string, options?: MessageOptions) {
         super();
-        this.id = signal(options?.id ?? '');
+        this.id = signal(options?.id ?? crypto.randomUUID());
         this.from = syncedSignal<MessageSender | undefined>(options?.from);
         this.time = syncedSignal(options?.time ?? new Date());
         this.editedAt = syncedSignal<Date | undefined>(options?.editedAt);

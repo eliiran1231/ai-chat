@@ -65,7 +65,6 @@ export class SqliteProvider implements ChatProvider {
           ? getPersistableValidationErrorMessage(message.validationErrorMessage)
           : undefined,
     });
-    message.id = signal(record.id);
     message.status.set(record.status);
     message.editable.set(record.editable);
     message.deletable.set(record.deletable);

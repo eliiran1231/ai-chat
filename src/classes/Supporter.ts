@@ -11,15 +11,15 @@ import { signal, Signal } from "@angular/core";
 import { syncedSignal, SyncedSignal } from "../signals/syncedSignal";
 
 export class Supporter extends SyncedEntity {
-    public id!: Signal<Uuid>;
-    private chat!: Chat;
-    private agent: Agent | undefined;
+    public readonly id!: Signal<Uuid>;
     public readonly onMessageAdded = new Subject<Message>();
     public readonly onAgentSwitch = new Subject<Agent>();
     public readonly onContextChange = new Subject<any>();
-    public expects: SyncedSignal<"message" | "question" | "answer">;
+    public readonly expects: SyncedSignal<"message" | "question" | "answer">;
+    public readonly name: SyncedSignal<string>;
     private _context: any; 
-    public name: SyncedSignal<string>;
+    private chat!: Chat;
+    private agent: Agent | undefined;
     
     get context(){
         return this._context;

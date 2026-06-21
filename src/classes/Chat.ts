@@ -26,22 +26,22 @@ export type ChatOptions = {
 }
 
 export class Chat extends SyncedEntity {
-  id: Signal<Uuid>;
-  name: SyncedSignal<string>;
-  status: SyncedSignal<string>;
-  subtitle: SyncedSignal<string>;
-  timeLabel: SyncedSignal<string>;
-  unreadCount: SyncedSignal<number>;
-  highlightTime: SyncedSignal<boolean>;
-  avatarRing: SyncedSignal<boolean>;
-  tipLabel: SyncedSignal<string>;
-  draftMessage: WritableSignal<string>;
-  messages: WritableSignal<Message[]>;
-  active: WritableSignal<boolean> = signal(false);
-  avatar: SyncedSignal<Avatar>;
-  isRead = computed(() => this.unreadCount() === 0 && this.messages().every((message) => message.status() === MessageStatus.Read));
-  supporter: Supporter;
-  user: Client;
+  readonly id: Signal<Uuid>;
+  readonly name: SyncedSignal<string>;
+  readonly status: SyncedSignal<string>;
+  readonly subtitle: SyncedSignal<string>;
+  readonly timeLabel: SyncedSignal<string>;
+  readonly unreadCount: SyncedSignal<number>;
+  readonly highlightTime: SyncedSignal<boolean>;
+  readonly avatarRing: SyncedSignal<boolean>;
+  readonly tipLabel: SyncedSignal<string>;
+  readonly draftMessage: WritableSignal<string>;
+  readonly messages: WritableSignal<Message[]>;
+  readonly active: WritableSignal<boolean> = signal(false);
+  readonly avatar: SyncedSignal<Avatar>;
+  readonly isRead = computed(() => this.unreadCount() === 0 && this.messages().every((message) => message.status() === MessageStatus.Read));
+  readonly supporter: Supporter;
+  readonly user: Client;
   private manager: ChatManager;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
