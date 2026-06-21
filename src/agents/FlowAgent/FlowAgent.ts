@@ -60,7 +60,7 @@ export class FlowAgent extends Agent {
 
         this.actor.send({
             type: this.lastMessage instanceof Question ? "QUESTION" : "ANSWER",
-            value: this.lastMessage.value,
+            value: this.lastMessage.value(),
         });
     }
     askName() {

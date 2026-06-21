@@ -14,7 +14,7 @@
       <div class="message-options-spacer"></div>
 
       @if (!editMode) {
-        @if (selectedMessage?.from === 'client') {
+        @if (selectedMessage?.from() === 'client') {
           <button
             type="button"
             class="icon-button"
@@ -27,7 +27,7 @@
           </button>
         }
 
-        @if (selectedMessage && selectedMessage.status === messageStatus.Failed) {
+        @if (selectedMessage && selectedMessage.status() === messageStatus.Failed) {
             <button
               type="button"
               class="icon-button"
@@ -44,7 +44,7 @@
           class="icon-button icon-button--danger"
           aria-label="Delete message"
           title="Delete"
-          [disabled]="!selectedMessage?.deletable"
+          [disabled]="!selectedMessage?.deletable()"
           (click)="selectedMessage && deleteMessage.emit(selectedMessage)"
         >
           <lucide-angular [img]="deleteIcon" aria-hidden="true" />
@@ -110,15 +110,15 @@
       }
 
       <div class="avatar" aria-hidden="true">
-        @if (chat.avatar.type === 'image') {
-          <img [src]="chat.avatar.value" alt="" class="avatar__image" />
+        @if (chat.avatar().type === 'image') {
+          <img [src]="chat.avatar().value" alt="" class="avatar__image" />
         } @else {
-          {{ chat.avatar.value }}
+          {{ chat.avatar().value }}
         }
       </div>
       <div class="contact-meta">
-        <h1>{{ chat.name }}</h1>
-        <p>{{ chat.status }}</p>
+        <h1>{{ chat.name() }}</h1>
+        <p>{{ chat.status() }}</p>
       </div>
     </div>
 

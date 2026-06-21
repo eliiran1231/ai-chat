@@ -62,7 +62,7 @@ export class ChatComponent {
       return;
     }
 
-    this.chat.supporter.expects == 'question' ?
+    this.chat.supporter.expects() == 'question' ?
       await this.chat.user.ask(new Question(messageValue, options)) :
       await this.chat.user.answer(new Answer(messageValue, options));
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
@@ -90,9 +90,9 @@ export class ChatComponent {
       return;
     }
 
-    this.matchingMessageIds = this.chat.messages
-      .filter((message) => message.value.toLocaleLowerCase().includes(normalizedQuery))
-      .map((message) => message.id);
+    this.matchingMessageIds = this.chat.messages()
+      .filter((message) => message.value().toLocaleLowerCase().includes(normalizedQuery))
+      .map((message) => message.id());
 
     this.activeSearchResultIndex = this.matchingMessageIds.length ? 0 : -1;
     this.scrollToActiveSearchResult();
@@ -115,17 +115,17 @@ export class ChatComponent {
   closeMessageOptions(): void {
     this.selectedMessage = undefined;
     this.editingMessage = undefined;
-    this.chat.draftMessage = '';
+    this.chat.draftMessage.set('');
   }
 
   editMessage(message: Message): void {
-    if (message.from === 'supporter' || !message.editable) {
+    if (message.from() === 'supporter' || !message.editable()) {
       return;
     }
 
     this.selectedMessage = message;
     this.editingMessage = message;
-    this.chat.draftMessage = message.value;
+    this.chat.draftMessage.set(message.value());
   }
 
   async deleteMessage(message: Message) {

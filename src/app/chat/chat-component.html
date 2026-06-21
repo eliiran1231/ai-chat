@@ -44,11 +44,11 @@
         <div class="edit-mode-scrim" aria-hidden="true"></div>
       }
 
-      @for (message of chat.messages; track message.id) {
+      @for (message of chat.messages(); track message.id()) {
         <app-message-bubble
           [message]="message"
           [isSelected]="message === selectedMessage"
-          [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
+          [isActiveSearchMatch]="isActiveSearchMatch(message.id())"
           [searchTerm]="searchQuery"
           (answerSelected)="selectAnswer($event.answer, $event.associatedQuestion, $index)"
           (messageOptionsRequested)="openMessageOptions($event)"

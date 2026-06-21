@@ -28,34 +28,34 @@ export class ChatListComponent {
       : this.chats.filter((chat) => {
           const lastMessage = this.lastMessageText(chat).toLowerCase();
           return (
-            chat.name.toLowerCase().includes(query) ||
-            chat.status.toLowerCase().includes(query) ||
+            chat.name().toLowerCase().includes(query) ||
+            chat.status().toLowerCase().includes(query) ||
             lastMessage.includes(query)
           );
         });
 
     return chats.sort(
       (a, b) =>
-        (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
+        (b.messages().at(-1)?.time?.()?.getTime() ?? 0) - (a.messages().at(-1)?.time?.()?.getTime() ?? 0),
     );
   }
 
   lastMessageText(chat: Chat): string {
-    const lastMessage = chat.messages.at(-1);
+    const lastMessage = chat.messages().at(-1);
     if (!lastMessage) {
-      return chat.subtitle || 'start the conversation';
+      return chat.subtitle() || 'start the conversation';
     }
 
-    return DOMPurify.sanitize(lastMessage.value || lastMessage.attachment?.name || '', {
+    return DOMPurify.sanitize(lastMessage.value() || lastMessage.attachment()?.name || '', {
       ALLOWED_TAGS: [],
     });
   }
 
   lastMessageTime(chat: Chat): string {
-    const lastMessage = chat.messages.at(-1)?.time;
+    const lastMessage = chat.messages().at(-1)?.time;
     return lastMessage
-      ? lastMessage.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-      : chat.timeLabel || '';
+      ? lastMessage().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+      : chat.timeLabel() || '';
   }
 
   onOpenChat(chat: Chat): void {

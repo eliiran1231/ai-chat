@@ -3,7 +3,7 @@ import {
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection,
 } from '@angular/core';
-import { provideHttpClient, withXhr } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { routes } from './app.routes';
@@ -20,7 +20,7 @@ DOMPurify.setConfig({
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideHttpClient(withXhr()),
+    provideHttpClient(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideBrowserGlobalErrorListeners(),
     provideMarkdown({

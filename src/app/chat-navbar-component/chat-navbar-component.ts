@@ -131,6 +131,6 @@ export class ChatNavbarComponent {
   }
 
   get canEditSelectedMessage(): boolean {
-    return this.selectedMessage?.from === 'client' && this.selectedMessage.editable;
+    return this.selectedMessage?.from() === 'client' && this.selectedMessage?.editable();
   }
 }

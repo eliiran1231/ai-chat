@@ -2,16 +2,14 @@ import { Injector, NgZone } from "@angular/core";
 import { Message } from "./Message";
 import { Chat } from "./Chat";
 import { MessageStatus } from "../enums/MessagesStatus";
-import { DBEntity } from "./DBEntity";
+import { SyncedEntity } from "./SyncedEntity";
 import { ChatProvider } from "../interfaces/ChatProvider";
 
 export class ChatManager {
     protected chat!: Chat;
-    private ngZone: NgZone;
     protected chatProvider: ChatProvider;
 
     constructor(injector: Injector, chatProvider: ChatProvider) {
-        this.ngZone = injector.get(NgZone);
         this.chatProvider = chatProvider;
     }
 
@@ -20,12 +18,10 @@ export class ChatManager {
     }
 
     private async request(func: () => MessageStatus | Promise<MessageStatus>, message: Message){   
-        message.uiInstance.status = MessageStatus.Pending
+        message.status.set(MessageStatus.Pending, true);
         let status = await func();
-        return this.ngZone.run(() => {
-            message.uiInstance.status = status;
-            return status;
-        });
+        message.status.set(status, true);
+        return status;
     }
 
     requestSend(message: Message) {
@@ -34,8 +30,8 @@ export class ChatManager {
 
     requestEdit(message: Message, newValue: string) {
         let oldMessage = message.clone();
-        message.uiInstance.value = newValue;
-        message.uiInstance.editedAt = new Date();
+        message.value.set(newValue, true);
+        message.editedAt.set(new Date(), true);
         return this.request(()=>this.onEditRequested(message, oldMessage), message);
     }
 
@@ -44,10 +40,10 @@ export class ChatManager {
     }
 
     requestChatDelete(){
-        return this.chatProvider.deleteChat(this.chat.id);
+        return this.chatProvider.deleteChat(this.chat.id());
     }
 
-    requestPropChange(target: DBEntity, prop: string | Symbol | undefined, newValue: any): void | Promise<void>{
+    requestPropChange(target: SyncedEntity, prop: string | Symbol | undefined, newValue: any): void | Promise<void>{
         return this.onPropChangeRequested(target, prop, newValue);
     }
 
@@ -59,7 +55,7 @@ export class ChatManager {
         return MessageStatus.Read;
     }
 
-    protected onPropChangeRequested(target: DBEntity, prop: string | Symbol | undefined, newValue: any){
+    protected onPropChangeRequested(target: SyncedEntity, prop: string | Symbol | undefined, newValue: any){
         
     }
 

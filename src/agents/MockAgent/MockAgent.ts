@@ -56,7 +56,7 @@ export class MockAgent extends Agent {
 
     override init(chat: Chat, supporter: Supporter) {
         super.init(chat, supporter);
-        if (!this.chat.messages.find(msg => msg.tag == "greeting")) {
+        if (!this.chat.messages().find(msg => msg.tag() == "greeting")) {
             const possibleAnswers = ["hi", "hello", "hey"];
             const question = new Question("hello there how can I help you?", {
                 validator: {
@@ -79,12 +79,12 @@ export class MockAgent extends Agent {
             return;
         }
 
-        if (this.lastQuestion.tag == "contactPreference") {
+        if (this.lastQuestion.tag() == "contactPreference") {
             await this.supporter.sendMessage("thanks, your request has been submitted and a supporter will review it soon");
             return;
         }
 
-        const createNextQuestion = this.nextQuestionByTag[this.lastQuestion.tag];
+        const createNextQuestion = this.nextQuestionByTag[this.lastQuestion.tag()];
         if (createNextQuestion) await this.supporter.ask(createNextQuestion());
     }
 }

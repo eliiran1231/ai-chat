@@ -1,8 +1,8 @@
 import { ValidatorSpec } from "../interfaces/validation/ValidatorSpec";
+import { syncedSignal, SyncedSignal } from "../signals/syncedSignal";
 import { Answer } from "./Answer";
 import { MessageOptions, Message } from "./Message";
 import { coerceValidatorSpec, normalizeValidatorSpec, validateValue } from "./MessageValidator";
-import { dbProperty } from "./DBEntity";
 
 
 export function getPersistableValidationErrorMessage(
@@ -24,15 +24,9 @@ export type QuestionOptions = MessageOptions & {
 }
 
 export class Question extends Message {
-    @dbProperty
-    private _possibleAnswers: Answer[] = [];
-    @dbProperty
-    public validatorSpec?: ValidatorSpec;
-    @dbProperty
-    public validationErrorMessage: string | Message  = "Invalid answer. Please try again.";
-    public get possibleAnswers() {
-        return this._possibleAnswers;
-    }
+    public possibleAnswers: SyncedSignal<Answer[]> = syncedSignal([]);
+    public validatorSpec?: SyncedSignal<ValidatorSpec>;
+    public validationErrorMessage: Message  = new Message("Invalid answer. Please try again.");
 
     constructor(value: string, options?: QuestionOptions) {
         super(value, options);
@@ -42,29 +36,29 @@ export class Question extends Message {
         if (options?.possibleAnswers) {
             this.setPossibleAnswers(options.possibleAnswers);
         }
-        this.enableDbChanges();
     }
 
     setValidator(validator: RegExp | ValidatorSpec, validationErrorMessage?: string | Message) {
-        this.validatorSpec = coerceValidatorSpec(normalizeValidatorSpec(validator));
-        if(validationErrorMessage) this.validationErrorMessage = validationErrorMessage;
+        const spec = coerceValidatorSpec(normalizeValidatorSpec(validator))
+        spec && this.validatorSpec?.set(spec);
+        if(typeof validationErrorMessage === 'string') {
+            this.validationErrorMessage.value.set(validationErrorMessage);
+        }
+        else this.validationErrorMessage.value.set(validationErrorMessage?.value() ?? "Invalid answer. Please try again.");
     }
 
     setPossibleAnswers(answers: string[] | Answer[]) {
         if (answers.length === 0) {
-            this._possibleAnswers = [];
+            this.possibleAnswers.set([]);
         }
         else if(typeof answers[0] === 'string') 
-            this._possibleAnswers = answers.map(answer => new Answer(answer as string));
+            this.possibleAnswers.set(answers.map(answer => new Answer(answer as string)));
         else 
-            this._possibleAnswers = answers as Answer[];
+            this.possibleAnswers.set(answers as Answer[]);
     }
     
     isAnswerValid(answer: Answer) {
-        return validateValue(answer.value, this.validatorSpec);
-    }
-
-    override clone(): Question {
-        return new Question(this.value, { ...this })
+        const spec = this.validatorSpec?.();
+        return validateValue(answer.value(), spec);
     }
 }

@@ -31,11 +31,11 @@ export class Client {
         return this.appendMessage(answer);
     }
     private async appendMessage(message: Message){
-        message.from = "client";
+        message.from.set("client");
         message.setChat(this.chat);
-        this.chat.messages.push(message);
-        message.status = await this.chat['manager'].requestSend(message);
-        if (message.status === MessageStatus.Failed) {
+        this.chat.messages.update(msgs => [...msgs, message]);
+        message.status.set(await this.chat['manager'].requestSend(message));
+        if (message.status() === MessageStatus.Failed) {
             return false;
         }
         this.onMessageAdded.next(message);

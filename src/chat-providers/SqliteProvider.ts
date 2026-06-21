@@ -1,4 +1,4 @@
-import { inject, Injectable, Injector } from '@angular/core';
+import { inject, Injectable, Injector, signal } from '@angular/core';
 import { ChatProvider } from '../interfaces/ChatProvider';
 import { Chat, ChatOptions } from '../classes/Chat';
 import { DbService } from '../services/db.service';
@@ -41,34 +41,34 @@ export class SqliteProvider implements ChatProvider {
     const messageType =
       message instanceof Answer ? 'answer' : message instanceof Question ? 'question' : 'message';
     const record = await this.dbService.createMessage({
-      id: message.id,
+      id: message.id(),
       chatId: chatId,
-      from: message.from,
+      from: message.from(),
       messageType,
-      value: message.value,
-      tag: message.tag,
-      time: message.time.toISOString(),
-      editedAt: message.editedAt?.toISOString(),
-      status: message.status,
-      editable: message.editable,
-      deletable: message.deletable,
-      attachment: message.attachment,
+      value: message.value(),
+      tag: message.tag(),
+      time: message.time().toISOString(),
+      editedAt: message.editedAt()?.toISOString(),
+      status: message.status(),
+      editable: message.editable(),
+      deletable: message.deletable(),
+      attachment: message.attachment(),
       possibleAnswers:
         message instanceof Question
-          ? message.possibleAnswers.map((possibleAnswer) =>
-              typeof possibleAnswer === 'string' ? possibleAnswer : possibleAnswer.value,
+          ? message.possibleAnswers().map((possibleAnswer) =>
+              typeof possibleAnswer === 'string' ? possibleAnswer : possibleAnswer.value(),
             )
           : undefined,
-      validatorSpec: message instanceof Question ? message.validatorSpec : undefined,
+      validatorSpec: message instanceof Question ? message.validatorSpec?.() : undefined,
       validationErrorMessage:
         message instanceof Question
           ? getPersistableValidationErrorMessage(message.validationErrorMessage)
           : undefined,
     });
-    message.id = record.id;
-    message.status = record.status;
-    message.editable = record.editable;
-    message.deletable = record.deletable;
+    message.id = signal(record.id);
+    message.status.set(record.status);
+    message.editable.set(record.editable);
+    message.deletable.set(record.deletable);
     message.setSaveChangesHandler((target) => void this.commitMessageChanges(target));
   }
 
@@ -76,22 +76,22 @@ export class SqliteProvider implements ChatProvider {
     const messageType =
       message instanceof Answer ? 'answer' : message instanceof Question ? 'question' : 'message';
     return this.dbService.commitMessage({
-      id: message.id,
-      from: message.from,
+      id: message.id(),
+      from: message.from(),
       messageType,
-      value: message.value,
-      tag: message.tag,
-      time: message.time.toISOString(),
-      editedAt: message.editedAt?.toISOString(),
-      status: message.status,
-      editable: message.editable,
-      deletable: message.deletable,
-      attachment: message.attachment,
+      value: message.value(),
+      tag: message.tag(),
+      time: message.time().toISOString(),
+      editedAt: message.editedAt()?.toISOString(),
+      status: message.status(),
+      editable: message.editable(),
+      deletable: message.deletable(),
+      attachment: message.attachment(),
       possibleAnswers:
         message instanceof Question
-          ? message.possibleAnswers.map((answer) => answer.value)
+          ? message.possibleAnswers().map((answer) => answer.value())
           : undefined,
-      validatorSpec: message instanceof Question ? message.validatorSpec : undefined,
+      validatorSpec: message instanceof Question ? message.validatorSpec?.() : undefined,
       validationErrorMessage:
         message instanceof Question
           ? getPersistableValidationErrorMessage(message.validationErrorMessage)
@@ -101,24 +101,24 @@ export class SqliteProvider implements ChatProvider {
 
   commitChatChanges(chat: Chat): Promise<boolean> {
     return this.dbService.commitChat({
-      id: chat.id,
-      name: chat.name,
-      status: chat.status,
-      avatar: chat.avatar,
-      subtitle: chat.subtitle,
-      timeLabel: chat.timeLabel,
-      unreadCount: chat.unreadCount,
-      highlightTime: chat.highlightTime,
-      avatarRing: chat.avatarRing,
-      tipLabel: chat.tipLabel,
+      id: chat.id(),
+      name: chat.name(),
+      status: chat.status(),
+      avatar: chat.avatar(),
+      subtitle: chat.subtitle(),
+      timeLabel: chat.timeLabel(),
+      unreadCount: chat.unreadCount(),
+      highlightTime: chat.highlightTime(),
+      avatarRing: chat.avatarRing(),
+      tipLabel: chat.tipLabel(),
     });
   }
 
   async commitSupporterChanges(supporter: Supporter): Promise<void> {
     await this.dbService.commitSupporter({
-      id: supporter.id,
-      name: supporter.name,
-      expects: supporter.expects,
+      id: supporter.id(),
+      name: supporter.name(),
+      expects: supporter.expects(),
       context: supporter.context,
     });
   }
@@ -207,12 +207,12 @@ export class SqliteProvider implements ChatProvider {
     for (const messageRecord of messageRecords) {
       const message = this.hydrateMessage(messageRecord, manager);
       message.setChat(chat);
-      chat.messages.push(message);
+      chat.messages.update(messages => [...messages, message]);
     }
     supporter.setSaveChangesHandler(this.commitSupporterChanges.bind(this));
     supporter.onAgentSwitch.subscribe((agent) =>
       this.dbService.updateSupporterAgent({
-        chatId: chat.id,
+        chatId: chat.id(),
         agentName: agent.name,
       }),
     );
@@ -249,7 +249,7 @@ export class SqliteProvider implements ChatProvider {
     const question = new Question(record.value, questionOptions);
 
     if (!validatorSpec && record.validationErrorMessage) {
-      question.validationErrorMessage = record.validationErrorMessage;
+      question.validationErrorMessage = new Message(record.validationErrorMessage);
     }
 
     return question;

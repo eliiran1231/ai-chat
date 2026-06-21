@@ -43,7 +43,7 @@ export class MessageBubbleComponent {
   constructor() {}
 
   isSupporterMessage(message: Message): boolean {
-    return message.from === 'supporter';
+    return message.from() === 'supporter';
   }
 
   selectAnswer(answer: Answer): void {
@@ -59,6 +59,6 @@ export class MessageBubbleComponent {
   }
 
   get hasMessageOptions(): boolean {
-    return this.message.editable || this.message.deletable;
+    return this.message.editable() || this.message.deletable();
   }
 }

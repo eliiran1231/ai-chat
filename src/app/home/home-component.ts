@@ -57,18 +57,17 @@ export class HomeComponent implements OnInit {
   }
 
   get unreadChatsCount(): number {
-    return this.chats.filter((chat) => chat.unreadCount > 0).length; // i know this is not the most efficient way to do this, but it works for now. We can optimize later if needed.
+    return this.chats.filter((chat) => chat.unreadCount() > 0).length; // i know this is not the most efficient way to do this, but it works for now. We can optimize later if needed.
   }
 
   async openChat(chat: Chat): Promise<void> {
     this.selectedChat = chat;
-    chat.active = true;
-    chat.isRead = true;
+    chat.active.set(true);
   }
 
   closeChat(): void {
     if (!this.selectedChat) return;
-    this.selectedChat.active = false;
+    this.selectedChat.active.set(false);
     this.selectedChat = null;
   }
 
