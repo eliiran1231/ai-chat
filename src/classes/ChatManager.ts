@@ -20,7 +20,6 @@ export class ChatManager {
     private async request(func: () => MessageStatus | Promise<MessageStatus>, message: Message){   
         message.status.set(MessageStatus.Pending, true);
         let status = await func();
-        message.status.set(status, true);
         return status;
     }
 

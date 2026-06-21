@@ -52,10 +52,11 @@ export class Message extends SyncedEntity {
         this.editedAt = syncedSignal<Date | undefined>(options?.editedAt);
         this.tag = syncedSignal(options?.tag ?? 'general');
         this.value = syncedSignal(value);
-        this.status = syncedSignal(options?.status ?? MessageStatus.Pending);
+        this.status = syncedSignal(options?.status ?? MessageStatus.Failed);
         this.attachment = syncedSignal<Attachment | undefined>(options?.attachment);
         this.editable = syncedSignal(options?.editable ?? true);
         this.deletable = syncedSignal(options?.deletable ?? true);
+        this.initSync()
     }
 
     async edit(newValue: string): Promise<boolean> {

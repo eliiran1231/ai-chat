@@ -7,16 +7,7 @@ export type SyncedEntityChangeHandler = (
 ) => void | Promise<void>;
 
 export class SyncedEntity {
-  private onChanges: SyncedEntityChangeHandler = () => {};
-
-  constructor() {
-    for (const [key, value] of Object.entries(this)) {
-      if (isSyncedSignal(value)) {
-        value.parent = this;
-        value.prop = key;
-      }
-    }
-  }
+  private onChanges: SyncedEntityChangeHandler = () => { };
 
   setSaveChangesHandler(handler: SyncedEntityChangeHandler): void {
     this.onChanges = handler;
@@ -24,5 +15,14 @@ export class SyncedEntity {
 
   async saveChanges(): Promise<void> {
     await this.onChanges?.(this, 'all');
+  }
+
+  initSync() {
+    for (const [key, value] of Object.entries(this)) {
+      if (isSyncedSignal(value)) {
+        value.parent = this;
+        value.prop = key;
+      }
+    }
   }
 }

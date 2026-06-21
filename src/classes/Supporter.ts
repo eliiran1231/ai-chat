@@ -30,6 +30,7 @@ export class Supporter extends SyncedEntity {
         this.name = syncedSignal(name ?? "Supporter");
         this.expects = syncedSignal(expects ?? "question");
         if(context) this._context = context;
+        this.initSync()
     }
 
     ask(message : string | Question){

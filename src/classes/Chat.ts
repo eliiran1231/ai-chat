@@ -78,6 +78,7 @@ export class Chat extends SyncedEntity {
     this.highlightTime = syncedSignal(options.highlightTime ?? false);
     this.avatarRing = syncedSignal(options.avatarRing ?? false);
     this.tipLabel = syncedSignal(options.tipLabel ?? '');
+    this.initSync()
   }
 
   processFileUrl(file: File): string | Promise<string> {

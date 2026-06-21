@@ -23,14 +23,15 @@ export function syncedSignal<T>(initialValue: T): SyncedSignal<T> {
     clearTimeout(internalSignal.lastTaskId);
     internalSignal.lastTaskId = setTimeout(() => {
       const { parent, prop } = internalSignal;
-      parent && prop && parent['onChanges'](parent, prop, value);
+      if(!(parent && prop)) throw new Error("sync signal couldnt sync, are you sure the synced signal exists under a synced entity?");
+      parent?.['onChanges'](parent, prop, value);
     }, 500);
   };
 
   const oldSet = internalSignal.set;
   internalSignal.set = (value, uiOnly = false) => {
     oldSet(value);
-    uiOnly || internalSignal.sync?.(value);
+    internalSignal.sync?.(value)
   };
 
   const oldUpdate = internalSignal.update;
@@ -43,6 +44,6 @@ export function syncedSignal<T>(initialValue: T): SyncedSignal<T> {
   return internalSignal as SyncedSignal<T>;
 }
 
-export function isSyncedSignal(value: any) {
-  return value.sync && isWritableSignal(value)
+export function isSyncedSignal(value?: any) {
+  return value?.sync && isWritableSignal(value)
 }
