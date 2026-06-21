@@ -10,7 +10,6 @@
     class="message-bubble"
     [class.message-bubble--supporter]="isSupporterMessage(message)"
     [class.message-bubble--user]="!isSupporterMessage(message)"
-    [class.message-bubble--inline-answers]="showInlineAnswers"
   >
     @if (hasMessageOptions) {
       <button
@@ -56,30 +55,12 @@
       </div>
     }
     <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
-    @if (showInlineAnswers && message instanceof questionType) {
-      <div class="possible-answers-container possible-answers-container--inline">
-        @for (possibleAnswer of message.possibleAnswers; track $index) {
-          <button
-            type="button"
-            class="possible-answer"
-            (click)="selectAnswer(possibleAnswer)"
-          >
-            {{ possibleAnswer.value }}
-          </button>
-        }
-      </div>
-    }
-    @if (showSheetTrigger && message instanceof questionType) {
-      <div class="possible-answers-container possible-answers-container--sheet">
-        <button
-          type="button"
-          class="possible-answer possible-answer--sheet-trigger"
-          (click)="openAnswerSheet()"
-        >
-          <lucide-angular [img]="listIcon" aria-hidden="true" />
-          {{ answerSheetTitle }}
-        </button>
-      </div>
+    @if (message instanceof questionType && message.possibleAnswers.length) {
+      <app-question-answer-controls
+        [question]="message"
+        (answerSelected)="answerSelected.emit($event)"
+        (answerSheetOpenChange)="answerSheetOpenChange.emit($event)"
+      ></app-question-answer-controls>
     }
     <time class="message-time">
       {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
@@ -89,14 +70,3 @@
     </time>
   </div>
 </article>
-
-@if (isSheetOpen && message instanceof questionType) {
-  <app-answer-sheet
-    [answers]="message.possibleAnswers"
-    [isMultipleSelection]="isMultipleSelection"
-    [title]="answerSheetTitle"
-    (closed)="closeAnswerSheet()"
-    (answerSelected)="selectSheetAnswer($event)"
-    (answersConfirmed)="confirmSheetAnswers($event)"
-  ></app-answer-sheet>
-}

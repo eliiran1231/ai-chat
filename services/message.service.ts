@@ -108,16 +108,6 @@ export class MessageService {
         FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
       )
     `);
-    await this.ensureColumn('answer_selection_mode', 'TEXT');
-  }
-
-  private async ensureColumn(name: string, definition: string): Promise<void> {
-    const columns = await this.db.all<{ name: string }>(`PRAGMA table_info(messages)`);
-    if (columns.some((column) => column.name === name)) {
-      return;
-    }
-
-    await this.db.run(`ALTER TABLE messages ADD COLUMN ${name} ${definition}`);
   }
 
   async getChatMessages(chatId: Uuid) {

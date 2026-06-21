@@ -1,10 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { REGISTERED_AGENTS } from '../services/agents.module';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [
+        {
+          provide: REGISTERED_AGENTS,
+          useValue: {},
+        },
+      ],
     }).compileComponents();
   });
 
@@ -16,6 +23,7 @@ describe('App', () => {
 
   it('should render title', async () => {
     const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain('WhatsApp');

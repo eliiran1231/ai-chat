@@ -135,6 +135,7 @@
 }
 
 .answer-sheet__option {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -149,6 +150,12 @@
   font-size: 1.05rem;
   text-align: start;
   cursor: pointer;
+}
+
+.answer-sheet__control {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .answer-sheet__mark {

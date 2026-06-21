@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Check, LucideAngularModule, Search, X } from 'lucide-angular';
 import { Answer } from '../../classes/Answer';
 
@@ -11,7 +12,7 @@ type SheetAnswerOption = {
 
 @Component({
   selector: 'app-answer-sheet',
-  imports: [LucideAngularModule],
+  imports: [FormsModule, LucideAngularModule],
   templateUrl: './answer-sheet-component.html',
   styleUrl: './answer-sheet-component.scss',
 })
@@ -28,6 +29,7 @@ export class AnswerSheetComponent {
   readonly checkIcon = Check;
   readonly searchIcon = Search;
   selectedAnswerIndexes = new Set<number>();
+  selectedSingleAnswerIndex: number | null = null;
   answerSearchTerm = '';
   isSearchOpen = false;
 
@@ -45,19 +47,24 @@ export class AnswerSheetComponent {
       return;
     }
 
+    this.selectedSingleAnswerIndex = answerIndex;
     this.answerSelected.emit(answer);
   }
 
-  toggleAnswer(answerIndex: number): void {
-    if (this.selectedAnswerIndexes.has(answerIndex)) {
-      this.selectedAnswerIndexes.delete(answerIndex);
+  setAnswerSelected(answerIndex: number, isSelected: boolean): void {
+    if (isSelected) {
+      this.selectedAnswerIndexes.add(answerIndex);
       return;
     }
 
-    this.selectedAnswerIndexes.add(answerIndex);
+    this.selectedAnswerIndexes.delete(answerIndex);
   }
 
-  confirmAnswers(): void {
+  toggleAnswer(answerIndex: number): void {
+    this.setAnswerSelected(answerIndex, !this.selectedAnswerIndexes.has(answerIndex));
+  }
+
+  confirmAnswers(_form?: NgForm): void {
     if (!this.selectedAnswerIndexes.size) {
       return;
     }

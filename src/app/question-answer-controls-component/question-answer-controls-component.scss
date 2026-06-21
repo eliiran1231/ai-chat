@@ -1,0 +1,54 @@
+:host {
+  display: block;
+  min-width: min(86%, 18rem);
+}
+
+.possible-answers-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.55rem 0.3rem 0;
+  padding-top: 0.35rem;
+}
+
+.possible-answer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: 100%;
+  min-height: 2.8rem;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--wa-text-soft) 22%, transparent);
+  padding: 0.72rem 0.85rem;
+  background: transparent;
+  color: var(--wa-green);
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.possible-answers-container--inline .possible-answer {
+  flex: 1 1 max(8rem, calc(50% - 0.35rem));
+  min-width: max-content;
+  border-bottom: 0;
+  border-radius: 0.25rem;
+  background: color-mix(in srgb, var(--wa-panel) 72%, transparent);
+}
+
+.possible-answer:last-child {
+  border-bottom: 0;
+}
+
+.possible-answer lucide-angular {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.possible-answer:hover {
+  background: color-mix(in srgb, var(--wa-green) 8%, transparent);
+}
+
+.possible-answer:active {
+  background: color-mix(in srgb, var(--wa-green) 14%, transparent);
+}

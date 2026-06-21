@@ -1,10 +1,12 @@
 <div class="answer-sheet-backdrop" (click)="close()"></div>
-<section
+<form
+  #answerSheetForm="ngForm"
   class="answer-sheet"
   [class.answer-sheet--tall]="isTall"
   role="dialog"
   aria-modal="true"
   [attr.aria-label]="title"
+  (ngSubmit)="confirmAnswers(answerSheetForm)"
 >
   <div class="answer-sheet__handle" aria-hidden="true"></div>
   <header class="answer-sheet__header">
@@ -17,7 +19,8 @@
         <lucide-angular [img]="searchIcon" aria-hidden="true" />
         <input
           type="search"
-          [value]="answerSearchTerm"
+          name="answerSearchTerm"
+          [(ngModel)]="answerSearchTerm"
           (input)="answerSearchTerm = $any($event.target).value"
           placeholder="Search"
         />
@@ -39,12 +42,29 @@
 
   <div class="answer-sheet__options">
     @for (sheetAnswer of filteredAnswers; track sheetAnswer.index) {
-      <button
-        type="button"
+      <label
         class="answer-sheet__option"
         [class.answer-sheet__option--selected]="isAnswerSelected(sheetAnswer.index)"
-        (click)="selectAnswer(sheetAnswer.answer, sheetAnswer.index)"
       >
+        @if (isMultipleSelection) {
+          <input
+            type="checkbox"
+            class="answer-sheet__control"
+            [name]="'answer-' + sheetAnswer.index"
+            [ngModel]="isAnswerSelected(sheetAnswer.index)"
+            (ngModelChange)="setAnswerSelected(sheetAnswer.index, $event)"
+            (change)="setAnswerSelected(sheetAnswer.index, $any($event.target).checked)"
+          />
+        } @else {
+          <input
+            type="radio"
+            class="answer-sheet__control"
+            name="selectedAnswerIndex"
+            [value]="sheetAnswer.index"
+            [(ngModel)]="selectedSingleAnswerIndex"
+            (change)="selectAnswer(sheetAnswer.answer, sheetAnswer.index)"
+          />
+        }
         <span>{{ sheetAnswer.answer.value }}</span>
         <span
           class="answer-sheet__mark"
@@ -55,20 +75,19 @@
             <lucide-angular [img]="checkIcon" aria-hidden="true" />
           }
         </span>
-      </button>
+      </label>
     }
   </div>
 
   @if (isMultipleSelection) {
     <footer class="answer-sheet__footer">
       <button
-        type="button"
+        type="submit"
         class="answer-sheet__confirm"
         [disabled]="!selectedAnswerIndexes.size"
-        (click)="confirmAnswers()"
       >
         Confirm
       </button>
     </footer>
   }
-</section>
+</form>

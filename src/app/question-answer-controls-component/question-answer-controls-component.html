@@ -1,0 +1,33 @@
+@if (showInlineAnswers) {
+  <div class="possible-answers-container possible-answers-container--inline">
+    @for (possibleAnswer of question.possibleAnswers; track $index) {
+      <button type="button" class="possible-answer" (click)="selectAnswer(possibleAnswer)">
+        {{ possibleAnswer.value }}
+      </button>
+    }
+  </div>
+}
+
+@if (showSheetTrigger) {
+  <div class="possible-answers-container possible-answers-container--sheet">
+    <button
+      type="button"
+      class="possible-answer possible-answer--sheet-trigger"
+      (click)="openAnswerSheet()"
+    >
+      <lucide-angular [img]="listIcon" aria-hidden="true" />
+      {{ answerSheetTitle }}
+    </button>
+  </div>
+}
+
+@if (isSheetOpen) {
+  <app-answer-sheet
+    [answers]="question.possibleAnswers"
+    [isMultipleSelection]="isMultipleSelection"
+    [title]="answerSheetTitle"
+    (closed)="closeAnswerSheet()"
+    (answerSelected)="selectSheetAnswer($event)"
+    (answersConfirmed)="confirmSheetAnswers($event)"
+  ></app-answer-sheet>
+}

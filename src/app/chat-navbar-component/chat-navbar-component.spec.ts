@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Chat } from '../../classes/Chat';
+import { Supporter } from '../../classes/Supporter';
 
 import { ChatNavbarComponent } from './chat-navbar-component';
 
@@ -14,6 +16,17 @@ describe('ChatNavbarComponent', () => {
 
     fixture = TestBed.createComponent(ChatNavbarComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput(
+      'chat',
+      new Chat(
+        'test-chat-id',
+        'Test Chat',
+        'Online',
+        { type: 'text', value: 'TC' },
+        new Supporter(),
+      ),
+    );
+    fixture.detectChanges();
     await fixture.whenStable();
   });
 

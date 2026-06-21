@@ -2,7 +2,9 @@ import { Injector } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
+import { MessageOptions } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
+import { REGISTERED_AGENTS } from '../../services/agents.module';
 
 import { FilePreviewComponent } from './file-preview-component';
 
@@ -14,15 +16,31 @@ describe('FilePreviewComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [FilePreviewComponent],
+      providers: [
+        {
+          provide: REGISTERED_AGENTS,
+          useValue: {},
+        },
+      ],
     }).compileComponents();
 
     const supporter = new Supporter();
-    chat = new Chat('test-chat-id', 'Test Chat', 'Online', 'TC', supporter);
+    chat = new Chat(
+      'test-chat-id',
+      'Test Chat',
+      'Online',
+      { type: 'text', value: 'TC' },
+      supporter,
+    );
     supporter.setAgent(new Agent(TestBed.inject(Injector)));
 
     fixture = TestBed.createComponent(FilePreviewComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput('chat', chat);
+    fixture.componentRef.setInput(
+      'file',
+      new File(['fresh slice'], 'fresh-slice.png', { type: 'image/png' }),
+    );
+    fixture.componentRef.setInput('processFileUrl', () => 'blob:fresh-slice');
     fixture.detectChanges();
     await fixture.whenStable();
   });
@@ -31,15 +49,15 @@ describe('FilePreviewComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('submits a trimmed caption and syncs the chat draft', () => {
-    const submitted: string[] = [];
-    component.caption = '  Fresh slice  ';
+  it('submits a caption with the prepared file attachment', () => {
+    const submitted: { value: string; options?: MessageOptions }[] = [];
     component.submitted.subscribe((message) => submitted.push(message));
 
-    component.submitCaption();
+    component.submitFile('Fresh slice');
 
-    expect(submitted).toEqual(['Fresh slice']);
-    expect(chat.draftMessage).toBe('Fresh slice');
+    expect(submitted[0].value).toBe('Fresh slice');
+    expect(submitted[0].options?.attachment).toEqual(component.fileInfo);
+    expect(chat.draftMessage).toBe('');
     expect(component.caption).toBe('');
   });
 });
