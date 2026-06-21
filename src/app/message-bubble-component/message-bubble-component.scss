@@ -53,6 +53,10 @@
   box-shadow: 0 1px 0.5px color-mix(in srgb, var(--wa-green-dark) 13%, transparent);
 }
 
+.message-bubble--answer-controls {
+  min-width: min(86%, 20rem);
+}
+
 .message-options-button {
   position: absolute;
   top: .18rem;

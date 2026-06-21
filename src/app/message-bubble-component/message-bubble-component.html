@@ -10,6 +10,7 @@
     class="message-bubble"
     [class.message-bubble--supporter]="isSupporterMessage(message)"
     [class.message-bubble--user]="!isSupporterMessage(message)"
+    [class.message-bubble--answer-controls]="message instanceof questionType && message.possibleAnswers.length"
   >
     @if (hasMessageOptions) {
       <button
