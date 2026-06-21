@@ -68,19 +68,19 @@
         }
       </div>
     }
-    <time class="message-time">
-      @if (message.editedAt) {
-        <span class="message-edited-mark">(edited)</span>
-      }
-      {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
+    <div class="message-metadata-container">
+      <time>
+        @if (message.editedAt) {
+          <span class="message-edited-mark">(edited)</span>
+        }
+        {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
+      </time>
       @if (!isSupporterMessage(message)) {
-        <lucide-angular
-          [img]="statusIcons[message.status]"
-          class="status-icon"
-          [class]="'status-icon--' + message.status"
-          aria-hidden="true"
-        />
+        <lucide-angular 
+        [img]="statusIcons[message.status]"
+        class="status-icon"
+        aria-hidden="true" />
       }
-    </time>
+    </div>
   </div>
 </article>
