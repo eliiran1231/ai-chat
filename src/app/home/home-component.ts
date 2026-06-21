@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, Injector, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, HostListener, Injector, OnInit, computed, signal } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
@@ -24,23 +24,22 @@ import { ChatProvider } from '../../interfaces/ChatProvider';
     CommonModule,
   ],
   templateUrl: './home-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home-component.scss',
 })
 export class HomeComponent implements OnInit {
   readonly menuIcon = EllipsisVertical;
   readonly enterFullscreenIcon = Maximize;
   readonly exitFullscreenIcon = Minimize;
-  searchTerm = '';
+  searchTerm = signal('');
   // whatsappLogoUrl: string | null = 'image.png';
-  whatsappLogoUrl?: string;
-  selectedChat: Chat | null = null;
-  chats: Chat[] = [];
-  isCreatingChat = false;
-  isMenuOpen = false;
-  isFullscreen = false;
-  pendingCreateChat: Promise<Chat> | null = null;
-  selectedTab: 'chats' | 'profile' | 'calls' = 'chats';
+  whatsappLogoUrl = signal<string | undefined>(undefined);
+  selectedChat = signal<Chat | null>(null);
+  chats = signal<Chat[]>([]);
+  isCreatingChat = signal(false);
+  isMenuOpen = signal(false);
+  isFullscreen = signal(false);
+  pendingCreateChat = signal<Promise<Chat> | null>(null);
+  selectedTab = signal<'chats' | 'profile' | 'calls'>('chats');
   constructor(
     private chatService: ChatService,
     private injector: Injector,
@@ -51,24 +50,23 @@ export class HomeComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     void this.profileService.loadBasicInfo();
-    this.chats = await this.chatService.getChats();
+    this.chats.set(await this.chatService.getChats());
     this.syncFullscreenState();
     queueMicrotask(() => window.focus());
   }
 
-  get unreadChatsCount(): number {
-    return this.chats.filter((chat) => chat.unreadCount() > 0).length; // i know this is not the most efficient way to do this, but it works for now. We can optimize later if needed.
-  }
+  unreadChatsCount = computed(() => this.chats().filter((chat) => chat.unreadCount() > 0).length);
 
   async openChat(chat: Chat): Promise<void> {
-    this.selectedChat = chat;
+    this.selectedChat.set(chat);
     chat.active.set(true);
   }
 
   closeChat(): void {
-    if (!this.selectedChat) return;
-    this.selectedChat.active.set(false);
-    this.selectedChat = null;
+    const chat = this.selectedChat();
+    if (!chat) return;
+    chat.active.set(false);
+    this.selectedChat.set(null);
   }
 
   async toggleFullscreen(): Promise<void> {
@@ -81,7 +79,7 @@ export class HomeComponent implements OnInit {
   }
 
   private syncFullscreenState(): void {
-    this.isFullscreen = Boolean(document.fullscreenElement);
+    this.isFullscreen.set(Boolean(document.fullscreenElement));
   }
 
   @HostListener('document:fullscreenchange')
@@ -100,9 +98,9 @@ export class HomeComponent implements OnInit {
   }
   async deleteChat(chat: Chat): Promise<void> {
     await chat.delete();
-    this.chats = this.chats.filter((existingChat) => existingChat.id !== chat.id);
-    if (this.selectedChat?.id === chat.id) {
-      this.selectedChat = null;
+    this.chats.update((prev) => prev.filter((existingChat) => existingChat.id !== chat.id));
+    if (this.selectedChat()?.id === chat.id) {
+      this.selectedChat.set(null);
     }
   }
 
@@ -111,13 +109,13 @@ export class HomeComponent implements OnInit {
     initialAgent: Agent = new AiAgent(this.injector),
     provider: ChatProvider = this.defaultProvider
   ): Promise<Chat> {
-    if (this.isCreatingChat && this.pendingCreateChat) {
-      return this.pendingCreateChat;
+    if (this.isCreatingChat()) {
+      const pendingChat = this.pendingCreateChat();
+      if (pendingChat) return pendingChat;
     }
-
-    this.isCreatingChat = true;
-    const chatNumber = this.chats.length + 1;
-    this.pendingCreateChat = (async () => {
+    this.isCreatingChat.set(true);
+    const chatNumber = this.chats().length + 1;
+    const pending = (async () => {
       const chat = await provider.createChat(
         `New chat ${chatNumber}`,
         initialAgent,
@@ -126,16 +124,17 @@ export class HomeComponent implements OnInit {
           timeLabel: 'now',
         }
       );
-      this.chats = [...this.chats, chat];
+      this.chats.update((prev) => [...prev, chat]);
       if (openChat) await this.openChat(chat);
       return chat;
     })();
+    this.pendingCreateChat.set(pending);
 
     try {
-      return await this.pendingCreateChat;
+      return await pending;
     } finally {
-      this.isCreatingChat = false;
-      this.pendingCreateChat = null;
+      this.isCreatingChat.set(false);
+      this.pendingCreateChat.set(null);
     }
   }
 }

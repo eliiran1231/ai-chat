@@ -1,15 +1,15 @@
-<section class="whatsapp-layout" [class.whatsapp-layout--mobile-chat]="selectedChat">
+<section class="whatsapp-layout" [class.whatsapp-layout--mobile-chat]="selectedChat()">
   <aside class="chat-sidebar">
     <header class="mobile-appbar">
       <div class="brand-row">
         <div class="brand-title">
-          @if (whatsappLogoUrl) {
-            <img class="brand-title__logo" [src]="whatsappLogoUrl" alt="WhatsApp logo" />
+          @if (whatsappLogoUrl()) {
+            <img class="brand-title__logo" [src]="whatsappLogoUrl()" alt="WhatsApp logo" />
           }
           <h1>WhatsApp</h1>
         </div>
         <app-sidebar-menu
-          [isFullscreen]="isFullscreen"
+          [isFullscreen]="isFullscreen()"
           [menuIcon]="menuIcon"
           [enterFullscreenIcon]="enterFullscreenIcon"
           [exitFullscreenIcon]="exitFullscreenIcon"
@@ -21,54 +21,54 @@
         <button
           type="button"
           class="top-tab"
-          [class.top-tab--active]="selectedTab === 'profile'"
-          (click)="selectedTab = 'profile'"
+          [class.top-tab--active]="selectedTab() === 'profile'"
+          (click)="selectedTab.set('profile')"
         >
           profile
         </button>
         <button
           type="button"
           class="top-tab"
-          [class.top-tab--active]="selectedTab === 'chats'"
-          (click)="selectedTab = 'chats'"
+          [class.top-tab--active]="selectedTab() === 'chats'"
+          (click)="selectedTab.set('chats')"
         >
           Chats
-          @if (unreadChatsCount > 0) {
-            <span class="top-tab__badge">{{ unreadChatsCount }}</span>
+          @if (unreadChatsCount() > 0) {
+            <span class="top-tab__badge">{{ unreadChatsCount() }}</span>
           }
         </button>
         <button
           type="button"
           class="top-tab"
-          [class.top-tab--active]="selectedTab === 'calls'"
-          (click)="selectedTab = 'calls'"
+          [class.top-tab--active]="selectedTab() === 'calls'"
+          (click)="selectedTab.set('calls')"
         >
           Calls
         </button>
       </nav>
     </header>
 
-    @if(selectedTab === 'chats') {
+    @if(selectedTab() === 'chats') {
       <app-chat-list-component
-        [chats]="chats"
-        [searchTerm]="searchTerm"
-        [selectedChat]="selectedChat"
-        (searchTermChange)="searchTerm = $event"
+        [chats]="chats()"
+        [searchTerm]="searchTerm()"
+        [selectedChat]="selectedChat()"
+        (searchTermChange)="searchTerm.set($event)"
         (openChat)="openChat($event)"
         (createChat)="createNewChat()"
       ></app-chat-list-component>
     }
-    @else if (selectedTab === 'profile') {
+    @else if (selectedTab() === 'profile') {
       <app-profile-component></app-profile-component>
     }
-    @else if (selectedTab === 'calls') {
+    @else if (selectedTab() === 'calls') {
       <!-- <app-calls-component></app-calls-component> -->
     }
   </aside>
 
   <section class="chat-stage">
-    @if(selectedChat){
-      <app-chat [chat]="selectedChat" [showBackButton]="true" (back)="closeChat()" (deleteChat)="deleteChat($event)" />
+    @if(selectedChat(); as chat){
+      <app-chat [chat]="chat" [showBackButton]="true" (back)="closeChat()" (deleteChat)="deleteChat($event)" />
     }
     @else {
       <section class="chat-placeholder">

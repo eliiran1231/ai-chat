@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, SquarePen } from 'lucide-angular';
 import { Chat } from '../../classes/Chat';
@@ -7,25 +7,24 @@ import DOMPurify from 'dompurify';
   selector: 'app-chat-list-component',
   imports: [FormsModule, LucideAngularModule],
   templateUrl: './chat-list-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {
   readonly searchIcon = Search;
   readonly composeIcon = SquarePen;
-  @Input({ required: true }) chats: Chat[] = [];
-  @Input() searchTerm = '';
-  @Input() selectedChat: Chat | null = null;
+  chats = input<Chat[]>([]);
+  searchTerm = input<string>('');
+  selectedChat = input<Chat | null>(null);
 
-  @Output() openChat = new EventEmitter<Chat>();
-  @Output() searchTermChange = new EventEmitter<string>();
-  @Output() createChat = new EventEmitter<void>();
+  openChat = output<Chat>();
+  searchTermChange = output<string>();
+  createChat = output<void>();
 
-  get filteredChats(): Chat[] {
-    const query = this.searchTerm.trim().toLowerCase();
-    const chats = !query
-      ? [...this.chats]
-      : this.chats.filter((chat) => {
+  filteredChats = computed(() => {
+    const query = this.searchTerm().trim().toLowerCase();
+    const chatsArray = !query
+      ? [...this.chats()]
+      : this.chats().filter((chat) => {
           const lastMessage = this.lastMessageText(chat).toLowerCase();
           return (
             chat.name().toLowerCase().includes(query) ||
@@ -34,11 +33,11 @@ export class ChatListComponent {
           );
         });
 
-    return chats.sort(
+    return chatsArray.sort(
       (a, b) =>
         (b.messages().at(-1)?.time?.()?.getTime() ?? 0) - (a.messages().at(-1)?.time?.()?.getTime() ?? 0),
     );
-  }
+  });
 
   lastMessageText(chat: Chat): string {
     const lastMessage = chat.messages().at(-1);
@@ -63,7 +62,6 @@ export class ChatListComponent {
   }
 
   onSearchTermChange(value: string): void {
-    this.searchTerm = value;
     this.searchTermChange.emit(value);
   }
 

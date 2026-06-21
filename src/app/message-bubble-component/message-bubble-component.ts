@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
 import { NgxFilesizeModule } from 'ngx-filesize';
 import { 
@@ -20,16 +20,15 @@ import { MessageStatus } from '../../enums/MessagesStatus';
   selector: 'app-message-bubble',
   imports: [DatePipe, MarkdownComponent, NgxFilesizeModule, HighlightPipe, LucideAngularModule],
   templateUrl: './message-bubble-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './message-bubble-component.scss',
 })
 export class MessageBubbleComponent {
-  @Input({ required: true }) message!: Message;
-  @Input() isActiveSearchMatch = false;
-  @Input() isSelected = false;
-  @Input() searchTerm = '';
-  @Output() answerSelected = new EventEmitter<{ answer: Answer; associatedQuestion: Question }>();
-  @Output() messageOptionsRequested = new EventEmitter<Message>();
+  message = input.required<Message>();
+  isActiveSearchMatch = input(false);
+  isSelected = input(false);
+  searchTerm = input('');
+  answerSelected = output<{ answer: Answer; associatedQuestion: Question }>();
+  messageOptionsRequested = output<Message>();
   readonly statusIcons = {
     [MessageStatus.Pending]: Clock,
     [MessageStatus.Sent]: Check,
@@ -37,7 +36,6 @@ export class MessageBubbleComponent {
     [MessageStatus.Failed]: CircleAlert,
   };
 
-  questionType = Question;
   readonly optionsIcon = ChevronDown;
 
   constructor() {}
@@ -46,19 +44,21 @@ export class MessageBubbleComponent {
     return message.from() === 'supporter';
   }
 
+  asQuestion(message: Message): Question | undefined {
+    return message instanceof Question ? message : undefined;
+  }
+
   selectAnswer(answer: Answer): void {
     this.answerSelected.emit({
       answer,
-      associatedQuestion: this.message as Question,
+      associatedQuestion: this.message() as Question,
     });
   }
 
   openMessageOptions(event: MouseEvent): void {
     event.stopPropagation();
-    this.messageOptionsRequested.emit(this.message);
+    this.messageOptionsRequested.emit(this.message());
   }
 
-  get hasMessageOptions(): boolean {
-    return this.message.editable() || this.message.deletable();
-  }
+  hasMessageOptions = computed(() => this.message().editable() || this.message().deletable());
 }

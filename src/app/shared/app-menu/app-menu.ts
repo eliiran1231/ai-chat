@@ -1,5 +1,5 @@
 import { CdkMenuModule } from '@angular/cdk/menu';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { LucideAngularModule, LucideIconData } from 'lucide-angular';
 
 export interface AppMenuItem {
@@ -14,14 +14,13 @@ export interface AppMenuItem {
   standalone: true,
   imports: [CdkMenuModule, LucideAngularModule],
   templateUrl: './app-menu.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app-menu.scss',
 })
 export class AppMenu {
-  @Input({ required: true }) menuIcon!: LucideIconData;
-  @Input({ required: true }) items: AppMenuItem[] = [];
+  menuIcon = input.required<LucideIconData>();
+  items = input.required<AppMenuItem[]>();
 
-  @Output() itemSelected = new EventEmitter<string>();
+  itemSelected = output<string>();
 
   selectItem(id: string): void {
     this.itemSelected.emit(id);

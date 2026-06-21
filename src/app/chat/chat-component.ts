@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, NgZone, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ViewChild, computed, input, output, signal } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -24,108 +24,102 @@ import { Uuid } from '../../interfaces/db/Uuid';
     LucideAngularModule
   ],
   templateUrl: './chat-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
-  @Input({ required: true }) chat!: Chat;
-  @Input() showBackButton = false;
-  @Output() back = new EventEmitter<void>();
+  chat = input.required<Chat>();
+  showBackButton = input(false);
+  back = output<void>();
   readonly SCROLLBAR_OFFSET = 40;
   readonly scrollDownIcon = ChevronsDown;
-  @Output() deleteChat = new EventEmitter<Chat>();
-  attachmentFile?: File;
-  searchQuery = '';
-  matchingMessageIds: Uuid[] = [];
-  activeSearchResultIndex = -1;
-  selectedMessage?: Message;
-  editingMessage?: Message;
-  awayFromBottom = false;
-  isScrolling = false;
+  deleteChat = output<Chat>();
+  attachmentFile = signal<File | undefined>(undefined);
+  searchQuery = signal('');
+  matchingMessageIds = computed(() => {
+    const normalizedQuery = this.searchQuery().trim().toLocaleLowerCase();
+    if (!normalizedQuery) {
+      return [];
+    }
+
+    return this.chat().messages()
+      .filter((message) => message.value().toLocaleLowerCase().includes(normalizedQuery))
+      .map((message) => message.id());
+  });
+  activeSearchResultIndex = signal(-1);
+  selectedMessage = signal<Message | undefined>(undefined);
+  editingMessage = signal<Message | undefined>(undefined);
+  awayFromBottom = signal(false);
+  isScrolling = signal(false);
 
   onScroll(): void {
-    if (!this.isScrolling) {
-      this.isScrolling = true;
+    if (!this.isScrolling()) {
+      this.isScrolling.set(true);
     }
   }
   onChatScrollEnd(): void {
-    this.isScrolling = false;
+    this.isScrolling.set(false);
   }
 
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;
 
   async sendMessage(messageValue: string, options?: MessageOptions) {
-    if (this.editingMessage) {
-      let editingMessage = this.editingMessage;
+    let editingMessage = this.editingMessage();
+    if (editingMessage) {  
       this.closeMessageOptions();
       await editingMessage.edit(messageValue);
       return;
     }
 
-    this.chat.supporter.expects() == 'question' ?
-      await this.chat.user.ask(new Question(messageValue, options)) :
-      await this.chat.user.answer(new Answer(messageValue, options));
-    this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
+    this.chat().supporter.expects() == 'question'
+      ? await this.chat().user.ask(new Question(messageValue, options))
+      : await this.chat().user.answer(new Answer(messageValue, options));
+    this.awayFromBottom.set(false); //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
   selectAnswer(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number): void {
-    this.chat.user.onAnswerSelected.next({ answer, associatedQuestion, associatedQuestionIndex });
-    this.awayFromBottom = false;
+    this.chat().user.onAnswerSelected.next({ answer, associatedQuestion, associatedQuestionIndex });
+    this.awayFromBottom.set(false);
   }
 
   closePreviewPage(): void {
-    this.attachmentFile = undefined;
+    this.attachmentFile.set(undefined);
   }
 
   openPreviewPage(file: File) {
-    this.attachmentFile = file;
+    this.attachmentFile.set(file);
   }
 
   updateSearch(query: string): void {
-    this.searchQuery = query;
-    const normalizedQuery = query.trim().toLocaleLowerCase();
-
-    if (!normalizedQuery) {
-      this.clearSearch();
-      return;
-    }
-
-    this.matchingMessageIds = this.chat.messages()
-      .filter((message) => message.value().toLocaleLowerCase().includes(normalizedQuery))
-      .map((message) => message.id());
-
-    this.activeSearchResultIndex = this.matchingMessageIds.length ? 0 : -1;
+    this.searchQuery.set(query);
+    this.activeSearchResultIndex.set(this.matchingMessageIds().length ? 0 : -1);
     this.scrollToActiveSearchResult();
   }
 
   clearSearch(): void {
-    this.searchQuery = '';
-    this.matchingMessageIds = [];
-    this.activeSearchResultIndex = -1;
+    this.searchQuery.set('');
+    this.activeSearchResultIndex.set(-1);
   }
 
   openMessageOptions(message: Message): void {
-    if (this.editingMessage) {
+    if (this.editingMessage()) {
       return;
     }
-
-    this.selectedMessage = message;
+    this.selectedMessage.set(message);
   }
 
   closeMessageOptions(): void {
-    this.selectedMessage = undefined;
-    this.editingMessage = undefined;
-    this.chat.draftMessage.set('');
+    this.selectedMessage.set(undefined);
+    this.editingMessage.set(undefined);
+    this.chat().draftMessage.set('');
   }
 
   editMessage(message: Message): void {
     if (message.from() === 'supporter' || !message.editable()) {
       return;
     }
-
-    this.selectedMessage = message;
-    this.editingMessage = message;
-    this.chat.draftMessage.set(message.value());
+    this.selectedMessage.set(message);
+    this.editingMessage.set(message);
+    this.chat().draftMessage.set(message.value());
   }
 
   async deleteMessage(message: Message) {
@@ -139,21 +133,22 @@ export class ChatComponent {
   }
 
   stepInSearch(steps: number = 1) {
-    if (!this.matchingMessageIds.length) {
+    if (!this.matchingMessageIds().length) {
       return;
     }
-
-    this.activeSearchResultIndex =
-      (this.activeSearchResultIndex + steps) % this.matchingMessageIds.length;
+    this.activeSearchResultIndex.update((current) => {
+      const len = this.matchingMessageIds().length;
+      return (current + steps + len) % len;
+    });
     this.scrollToActiveSearchResult();
   }
 
   isActiveSearchMatch(messageId: Uuid): boolean {
-    return !!messageId && this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
+    return !!messageId && this.matchingMessageIds()[this.activeSearchResultIndex()] === messageId;
   }
 
   private scrollToActiveSearchResult(): void {
-    const activeMessageId = this.matchingMessageIds[this.activeSearchResultIndex];
+    const activeMessageId = this.matchingMessageIds()[this.activeSearchResultIndex()];
 
     if (activeMessageId === undefined) {
       return;
@@ -168,11 +163,11 @@ export class ChatComponent {
   }
 
   showScrollButton() {
-    this.awayFromBottom = true;
+    this.awayFromBottom.set(true);
   }
 
   hideScrollButton() {
-    this.awayFromBottom = false;
+    this.awayFromBottom.set(false);
   }
 
   scrollToBottom() {

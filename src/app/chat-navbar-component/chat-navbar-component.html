@@ -1,5 +1,5 @@
 <header class="chat-navbar">
-  @if (messageOptionsMode) {
+  @if (messageOptionsMode()) {
     <div class="message-options-mode" aria-label="Message options">
       <button
         type="button"
@@ -13,27 +13,27 @@
 
       <div class="message-options-spacer"></div>
 
-      @if (!editMode) {
-        @if (selectedMessage?.from() === 'client') {
+      @if (!editMode()) {
+        @if (selectedMessage()?.from() === 'client') {
           <button
             type="button"
             class="icon-button"
             aria-label="Edit message"
             title="Edit"
-            [disabled]="!canEditSelectedMessage"
-            (click)="canEditSelectedMessage && selectedMessage && editMessage.emit(selectedMessage)"
+            [disabled]="!canEditSelectedMessage()"
+            (click)="canEditSelectedMessage() && selectedMessage() && editMessage.emit(selectedMessage()!)"
           >
             <lucide-angular [img]="editIcon" aria-hidden="true" />
           </button>
         }
 
-        @if (selectedMessage && selectedMessage.status() === messageStatus.Failed) {
+        @if (selectedMessage() && selectedMessage()!.status() === messageStatus.Failed) {
             <button
               type="button"
               class="icon-button"
               aria-label="Retry sending message"
               title="Retry"
-              (click)="retryMessage.emit(selectedMessage)"
+              (click)="retryMessage.emit(selectedMessage()!)"
             >
               <lucide-angular [img]="retryIcon" aria-hidden="true" />
             </button>
@@ -44,23 +44,23 @@
           class="icon-button icon-button--danger"
           aria-label="Delete message"
           title="Delete"
-          [disabled]="!selectedMessage?.deletable()"
-          (click)="selectedMessage && deleteMessage.emit(selectedMessage)"
+          [disabled]="!selectedMessage()?.deletable()"
+          (click)="selectedMessage() && deleteMessage.emit(selectedMessage()!)"
         >
           <lucide-angular [img]="deleteIcon" aria-hidden="true" />
         </button>
       }
     </div>
-  } @else if (searchMode) {
+  } @else if (searchMode()) {
     <div id="search-mode-container">
-      <div class="search-result-count" [class.search-result-count--empty]="!hasResults">
-        {{ currentResultLabel }}
+      <div class="search-result-count" [class.search-result-count--empty]="!hasResults()">
+        {{ currentResultLabel() }}
       </div>
       <div class="search-navigation" aria-label="Search navigation">
         <button
           type="button"
           class="search-nav-button"
-          [disabled]="!hasResults"
+          [disabled]="!hasResults()"
           (click)="previousMatch.emit()"
           aria-label="Previous match"
         >
@@ -69,7 +69,7 @@
         <button
           type="button"
           class="search-nav-button"
-          [disabled]="!hasResults"
+          [disabled]="!hasResults()"
           (click)="nextMatch.emit()"
           aria-label="Next match"
         >
@@ -79,7 +79,7 @@
       <div class="search-input-shell">
         <input
           #searchInput
-          [value]="searchQuery"
+          [value]="searchQuery()"
           (input)="updateSearch($any($event.target).value)"
           (keydown)="onSearchKeydown($event)"
           type="text"
@@ -98,7 +98,7 @@
     </div>
   } @else {
     <div class="contact-block">
-      @if (showBackButton) {
+      @if (showBackButton()) {
         <button
           type="button"
           class="back-button"
@@ -110,15 +110,15 @@
       }
 
       <div class="avatar" aria-hidden="true">
-        @if (chat.avatar().type === 'image') {
-          <img [src]="chat.avatar().value" alt="" class="avatar__image" />
+        @if (chat().avatar().type === 'image') {
+          <img [src]="chat().avatar().value" alt="" class="avatar__image" />
         } @else {
-          {{ chat.avatar().value }}
+          {{ chat().avatar().value }}
         }
       </div>
       <div class="contact-meta">
-        <h1>{{ chat.name() }}</h1>
-        <p>{{ chat.status() }}</p>
+        <h1>{{ chat().name() }}</h1>
+        <p>{{ chat().status() }}</p>
       </div>
     </div>
 
