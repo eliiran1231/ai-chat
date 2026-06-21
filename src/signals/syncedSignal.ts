@@ -31,7 +31,7 @@ export function syncedSignal<T>(initialValue: T): SyncedSignal<T> {
   const oldSet = internalSignal.set;
   internalSignal.set = (value, uiOnly = false) => {
     oldSet(value);
-    internalSignal.sync?.(value)
+    uiOnly || internalSignal.sync?.(value)
   };
 
   const oldUpdate = internalSignal.update;
