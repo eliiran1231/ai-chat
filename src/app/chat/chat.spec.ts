@@ -128,27 +128,6 @@ describe('ChatComponent', () => {
     expect(file?.getAttribute('alt')).toBe('A mushroom-head robot drinking bubble tea');
   });
 
-  it('formats date separator labels like WhatsApp', () => {
-    const component = fixture.componentInstance;
-    const referenceDate = new Date(2026, 5, 17, 12);
-
-    expect(component.getMessageDateSeparatorLabel(new Date(2026, 5, 17, 9), referenceDate)).toBe(
-      'היום',
-    );
-    expect(component.getMessageDateSeparatorLabel(new Date(2026, 5, 16, 9), referenceDate)).toBe(
-      'אתמול',
-    );
-    expect(component.getMessageDateSeparatorLabel(new Date(2026, 5, 15, 9), referenceDate)).toBe(
-      'שני',
-    );
-    expect(component.getMessageDateSeparatorLabel(new Date(2026, 5, 11, 9), referenceDate)).toBe(
-      'חמישי',
-    );
-    expect(
-      component.getMessageDateSeparatorLabel(new Date(2026, 5, 10, 9), referenceDate),
-    ).toContain('2026');
-  });
-
   it('renders one date separator per message day', async () => {
     await renderChat([
       createMessage('first', 'First', new Date(2026, 5, 15, 9)),

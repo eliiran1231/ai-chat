@@ -11,6 +11,7 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
 import { Uuid } from '../../interfaces/db/Uuid';
+import { ChatMessageDateSeparator } from './chat-message-date-separator';
 
 @Component({
   selector: 'app-chat',
@@ -27,12 +28,7 @@ import { Uuid } from '../../interfaces/db/Uuid';
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
-  private readonly dayNames = ['sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  private readonly fullDateFormatter = new Intl.DateTimeFormat('en-IL', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  private readonly dateSeparator = new ChatMessageDateSeparator();
 
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
@@ -159,49 +155,19 @@ export class ChatComponent {
   }
 
   shouldShowMessageTail(message: Message, index: number): boolean {
-    const previousMessage = this.chat.messages[index - 1];
-    return (
-      index === 0 ||
-      previousMessage?.from !== message.from ||
-      !this.isSameLocalDate(previousMessage.time, message.time)
-    );
+    return this.dateSeparator.shouldShowMessageTail(this.chat.messages, index);
   }
 
   shouldShowDateSeparator(message: Message, index: number): boolean {
-    const previousMessage = this.chat.messages[index - 1];
-    return index === 0 || !this.isSameLocalDate(previousMessage.time, message.time);
+    return this.dateSeparator.shouldShowDateSeparator(this.chat.messages, index);
   }
 
   getMessageDateSeparatorLabel(messageDate: Date, referenceDate = new Date()): string {
-    const daysAgo = this.getLocalDayNumber(referenceDate) - this.getLocalDayNumber(messageDate);
-
-    if (daysAgo === 0) {
-      return 'Today';
-    }
-
-    if (daysAgo === 1) {
-      return 'Yesterday';
-    }
-
-    if (daysAgo >= 2 && daysAgo <= 6) {
-      return this.dayNames[messageDate.getDay()];
-    }
-
-    return this.fullDateFormatter.format(messageDate);
+    return this.dateSeparator.getDateSeparatorLabel(messageDate, referenceDate);
   }
 
   getMessageDateIso(message: Message): string {
-    const month = `${message.time.getMonth() + 1}`.padStart(2, '0');
-    const day = `${message.time.getDate()}`.padStart(2, '0');
-    return `${message.time.getFullYear()}-${month}-${day}`;
-  }
-
-  private isSameLocalDate(firstDate: Date, secondDate: Date): boolean {
-    return this.getLocalDayNumber(firstDate) === this.getLocalDayNumber(secondDate);
-  }
-
-  private getLocalDayNumber(date: Date): number {
-    return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000;
+    return this.dateSeparator.getDateIso(message.time);
   }
 
   private scrollToActiveSearchResult(): void {
