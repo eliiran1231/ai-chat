@@ -38,10 +38,10 @@ export class MockAgent extends Agent {
       new Question('how urgent is this?', {
         validator: {
           type: 'oneOf',
-          values: ['chat','email','phone'],
+          values: ['low','normal','urgent'],
         },
         validationErrorMessage: 'please choose low, normal, or urgent',
-        possibleAnswers: ['chat', 'email', 'phone'],
+        possibleAnswers: ['low','normal','urgent'],
         tag: 'urgency',
       }),
     urgency: () =>
