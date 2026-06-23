@@ -46,12 +46,13 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
       ariaLabel: this.answerSheetTitle,
       panelClass: 'answer-sheet-panel',
       backdropClass: 'answer-sheet-backdrop',
+      data: {
+        answers: this.question.possibleAnswers,
+        isMultipleSelection: this.isMultipleSelection,
+        title: this.answerSheetTitle
+      }
     });
-
     this.answerSheetRef = sheetRef;
-    sheetRef.instance.answers = this.question.possibleAnswers;
-    sheetRef.instance.isMultipleSelection = this.isMultipleSelection;
-    sheetRef.instance.title = this.answerSheetTitle;
 
     this.answerSheetOpenChange.emit(true);
     sheetRef.instance.closed.subscribe(() => sheetRef.dismiss());

@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, Output, ViewEncapsulation } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LucideCheck, LucideDynamicIcon, LucideSearch, LucideX } from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
+import { MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 
 const MIN_NUMBER_TO_SHOW_SEARCH = 15;
 
@@ -9,6 +10,12 @@ type SheetAnswerOption = {
   answer: Answer;
   index: number;
 };
+
+type SheetAnswerInputs = {
+  answers: Answer[],
+  isMultipleSelection: boolean,
+  title: string
+}
 
 @Component({
   selector: 'app-answer-sheet',
@@ -18,13 +25,19 @@ type SheetAnswerOption = {
   encapsulation: ViewEncapsulation.None,
 })
 export class AnswerSheetComponent {
-  @Input({ required: true }) answers: Answer[] = [];
+  @Input() answers: Answer[] = [];
   @Input() isMultipleSelection = false;
   @Input() title = 'Choose an option';
 
   @Output() closed = new EventEmitter<void>();
   @Output() answerSelected = new EventEmitter<Answer>();
   @Output() answersConfirmed = new EventEmitter<Answer[]>();
+
+  constructor(@Inject(MAT_BOTTOM_SHEET_DATA) public data: SheetAnswerInputs){
+    this.answers = data.answers;
+    this.isMultipleSelection = data.isMultipleSelection;
+    this.title = data.title;
+  }
 
   readonly closeIcon = LucideX;
   readonly checkIcon = LucideCheck;
@@ -36,6 +49,7 @@ export class AnswerSheetComponent {
 
   close(): void {
     this.closed.emit();
+    console.log(this.answers);
   }
 
   openSearch(): void {
@@ -43,6 +57,7 @@ export class AnswerSheetComponent {
   }
 
   selectAnswer(answer: Answer, answerIndex: number): void {
+    
     if (this.isMultipleSelection) {
       this.toggleAnswer(answerIndex);
       return;
@@ -50,6 +65,7 @@ export class AnswerSheetComponent {
 
     this.selectedSingleAnswerIndex = answerIndex;
     this.answerSelected.emit(answer);
+
   }
 
   setAnswerSelected(answerIndex: number, isSelected: boolean): void {
