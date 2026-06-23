@@ -7,7 +7,11 @@ import { ChatListComponent } from '../chat-list-component/chat-list-component';
 import { ProfileComponent } from '../profile-component/profile-component';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
-import { LucideAngularModule, Maximize, EllipsisVertical, Minimize } from 'lucide-angular';
+import {
+  LucideEllipsisVertical,
+  LucideMaximize,
+  LucideMinimize,
+} from '@lucide/angular';
 import { AiAgent } from '../../agents/AiAgent/AiAgent';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
 import { SqliteProvider } from '../../chat-providers/SqliteProvider';
@@ -18,7 +22,6 @@ import { ChatProvider } from '../../interfaces/ChatProvider';
   imports: [
     ChatComponent,
     SidebarMenuComponent,
-    LucideAngularModule,
     ChatListComponent,
     ProfileComponent,
     CommonModule,
@@ -28,9 +31,9 @@ import { ChatProvider } from '../../interfaces/ChatProvider';
   styleUrl: './home-component.scss',
 })
 export class HomeComponent implements OnInit {
-  readonly menuIcon = EllipsisVertical;
-  readonly enterFullscreenIcon = Maximize;
-  readonly exitFullscreenIcon = Minimize;
+  readonly menuIcon = LucideEllipsisVertical;
+  readonly enterFullscreenIcon = LucideMaximize;
+  readonly exitFullscreenIcon = LucideMinimize;
   searchTerm = '';
   // whatsappLogoUrl: string | null = 'image.png';
   whatsappLogoUrl?: string;

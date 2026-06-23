@@ -19,7 +19,7 @@
         aria-label="Open message options"
         title="Message options"
       >
-        <lucide-angular [img]="optionsIcon" aria-hidden="true" />
+        <svg [lucideIcon]="optionsIcon" aria-hidden="true"></svg>
       </button>
     }
     @if (message.attachment) {
@@ -76,10 +76,10 @@
         {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
       </time>
       @if (!isSupporterMessage(message)) {
-        <lucide-angular 
-        [img]="statusIcons[message.status]"
+        <svg 
+        [lucideIcon]="statusIcons[message.status]"
         class="status-icon"
-        aria-hidden="true" />
+        aria-hidden="true"></svg>
       }
     </div>
   </div>
