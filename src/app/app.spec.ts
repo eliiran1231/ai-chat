@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 import { REGISTERED_AGENTS } from '../services/agents.module';
+import { CHAT_PROVIDER } from '../services/chat-providers.module';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -10,6 +11,13 @@ describe('App', () => {
         {
           provide: REGISTERED_AGENTS,
           useValue: {},
+        },
+        {
+          provide: CHAT_PROVIDER,
+          useValue: {
+            getChats: () => [],
+          },
+          multi: true,
         },
       ],
     }).compileComponents();

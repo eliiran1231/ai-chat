@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, inject, Input, NgZone, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
@@ -11,7 +12,7 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
 import { Uuid } from '../../interfaces/db/Uuid';
-import { ChatMessageDateSeparator } from './chat-message-date-separator';
+import { ChatMessageDateSeparator } from './utils/chat-message-date-separator';
 
 @Component({
   selector: 'app-chat',
@@ -22,14 +23,15 @@ import { ChatMessageDateSeparator } from './chat-message-date-separator';
     ChatNavbarComponent,
     NgScrollbar,
     NgScrollReachDrop,
-    LucideAngularModule
+    LucideAngularModule,
+    DatePipe
   ],
   templateUrl: './chat-component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
-  private readonly dateSeparator = new ChatMessageDateSeparator();
+  readonly dateSeparator = new ChatMessageDateSeparator();
 
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
@@ -153,22 +155,6 @@ export class ChatComponent {
 
   isActiveSearchMatch(messageId: Uuid): boolean {
     return !!messageId && this.matchingMessageIds[this.activeSearchResultIndex] === messageId;
-  }
-
-  shouldShowMessageTail(message: Message, index: number): boolean {
-    return this.dateSeparator.shouldShowMessageTail(this.chat.messages, index);
-  }
-
-  shouldShowDateSeparator(message: Message, index: number): boolean {
-    return this.dateSeparator.shouldShowDateSeparator(this.chat.messages, index);
-  }
-
-  getMessageDateSeparatorLabel(messageDate: Date, referenceDate = new Date()): string {
-    return this.dateSeparator.getDateSeparatorLabel(messageDate, referenceDate);
-  }
-
-  getMessageDateIso(message: Message): string {
-    return this.dateSeparator.getDateIso(message.time);
   }
 
   private scrollToActiveSearchResult(): void {

@@ -2,13 +2,25 @@ import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Injector } from '@angular/core';
 import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
-import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
+import { DefaultManager } from '../../chat-managers/DefaultManager';
+import { ChatProvider } from '../../interfaces/ChatProvider';
 import { Uuid } from '../../interfaces/db/Uuid';
 import { REGISTERED_AGENTS } from '../../services/agents.module';
 import { ChatComponent } from './chat-component';
+
+const chatProviderStub: ChatProvider = {
+  createChat: () => {
+    throw new Error('Not implemented');
+  },
+  addMessage: () => {},
+  deleteMessage: () => {},
+  editMessage: () => {},
+  getChats: () => [],
+  deleteChat: () => {},
+};
 
 describe('ChatComponent', () => {
   let fixture: ComponentFixture<ChatComponent>;
@@ -38,15 +50,14 @@ describe('ChatComponent', () => {
   });
 
   async function renderChat(draftMessage: string | Message[] = ''): Promise<Chat> {
-    const supporter = new Supporter();
+    const supporter = new Supporter('test-supporter-id' as Uuid);
     const chat = new Chat(
-      'test-chat-id',
+      'test-chat-id' as Uuid,
       'Test Chat',
-      'Online',
-      { type: 'text', value: 'TC' },
       supporter,
+      new DefaultManager(TestBed.inject(Injector), chatProviderStub),
+      { status: 'Online', avatar: { type: 'text', value: 'TC' } },
     );
-    supporter.setAgent(new Agent(TestBed.inject(Injector)));
     if (typeof draftMessage === 'string') {
       chat.draftMessage = draftMessage;
     } else {
@@ -138,15 +149,17 @@ describe('ChatComponent', () => {
     const separators = fixture.nativeElement.querySelectorAll('.date-separator time');
 
     expect(separators).toHaveLength(2);
+    expect(separators[0].textContent.trim()).toBe('Jun 15, 2026');
+    expect(separators[0].getAttribute('datetime')).toBe('2026-06-15');
   });
 
   it('starts a new bubble group when the date changes', async () => {
-    const chat = await renderChat([
+    await renderChat([
       createMessage('first', 'First', new Date(2026, 5, 15, 9)),
       createMessage('second', 'Second', new Date(2026, 5, 16, 9)),
     ]);
-    const component = fixture.componentInstance;
+    const bubbles = fixture.nativeElement.querySelectorAll('.message-bubble');
 
-    expect(component.shouldShowMessageTail(chat.messages[1], 1)).toBe(true);
+    expect(bubbles[1].classList.contains('message-bubble--with-tail')).toBe(true);
   });
 });
