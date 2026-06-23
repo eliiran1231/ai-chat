@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { Globe, LucideAngularModule, Monitor, UserRound } from 'lucide-angular';
 import { ProfileService } from '../../services/profile.service';
 @Component({
   selector: 'app-profile-component',
   imports: [LucideAngularModule],
   templateUrl: './profile-component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './profile-component.scss',
 })
 export class ProfileComponent {

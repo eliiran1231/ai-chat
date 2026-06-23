@@ -178,7 +178,7 @@ export class SqliteProvider implements ChatProvider {
     record: ChatRecord,
     initialAgent: Agent,
     messageRecords: MessageRecord[],
-    supporterRecord?: SupporterRecord | null,
+    supporterRecord: SupporterRecord,
   ): Chat {
     let context;
     try {
@@ -187,9 +187,9 @@ export class SqliteProvider implements ChatProvider {
       context = {};
     }
     const supporter = new Supporter(
-      supporterRecord?.id,
-      supporterRecord?.name,
-      supporterRecord?.expects,
+      supporterRecord.id,
+      supporterRecord.name,
+      supporterRecord.expects,
       context,
     );
     const manager = new SqliteManager(this.injector, this);

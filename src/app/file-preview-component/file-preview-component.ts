@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Attachment, MessageOptions } from '../../classes/Message';
 import { NgxFilesizeModule } from 'ngx-filesize';
@@ -8,6 +8,7 @@ import { ChatInputComponent } from "../chat-input-component/chat-input-component
   selector: 'app-file-preview-component',
   imports: [FormsModule, NgxFilesizeModule, ChatInputComponent],
   templateUrl: './file-preview-component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './file-preview-component.scss',
 })
 export class FilePreviewComponent implements OnInit {

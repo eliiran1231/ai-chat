@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, Injector, OnInit } from '@angular/core';
+import { Component, HostListener, inject, Injector, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
@@ -24,6 +24,7 @@ import { ChatProvider } from '../../interfaces/ChatProvider';
     CommonModule,
   ],
   templateUrl: './home-component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home-component.scss',
 })
 export class HomeComponent implements OnInit {

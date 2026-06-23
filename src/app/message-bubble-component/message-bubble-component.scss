@@ -132,7 +132,7 @@
   white-space: pre-wrap;
 }
 
-.message-bubble time,
+.message-metadata-container,
 .message-text,
 .message-markdown,
 .possible-answers-container {
@@ -148,7 +148,8 @@
   padding-top: 0.01rem;
 }
 
-.message-time {
+.message-metadata-container {
+  text-align: end;
   font-size: 0.68rem;
   color: var(--wa-text-soft);
 }
@@ -157,7 +158,6 @@
   display: inline-flex;
   width: 0.85rem;
   height: 0.85rem;
-  margin-left: 0.25rem;
   vertical-align: middle;
   
   // Default color for Pending (0) and Sent (1) matches timestamp gray

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
 import { NgxFilesizeModule } from 'ngx-filesize';
 import { 
@@ -20,6 +20,7 @@ import { MessageStatus } from '../../enums/MessagesStatus';
   selector: 'app-message-bubble',
   imports: [DatePipe, MarkdownComponent, NgxFilesizeModule, HighlightPipe, LucideAngularModule],
   templateUrl: './message-bubble-component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './message-bubble-component.scss',
 })
 export class MessageBubbleComponent {

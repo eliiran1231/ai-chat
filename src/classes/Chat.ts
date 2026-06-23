@@ -6,7 +6,6 @@ import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
 import { DBEntity, dbProperty } from './DBEntity';
 import { ChatManager } from './ChatManager';
-import { ChatProvider } from '../interfaces/ChatProvider';
 
 export type Avatar = {
   type: 'image' | 'text';
@@ -45,9 +44,9 @@ export class Chat extends DBEntity {
   draftMessage: string;
   messages: Message[];
   supporter: Supporter;
-  manager: ChatManager;
   user: Client;
   active: boolean = false;
+  private manager: ChatManager;
   private _avatar: Avatar;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();

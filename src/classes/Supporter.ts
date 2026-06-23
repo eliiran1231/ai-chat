@@ -24,9 +24,9 @@ export class Supporter extends DBEntity {
     get context(){
         return this._context;
     }
-    constructor(id?: Uuid, name?: string, expects?: "message" | "question" | "answer", context?: any){
+    constructor(id: Uuid, name?: string, expects?: "message" | "question" | "answer", context?: any){
         super();
-        if(id) this.id = id;
+        this.id = id;
         this.name = name ?? "Supporter";
         this.expects = expects ?? "question";
         if(context) this._context = context;
@@ -79,7 +79,7 @@ export class Supporter extends DBEntity {
         message.from = "supporter";
         message.setChat(this.chat);
         this.chat.messages.push(message);
-        message.status = await this.chat.manager?.requestSend(message) || MessageStatus.Read;
+        message.status = await this.chat['manager'].requestSend(message);
         if (message.status === MessageStatus.Failed) {
             return false;
         }
