@@ -4,7 +4,7 @@ import {
   MatBottomSheetModule,
   MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { List, LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon, LucideList } from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
 import { Question } from '../../classes/Question';
 import { AnswerSheetComponent } from '../answer-sheet-component/answer-sheet-component';
@@ -13,7 +13,7 @@ const MIN_ANSWERS_TO_SHOW_IN_SHEET = 10;
 
 @Component({
   selector: 'app-question-answer-controls',
-  imports: [LucideAngularModule, MatBottomSheetModule],
+  imports: [LucideDynamicIcon, MatBottomSheetModule],
   templateUrl: './question-answer-controls-component.html',
   styleUrl: './question-answer-controls-component.scss',
 })
@@ -25,7 +25,7 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
   }>();
   @Output() answerSheetOpenChange = new EventEmitter<boolean>();
 
-  readonly listIcon = List;
+  readonly listIcon = LucideList;
   readonly answerSheetTitle = 'Choose an option';
   private readonly bottomSheet = inject(MatBottomSheet);
   private answerSheetRef?: MatBottomSheetRef<AnswerSheetComponent>;

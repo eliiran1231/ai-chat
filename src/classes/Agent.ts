@@ -6,10 +6,11 @@ import { Question } from "./Question";
 import { Supporter } from "./Supporter";
 import { Subscription } from "rxjs";
 import { AgentsService } from "../services/agents.service";
+import { MessageStatus } from "../enums/MessagesStatus";
 
 export class Agent {
-    chat: Chat = null as any;
-    supporter: Supporter = new Supporter();
+    chat!: Chat;
+    supporter!: Supporter;
     lastQuestion?: Question;
     lastMessage?: Message;
     private onMessageDeletedHandler?: Subscription;
@@ -18,7 +19,8 @@ export class Agent {
     private _name?: string;
     private agentService: AgentsService;
     set name(name: string){
-        if(this._name) throw new Error("this agent name was already set and cannot be changed")
+        if(this._name) throw new Error("this agent name was already set and cannot be changed");
+        this._name = name;
     }
     get name(): string {
         if(!this._name) this._name = this.agentService.getAgentName(this);
@@ -46,7 +48,6 @@ export class Agent {
         this.onAnswerSelectedHandler = chat.user.onAnswerSelected.subscribe(({answer, associatedQuestion, associatedQuestionIndex }) => this.onAnswerSelected(answer, associatedQuestion, associatedQuestionIndex as number));
         this.onMessageDeletedHandler = chat.onMessageDeleted.subscribe(this.onMessageDeleted.bind(this));
         this.onMessageEditedHandler = chat.onMessageEdited.subscribe(this.onMessageEdited.bind(this));
-        chat.setFileUrlProcessor(this.handleFile.bind(this));
     }
 
     respond(edited = false) : void | Promise<void> {
@@ -57,6 +58,7 @@ export class Agent {
         else if (this.lastMessage.from == "supporter") {
             throw new Error("respond was called but there is nothing to respond to. the last message is from the agent");
         }
+        this.lastMessage.status = MessageStatus.Read;
         if (this.lastQuestion && this.lastMessage instanceof Answer && !this.lastQuestion?.isAnswerValid(this.lastMessage)) {
             this.onInvalidAnswer(this.lastMessage, this.lastQuestion);
         }
@@ -90,16 +92,14 @@ export class Agent {
                 break;
             }
         }
-
-        responseToEdit?.edit(joinedAnswer.value);
-        
+        responseToEdit?.edit(joinedAnswer.value); 
     }
 
-    onMessageEdited(message: Message) {
+    async onMessageEdited(message: Message) {
         for (let i = this.chat.messages.length - 1; i >= 0; i--) {
             const msg = this.chat.messages[i];
             if (msg.id === message.id) break;
-            msg.delete();
+            await msg.delete();
         }
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages);
         this.respond(true);
@@ -107,11 +107,6 @@ export class Agent {
 
     onMessageDeleted(message: Message) {
         //override to handle message deletions
-    }
-
-    handleFile(file: File): string | Promise<string> {
-        //override to handle file attachments
-        return URL.createObjectURL(file);
     }
 
     onDestroy(): void | Promise<void> {

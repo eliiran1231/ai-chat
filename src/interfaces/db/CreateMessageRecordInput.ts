@@ -2,6 +2,7 @@ import type { Attachment, MessageType } from '../../classes/Message';
 import type { AnswerSelectionMode } from '../../classes/Question';
 import type { Uuid } from './Uuid';
 import type { ValidatorSpec } from '../validation/ValidatorSpec';
+import type { MessageStatus } from '../../enums/MessagesStatus';
 
 export interface CreateMessageRecordInput {
   id?: Uuid;
@@ -12,7 +13,7 @@ export interface CreateMessageRecordInput {
   tag?: string;
   time: string;
   editedAt?: string;
-  isRead: boolean;
+  status: MessageStatus;
   editable: boolean;
   deletable: boolean;
   attachment?: Attachment;

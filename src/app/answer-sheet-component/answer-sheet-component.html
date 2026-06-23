@@ -10,12 +10,12 @@
   <div class="answer-sheet__handle" aria-hidden="true"></div>
   <header class="answer-sheet__header">
     <button type="button" class="answer-sheet__close" (click)="close()" aria-label="Close">
-      <lucide-angular [img]="closeIcon" aria-hidden="true" />
+      <svg [lucideIcon]="closeIcon" aria-hidden="true"></svg>
     </button>
 
     @if (isSearchOpen) {
       <label class="answer-sheet__search">
-        <lucide-angular [img]="searchIcon" aria-hidden="true" />
+        <svg [lucideIcon]="searchIcon" aria-hidden="true"></svg>
         <input
           type="search"
           name="answerSearchTerm"
@@ -33,7 +33,7 @@
           (click)="openSearch()"
           aria-label="Search answers"
         >
-          <lucide-angular [img]="searchIcon" aria-hidden="true" />
+          <svg [lucideIcon]="searchIcon" aria-hidden="true"></svg>
         </button>
       }
     }
@@ -71,7 +71,7 @@
           aria-hidden="true"
         >
           @if (isAnswerSelected(sheetAnswer.index)) {
-            <lucide-angular [img]="checkIcon" aria-hidden="true" />
+            <svg [lucideIcon]="checkIcon" aria-hidden="true"></svg>
           }
         </span>
       </label>

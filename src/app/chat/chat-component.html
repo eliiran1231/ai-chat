@@ -23,6 +23,7 @@
       (editMessage)="editMessage($event)"
       (deleteMessage)="deleteMessage($event)"
       (deleteChat)="deleteChat.emit($event)"
+      (retryMessage)="retryMessage($event)"
     ></app-chat-navbar-component>
 
     <ng-scrollbar
@@ -67,7 +68,7 @@
         aria-label="Scroll to bottom"
         (click)="scrollToBottom()"
       >
-        <lucide-angular [img]="scrollDownIcon" aria-hidden="true" />
+        <svg [lucideIcon]="scrollDownIcon" aria-hidden="true"></svg>
       </button>
     }
 

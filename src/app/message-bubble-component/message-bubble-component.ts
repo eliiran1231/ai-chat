@@ -1,25 +1,27 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
-import { NgxFilesizeModule } from 'ngx-filesize';
-import { ChevronDown, LucideAngularModule } from 'lucide-angular';
+import {
+  LucideChevronDown,
+  LucideDynamicIcon,
+  LucideCheck,
+  LucideCheckCheck,
+  LucideClock,
+  LucideCircleAlert
+} from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
 import { HighlightPipe } from '../../pipes/highlight.pipe';
+import { AnswerSelectedEvent } from '../../classes/Client';
+import { MessageStatus } from '../../enums/MessagesStatus';
+import { FilesizePipe } from '../../pipes/filesize.pipe';
 import { QuestionAnswerControlsComponent } from '../question-answer-controls-component/question-answer-controls-component';
-
 @Component({
   selector: 'app-message-bubble',
-  imports: [
-    DatePipe,
-    MarkdownComponent,
-    NgxFilesizeModule,
-    HighlightPipe,
-    LucideAngularModule,
-    QuestionAnswerControlsComponent,
-  ],
+  imports: [DatePipe, MarkdownComponent, FilesizePipe, HighlightPipe, LucideDynamicIcon, QuestionAnswerControlsComponent],
   templateUrl: './message-bubble-component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './message-bubble-component.scss',
 })
 export class MessageBubbleComponent {
@@ -30,9 +32,15 @@ export class MessageBubbleComponent {
   @Output() answerSelected = new EventEmitter<{ answer: Answer | Answer[]; associatedQuestion: Question }>();
   @Output() messageOptionsRequested = new EventEmitter<Message>();
   @Output() answerSheetOpenChange = new EventEmitter<boolean>();
+  readonly statusIcons = {
+    [MessageStatus.Pending]: LucideClock,
+    [MessageStatus.Sent]: LucideCheck,
+    [MessageStatus.Read]: LucideCheckCheck,
+    [MessageStatus.Failed]: LucideCircleAlert,
+  };
 
   questionType = Question;
-  readonly optionsIcon = ChevronDown;
+  readonly optionsIcon = LucideChevronDown;
 
   constructor() {}
 

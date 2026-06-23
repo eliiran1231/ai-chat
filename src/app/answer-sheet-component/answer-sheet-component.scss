@@ -117,8 +117,8 @@
   background: var(--as-alt);
 }
 
-.answer-sheet__search lucide-angular,
-.answer-sheet__search-toggle lucide-angular {
+.answer-sheet__search svg[lucideIcon],
+.answer-sheet__search-toggle svg[lucideIcon] {
   width: 1.1rem;
   height: 1.1rem;
 }
@@ -191,7 +191,7 @@
   background: var(--as-accent);
 }
 
-.answer-sheet__mark lucide-angular {
+.answer-sheet__mark svg[lucideIcon] {
   width: 1rem;
   height: 1rem;
 }

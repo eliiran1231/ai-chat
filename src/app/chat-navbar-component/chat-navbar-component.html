@@ -8,24 +8,37 @@
         title="Back"
         (click)="messageOptionsClosed.emit()"
       >
-        <lucide-angular [img]="backIcon" aria-hidden="true" />
+        <svg [lucideIcon]="backIcon" aria-hidden="true"></svg>
       </button>
 
       <div class="message-options-spacer"></div>
 
-      @if (!editMode && selectedMessage?.from === 'client') {
-        <button
-          type="button"
-          class="icon-button"
-          aria-label="Edit message"
-          title="Edit"
-          [disabled]="!canEditSelectedMessage"
-          (click)="canEditSelectedMessage && selectedMessage && editMessage.emit(selectedMessage)"
-        >
-          <lucide-angular [img]="editIcon" aria-hidden="true" />
-        </button>
-      }
       @if (!editMode) {
+        @if (selectedMessage?.from === 'client') {
+          <button
+            type="button"
+            class="icon-button"
+            aria-label="Edit message"
+            title="Edit"
+            [disabled]="!canEditSelectedMessage"
+            (click)="canEditSelectedMessage && selectedMessage && editMessage.emit(selectedMessage)"
+          >
+            <svg [lucideIcon]="editIcon" aria-hidden="true"></svg>
+          </button>
+        }
+
+        @if (selectedMessage && selectedMessage.status === messageStatus.Failed) {
+            <button
+              type="button"
+              class="icon-button"
+              aria-label="Retry sending message"
+              title="Retry"
+              (click)="retryMessage.emit(selectedMessage)"
+            >
+              <svg [lucideIcon]="retryIcon" aria-hidden="true"></svg>
+            </button>
+        }
+
         <button
           type="button"
           class="icon-button icon-button--danger"
@@ -34,7 +47,7 @@
           [disabled]="!selectedMessage?.deletable"
           (click)="selectedMessage && deleteMessage.emit(selectedMessage)"
         >
-          <lucide-angular [img]="deleteIcon" aria-hidden="true" />
+          <svg [lucideIcon]="deleteIcon" aria-hidden="true"></svg>
         </button>
       }
     </div>
@@ -51,7 +64,7 @@
           (click)="previousMatch.emit()"
           aria-label="Previous match"
         >
-          <lucide-angular [img]="previousMatchIcon" aria-hidden="true" />
+          <svg [lucideIcon]="previousMatchIcon" aria-hidden="true"></svg>
         </button>
         <button
           type="button"
@@ -60,7 +73,7 @@
           (click)="nextMatch.emit()"
           aria-label="Next match"
         >
-          <lucide-angular [img]="nextMatchIcon" aria-hidden="true" />
+          <svg [lucideIcon]="nextMatchIcon" aria-hidden="true"></svg>
         </button>
       </div>
       <div class="search-input-shell">
@@ -80,7 +93,7 @@
         (click)="closeSearch()"
         aria-label="Close search"
       >
-        <lucide-angular [img]="closeSearchIcon" aria-hidden="true" />
+        <svg [lucideIcon]="closeSearchIcon" aria-hidden="true"></svg>
       </button>
     </div>
   } @else {
@@ -92,7 +105,7 @@
           aria-label="Back to chat list"
           (click)="back.emit()"
         >
-          <lucide-angular [img]="backIcon" aria-hidden="true" />
+          <svg [lucideIcon]="backIcon" aria-hidden="true"></svg>
         </button>
       }
 
@@ -116,7 +129,7 @@
         (click)="openSearch()"
         aria-label="Search conversation"
       >
-        <lucide-angular [img]="searchIcon" class="search-icon" aria-hidden="true" />
+        <svg [lucideIcon]="searchIcon" class="search-icon" aria-hidden="true"></svg>
       </button>
       <app-menu
         class ="chat-menu"

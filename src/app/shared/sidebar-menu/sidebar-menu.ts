@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { LucideIconData } from 'lucide-angular';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { LucideIconInput } from '@lucide/angular';
 
 import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
 
@@ -8,13 +8,14 @@ import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
   standalone: true,
   imports: [AppMenu],
   templateUrl: './sidebar-menu.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './sidebar-menu.scss',
 })
 export class SidebarMenuComponent {
-  @Input({ required: true }) menuIcon!: LucideIconData;
+  @Input({ required: true }) menuIcon!: LucideIconInput;
   @Input({ required: true }) isFullscreen = false;
-  @Input({ required: true }) enterFullscreenIcon!: LucideIconData;
-  @Input({ required: true }) exitFullscreenIcon!: LucideIconData;
+  @Input({ required: true }) enterFullscreenIcon!: LucideIconInput;
+  @Input({ required: true }) exitFullscreenIcon!: LucideIconInput;
 
   @Output() fullscreenToggled = new EventEmitter<void>();
 

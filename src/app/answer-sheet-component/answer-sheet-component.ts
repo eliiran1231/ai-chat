@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Check, LucideAngularModule, Search, X } from 'lucide-angular';
+import { LucideCheck, LucideDynamicIcon, LucideSearch, LucideX } from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
 
 const MIN_NUMBER_TO_SHOW_SEARCH = 15;
@@ -12,7 +12,7 @@ type SheetAnswerOption = {
 
 @Component({
   selector: 'app-answer-sheet',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideDynamicIcon],
   templateUrl: './answer-sheet-component.html',
   styleUrl: './answer-sheet-component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -26,9 +26,9 @@ export class AnswerSheetComponent {
   @Output() answerSelected = new EventEmitter<Answer>();
   @Output() answersConfirmed = new EventEmitter<Answer[]>();
 
-  readonly closeIcon = X;
-  readonly checkIcon = Check;
-  readonly searchIcon = Search;
+  readonly closeIcon = LucideX;
+  readonly checkIcon = LucideCheck;
+  readonly searchIcon = LucideSearch;
   selectedAnswerIndexes = new Set<number>();
   selectedSingleAnswerIndex: number | null = null;
   answerSearchTerm = '';

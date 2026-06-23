@@ -20,7 +20,7 @@
         aria-label="Open message options"
         title="Message options"
       >
-        <lucide-angular [img]="optionsIcon" aria-hidden="true" />
+        <svg [lucideIcon]="optionsIcon" aria-hidden="true"></svg>
       </button>
     }
     @if (message.attachment) {
@@ -63,11 +63,19 @@
         (answerSheetOpenChange)="answerSheetOpenChange.emit($event)"
       ></app-question-answer-controls>
     }
-    <time class="message-time">
-      {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
-      @if (message.editedAt) {
-        <span class="message-edited-mark">(edited)</span>
+    <div class="message-metadata-container">
+      <time>
+        @if (message.editedAt) {
+          <span class="message-edited-mark">(edited)</span>
+        }
+        {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
+      </time>
+      @if (!isSupporterMessage(message)) {
+        <svg 
+        [lucideIcon]="statusIcons[message.status]"
+        class="status-icon"
+        aria-hidden="true"></svg>
       }
-    </time>
+    </div>
   </div>
 </article>
