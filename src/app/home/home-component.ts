@@ -27,7 +27,7 @@ import { ChatProvider } from '../../interfaces/ChatProvider';
     CommonModule,
   ],
   templateUrl: './home-component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './home-component.scss',
 })
 export class HomeComponent implements OnInit {

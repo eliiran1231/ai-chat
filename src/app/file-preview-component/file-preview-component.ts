@@ -8,7 +8,7 @@ import { FilesizePipe } from '../../pipes/filesize.pipe';
   selector: 'app-file-preview-component',
   imports: [FormsModule, FilesizePipe, ChatInputComponent],
   templateUrl: './file-preview-component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './file-preview-component.scss',
 })
 export class FilePreviewComponent implements OnInit {

@@ -20,7 +20,7 @@ import { MessageStatus } from '../../enums/MessagesStatus';
   selector: 'app-chat-navbar-component',
   imports: [AppMenu, LucideDynamicIcon],
   templateUrl: './chat-navbar-component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-navbar-component.scss',
 })
 export class ChatNavbarComponent {

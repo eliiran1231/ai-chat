@@ -14,7 +14,7 @@ export interface AppMenuItem {
   standalone: true,
   imports: [CdkMenuModule, LucideDynamicIcon],
   templateUrl: './app-menu.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app-menu.scss',
 })
 export class AppMenu {

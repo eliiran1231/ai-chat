@@ -7,7 +7,7 @@ import DOMPurify from 'dompurify';
   selector: 'app-chat-list-component',
   imports: [FormsModule, LucideDynamicIcon],
   templateUrl: './chat-list-component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {

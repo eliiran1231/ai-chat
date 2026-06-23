@@ -20,7 +20,7 @@ import { FilesizePipe } from '../../pipes/filesize.pipe';
   selector: 'app-message-bubble',
   imports: [DatePipe, MarkdownComponent, FilesizePipe, HighlightPipe, LucideDynamicIcon],
   templateUrl: './message-bubble-component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './message-bubble-component.scss',
 })
 export class MessageBubbleComponent {

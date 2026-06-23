@@ -24,7 +24,7 @@ import { Uuid } from '../../interfaces/db/Uuid';
     LucideDynamicIcon
   ],
   templateUrl: './chat-component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {

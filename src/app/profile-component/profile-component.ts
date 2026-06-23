@@ -5,7 +5,7 @@ import { ProfileService } from '../../services/profile.service';
   selector: 'app-profile-component',
   imports: [LucideDynamicIcon],
   templateUrl: './profile-component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './profile-component.scss',
 })
 export class ProfileComponent {

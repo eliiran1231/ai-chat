@@ -8,7 +8,7 @@ import { Chat } from '../../classes/Chat';
   selector: 'app-chat-input-component',
   imports: [FormsModule, TextFieldModule, LucideDynamicIcon],
   templateUrl: './chat-input-component.html',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-input-component.scss',
 })
 export class 
