@@ -5,7 +5,7 @@ import { HomeComponent } from './home/home-component';
   selector: 'app-root',
   imports: [HomeComponent],
   templateUrl: './app.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './app.scss',
 })
 export class App {}

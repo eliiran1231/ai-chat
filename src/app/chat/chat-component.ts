@@ -9,7 +9,7 @@ import { FilePreviewComponent } from "../file-preview-component/file-preview-com
 import { Message, MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
-import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
+import { LucideChevronsDown, LucideDynamicIcon } from '@lucide/angular';
 import { Uuid } from '../../interfaces/db/Uuid';
 
 @Component({
@@ -21,10 +21,10 @@ import { Uuid } from '../../interfaces/db/Uuid';
     ChatNavbarComponent,
     NgScrollbar,
     NgScrollReachDrop,
-    LucideAngularModule
+    LucideDynamicIcon
   ],
   templateUrl: './chat-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
@@ -32,7 +32,7 @@ export class ChatComponent {
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
   readonly SCROLLBAR_OFFSET = 40;
-  readonly scrollDownIcon = ChevronsDown;
+  readonly scrollDownIcon = LucideChevronsDown;
   @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
   searchQuery = '';

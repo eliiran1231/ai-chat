@@ -1,18 +1,18 @@
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, SquarePen } from 'lucide-angular';
+import { LucideDynamicIcon, LucideSearch, LucideSquarePen } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
 @Component({
   selector: 'app-chat-list-component',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideDynamicIcon],
   templateUrl: './chat-list-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {
-  readonly searchIcon = Search;
-  readonly composeIcon = SquarePen;
+  readonly searchIcon = LucideSearch;
+  readonly composeIcon = LucideSquarePen;
   @Input({ required: true }) chats: Chat[] = [];
   @Input() searchTerm = '';
   @Input() selectedChat: Chat | null = null;

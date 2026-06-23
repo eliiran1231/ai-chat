@@ -1,19 +1,19 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
-import { Globe, LucideAngularModule, Monitor, UserRound } from 'lucide-angular';
+import { LucideDynamicIcon, LucideGlobe, LucideMonitor, LucideUserRound } from '@lucide/angular';
 import { ProfileService } from '../../services/profile.service';
 @Component({
   selector: 'app-profile-component',
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   templateUrl: './profile-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.Default,
   styleUrl: './profile-component.scss',
 })
 export class ProfileComponent {
   private profileService: ProfileService = inject(ProfileService);
   private readonly basicInfo = this.profileService.basicInfo;
-  readonly usernameIcon = UserRound;
-  readonly computerNameIcon = Monitor;
-  readonly ipIcon = Globe;
+  readonly usernameIcon = LucideUserRound;
+  readonly computerNameIcon = LucideMonitor;
+  readonly ipIcon = LucideGlobe;
   readonly profile = {
     displayName: this.basicInfo.displayName,
     usernameLabel: 'user name',
