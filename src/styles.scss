@@ -1,5 +1,6 @@
 @use '@angular/cdk';
 
+@include cdk.overlay();
 @include cdk.text-field-autosize();
 
 html,

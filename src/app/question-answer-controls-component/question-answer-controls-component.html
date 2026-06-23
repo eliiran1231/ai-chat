@@ -6,9 +6,7 @@
       </button>
     }
   </div>
-}
-
-@if (showSheetTrigger) {
+} @else if (showSheetTrigger) {
   <div class="possible-answers-container possible-answers-container--sheet">
     <button
       type="button"
@@ -19,15 +17,4 @@
       {{ answerSheetTitle }}
     </button>
   </div>
-}
-
-@if (isSheetOpen) {
-  <app-answer-sheet
-    [answers]="question.possibleAnswers"
-    [isMultipleSelection]="isMultipleSelection"
-    [title]="answerSheetTitle"
-    (closed)="closeAnswerSheet()"
-    (answerSelected)="selectSheetAnswer($event)"
-    (answersConfirmed)="confirmSheetAnswers($event)"
-  ></app-answer-sheet>
 }

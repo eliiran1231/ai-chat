@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Check, LucideAngularModule, Search, X } from 'lucide-angular';
 import { Answer } from '../../classes/Answer';
@@ -15,6 +15,7 @@ type SheetAnswerOption = {
   imports: [FormsModule, LucideAngularModule],
   templateUrl: './answer-sheet-component.html',
   styleUrl: './answer-sheet-component.scss',
+  encapsulation: ViewEncapsulation.None,
 })
 export class AnswerSheetComponent {
   @Input({ required: true }) answers: Answer[] = [];
@@ -70,7 +71,7 @@ export class AnswerSheetComponent {
     }
 
     this.answersConfirmed.emit(
-      this.answers.filter((_answer, index) => this.selectedAnswerIndexes.has(index))
+      this.answers.filter((_answer, index) => this.selectedAnswerIndexes.has(index)),
     );
   }
 
@@ -86,7 +87,7 @@ export class AnswerSheetComponent {
     }
 
     return answers.filter(({ answer }) =>
-      answer.value.toLocaleLowerCase().includes(normalizedSearchTerm)
+      answer.value.toLocaleLowerCase().includes(normalizedSearchTerm),
     );
   }
 

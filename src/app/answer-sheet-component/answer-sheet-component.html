@@ -1,4 +1,3 @@
-<div class="answer-sheet-backdrop" (click)="close()"></div>
 <form
   #answerSheetForm="ngForm"
   class="answer-sheet"
@@ -81,11 +80,7 @@
 
   @if (isMultipleSelection) {
     <footer class="answer-sheet__footer">
-      <button
-        type="submit"
-        class="answer-sheet__confirm"
-        [disabled]="!selectedAnswerIndexes.size"
-      >
+      <button type="submit" class="answer-sheet__confirm" [disabled]="!selectedAnswerIndexes.size">
         Confirm
       </button>
     </footer>

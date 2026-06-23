@@ -312,13 +312,8 @@ export class MessageService {
     value: string | null,
     rowId: Uuid,
   ): AnswerSelectionMode | undefined {
-    if (value === null || value === undefined) {
-      return undefined;
-    }
-
-    if (value === 'single' || value === 'multiple') {
-      return value;
-    }
+    if (value === 'single' || value === 'multiple') return value;
+    if (!value) return undefined;
 
     console.warn(`Unexpected answer_selection_mode payload for message ${rowId}.`, value);
     return undefined;
