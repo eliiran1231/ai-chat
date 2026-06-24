@@ -1,5 +1,5 @@
-import { Message } from '../../../classes/Message';
-import { Uuid } from '../../../interfaces/db/Uuid';
+import { Message } from '../classes/Message';
+import { Uuid } from '../interfaces/db/Uuid';
 import { ChatMessageDateSeparator } from './chat-message-date-separator';
 
 describe('ChatMessageDateSeparator', () => {

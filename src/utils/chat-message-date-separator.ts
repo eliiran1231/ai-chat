@@ -1,4 +1,4 @@
-import { Message } from '../../../classes/Message';
+import { Message } from '../classes/Message';
 
 export function shouldShowMessageTail(messages: Message[], index: number): boolean {
   const message = messages[index];

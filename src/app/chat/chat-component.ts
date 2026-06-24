@@ -12,11 +12,11 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
 import { Uuid } from '../../interfaces/db/Uuid';
-import { ChatMessageDatePipe } from './utils/chat-message-date.pipe';
+import { ChatMessageDatePipe } from '../../utils/chat-message-date.pipe';
 import {
   shouldShowDateSeparator,
   shouldShowMessageTail,
-} from './utils/chat-message-date-separator';
+} from '../../utils/chat-message-date-separator';
 
 @Component({
   selector: 'app-chat',
