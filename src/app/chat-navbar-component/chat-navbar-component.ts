@@ -1,25 +1,26 @@
-import { Component, ElementRef, computed, input, output, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, computed, input, output, signal, viewChild } from '@angular/core';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { AppMenu, AppMenuItem } from "../shared/app-menu/app-menu";
 import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronUp,
-  EllipsisVertical,
-  LucideAngularModule,
-  PenLine,
-  RotateCcw,
-  Search,
-  Trash2,
-  X,
-} from 'lucide-angular';
+  LucideChevronDown,
+  LucideChevronLeft,
+  LucideChevronUp,
+  LucideDynamicIcon,
+  LucideEllipsisVertical,
+  LucidePenLine,
+  LucideRotateCcw,
+  LucideSearch,
+  LucideTrash2,
+  LucideX,
+} from '@lucide/angular';
 import { MessageStatus } from '../../enums/MessagesStatus';
 
 @Component({
   selector: 'app-chat-navbar-component',
-  imports: [AppMenu, LucideAngularModule],
+  imports: [AppMenu, LucideDynamicIcon],
   templateUrl: './chat-navbar-component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './chat-navbar-component.scss',
 })
 export class ChatNavbarComponent {
@@ -40,17 +41,17 @@ export class ChatNavbarComponent {
   retryMessage = output<Message>();
   searchMode = signal(false);
   searchQuery = signal('');
-
   deleteChat = output<Chat>();
-  readonly previousMatchIcon = ChevronUp;
-  readonly nextMatchIcon = ChevronDown;
-  readonly closeSearchIcon = X;
-  readonly backIcon = ChevronLeft;
-  readonly searchIcon = Search;
-  readonly editIcon = PenLine;
-  readonly menuIcon = EllipsisVertical;
-  readonly deleteIcon = Trash2;
-  readonly retryIcon = RotateCcw;
+  
+  readonly previousMatchIcon = LucideChevronUp;
+  readonly nextMatchIcon = LucideChevronDown;
+  readonly closeSearchIcon = LucideX;
+  readonly backIcon = LucideChevronLeft;
+  readonly searchIcon = LucideSearch;
+  readonly editIcon = LucidePenLine;
+  readonly menuIcon = LucideEllipsisVertical;
+  readonly deleteIcon = LucideTrash2;
+  readonly retryIcon = LucideRotateCcw;
   readonly messageStatus = MessageStatus;
   readonly menuItems: AppMenuItem[] = [
     {

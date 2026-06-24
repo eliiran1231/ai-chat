@@ -45,13 +45,22 @@
       }
 
       @for (message of chat().messages(); track message.id()) {
+        @if (shouldShowDateSeparator(chat().messages(), $index)) {
+          <div class="date-separator">
+            <time [attr.datetime]="message.time() | date: 'yyyy-MM-dd'">
+              {{ message.time() | chatMessageDate }}
+            </time>
+          </div>
+        }
         <app-message-bubble
           [message]="message"
           [isSelected]="message === selectedMessage()"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id())"
+          [showTail]="shouldShowMessageTail(chat().messages(), $index)"
           [searchTerm]="searchQuery()"
           (answerSelected)="selectAnswer($event.answer, $event.associatedQuestion, $index)"
           (messageOptionsRequested)="openMessageOptions($event)"
+          (answerSheetOpenChange)="setAnswerSheetOpen($event)"
         ></app-message-bubble>
       } @empty {
         <div class="empty-state">
@@ -60,14 +69,14 @@
       }
     </ng-scrollbar>
 
-    @if (awayFromBottom()) {
+    @if (awayFromBottom() && !isAnswerSheetOpen()) {
       <button
         type="button"
         class="scroll-bottom-button"
         aria-label="Scroll to bottom"
         (click)="scrollToBottom()"
       >
-        <lucide-angular [img]="scrollDownIcon" aria-hidden="true" />
+        <svg [lucideIcon]="scrollDownIcon" aria-hidden="true"></svg>
       </button>
     }
 

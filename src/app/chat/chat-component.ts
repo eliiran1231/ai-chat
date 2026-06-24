@@ -1,4 +1,5 @@
-import { Component, ViewChild, computed, input, output, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, ViewChild, computed, input, output, signal } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -9,8 +10,13 @@ import { FilePreviewComponent } from "../file-preview-component/file-preview-com
 import { Message, MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
-import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
+import { LucideChevronsDown, LucideDynamicIcon } from '@lucide/angular';
 import { Uuid } from '../../interfaces/db/Uuid';
+import { ChatMessageDatePipe } from '../../utils/chat-message-date.pipe';
+import {
+  shouldShowDateSeparator,
+  shouldShowMessageTail,
+} from '../../utils/chat-message-date-separator';
 
 @Component({
   selector: 'app-chat',
@@ -21,17 +27,23 @@ import { Uuid } from '../../interfaces/db/Uuid';
     ChatNavbarComponent,
     NgScrollbar,
     NgScrollReachDrop,
-    LucideAngularModule
+    DatePipe,
+    ChatMessageDatePipe,
+    LucideDynamicIcon
   ],
   templateUrl: './chat-component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
+  readonly shouldShowDateSeparator = shouldShowDateSeparator;
+  readonly shouldShowMessageTail = shouldShowMessageTail;
+
   chat = input.required<Chat>();
   showBackButton = input(false);
   back = output<void>();
   readonly SCROLLBAR_OFFSET = 40;
-  readonly scrollDownIcon = ChevronsDown;
+  readonly scrollDownIcon = LucideChevronsDown;
   deleteChat = output<Chat>();
   attachmentFile = signal<File | undefined>(undefined);
   searchQuery = signal('');
@@ -50,6 +62,7 @@ export class ChatComponent {
   editingMessage = signal<Message | undefined>(undefined);
   awayFromBottom = signal(false);
   isScrolling = signal(false);
+  isAnswerSheetOpen = signal(false);
 
   onScroll(): void {
     if (!this.isScrolling()) {
@@ -76,9 +89,17 @@ export class ChatComponent {
     this.awayFromBottom.set(false); //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
-  selectAnswer(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number): void {
+  selectAnswer(
+    answer: Answer | Answer[],
+    associatedQuestion: Question,
+    associatedQuestionIndex: number,
+  ): void {
     this.chat().user.onAnswerSelected.next({ answer, associatedQuestion, associatedQuestionIndex });
     this.awayFromBottom.set(false);
+  }
+
+  setAnswerSheetOpen(isOpen: boolean): void {
+    this.isAnswerSheetOpen.set(isOpen);
   }
 
   closePreviewPage(): void {

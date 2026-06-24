@@ -1,44 +1,45 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
-import { NgxFilesizeModule } from 'ngx-filesize';
-import { 
-  ChevronDown, 
-  LucideAngularModule, 
-  Check, 
-  CheckCheck, 
-  Clock, 
-  CircleAlert 
-} from 'lucide-angular';
+import {
+  LucideChevronDown,
+  LucideDynamicIcon,
+  LucideCheck,
+  LucideCheckCheck,
+  LucideClock,
+  LucideCircleAlert
+} from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
 import { HighlightPipe } from '../../pipes/highlight.pipe';
-import { AnswerSelectedEvent } from '../../classes/Client';
 import { MessageStatus } from '../../enums/MessagesStatus';
+import { FilesizePipe } from '../../pipes/filesize.pipe';
+import { QuestionAnswerControlsComponent } from '../question-answer-controls-component/question-answer-controls-component';
 @Component({
   selector: 'app-message-bubble',
-  imports: [DatePipe, MarkdownComponent, NgxFilesizeModule, HighlightPipe, LucideAngularModule],
+  imports: [DatePipe, MarkdownComponent, FilesizePipe, HighlightPipe, LucideDynamicIcon, QuestionAnswerControlsComponent],
   templateUrl: './message-bubble-component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './message-bubble-component.scss',
 })
 export class MessageBubbleComponent {
   message = input.required<Message>();
   isActiveSearchMatch = input(false);
   isSelected = input(false);
+  showTail = input(false);
   searchTerm = input('');
-  answerSelected = output<{ answer: Answer; associatedQuestion: Question }>();
+  answerSelected = output<{ answer: Answer | Answer[]; associatedQuestion: Question }>();
   messageOptionsRequested = output<Message>();
+  answerSheetOpenChange = output<boolean>();
+
   readonly statusIcons = {
-    [MessageStatus.Pending]: Clock,
-    [MessageStatus.Sent]: Check,
-    [MessageStatus.Read]: CheckCheck,
-    [MessageStatus.Failed]: CircleAlert,
+    [MessageStatus.Pending]: LucideClock,
+    [MessageStatus.Sent]: LucideCheck,
+    [MessageStatus.Read]: LucideCheckCheck,
+    [MessageStatus.Failed]: LucideCircleAlert,
   };
-
-  readonly optionsIcon = ChevronDown;
-
-  constructor() {}
+  readonly optionsIcon = LucideChevronDown;
 
   isSupporterMessage(message: Message): boolean {
     return message.from() === 'supporter';
@@ -48,17 +49,11 @@ export class MessageBubbleComponent {
     return message instanceof Question ? message : undefined;
   }
 
-  selectAnswer(answer: Answer): void {
-    this.answerSelected.emit({
-      answer,
-      associatedQuestion: this.message() as Question,
-    });
-  }
-
   openMessageOptions(event: MouseEvent): void {
     event.stopPropagation();
     this.messageOptionsRequested.emit(this.message());
   }
 
   hasMessageOptions = computed(() => this.message().editable() || this.message().deletable());
+  hasAnswerControls = computed(() => this.asQuestion(this.message())?.possibleAnswers().length ? true : false);
 }

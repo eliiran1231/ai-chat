@@ -10,6 +10,8 @@
     class="message-bubble"
     [class.message-bubble--supporter]="isSupporterMessage(message())"
     [class.message-bubble--user]="!isSupporterMessage(message())"
+    [class.message-bubble--with-tail]="showTail()"
+    [class.message-bubble--answer-controls]="hasAnswerControls()"
   >
     @if (hasMessageOptions()) {
       <button
@@ -19,7 +21,7 @@
         aria-label="Open message options"
         title="Message options"
       >
-        <lucide-angular [img]="optionsIcon" aria-hidden="true" />
+        <svg [lucideIcon]="optionsIcon" aria-hidden="true"></svg>
       </button>
     }
     @if (message().attachment()) {
@@ -57,17 +59,11 @@
     <div class="message-markdown" markdown [data]="message().value() | highlight: searchTerm()"></div>
     @if (asQuestion(message()); as question) {
       @if (question.possibleAnswers().length) {
-      <div class="possible-answers-container">
-        @for (possibleAnswer of question.possibleAnswers(); track $index) {
-          <button
-            type="button"
-            class="possible-answer"
-            (click)="selectAnswer(possibleAnswer)"
-          >
-            {{ possibleAnswer.value() }}
-          </button>
-        }
-      </div>
+      <app-question-answer-controls
+        [question]="question"
+        (answerSelected)="answerSelected.emit($event)"
+        (answerSheetOpenChange)="answerSheetOpenChange.emit($event)"
+      ></app-question-answer-controls>
       }
     }
     <div class="message-metadata-container">
@@ -78,10 +74,10 @@
         {{ (message().editedAt() ?? message().time()) | date: 'HH:mm' }}
       </time>
       @if (!isSupporterMessage(message())) {
-        <lucide-angular 
-        [img]="statusIcons[message().status()]"
+        <svg 
+        [lucideIcon]="statusIcons[message().status()]"
         class="status-icon"
-        aria-hidden="true" />
+        aria-hidden="true"></svg>
       }
     </div>
   </div>

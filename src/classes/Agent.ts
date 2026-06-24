@@ -32,8 +32,8 @@ export class Agent {
     }
 
     private findLastSupporterQuestion(messages: Message[]): Question | undefined {
-        for (let i = this.chat.messages.length - 1; i >= 0; i--) {
-            const message = this.chat.messages()[i];
+        for (let i = messages.length - 1; i >= 0; i--) {
+            const message = messages[i];
             if (message instanceof Question && message.from() === 'supporter') {
                 return message;
             }
@@ -69,22 +69,36 @@ export class Agent {
         throw new Error("validation didnt pass");
     }
 
-    async onAnswerSelected(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number) {
-        if (associatedQuestionIndex >= this.chat.messages.length - 1) {
-            this.chat.user.answer(answer.clone());
+    private joinedAnswer(answer: Answer | Answer[]): Answer {
+        if (!Array.isArray(answer)) {
+            return answer.clone();
+        }
+        return new Answer(answer.map(a => a.value()).join(', '));
+    }
+
+    onAnswerSelected(answer: Answer | Answer[], associatedQuestion: Question, associatedQuestionIndex: number) {
+        const joinedAnswer = this.joinedAnswer(answer);
+
+        if (associatedQuestionIndex >= this.chat.messages().length - 1) {
+            this.chat.user.answer(joinedAnswer);
             return;
         }
-        let responseToEdit;
-        for(let i = 1; !(responseToEdit instanceof Answer && responseToEdit.from() === "client"); i++){
-            responseToEdit = this.chat.messages()[associatedQuestionIndex + i];
+
+        let responseToEdit: Message | undefined;
+        for (let i = associatedQuestionIndex + 1; i < this.chat.messages().length; i++) {
+            const candidate = this.chat.messages()[i];
+            if (candidate instanceof Answer && candidate.from() === "client") {
+                responseToEdit = candidate;
+                break;
+            }
         }
-            await responseToEdit?.edit(answer.value());
-        }
+        responseToEdit?.edit(joinedAnswer.value()); 
+    }
 
     async onMessageEdited(message: Message) {
-        for (let i = this.chat.messages.length - 1; i >= 0; i--) {
+        for (let i = this.chat.messages().length - 1; i >= 0; i--) {
             const msg = this.chat.messages()[i];
-            if (msg.id === message.id) break;
+            if (msg.id() === message.id()) break;
             await msg.delete();
         }
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
@@ -100,4 +114,4 @@ export class Agent {
         this.onMessageEditedHandler?.unsubscribe();
         this.onAnswerSelectedHandler?.unsubscribe();
     }
-} 
+}

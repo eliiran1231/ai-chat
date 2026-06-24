@@ -2,11 +2,25 @@ import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Injector } from '@angular/core';
 import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
-import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
+import { DefaultManager } from '../../chat-managers/DefaultManager';
+import { ChatProvider } from '../../interfaces/ChatProvider';
+import { Uuid } from '../../interfaces/db/Uuid';
+import { REGISTERED_AGENTS } from '../../services/agents.module';
 import { ChatComponent } from './chat-component';
+
+const chatProviderStub: ChatProvider = {
+  createChat: () => {
+    throw new Error('Not implemented');
+  },
+  addMessage: () => {},
+  deleteMessage: () => {},
+  editMessage: () => {},
+  getChats: () => [],
+  deleteChat: () => {},
+};
 
 describe('ChatComponent', () => {
   let fixture: ComponentFixture<ChatComponent>;
@@ -25,6 +39,10 @@ describe('ChatComponent', () => {
             },
           },
         }),
+        {
+          provide: REGISTERED_AGENTS,
+          useValue: {},
+        },
       ],
     }).compileComponents();
 
@@ -32,9 +50,14 @@ describe('ChatComponent', () => {
   });
 
   async function renderChat(draftMessage: string | Message[] = ''): Promise<Chat> {
-    const supporter = new Supporter();
-    const chat = new Chat('test-chat-id', 'Test Chat', 'Online', 'TC', supporter);
-    supporter.setAgent(new Agent(TestBed.inject(Injector)));
+    const supporter = new Supporter('test-supporter-id' as Uuid);
+    const chat = new Chat(
+      'test-chat-id' as Uuid,
+      'Test Chat',
+      supporter,
+      new DefaultManager(TestBed.inject(Injector), chatProviderStub),
+      { status: 'Online', avatar: { type: 'text', value: 'TC' } },
+    );
     if (typeof draftMessage === 'string') {
       chat.draftMessage = draftMessage;
     } else {
@@ -46,6 +69,10 @@ describe('ChatComponent', () => {
     await fixture.whenStable();
 
     return chat;
+  }
+
+  function createMessage(id: string, value: string, time: Date, from: 'client' | 'supporter' = 'client'): Message {
+    return new Message(value, { id: id as Uuid, time, from });
   }
 
   it('renders a textarea composer with a max of 5 rows', async () => {
@@ -105,10 +132,34 @@ describe('ChatComponent', () => {
 
     const file = fixture.nativeElement.querySelector(
       '.message-markdown img',
-    ) as HTMLFileElement | null;
+    ) as HTMLImageElement | null;
     expect(file?.getAttribute('src')).toBe(
       'https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg',
     );
     expect(file?.getAttribute('alt')).toBe('A mushroom-head robot drinking bubble tea');
+  });
+
+  it('renders one date separator per message day', async () => {
+    await renderChat([
+      createMessage('first', 'First', new Date(2026, 5, 15, 9)),
+      createMessage('second', 'Second', new Date(2026, 5, 15, 10)),
+      createMessage('third', 'Third', new Date(2026, 5, 16, 9)),
+    ]);
+
+    const separators = fixture.nativeElement.querySelectorAll('.date-separator time');
+
+    expect(separators).toHaveLength(2);
+    expect(separators[0].textContent.trim()).toBe('Jun 15, 2026');
+    expect(separators[0].getAttribute('datetime')).toBe('2026-06-15');
+  });
+
+  it('starts a new bubble group when the date changes', async () => {
+    await renderChat([
+      createMessage('first', 'First', new Date(2026, 5, 15, 9)),
+      createMessage('second', 'Second', new Date(2026, 5, 16, 9)),
+    ]);
+    const bubbles = fixture.nativeElement.querySelectorAll('.message-bubble');
+
+    expect(bubbles[1].classList.contains('message-bubble--with-tail')).toBe(true);
   });
 });

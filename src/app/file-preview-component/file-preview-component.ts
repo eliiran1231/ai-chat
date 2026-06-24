@@ -1,12 +1,12 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Attachment, MessageOptions } from '../../classes/Message';
-import { NgxFilesizeModule } from 'ngx-filesize';
 import { ChatInputComponent } from "../chat-input-component/chat-input-component";
+import { FilesizePipe } from '../../pipes/filesize.pipe';
 
 @Component({
   selector: 'app-file-preview-component',
-  imports: [FormsModule, NgxFilesizeModule, ChatInputComponent],
+  imports: [FormsModule, FilesizePipe, ChatInputComponent],
   templateUrl: './file-preview-component.html',
   styleUrl: './file-preview-component.scss',
 })

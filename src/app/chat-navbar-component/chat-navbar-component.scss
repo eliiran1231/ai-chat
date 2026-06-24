@@ -162,10 +162,10 @@
   font-size: 1rem;
 }
 
-.search-nav-button lucide-angular,
-.search-close-button lucide-angular,
-.back-button lucide-angular,
-.icon-button lucide-angular {
+.search-nav-button svg[lucideIcon],
+.search-close-button svg[lucideIcon],
+.back-button svg[lucideIcon],
+.icon-button svg[lucideIcon] {
   width: 1rem;
   height: 1rem;
   stroke-width: 2.2;

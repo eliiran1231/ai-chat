@@ -1,5 +1,5 @@
-import { Component, computed, input, output } from '@angular/core';
-import { LucideIconData } from 'lucide-angular';
+import { ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
+import { LucideIconInput } from '@lucide/angular';
 
 import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
 
@@ -8,13 +8,14 @@ import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
   standalone: true,
   imports: [AppMenu],
   templateUrl: './sidebar-menu.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './sidebar-menu.scss',
 })
 export class SidebarMenuComponent {
-  menuIcon = input.required<LucideIconData>();
+  menuIcon = input.required<LucideIconInput>();
   isFullscreen = input.required<boolean>();
-  enterFullscreenIcon = input.required<LucideIconData>();
-  exitFullscreenIcon = input.required<LucideIconData>();
+  enterFullscreenIcon = input.required<LucideIconInput>();
+  exitFullscreenIcon = input.required<LucideIconInput>();
 
   fullscreenToggled = output<void>();
 

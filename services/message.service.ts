@@ -2,6 +2,7 @@ import { dbService, type DbService } from './db.service.js';
 import { randomUUID } from 'crypto';
 
 type Uuid = string;
+type AnswerSelectionMode = 'single' | 'multiple';
 
 interface MessageRow {
   id: Uuid;
@@ -14,6 +15,7 @@ interface MessageRow {
   edited_at: string | null;
   attachment: string | null;
   possible_answers: string | null;
+  answer_selection_mode: string | null;
   validator_spec: string | null;
   validation_error_message: string | null;
   status: number;
@@ -40,6 +42,7 @@ export interface MessagePayload {
   editedAt?: string | null;
   attachment?: AttachmentPayload | null;
   possibleAnswers?: string[] | null;
+  answerSelectionMode?: AnswerSelectionMode | null;
   validatorSpec?: unknown;
   validationErrorMessage?: string | null;
   status?: MessageStatus;
@@ -64,6 +67,7 @@ export interface CommitMessagePayload {
   editedAt?: string | null;
   attachment?: AttachmentPayload | null;
   possibleAnswers?: string[] | null;
+  answerSelectionMode?: AnswerSelectionMode | null;
   validatorSpec?: unknown;
   validationErrorMessage?: string | null;
   status: MessageStatus;
@@ -102,6 +106,7 @@ export class MessageService {
         edited_at TEXT,
         attachment TEXT,
         possible_answers TEXT,
+        answer_selection_mode TEXT,
         validator_spec TEXT,
         validation_error_message TEXT,
         status INTEGER NOT NULL DEFAULT 0,
@@ -126,6 +131,7 @@ export class MessageService {
           edited_at,
           attachment,
           possible_answers,
+          answer_selection_mode,
           validator_spec,
           validation_error_message,
           status,
@@ -154,6 +160,7 @@ export class MessageService {
       message.editedAt ?? null,
       message.attachment ? JSON.stringify(message.attachment) : null,
       message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
+      message.answerSelectionMode ?? null,
       message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
       message.validationErrorMessage ?? null,
       message.status ?? MessageStatus.Pending,
@@ -173,13 +180,14 @@ export class MessageService {
             edited_at,
             attachment,
             possible_answers,
+            answer_selection_mode,
             validator_spec,
             validation_error_message,
             status,
             editable,
             deletable
           )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
     await this.db.run(sql, commonArgs);
@@ -197,6 +205,7 @@ export class MessageService {
           edited_at,
           attachment,
           possible_answers,
+          answer_selection_mode,
           validator_spec,
           validation_error_message,
           status,
@@ -227,6 +236,7 @@ export class MessageService {
             edited_at = ?,
             attachment = ?,
             possible_answers = ?,
+            answer_selection_mode = ?,
             validator_spec = ?,
             validation_error_message = ?,
             status = ?,
@@ -243,6 +253,7 @@ export class MessageService {
         message.editedAt ?? null,
         message.attachment ? JSON.stringify(message.attachment) : null,
         message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
+        message.answerSelectionMode ?? null,
         message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
         message.validationErrorMessage ?? null,
         message.status,
@@ -286,9 +297,21 @@ export class MessageService {
         'possible_answers',
         row.id,
       ),
+      answerSelectionMode: this.parseAnswerSelectionMode(row.answer_selection_mode, row.id),
       validatorSpec: this.db.parseJsonColumn(row.validator_spec, 'validator_spec', row.id),
       validationErrorMessage: row.validation_error_message ?? undefined,
     };
+  }
+
+  private parseAnswerSelectionMode(
+    value: string | null,
+    rowId: Uuid,
+  ): AnswerSelectionMode | undefined {
+    if (value === 'single' || value === 'multiple') return value;
+    if (!value) return undefined;
+
+    console.warn(`Unexpected answer_selection_mode payload for message ${rowId}.`, value);
+    return undefined;
   }
 
   private parseStringArrayColumn(

@@ -1,10 +1,10 @@
 import { CdkMenuModule } from '@angular/cdk/menu';
-import { Component, input, output } from '@angular/core';
-import { LucideAngularModule, LucideIconData } from 'lucide-angular';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { LucideDynamicIcon, LucideIconInput } from '@lucide/angular';
 
 export interface AppMenuItem {
   label: string;
-  icon?: LucideIconData;
+  icon?: LucideIconInput;
   id: string;
   tone?: 'default' | 'danger';
 }
@@ -12,12 +12,13 @@ export interface AppMenuItem {
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CdkMenuModule, LucideAngularModule],
+  imports: [CdkMenuModule, LucideDynamicIcon],
   templateUrl: './app-menu.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './app-menu.scss',
 })
 export class AppMenu {
-  menuIcon = input.required<LucideIconData>();
+  menuIcon = input.required<LucideIconInput>();
   items = input.required<AppMenuItem[]>();
 
   itemSelected = output<string>();

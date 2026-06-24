@@ -10,7 +10,7 @@
   <div class="profile-sections">
     <article class="profile-card">
       <div class="profile-card__icon profile-card__icon--person" aria-hidden="true">
-        <lucide-angular [img]="usernameIcon" />
+        <svg [lucideIcon]="usernameIcon"></svg>
       </div>
       <div class="profile-card__content">
         <h2>{{ profile.usernameLabel }}</h2>
@@ -20,7 +20,7 @@
 
     <article class="profile-card">
       <div class="profile-card__icon profile-card__icon--info" aria-hidden="true">
-        <lucide-angular [img]="computerNameIcon" />
+        <svg [lucideIcon]="computerNameIcon"></svg>
       </div>
       <div class="profile-card__content">
         <h2>{{ profile.computerNameLabel }}</h2>
@@ -30,7 +30,7 @@
 
     <article class="profile-card">
       <div class="profile-card__icon profile-card__icon--phone" aria-hidden="true">
-        <lucide-angular [img]="ipIcon" />
+        <svg [lucideIcon]="ipIcon"></svg>
       </div>
       <div class="profile-card__content">
         <h2>{{ profile.ipLabel }}</h2>

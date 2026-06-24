@@ -1,17 +1,19 @@
-import { Component, computed, input, output } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Search, SquarePen } from 'lucide-angular';
+import { LucideDynamicIcon, LucideSearch, LucideSquarePen } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
 @Component({
   selector: 'app-chat-list-component',
-  imports: [FormsModule, LucideAngularModule],
+  imports: [FormsModule, LucideDynamicIcon, DatePipe],
   templateUrl: './chat-list-component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {
-  readonly searchIcon = Search;
-  readonly composeIcon = SquarePen;
+  readonly searchIcon = LucideSearch;
+  readonly composeIcon = LucideSquarePen;
   chats = input<Chat[]>([]);
   searchTerm = input<string>('');
   selectedChat = input<Chat | null>(null);
@@ -50,11 +52,8 @@ export class ChatListComponent {
     });
   }
 
-  lastMessageTime(chat: Chat): string {
-    const lastMessage = chat.messages().at(-1)?.time;
-    return lastMessage
-      ? lastMessage().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-      : chat.timeLabel() || '';
+  lastMessageTime(chat: Chat): Date | undefined {
+    return chat.messages().at(-1)?.time();
   }
 
   onOpenChat(chat: Chat): void {

@@ -64,6 +64,9 @@ export class SqliteProvider implements ChatProvider {
         message instanceof Question
           ? getPersistableValidationErrorMessage(message.validationErrorMessage)
           : undefined,
+      answerSelectionMode: message instanceof Question
+        ? message.answerSelectionMode()
+        : undefined,
     });
     message.status.set(record.status);
     message.editable.set(record.editable);
@@ -90,6 +93,7 @@ export class SqliteProvider implements ChatProvider {
         message instanceof Question
           ? message.possibleAnswers().map((answer) => answer.value())
           : undefined,
+      answerSelectionMode: message instanceof Question ? message.answerSelectionMode() : undefined,
       validatorSpec: message instanceof Question ? message.validatorSpec?.() : undefined,
       validationErrorMessage:
         message instanceof Question
@@ -242,6 +246,7 @@ export class SqliteProvider implements ChatProvider {
     const questionOptions: QuestionOptions = {
       ...options,
       possibleAnswers: record.possibleAnswers,
+      answerSelectionMode: record.answerSelectionMode,
       validationErrorMessage: record.validationErrorMessage,
       validator: validatorSpec,
     };
