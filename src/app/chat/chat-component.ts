@@ -12,7 +12,11 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
 import { Uuid } from '../../interfaces/db/Uuid';
-import { ChatMessageDateSeparator } from './utils/chat-message-date-separator';
+import { ChatMessageDatePipe } from './utils/chat-message-date.pipe';
+import {
+  shouldShowDateSeparator,
+  shouldShowMessageTail,
+} from './utils/chat-message-date-separator';
 
 @Component({
   selector: 'app-chat',
@@ -24,14 +28,16 @@ import { ChatMessageDateSeparator } from './utils/chat-message-date-separator';
     NgScrollbar,
     NgScrollReachDrop,
     LucideAngularModule,
-    DatePipe
+    DatePipe,
+    ChatMessageDatePipe,
   ],
   templateUrl: './chat-component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
-  readonly dateSeparator = new ChatMessageDateSeparator();
+  readonly shouldShowDateSeparator = shouldShowDateSeparator;
+  readonly shouldShowMessageTail = shouldShowMessageTail;
 
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
@@ -67,13 +73,17 @@ export class ChatComponent {
       return;
     }
 
-    this.chat.supporter.expects == 'question' ?
-      await this.chat.user.ask(new Question(messageValue, options)) :
-      await this.chat.user.answer(new Answer(messageValue, options));
+    this.chat.supporter.expects == 'question'
+      ? await this.chat.user.ask(new Question(messageValue, options))
+      : await this.chat.user.answer(new Answer(messageValue, options));
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
-  selectAnswer(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number): void {
+  selectAnswer(
+    answer: Answer,
+    associatedQuestion: Question,
+    associatedQuestionIndex: number,
+  ): void {
     this.chat.user.onAnswerSelected.next({ answer, associatedQuestion, associatedQuestionIndex });
     this.awayFromBottom = false;
   }

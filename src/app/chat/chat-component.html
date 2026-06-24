@@ -45,10 +45,10 @@
       }
 
       @for (message of chat.messages; track message.id) {
-        @if (dateSeparator.shouldShowDateSeparator(chat.messages, $index)) {
+        @if (shouldShowDateSeparator(chat.messages, $index)) {
           <div class="date-separator">
             <time [attr.datetime]="message.time | date: 'yyyy-MM-dd'">
-              {{ message.time | date: dateSeparator.getDateFormat(message.time) }}
+              {{ message.time | chatMessageDate }}
             </time>
           </div>
         }
@@ -56,7 +56,7 @@
           [message]="message"
           [isSelected]="message === selectedMessage"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id)"
-          [showTail]="dateSeparator.shouldShowMessageTail(chat.messages, $index)"
+          [showTail]="shouldShowMessageTail(chat.messages, $index)"
           [searchTerm]="searchQuery"
           (answerSelected)="selectAnswer($event.answer, $event.associatedQuestion, $index)"
           (messageOptionsRequested)="openMessageOptions($event)"
