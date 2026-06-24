@@ -1,8 +1,23 @@
+import { Injector } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Chat } from '../../classes/Chat';
 import { Supporter } from '../../classes/Supporter';
+import { DefaultManager } from '../../chat-managers/DefaultManager';
+import { ChatProvider } from '../../interfaces/ChatProvider';
+import { Uuid } from '../../interfaces/db/Uuid';
 
 import { ChatNavbarComponent } from './chat-navbar-component';
+
+const chatProviderStub: ChatProvider = {
+  createChat: () => {
+    throw new Error('Not implemented');
+  },
+  addMessage: () => {},
+  deleteMessage: () => {},
+  editMessage: () => {},
+  getChats: () => [],
+  deleteChat: () => {},
+};
 
 describe('ChatNavbarComponent', () => {
   let component: ChatNavbarComponent;
@@ -19,11 +34,11 @@ describe('ChatNavbarComponent', () => {
     fixture.componentRef.setInput(
       'chat',
       new Chat(
-        'test-chat-id',
+        'test-chat-id' as Uuid,
         'Test Chat',
-        'Online',
-        { type: 'text', value: 'TC' },
-        new Supporter(),
+        new Supporter('test-supporter-id' as Uuid),
+        new DefaultManager(TestBed.inject(Injector), chatProviderStub),
+        { status: 'Online', avatar: { type: 'text', value: 'TC' } },
       ),
     );
     fixture.detectChanges();

@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, NgZone, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { Component, EventEmitter, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -11,6 +12,11 @@ import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { LucideChevronsDown, LucideDynamicIcon } from '@lucide/angular';
 import { Uuid } from '../../interfaces/db/Uuid';
+import { ChatMessageDatePipe } from '../../utils/chat-message-date.pipe';
+import {
+  shouldShowDateSeparator,
+  shouldShowMessageTail,
+} from '../../utils/chat-message-date-separator';
 
 @Component({
   selector: 'app-chat',
@@ -21,6 +27,8 @@ import { Uuid } from '../../interfaces/db/Uuid';
     ChatNavbarComponent,
     NgScrollbar,
     NgScrollReachDrop,
+    DatePipe,
+    ChatMessageDatePipe,
     LucideDynamicIcon
   ],
   templateUrl: './chat-component.html',
@@ -28,6 +36,9 @@ import { Uuid } from '../../interfaces/db/Uuid';
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
+  readonly shouldShowDateSeparator = shouldShowDateSeparator;
+  readonly shouldShowMessageTail = shouldShowMessageTail;
+
   @Input({ required: true }) chat!: Chat;
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
@@ -63,13 +74,17 @@ export class ChatComponent {
       return;
     }
 
-    this.chat.supporter.expects == 'question' ?
-      await this.chat.user.ask(new Question(messageValue, options)) :
-      await this.chat.user.answer(new Answer(messageValue, options));
+    this.chat.supporter.expects == 'question'
+      ? await this.chat.user.ask(new Question(messageValue, options))
+      : await this.chat.user.answer(new Answer(messageValue, options));
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
-  selectAnswer(answer: Answer | Answer[], associatedQuestion: Question, associatedQuestionIndex: number): void {
+  selectAnswer(
+    answer: Answer | Answer[],
+    associatedQuestion: Question,
+    associatedQuestionIndex: number,
+  ): void {
     this.chat.user.onAnswerSelected.next({ answer, associatedQuestion, associatedQuestionIndex });
     this.awayFromBottom = false;
   }

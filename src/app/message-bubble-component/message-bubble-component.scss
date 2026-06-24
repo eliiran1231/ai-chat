@@ -49,7 +49,7 @@
   position: relative;
   max-width: min(78%, 34rem);
   border-radius: 0.55rem;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 1px 0.5px color-mix(in srgb, var(--wa-green-dark) 13%, transparent);
 }
 
@@ -81,7 +81,7 @@
   opacity: 1;
 }
 
-.message-bubble::after {
+.message-bubble--with-tail::after {
   content: '';
   position: absolute;
   top: 0;
@@ -95,7 +95,7 @@
   border-top-left-radius: 0.2rem;
 }
 
-.message-bubble--supporter::after {
+.message-bubble--supporter.message-bubble--with-tail::after {
   left: -0.42rem;
   border-top-color: var(--wa-supporter-bubble);
 }
@@ -109,7 +109,7 @@
   background: color-mix(in srgb, var(--wa-user-bubble) 88%, transparent);
 }
 
-.message-bubble--user::after {
+.message-bubble--user.message-bubble--with-tail::after {
   right: -0.42rem;
   border-top-color: var(--wa-user-bubble);
 }

@@ -28,6 +28,7 @@ export class MessageBubbleComponent {
   @Input({ required: true }) message!: Message;
   @Input() isActiveSearchMatch = false;
   @Input() isSelected = false;
+  @Input() showTail = true;
   @Input() searchTerm = '';
   @Output() answerSelected = new EventEmitter<{ answer: Answer | Answer[]; associatedQuestion: Question }>();
   @Output() messageOptionsRequested = new EventEmitter<Message>();

@@ -34,9 +34,13 @@
           <div class="chat-list-item__top">
             <strong>{{ chat.name }}</strong>
             <div class="chat-list-item__actions">
-              <time [class.chat-list-item__time--accent]="chat.highlightTime">{{
-                lastMessageTime(chat)
-              }}</time>
+              <time [class.chat-list-item__time--accent]="chat.highlightTime">
+                @if (lastMessageTime(chat); as time) {
+                  {{ time | date: 'HH:mm' }}
+                } @else {
+                  {{ chat.timeLabel || '' }}
+                }
+              </time>
             </div>
           </div>
           <div class="chat-list-item__bottom">
