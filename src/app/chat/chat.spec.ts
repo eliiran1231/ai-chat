@@ -6,6 +6,7 @@ import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
+import { REGISTERED_AGENTS } from '../../services/agents.module';
 import { ChatComponent } from './chat-component';
 
 describe('ChatComponent', () => {
@@ -25,6 +26,10 @@ describe('ChatComponent', () => {
             },
           },
         }),
+        {
+          provide: REGISTERED_AGENTS,
+          useValue: {},
+        },
       ],
     }).compileComponents();
 
@@ -33,7 +38,13 @@ describe('ChatComponent', () => {
 
   async function renderChat(draftMessage: string | Message[] = ''): Promise<Chat> {
     const supporter = new Supporter();
-    const chat = new Chat('test-chat-id', 'Test Chat', 'Online', 'TC', supporter);
+    const chat = new Chat(
+      'test-chat-id',
+      'Test Chat',
+      'Online',
+      { type: 'text', value: 'TC' },
+      supporter,
+    );
     supporter.setAgent(new Agent(TestBed.inject(Injector)));
     if (typeof draftMessage === 'string') {
       chat.draftMessage = draftMessage;
@@ -105,7 +116,7 @@ describe('ChatComponent', () => {
 
     const file = fixture.nativeElement.querySelector(
       '.message-markdown img',
-    ) as HTMLFileElement | null;
+    ) as HTMLImageElement | null;
     expect(file?.getAttribute('src')).toBe(
       'https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg',
     );

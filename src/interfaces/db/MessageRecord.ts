@@ -1,6 +1,7 @@
 import type { Attachment, MessageType } from '../../classes/Message';
 import type { Uuid } from './Uuid';
 import type { ValidatorSpec } from '../validation/ValidatorSpec';
+import type { AnswerSelectionMode } from '../../classes/Question';
 import type { MessageStatus } from '../../enums/MessagesStatus';
 
 export interface MessageRecord {
@@ -17,6 +18,7 @@ export interface MessageRecord {
   deletable: boolean;
   attachment?: Attachment;
   possibleAnswers?: string[];
+  answerSelectionMode?: AnswerSelectionMode;
   validatorSpec?: ValidatorSpec;
   validationErrorMessage?: string;
 }

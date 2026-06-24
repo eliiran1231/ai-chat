@@ -42,6 +42,7 @@ export class ChatComponent {
   editingMessage?: Message;
   awayFromBottom = false;
   isScrolling = false;
+  isAnswerSheetOpen = false;
 
   onScroll(): void {
     if (!this.isScrolling) {
@@ -68,9 +69,13 @@ export class ChatComponent {
     this.awayFromBottom = false; //little cheat to tell scrollIfNeeded to scroll after message sent
   }
 
-  selectAnswer(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number): void {
+  selectAnswer(answer: Answer | Answer[], associatedQuestion: Question, associatedQuestionIndex: number): void {
     this.chat.user.onAnswerSelected.next({ answer, associatedQuestion, associatedQuestionIndex });
     this.awayFromBottom = false;
+  }
+
+  setAnswerSheetOpen(isOpen: boolean): void {
+    this.isAnswerSheetOpen = isOpen;
   }
 
   closePreviewPage(): void {

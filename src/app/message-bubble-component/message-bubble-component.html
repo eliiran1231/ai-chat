@@ -10,6 +10,7 @@
     class="message-bubble"
     [class.message-bubble--supporter]="isSupporterMessage(message)"
     [class.message-bubble--user]="!isSupporterMessage(message)"
+    [class.message-bubble--answer-controls]="message instanceof questionType && message.possibleAnswers.length"
   >
     @if (hasMessageOptions) {
       <button
@@ -56,17 +57,11 @@
     }
     <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
     @if (message instanceof questionType && message.possibleAnswers.length) {
-      <div class="possible-answers-container">
-        @for (possibleAnswer of message.possibleAnswers; track $index) {
-          <button
-            type="button"
-            class="possible-answer"
-            (click)="selectAnswer(possibleAnswer)"
-          >
-            {{ possibleAnswer.value }}
-          </button>
-        }
-      </div>
+      <app-question-answer-controls
+        [question]="message"
+        (answerSelected)="answerSelected.emit($event)"
+        (answerSheetOpenChange)="answerSheetOpenChange.emit($event)"
+      ></app-question-answer-controls>
     }
     <div class="message-metadata-container">
       <time>

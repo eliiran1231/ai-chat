@@ -69,16 +69,30 @@ export class Agent {
         throw new Error("validation didnt pass");
     }
 
-    async onAnswerSelected(answer: Answer, associatedQuestion: Question, associatedQuestionIndex: number) {
+    private joinedAnswer(answer: Answer | Answer[]): Answer {
+        if (!Array.isArray(answer)) {
+            return answer.clone();
+        }
+        return new Answer(answer.map(a => a.value).join(', '));
+    }
+
+    onAnswerSelected(answer: Answer | Answer[], associatedQuestion: Question, associatedQuestionIndex: number) {
+        const joinedAnswer = this.joinedAnswer(answer);
+
         if (associatedQuestionIndex >= this.chat.messages.length - 1) {
-            this.chat.user.answer(answer.clone());
+            this.chat.user.answer(joinedAnswer);
             return;
         }
-        let responseToEdit;
-        for(let i = 1; !(responseToEdit instanceof Answer && responseToEdit.from === "client"); i++){
-            responseToEdit = this.chat.messages[associatedQuestionIndex + i];
+
+        let responseToEdit: Message | undefined;
+        for (let i = associatedQuestionIndex + 1; i < this.chat.messages.length; i++) {
+            const candidate = this.chat.messages[i];
+            if (candidate instanceof Answer && candidate.from === "client") {
+                responseToEdit = candidate;
+                break;
+            }
         }
-        await responseToEdit?.edit(answer.value);
+        responseToEdit?.edit(joinedAnswer.value); 
     }
 
     async onMessageEdited(message: Message) {
@@ -100,4 +114,4 @@ export class Agent {
         this.onMessageEditedHandler?.unsubscribe();
         this.onAnswerSelectedHandler?.unsubscribe();
     }
-} 
+}
