@@ -58,7 +58,6 @@ export class AnswerSheetComponent {
   constructor() {
     this.dialogRef.backdropClick.subscribe(() => {
       this.close()
-      console.log(this.isShown);
     })
   }
 
