@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, EventEmitter, inject, Input, NgZone, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -10,7 +10,7 @@ import { FilePreviewComponent } from "../file-preview-component/file-preview-com
 import { Message, MessageOptions } from '../../classes/Message';
 import { NgScrollbar } from 'ngx-scrollbar';
 import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
-import { ChevronsDown, LucideAngularModule } from 'lucide-angular';
+import { LucideChevronsDown, LucideDynamicIcon } from '@lucide/angular';
 import { Uuid } from '../../interfaces/db/Uuid';
 import { ChatMessageDatePipe } from '../../utils/chat-message-date.pipe';
 import {
@@ -27,9 +27,9 @@ import {
     ChatNavbarComponent,
     NgScrollbar,
     NgScrollReachDrop,
-    LucideAngularModule,
     DatePipe,
     ChatMessageDatePipe,
+    LucideDynamicIcon
   ],
   templateUrl: './chat-component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
@@ -43,7 +43,7 @@ export class ChatComponent {
   @Input() showBackButton = false;
   @Output() back = new EventEmitter<void>();
   readonly SCROLLBAR_OFFSET = 40;
-  readonly scrollDownIcon = ChevronsDown;
+  readonly scrollDownIcon = LucideChevronsDown;
   @Output() deleteChat = new EventEmitter<Chat>();
   attachmentFile?: File;
   searchQuery = '';
@@ -53,6 +53,7 @@ export class ChatComponent {
   editingMessage?: Message;
   awayFromBottom = false;
   isScrolling = false;
+  isAnswerSheetOpen = false;
 
   onScroll(): void {
     if (!this.isScrolling) {
@@ -80,12 +81,16 @@ export class ChatComponent {
   }
 
   selectAnswer(
-    answer: Answer,
+    answer: Answer | Answer[],
     associatedQuestion: Question,
     associatedQuestionIndex: number,
   ): void {
     this.chat.user.onAnswerSelected.next({ answer, associatedQuestion, associatedQuestionIndex });
     this.awayFromBottom = false;
+  }
+
+  setAnswerSheetOpen(isOpen: boolean): void {
+    this.isAnswerSheetOpen = isOpen;
   }
 
   closePreviewPage(): void {

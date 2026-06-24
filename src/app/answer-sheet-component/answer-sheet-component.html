@@ -1,0 +1,91 @@
+@if (isShown()) {
+  <div (animationend)="isShown() || dialogRef.close(finalAnswers)" animate.enter="sheet-enter" animate.leave="sheet-leave">
+    <form
+      #answerSheetForm="ngForm"
+      class="answer-sheet"
+      [class.answer-sheet--tall]="isTall"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="title"
+      (ngSubmit)="confirmAnswers(answerSheetForm)"
+    >
+      <div class="answer-sheet__handle" aria-hidden="true"></div>
+      <header class="answer-sheet__header">
+        <button type="button" class="answer-sheet__close" (click)="close()" aria-label="Close">
+          <svg [lucideIcon]="closeIcon" aria-hidden="true"></svg>
+        </button>
+    
+        @if (isSearchOpen) {
+          <label class="answer-sheet__search">
+            <svg [lucideIcon]="searchIcon" aria-hidden="true"></svg>
+            <input
+              type="search"
+              name="answerSearchTerm"
+              [(ngModel)]="answerSearchTerm"
+              placeholder="Search"
+            />
+          </label>
+        } @else {
+          <h2>{{ title }}</h2>
+          @if (shouldShowSearch) {
+            <button
+              type="button"
+              class="answer-sheet__search-toggle"
+              (click)="openSearch()"
+              aria-label="Search answers"
+            >
+              <svg [lucideIcon]="searchIcon" aria-hidden="true"></svg>
+            </button>
+          }
+        }
+      </header>
+    
+      <div class="answer-sheet__options">
+        @for (sheetAnswer of filteredAnswers; track sheetAnswer.index) {
+          <label
+            class="answer-sheet__option"
+            [class.answer-sheet__option--selected]="isAnswerSelected(sheetAnswer.index)"
+          >
+            @if (isMultipleSelection) {
+              <input
+                type="checkbox"
+                class="answer-sheet__control"
+                [name]="'answer-' + sheetAnswer.index"
+                [ngModel]="isAnswerSelected(sheetAnswer.index)"
+                (ngModelChange)="setAnswerSelected(sheetAnswer.index, $event)"
+                (change)="setAnswerSelected(sheetAnswer.index, $any($event.target).checked)"
+              />
+            } @else {
+              <input
+                type="radio"
+                class="answer-sheet__control"
+                name="selectedAnswerIndex"
+                [value]="sheetAnswer.index"
+                [(ngModel)]="selectedSingleAnswerIndex"
+                (change)="selectAnswer(sheetAnswer.answer, sheetAnswer.index)"
+              />
+            }
+            <span>{{ sheetAnswer.answer.value }}</span>
+            <span
+              class="answer-sheet__mark"
+              [class.answer-sheet__mark--checkbox]="isMultipleSelection"
+              aria-hidden="true"
+            >
+              @if (isAnswerSelected(sheetAnswer.index)) {
+                <svg [lucideIcon]="checkIcon" aria-hidden="true"></svg>
+              }
+            </span>
+          </label>
+        }
+      </div>
+    
+      @if (isMultipleSelection) {
+        <footer class="answer-sheet__footer">
+          <button type="submit" class="answer-sheet__confirm" [disabled]="!selectedAnswerIndexes.size">
+            Confirm
+          </button>
+        </footer>
+      }
+    </form>
+  </div>
+}

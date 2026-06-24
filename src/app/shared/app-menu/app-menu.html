@@ -1,6 +1,6 @@
 <div class="app-menu">
   <button type="button" class="app-menu__trigger" aria-label="Menu" [cdkMenuTriggerFor]="menu">
-    <lucide-angular [img]="menuIcon" class="app-menu__trigger-icon" />
+    <svg [lucideIcon]="menuIcon" class="app-menu__trigger-icon"></svg>
   </button>
 
   <ng-template #menu>
@@ -14,7 +14,7 @@
           (cdkMenuItemTriggered)="selectItem(item.id)"
         >
           @if (item.icon) {
-            <lucide-angular [img]="item.icon" class="app-menu__item-icon" />
+            <svg [lucideIcon]="item.icon" class="app-menu__item-icon"></svg>
           }
 
           <span>{{ item.label }}</span>

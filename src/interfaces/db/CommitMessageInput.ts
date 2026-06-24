@@ -1,4 +1,5 @@
 import type { Attachment, MessageType } from '../../classes/Message';
+import type { AnswerSelectionMode } from '../../classes/Question';
 import type { Uuid } from './Uuid';
 import type { ValidatorSpec } from '../validation/ValidatorSpec';
 import { MessageStatus } from '../../enums/MessagesStatus';
@@ -16,6 +17,7 @@ export interface CommitMessageInput {
   deletable: boolean;
   attachment?: Attachment;
   possibleAnswers?: string[];
+  answerSelectionMode?: AnswerSelectionMode;
   validatorSpec?: ValidatorSpec;
   validationErrorMessage?: string;
 }

@@ -1,0 +1,20 @@
+@if (showInlineAnswers) {
+  <div class="possible-answers-container possible-answers-container--inline">
+    @for (possibleAnswer of question.possibleAnswers; track $index) {
+      <button type="button" class="possible-answer" (click)="selectAnswer(possibleAnswer)">
+        {{ possibleAnswer.value }}
+      </button>
+    }
+  </div>
+} @else if (showSheetTrigger) {
+  <div class="possible-answers-container possible-answers-container--sheet">
+    <button
+      type="button"
+      class="possible-answer possible-answer--sheet-trigger"
+      (click)="openAnswerSheet()"
+    >
+      <svg [lucideIcon]="listIcon" aria-hidden="true"></svg>
+      {{ answerSheetTitle }}
+    </button>
+  </div>
+}

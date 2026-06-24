@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
 import { Message } from '../../classes/Message';
+import { Question } from '../../classes/Question';
 
 import { MessageBubbleComponent } from './message-bubble-component';
 
@@ -52,5 +53,22 @@ describe('MessageBubbleComponent', () => {
     const highlightedText = fixture.nativeElement.querySelector('.message-markdown mark') as HTMLElement | null;
 
     expect(highlightedText?.textContent).toBe('world');
+  });
+
+  it('renders question answer controls for questions with possible answers', async () => {
+    const question = new Question('Pick one', {
+      possibleAnswers: ['One', 'Two'],
+    });
+    question.from = 'supporter';
+
+    fixture.componentRef.setInput('message', question);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const answerControls = fixture.nativeElement.querySelector(
+      'app-question-answer-controls',
+    ) as HTMLElement | null;
+
+    expect(answerControls).not.toBeNull();
   });
 });

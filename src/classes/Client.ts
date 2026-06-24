@@ -6,7 +6,7 @@ import { Question } from "./Question";
 import { MessageStatus } from "../enums/MessagesStatus";
 
 export type AnswerSelectedEvent = {
-    answer: Answer;
+    answer: Answer | Answer[];
     associatedQuestion: Question;
     associatedQuestionIndex: number;
 }

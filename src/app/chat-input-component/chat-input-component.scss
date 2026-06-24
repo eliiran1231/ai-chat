@@ -53,8 +53,8 @@
   place-items: center;
 }
 
-.composer-action--icon lucide-angular,
-.send-button lucide-angular {
+.composer-action--icon svg[lucideIcon],
+.send-button svg[lucideIcon] {
   width: 1.15rem;
   height: 1.15rem;
   stroke-width: 2.2;

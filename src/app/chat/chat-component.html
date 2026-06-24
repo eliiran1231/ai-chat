@@ -60,6 +60,7 @@
           [searchTerm]="searchQuery"
           (answerSelected)="selectAnswer($event.answer, $event.associatedQuestion, $index)"
           (messageOptionsRequested)="openMessageOptions($event)"
+          (answerSheetOpenChange)="setAnswerSheetOpen($event)"
         ></app-message-bubble>
       } @empty {
         <div class="empty-state">
@@ -68,14 +69,14 @@
       }
     </ng-scrollbar>
 
-    @if (awayFromBottom) {
+    @if (awayFromBottom && !isAnswerSheetOpen) {
       <button
         type="button"
         class="scroll-bottom-button"
         aria-label="Scroll to bottom"
         (click)="scrollToBottom()"
       >
-        <lucide-angular [img]="scrollDownIcon" aria-hidden="true" />
+        <svg [lucideIcon]="scrollDownIcon" aria-hidden="true"></svg>
       </button>
     }
 

@@ -21,18 +21,20 @@ export type QuestionOptions = MessageOptions & {
     validator?: RegExp | ValidatorSpec;
     validationErrorMessage?: string | Message;
     possibleAnswers?: string[] | Answer[];
+    answerSelectionMode?: AnswerSelectionMode;
 }
+
+export type AnswerSelectionMode = 'single' | 'multiple';
 
 export class Question extends Message {
     @dbProperty
-    private _possibleAnswers: Answer[] = [];
+    public possibleAnswers: Answer[] = [];
+    @dbProperty
+    public answerSelectionMode: AnswerSelectionMode = 'single';
     @dbProperty
     public validatorSpec?: ValidatorSpec;
     @dbProperty
     public validationErrorMessage: string | Message  = "Invalid answer. Please try again.";
-    public get possibleAnswers() {
-        return this._possibleAnswers;
-    }
 
     constructor(value: string, options?: QuestionOptions) {
         super(value, options);
@@ -41,6 +43,9 @@ export class Question extends Message {
         }
         if (options?.possibleAnswers) {
             this.setPossibleAnswers(options.possibleAnswers);
+        }
+        if (options?.answerSelectionMode) {
+            this.answerSelectionMode = options.answerSelectionMode;
         }
         this.enableDbChanges();
     }
@@ -51,16 +56,26 @@ export class Question extends Message {
     }
 
     setPossibleAnswers(answers: string[] | Answer[]) {
-        if (answers.length === 0) {
-            this._possibleAnswers = [];
-        }
-        else if(typeof answers[0] === 'string') 
-            this._possibleAnswers = answers.map(answer => new Answer(answer as string));
-        else 
-            this._possibleAnswers = answers as Answer[];
+        this.possibleAnswers = this.normalizeAnswers(answers);
+    }
+
+    private normalizeAnswers(answers: string[] | Answer[]) {
+        if (!answers.length) return [];
+        return typeof answers[0] === 'string'
+            ? answers.map(answer => new Answer(answer as string))
+            : answers as Answer[];
     }
     
     isAnswerValid(answer: Answer) {
+        if (this.answerSelectionMode === 'multiple') {
+            const answerValues = answer.value
+                .split(',')
+                .map(value => value.trim())
+                .filter(Boolean);
+            return !!answerValues.length &&
+                answerValues.every(value => validateValue(value, this.validatorSpec));
+        }
+
         return validateValue(answer.value, this.validatorSpec);
     }
 
