@@ -1,5 +1,5 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { ChangeDetectionStrategy, Component, input, model, output, signal } from '@angular/core';
+import { Component, input, model, output, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LucideDynamicIcon, LucidePaperclip, LucideSendHorizontal } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
@@ -8,7 +8,6 @@ import { Chat } from '../../classes/Chat';
   selector: 'app-chat-input-component',
   imports: [FormsModule, TextFieldModule, LucideDynamicIcon],
   templateUrl: './chat-input-component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './chat-input-component.scss',
 })
 export class ChatInputComponent {

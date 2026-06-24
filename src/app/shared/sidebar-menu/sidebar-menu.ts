@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output} from '@angular/core';
+import { Component, computed, input, output} from '@angular/core';
 import { LucideIconInput } from '@lucide/angular';
 
 import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
@@ -8,7 +8,6 @@ import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
   standalone: true,
   imports: [AppMenu],
   templateUrl: './sidebar-menu.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './sidebar-menu.scss',
 })
 export class SidebarMenuComponent {

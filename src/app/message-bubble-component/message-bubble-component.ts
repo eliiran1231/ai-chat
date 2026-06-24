@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
 import {
   LucideChevronDown,
@@ -20,7 +20,6 @@ import { QuestionAnswerControlsComponent } from '../question-answer-controls-com
   selector: 'app-message-bubble',
   imports: [DatePipe, MarkdownComponent, FilesizePipe, HighlightPipe, LucideDynamicIcon, QuestionAnswerControlsComponent],
   templateUrl: './message-bubble-component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './message-bubble-component.scss',
 })
 export class MessageBubbleComponent {

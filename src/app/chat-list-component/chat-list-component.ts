@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideDynamicIcon, LucideSearch, LucideSquarePen } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
@@ -8,7 +8,6 @@ import DOMPurify from 'dompurify';
   selector: 'app-chat-list-component',
   imports: [FormsModule, LucideDynamicIcon, DatePipe],
   templateUrl: './chat-list-component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ViewChild, computed, input, output, signal } from '@angular/core';
+import { Component, ViewChild, computed, input, output, signal } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -32,7 +32,6 @@ import {
     LucideDynamicIcon
   ],
   templateUrl: './chat-component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {

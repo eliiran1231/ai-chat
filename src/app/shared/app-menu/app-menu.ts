@@ -1,5 +1,5 @@
 import { CdkMenuModule } from '@angular/cdk/menu';
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { LucideDynamicIcon, LucideIconInput } from '@lucide/angular';
 
 export interface AppMenuItem {
@@ -14,7 +14,6 @@ export interface AppMenuItem {
   standalone: true,
   imports: [CdkMenuModule, LucideDynamicIcon],
   templateUrl: './app-menu.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './app-menu.scss',
 })
 export class AppMenu {

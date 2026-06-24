@@ -1,5 +1,4 @@
 import {
-  ChangeDetectionStrategy,
   Component,
   ViewEncapsulation,
   computed,
@@ -33,7 +32,6 @@ export type SheetAnswerInputs = {
   selector: 'app-answer-sheet',
   imports: [FormsModule, LucideDynamicIcon],
   templateUrl: './answer-sheet-component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './answer-sheet-component.scss',
   encapsulation: ViewEncapsulation.None,
 })

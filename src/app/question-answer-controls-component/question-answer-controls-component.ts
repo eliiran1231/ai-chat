@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, input, output } from '@angular/core';
+import { Component, OnDestroy, computed, inject, input, output } from '@angular/core';
 import { Dialog, DialogModule, DialogRef } from '@angular/cdk/dialog';
 import { LucideDynamicIcon, LucideList } from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
@@ -11,7 +11,6 @@ const MIN_ANSWERS_TO_SHOW_IN_SHEET = 10;
   selector: 'app-question-answer-controls',
   imports: [LucideDynamicIcon,  DialogModule],
   templateUrl: './question-answer-controls-component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './question-answer-controls-component.scss',
 })
 export class QuestionAnswerControlsComponent implements OnDestroy {
