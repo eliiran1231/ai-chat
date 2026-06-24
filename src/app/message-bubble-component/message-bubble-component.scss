@@ -40,7 +40,7 @@
   opacity: 0;
   position: absolute;
   inset: 0;
-  background-color: color-mix(in srgb, var(--wa-green) 42%, transparent);
+  background-color: #97bada8c;
   z-index: 2;
   animation: flashOverlay 1s ease forwards;
 }

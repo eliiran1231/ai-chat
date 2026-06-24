@@ -14,7 +14,6 @@ import {
 } from '@lucide/angular';
 import { AiAgent } from '../../agents/AiAgent/AiAgent';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
-import { MockAgent } from '../../agents/MockAgent/MockAgent';
 import { SqliteProvider } from '../../chat-providers/SqliteProvider';
 import { ChatProvider } from '../../interfaces/ChatProvider';
 
