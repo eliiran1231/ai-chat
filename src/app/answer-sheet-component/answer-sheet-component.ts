@@ -1,8 +1,18 @@
-import { Component, EventEmitter, Inject, Input, Output, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  ViewEncapsulation,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { LucideCheck, LucideDynamicIcon, LucideSearch, LucideX } from '@lucide/angular';
+import { DialogRef, DIALOG_DATA, DialogCloseOptions } from '@angular/cdk/dialog';
+import {
+  LucideCheck,
+  LucideDynamicIcon,
+  LucideSearch,
+  LucideX,
+} from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
-import { MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 
 const MIN_NUMBER_TO_SHOW_SEARCH = 15;
 
@@ -11,11 +21,11 @@ type SheetAnswerOption = {
   index: number;
 };
 
-type SheetAnswerInputs = {
-  answers: Answer[],
-  isMultipleSelection: boolean,
-  title: string
-}
+export type SheetAnswerInputs = {
+  answers: Answer[];
+  isMultipleSelection: boolean;
+  title: string;
+};
 
 @Component({
   selector: 'app-answer-sheet',
@@ -25,31 +35,35 @@ type SheetAnswerInputs = {
   encapsulation: ViewEncapsulation.None,
 })
 export class AnswerSheetComponent {
-  @Input() answers: Answer[] = [];
-  @Input() isMultipleSelection = false;
-  @Input() title = 'Choose an option';
+  readonly dialogRef =
+    inject<DialogRef<Answer | Answer[] | undefined>>(DialogRef);
 
-  @Output() closed = new EventEmitter<void>();
-  @Output() answerSelected = new EventEmitter<Answer>();
-  @Output() answersConfirmed = new EventEmitter<Answer[]>();
-
-  constructor(@Inject(MAT_BOTTOM_SHEET_DATA) public data: SheetAnswerInputs){
-    this.answers = data.answers;
-    this.isMultipleSelection = data.isMultipleSelection;
-    this.title = data.title;
-  }
+  readonly data = inject<SheetAnswerInputs>(DIALOG_DATA);
 
   readonly closeIcon = LucideX;
   readonly checkIcon = LucideCheck;
   readonly searchIcon = LucideSearch;
+
+  readonly answers = this.data.answers;
+  readonly isMultipleSelection = this.data.isMultipleSelection;
+  readonly title = this.data.title;
+
   selectedAnswerIndexes = new Set<number>();
   selectedSingleAnswerIndex: number | null = null;
   answerSearchTerm = '';
   isSearchOpen = false;
+  isShown = signal(true);
+  finalAnswers?: Answer[];
+
+  constructor() {
+    this.dialogRef.backdropClick.subscribe(() => {
+      this.close()
+      console.log(this.isShown);
+    })
+  }
 
   close(): void {
-    this.closed.emit();
-    console.log(this.answers);
+    this.isShown.set(false)
   }
 
   openSearch(): void {
@@ -57,15 +71,13 @@ export class AnswerSheetComponent {
   }
 
   selectAnswer(answer: Answer, answerIndex: number): void {
-    
     if (this.isMultipleSelection) {
       this.toggleAnswer(answerIndex);
       return;
     }
 
     this.selectedSingleAnswerIndex = answerIndex;
-    this.answerSelected.emit(answer);
-
+    this.close()
   }
 
   setAnswerSelected(answerIndex: number, isSelected: boolean): void {
@@ -78,7 +90,10 @@ export class AnswerSheetComponent {
   }
 
   toggleAnswer(answerIndex: number): void {
-    this.setAnswerSelected(answerIndex, !this.selectedAnswerIndexes.has(answerIndex));
+    this.setAnswerSelected(
+      answerIndex,
+      !this.selectedAnswerIndexes.has(answerIndex),
+    );
   }
 
   confirmAnswers(_form?: NgForm): void {
@@ -86,9 +101,10 @@ export class AnswerSheetComponent {
       return;
     }
 
-    this.answersConfirmed.emit(
-      this.answers.filter((_answer, index) => this.selectedAnswerIndexes.has(index)),
-    );
+    this.finalAnswers = this.answers.filter((_answer, index) =>
+      this.selectedAnswerIndexes.has(index)
+    )
+    this.close()
   }
 
   isAnswerSelected(answerIndex: number): boolean {
@@ -96,8 +112,14 @@ export class AnswerSheetComponent {
   }
 
   get filteredAnswers(): SheetAnswerOption[] {
-    const answers = this.answers.map((answer, index) => ({ answer, index }));
-    const normalizedSearchTerm = this.answerSearchTerm.trim().toLocaleLowerCase();
+    const answers = this.answers.map((answer, index) => ({
+      answer,
+      index,
+    }));
+
+    const normalizedSearchTerm =
+      this.answerSearchTerm.trim().toLocaleLowerCase();
+
     if (!normalizedSearchTerm) {
       return answers;
     }

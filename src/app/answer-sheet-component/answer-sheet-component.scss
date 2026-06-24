@@ -1,15 +1,41 @@
-.answer-sheet-panel.mat-bottom-sheet-container {
-  padding: 0;
-  min-width: 100vw;
-  max-height: none;
-  overflow: visible;
-  background: transparent;
-  box-shadow: none;
-  color: #111b21;
-}
-
 .answer-sheet-backdrop {
   background: rgba(5, 76, 68, 0.28);
+}
+
+.answer-sheet-panel {
+  position: fixed !important;
+  bottom: 0;
+  width: 100%;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.sheet-enter {
+  animation: slide-up 180ms ease-out;
+}
+
+.sheet-leave {
+  animation: slide-down 150ms ease-in;
 }
 
 .answer-sheet {
@@ -220,12 +246,4 @@
   padding: 1.1rem 0 0;
   border-top: 1px solid var(--as-outline);
   background: var(--as-surface);
-}
-
-@media (min-width: 780px) {
-  .answer-sheet-panel.mat-bottom-sheet-container {
-    min-width: 24rem;
-    width: min(34rem, 33vw);
-    max-width: min(34rem, 33vw);
-  }
 }

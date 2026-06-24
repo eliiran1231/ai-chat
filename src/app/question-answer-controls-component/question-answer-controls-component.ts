@@ -1,19 +1,15 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, Output } from '@angular/core';
-import {
-  MatBottomSheet,
-  MatBottomSheetModule,
-  MatBottomSheetRef,
-} from '@angular/material/bottom-sheet';
+import { Component, EventEmitter, inject, Input, OnDestroy, Output, signal } from '@angular/core';
+import { Dialog, DialogModule, DialogRef } from '@angular/cdk/dialog';
 import { LucideDynamicIcon, LucideList } from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
 import { Question } from '../../classes/Question';
-import { AnswerSheetComponent } from '../answer-sheet-component/answer-sheet-component';
+import { AnswerSheetComponent, SheetAnswerInputs } from '../answer-sheet-component/answer-sheet-component';
 
 const MIN_ANSWERS_TO_SHOW_IN_SHEET = 10;
 
 @Component({
   selector: 'app-question-answer-controls',
-  imports: [LucideDynamicIcon, MatBottomSheetModule],
+  imports: [LucideDynamicIcon,  DialogModule],
   templateUrl: './question-answer-controls-component.html',
   styleUrl: './question-answer-controls-component.scss',
 })
@@ -27,11 +23,11 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
 
   readonly listIcon = LucideList;
   readonly answerSheetTitle = 'Choose an option';
-  private readonly bottomSheet = inject(MatBottomSheet);
-  private answerSheetRef?: MatBottomSheetRef<AnswerSheetComponent>;
+  private readonly dialog = inject(Dialog);
+  private answerSheetRef?: DialogRef<Answer | Answer[] | undefined, AnswerSheetComponent>;
 
   ngOnDestroy(): void {
-    this.answerSheetRef?.dismiss();
+    this.answerSheetRef?.close();
   }
 
   selectAnswer(answer: Answer): void {
@@ -42,29 +38,30 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
   }
 
   openAnswerSheet(): void {
-    const sheetRef = this.bottomSheet.open(AnswerSheetComponent, {
-      ariaLabel: this.answerSheetTitle,
+    const sheetRef = this.dialog.open<
+      Answer | Answer[] | undefined, SheetAnswerInputs, AnswerSheetComponent
+    >(AnswerSheetComponent, {
       panelClass: 'answer-sheet-panel',
       backdropClass: 'answer-sheet-backdrop',
+      disableClose: true,
       data: {
         answers: this.question.possibleAnswers,
         isMultipleSelection: this.isMultipleSelection,
-        title: this.answerSheetTitle
-      }
+        title: this.answerSheetTitle,
+      },
     });
+
     this.answerSheetRef = sheetRef;
 
     this.answerSheetOpenChange.emit(true);
-    sheetRef.instance.closed.subscribe(() => sheetRef.dismiss());
-    sheetRef.instance.answerSelected.subscribe((answer) => {
-      this.selectAnswer(answer);
-      sheetRef.dismiss();
-    });
-    sheetRef.instance.answersConfirmed.subscribe((answers) => {
-      this.answerSelected.emit({ answer: answers, associatedQuestion: this.question });
-      sheetRef.dismiss();
-    });
-    sheetRef.afterDismissed().subscribe(() => {
+    sheetRef.closed.subscribe((result) => {
+      if (result) {
+        this.answerSelected.emit({
+          answer: result,
+          associatedQuestion: this.question,
+        });
+      }
+
       if (this.answerSheetRef === sheetRef) {
         this.answerSheetRef = undefined;
       }
