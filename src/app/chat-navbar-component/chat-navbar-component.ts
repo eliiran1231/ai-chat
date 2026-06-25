@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, input, output, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, effect, input, output, signal, viewChild } from '@angular/core';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { AppMenu, AppMenuItem } from "../shared/app-menu/app-menu";
@@ -40,6 +40,11 @@ export class ChatNavbarComponent {
   retryMessage = output<Message>();
   searchMode = signal(false);
   searchQuery = signal('');
+  protected readonly closeSearchWhenMessageSelected = effect(() => {
+    if (this.selectedMessage()) {
+      this.searchMode.set(false);
+    }
+  });
   deleteChat = output<Chat>();
   
   readonly previousMatchIcon = LucideChevronUp;
