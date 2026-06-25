@@ -13,6 +13,7 @@
     transform: translateY(100%);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -24,6 +25,7 @@
     transform: translateY(0);
     opacity: 1;
   }
+
   to {
     transform: translateY(100%);
     opacity: 0;
@@ -143,8 +145,8 @@
   background: var(--as-alt);
 }
 
-.answer-sheet__search svg[lucideIcon],
-.answer-sheet__search-toggle svg[lucideIcon] {
+.answer-sheet__search svg,
+.answer-sheet__search-toggle svg {
   width: 1.1rem;
   height: 1.1rem;
 }
@@ -217,7 +219,7 @@
   background: var(--as-accent);
 }
 
-.answer-sheet__mark svg[lucideIcon] {
+.answer-sheet__mark svg {
   width: 1rem;
   height: 1rem;
 }

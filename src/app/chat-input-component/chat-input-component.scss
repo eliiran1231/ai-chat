@@ -53,8 +53,8 @@
   place-items: center;
 }
 
-.composer-action--icon svg[lucideIcon],
-.send-button svg[lucideIcon] {
+.composer-action--icon svg,
+.send-button svg {
   width: 1.15rem;
   height: 1.15rem;
   stroke-width: 2.2;
@@ -156,7 +156,7 @@
     cursor: default;
     box-shadow: none;
   }
-  
+
   .composer-attach {
     display: none;
   }
