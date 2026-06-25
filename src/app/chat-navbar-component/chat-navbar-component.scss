@@ -102,7 +102,7 @@
     color 0.15s ease;
 }
 
-.chat-menu{
+.chat-menu {
   border-radius: 50%;
 }
 
@@ -162,10 +162,10 @@
   font-size: 1rem;
 }
 
-.search-nav-button svg[lucideIcon],
-.search-close-button svg[lucideIcon],
-.back-button svg[lucideIcon],
-.icon-button svg[lucideIcon] {
+.search-nav-button svg,
+.search-close-button svg,
+.back-button svg,
+.icon-button svg {
   width: 1rem;
   height: 1rem;
   stroke-width: 2.2;

@@ -6,9 +6,11 @@
   0% {
     opacity: 0;
   }
+
   20% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
   }
@@ -31,11 +33,11 @@
   justify-content: flex-end;
 }
 
-.message-row--search-active{
+.message-row--search-active {
   position: relative;
 }
 
-.message-row--search-active::before{
+.message-row--search-active::before {
   content: "";
   opacity: 0;
   position: absolute;
@@ -153,15 +155,17 @@
   width: 0.85rem;
   height: 0.85rem;
   vertical-align: middle;
-  
+
   // Default color for Pending (0) and Sent (1) matches timestamp gray
   color: var(--wa-text-soft);
 
-  &--2 { // MessageStatus.Read (Double Check)
+  &--2 {
+    // MessageStatus.Read (Double Check)
     color: #53bdeb; // WhatsApp Blue
   }
 
-  &--3 { // MessageStatus.Failed (Alert)
+  &--3 {
+    // MessageStatus.Failed (Alert)
     color: #f15c5c; // Red
   }
 }
@@ -213,7 +217,7 @@
   }
 }
 
-.file-attchment-container{
+.file-attchment-container {
   width: 100%;
   max-width: min(100%, 22rem);
   margin: 0;
@@ -297,6 +301,11 @@
   font-size: 1rem;
 }
 
-.file-attchment-container + .message-markdown {
+.file-attchment-container+.message-markdown {
   margin-top: 0.15rem;
+}
+
+svg {
+  width: 1.1rem;
+  height: 1.1rem;
 }
