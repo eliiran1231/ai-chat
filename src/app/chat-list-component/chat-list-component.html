@@ -2,67 +2,57 @@
   <div class="sidebar-tools">
     <label class="search-box" for="chat-search">
       <svg [lucideIcon]="searchIcon" class="search-box__icon" aria-hidden="true"></svg>
-      <input
-        id="chat-search"
-        type="text"
-        name="chat-search"
-        [ngModel]="searchTerm()"
-        (ngModelChange)="onSearchTermChange($event)"
-        placeholder="Search or start a new chat"
-      />
+      <input id="chat-search" type="text" name="chat-search" [ngModel]="searchTerm()"
+        (ngModelChange)="onSearchTermChange($event)" placeholder="Search or start a new chat" />
     </label>
   </div>
 
   <div class="chat-list">
     @for (chat of filteredChats(); track chat.id()) {
-      <button
-        type="button"
-        class="chat-list-item"
-        [class.chat-list-item--active]="selectedChat()?.id() === chat.id()"
-        (click)="onOpenChat(chat)"
-      >
-        <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing">
+    <button type="button" class="chat-list-item" [class.chat-list-item--active]="selectedChat()?.id() === chat.id()"
+      (click)="onOpenChat(chat)">
+      <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing()">
         <div class="chat-list-item__avatar">
           @if (chat.avatar().type === 'image') {
-            <img [src]="chat.avatar().value" alt="avatar" class="chat-list-item__avatar-img" />
+          <img [src]="chat.avatar().value" alt="avatar" class="chat-list-item__avatar-img" />
           } @else {
-            {{ chat.avatar().value }}
+          {{ chat.avatar().value }}
           }
         </div>
       </div>
-        <div class="chat-list-item__content">
-          <div class="chat-list-item__top">
-            <strong>{{ chat.name() }}</strong>
-            <div class="chat-list-item__actions">
-              <time [class.chat-list-item__time--accent]="chat.highlightTime">
-                @if (lastMessageTime(chat); as time) {
-                  {{ time | date: 'HH:mm' }}
-                } @else {
-                  {{ chat.timeLabel || '' }}
-                }
-              </time>
-            </div>
-          </div>
-          <div class="chat-list-item__bottom">
-            <p>
-              @if (chat.draftMessage().trim()) {
-                <span class="chat-list-item__draft-label">Draft:</span>
-                <span> {{ chat.draftMessage().trim() }}</span>
+      <div class="chat-list-item__content">
+        <div class="chat-list-item__top">
+          <strong>{{ chat.name() }}</strong>
+          <div class="chat-list-item__actions">
+            <time [class.chat-list-item__time--accent]="chat.highlightTime">
+              @if (lastMessageTime(chat); as time) {
+              {{ time | date: 'HH:mm' }}
+              } @else {
+              {{ chat.timeLabel || '' }}
               }
-              @else {
-                {{ lastMessageText(chat) }}
-              }
-            </p>
-            @if (chat.unreadCount()) {
-              <span class="chat-list-item__badge">{{ chat.unreadCount() }}</span>
-            }
+            </time>
           </div>
         </div>
-      </button>
-    } @empty {
-      <div class="chat-list-empty">
-        <p>No chats match your search.</p>
+        <div class="chat-list-item__bottom">
+          <p>
+            @if (chat.draftMessage().trim()) {
+            <span class="chat-list-item__draft-label">Draft:</span>
+            <span> {{ chat.draftMessage().trim() }}</span>
+            }
+            @else {
+            {{ lastMessageText(chat) }}
+            }
+          </p>
+          @if (chat.unreadCount()) {
+          <span class="chat-list-item__badge">{{ chat.unreadCount() }}</span>
+          }
+        </div>
       </div>
+    </button>
+    } @empty {
+    <div class="chat-list-empty">
+      <p>No chats match your search.</p>
+    </div>
     }
   </div>
 </div>
