@@ -1,5 +1,5 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, model, output, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LucideDynamicIcon, LucidePaperclip, LucideSendHorizontal } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
@@ -8,30 +8,28 @@ import { Chat } from '../../classes/Chat';
   selector: 'app-chat-input-component',
   imports: [FormsModule, TextFieldModule, LucideDynamicIcon],
   templateUrl: './chat-input-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-input-component.scss',
 })
-export class 
-ChatInputComponent {
+export class ChatInputComponent {
   readonly composerMaxRows = 5;
   readonly attachIcon = LucidePaperclip;
   readonly sendIcon = LucideSendHorizontal;
-  composerHasOverflow = false;
-  @Input() theme: 'light' | 'dark' = 'light';
-  @Input() chat: Chat | undefined;
-  @Input() requiredContent = true;
-  @Input() placeholder = 'Type a message';
-  @Input() allowAttachments = true;
-  @Output() messageSubmit = new EventEmitter<string>();
-  @Output() fileSubmit = new EventEmitter<File>();
-  @Input() caption = '';
-  @Output() captionChange = new EventEmitter<string>();
+  composerHasOverflow = signal(false);
+  theme = input<'light' | 'dark'>('light');
+  chat = input<Chat | undefined>(undefined);
+  requiredContent = input(true);
+  placeholder = input('Type a message');
+  allowAttachments = input(true);
+  messageSubmit = output<string>();
+  fileSubmit = output<File>();
+  caption = model('');
 
   submitMessage(form?: NgForm): void {
-    const trimmedMessage = this.caption.trim();
-    (!this.requiredContent || trimmedMessage) && this.messageSubmit.emit(trimmedMessage);
-    this.composerHasOverflow = false;
+    const trimmedMessage = this.caption().trim();
+    (!this.requiredContent() || trimmedMessage) && this.messageSubmit.emit(trimmedMessage);
+    this.composerHasOverflow.set(false);
     form?.resetForm({ message: '' });
+    this.caption.set('');
   }
 
   pickFile(): void {
@@ -57,8 +55,8 @@ ChatInputComponent {
   }
 
   syncComposerOverflow(autosize: CdkTextareaAutosize, textarea: HTMLTextAreaElement): void {
-    this.captionChange.emit(textarea.value)
+    this.caption.set(textarea.value);
     autosize.resizeToFitContent(true);
-    this.composerHasOverflow = textarea.scrollHeight > textarea.clientHeight;
+    this.composerHasOverflow.set(textarea.scrollHeight > textarea.clientHeight);
   }
 }

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
 import {
   LucideChevronDown,
@@ -13,7 +13,6 @@ import { Answer } from '../../classes/Answer';
 import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
 import { HighlightPipe } from '../../pipes/highlight.pipe';
-import { AnswerSelectedEvent } from '../../classes/Client';
 import { MessageStatus } from '../../enums/MessagesStatus';
 import { FilesizePipe } from '../../pipes/filesize.pipe';
 import { QuestionAnswerControlsComponent } from '../question-answer-controls-component/question-answer-controls-component';
@@ -21,40 +20,39 @@ import { QuestionAnswerControlsComponent } from '../question-answer-controls-com
   selector: 'app-message-bubble',
   imports: [DatePipe, MarkdownComponent, FilesizePipe, HighlightPipe, LucideDynamicIcon, QuestionAnswerControlsComponent],
   templateUrl: './message-bubble-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './message-bubble-component.scss',
 })
 export class MessageBubbleComponent {
-  @Input({ required: true }) message!: Message;
-  @Input() isActiveSearchMatch = false;
-  @Input() isSelected = false;
-  @Input() showTail = true;
-  @Input() searchTerm = '';
-  @Output() answerSelected = new EventEmitter<{ answer: Answer | Answer[]; associatedQuestion: Question }>();
-  @Output() messageOptionsRequested = new EventEmitter<Message>();
-  @Output() answerSheetOpenChange = new EventEmitter<boolean>();
+  message = input.required<Message>();
+  isActiveSearchMatch = input(false);
+  isSelected = input(false);
+  showTail = input(false);
+  searchTerm = input('');
+  answerSelected = output<{ answer: Answer | Answer[]; associatedQuestion: Question }>();
+  messageOptionsRequested = output<Message>();
+  answerSheetOpenChange = output<boolean>();
+
   readonly statusIcons = {
     [MessageStatus.Pending]: LucideClock,
     [MessageStatus.Sent]: LucideCheck,
     [MessageStatus.Read]: LucideCheckCheck,
     [MessageStatus.Failed]: LucideCircleAlert,
   };
-
-  questionType = Question;
   readonly optionsIcon = LucideChevronDown;
 
-  constructor() {}
-
   isSupporterMessage(message: Message): boolean {
-    return message.from === 'supporter';
+    return message.from() === 'supporter';
+  }
+
+  asQuestion(message: Message): Question | undefined {
+    return message instanceof Question ? message : undefined;
   }
 
   openMessageOptions(event: MouseEvent): void {
     event.stopPropagation();
-    this.messageOptionsRequested.emit(this.message);
+    this.messageOptionsRequested.emit(this.message());
   }
 
-  get hasMessageOptions(): boolean {
-    return this.message.editable || this.message.deletable;
-  }
+  hasMessageOptions = computed(() => this.message().editable() || this.message().deletable());
+  hasAnswerControls = computed(() => this.asQuestion(this.message())?.possibleAnswers().length ? true : false);
 }

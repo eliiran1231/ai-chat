@@ -3,7 +3,7 @@
     <form
       #answerSheetForm="ngForm"
       class="answer-sheet"
-      [class.answer-sheet--tall]="isTall"
+      [class.answer-sheet--tall]="isTall()"
       role="dialog"
       aria-modal="true"
       [attr.aria-label]="title"
@@ -15,19 +15,20 @@
           <svg [lucideIcon]="closeIcon" aria-hidden="true"></svg>
         </button>
     
-        @if (isSearchOpen) {
+        @if (isSearchOpen()) {
           <label class="answer-sheet__search">
             <svg [lucideIcon]="searchIcon" aria-hidden="true"></svg>
             <input
               type="search"
               name="answerSearchTerm"
-              [(ngModel)]="answerSearchTerm"
+              [ngModel]="answerSearchTerm()"
+              (ngModelChange)="answerSearchTerm.set($event)"
               placeholder="Search"
             />
           </label>
         } @else {
           <h2>{{ title }}</h2>
-          @if (shouldShowSearch) {
+          @if (shouldShowSearch()) {
             <button
               type="button"
               class="answer-sheet__search-toggle"
@@ -41,7 +42,7 @@
       </header>
     
       <div class="answer-sheet__options">
-        @for (sheetAnswer of filteredAnswers; track sheetAnswer.index) {
+        @for (sheetAnswer of filteredAnswers(); track sheetAnswer.index) {
           <label
             class="answer-sheet__option"
             [class.answer-sheet__option--selected]="isAnswerSelected(sheetAnswer.index)"
@@ -61,11 +62,12 @@
                 class="answer-sheet__control"
                 name="selectedAnswerIndex"
                 [value]="sheetAnswer.index"
-                [(ngModel)]="selectedSingleAnswerIndex"
+                [ngModel]="selectedSingleAnswerIndex()"
+                (ngModelChange)="selectedSingleAnswerIndex.set($event)"
                 (change)="selectAnswer(sheetAnswer.answer, sheetAnswer.index)"
               />
             }
-            <span>{{ sheetAnswer.answer.value }}</span>
+            <span>{{ sheetAnswer.answer.value() }}</span>
             <span
               class="answer-sheet__mark"
               [class.answer-sheet__mark--checkbox]="isMultipleSelection"
@@ -81,7 +83,7 @@
     
       @if (isMultipleSelection) {
         <footer class="answer-sheet__footer">
-          <button type="submit" class="answer-sheet__confirm" [disabled]="!selectedAnswerIndexes.size">
+          <button type="submit" class="answer-sheet__confirm" [disabled]="!selectedAnswerIndexes().size">
             Confirm
           </button>
         </footer>

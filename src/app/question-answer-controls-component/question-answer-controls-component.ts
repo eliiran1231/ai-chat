@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnDestroy, Output, signal } from '@angular/core';
+import { Component, OnDestroy, computed, inject, input, output } from '@angular/core';
 import { Dialog, DialogModule, DialogRef } from '@angular/cdk/dialog';
 import { LucideDynamicIcon, LucideList } from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
@@ -14,12 +14,12 @@ const MIN_ANSWERS_TO_SHOW_IN_SHEET = 10;
   styleUrl: './question-answer-controls-component.scss',
 })
 export class QuestionAnswerControlsComponent implements OnDestroy {
-  @Input({ required: true }) question!: Question;
-  @Output() answerSelected = new EventEmitter<{
+  question = input.required<Question>();
+  answerSelected = output<{
     answer: Answer | Answer[];
     associatedQuestion: Question;
   }>();
-  @Output() answerSheetOpenChange = new EventEmitter<boolean>();
+  answerSheetOpenChange = output<boolean>();
 
   readonly listIcon = LucideList;
   readonly answerSheetTitle = 'Choose an option';
@@ -33,7 +33,7 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
   selectAnswer(answer: Answer): void {
     this.answerSelected.emit({
       answer,
-      associatedQuestion: this.question,
+      associatedQuestion: this.question(),
     });
   }
 
@@ -45,8 +45,8 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
       backdropClass: 'answer-sheet-backdrop',
       disableClose: true,
       data: {
-        answers: this.question.possibleAnswers,
-        isMultipleSelection: this.isMultipleSelection,
+        answers: this.question().possibleAnswers(),
+        isMultipleSelection: this.isMultipleSelection(),
         title: this.answerSheetTitle,
       },
     });
@@ -58,7 +58,7 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
       if (result) {
         this.answerSelected.emit({
           answer: result,
-          associatedQuestion: this.question,
+          associatedQuestion: this.question(),
         });
       }
 
@@ -70,23 +70,19 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
     });
   }
 
-  get showInlineAnswers(): boolean {
-    if (!this.question.possibleAnswers.length) {
+  showInlineAnswers = computed(() => {
+    if (!this.question().possibleAnswers().length) {
       return false;
     }
 
-    if (this.question.answerSelectionMode === 'multiple') {
+    if (this.question().answerSelectionMode() === 'multiple') {
       return false;
     }
 
-    return this.question.possibleAnswers.length < MIN_ANSWERS_TO_SHOW_IN_SHEET;
-  }
+    return this.question().possibleAnswers().length < MIN_ANSWERS_TO_SHOW_IN_SHEET;
+  });
 
-  get showSheetTrigger(): boolean {
-    return this.question.possibleAnswers.length > 0 && !this.showInlineAnswers;
-  }
+  showSheetTrigger = computed(() => this.question().possibleAnswers().length > 0 && !this.showInlineAnswers());
 
-  get isMultipleSelection(): boolean {
-    return this.question.answerSelectionMode === 'multiple';
-  }
+  isMultipleSelection = computed(() => this.question().answerSelectionMode() === 'multiple');
 }

@@ -1,12 +1,12 @@
 <form
   #chatForm="ngForm"
   class="chat-composer"
-  [class.chat-composer--dark]="theme === 'dark'"
-  [class.chat-composer--light]="theme !== 'dark'"
-  [class.chat-composer--compact]="!allowAttachments"
+  [class.chat-composer--dark]="theme() === 'dark'"
+  [class.chat-composer--light]="theme() !== 'dark'"
+  [class.chat-composer--compact]="!allowAttachments()"
   (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
 >
-  @if (allowAttachments) {
+  @if (allowAttachments()) {
     <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" aria-label="Attach file">
       <svg [lucideIcon]="attachIcon" aria-hidden="true"></svg>
     </button>
@@ -24,11 +24,12 @@
       cdkAutosizeMinRows="1"
       [cdkAutosizeMaxRows]="composerMaxRows"
       [style.--composer-max-rows]="composerMaxRows"
-      [style.overflow-y]="composerHasOverflow ? 'auto' : 'hidden'"
-      [(ngModel)]="caption"
+      [style.overflow-y]="composerHasOverflow() ? 'auto' : 'hidden'"
+      [ngModel]="caption()"
+      (ngModelChange)="caption.set($event)"
       (input)="syncComposerOverflow(autosize, messageInput)"
       (keydown)="handleComposerKeydown($event)"
-      [placeholder]="placeholder"
+      [placeholder]="placeholder()"
       autocomplete="off"
     ></textarea>
   </label>
@@ -37,7 +38,7 @@
     type="submit"
     class="send-button"
     aria-label="Send message"
-    [disabled]="requiredContent && !caption.trim()"
+    [disabled]="requiredContent() && !caption().trim()"
   >
     <svg [lucideIcon]="sendIcon" aria-hidden="true"></svg>
   </button>

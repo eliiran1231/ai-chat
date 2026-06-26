@@ -1,19 +1,19 @@
 <article
-  [id]="message.id"
+  [id]="message().id()"
   class="message-row"
-  [class.message-row--supporter]="isSupporterMessage(message)"
-  [class.message-row--user]="!isSupporterMessage(message)"
-  [class.message-row--search-active]="isActiveSearchMatch"
-  [class.message-row--selected]="isSelected"
+  [class.message-row--supporter]="isSupporterMessage(message())"
+  [class.message-row--user]="!isSupporterMessage(message())"
+  [class.message-row--search-active]="isActiveSearchMatch()"
+  [class.message-row--selected]="isSelected()"
 >
   <div
     class="message-bubble"
-    [class.message-bubble--supporter]="isSupporterMessage(message)"
-    [class.message-bubble--user]="!isSupporterMessage(message)"
-    [class.message-bubble--with-tail]="showTail"
-    [class.message-bubble--answer-controls]="message instanceof questionType && message.possibleAnswers.length"
+    [class.message-bubble--supporter]="isSupporterMessage(message())"
+    [class.message-bubble--user]="!isSupporterMessage(message())"
+    [class.message-bubble--with-tail]="showTail()"
+    [class.message-bubble--answer-controls]="hasAnswerControls()"
   >
-    @if (hasMessageOptions) {
+    @if (hasMessageOptions()) {
       <button
         type="button"
         class="message-options-button"
@@ -24,28 +24,28 @@
         <svg [lucideIcon]="optionsIcon" aria-hidden="true"></svg>
       </button>
     }
-    @if (message.attachment) {
+    @if (message().attachment()) {
       <div class="file-attchment-container">
-        @if (message.attachment.type.startsWith('image')) {
-          <img class="message-file-attachment" width="100%" [src]="message.attachment.url" />
+        @if (message().attachment()!.type.startsWith('image')) {
+          <img class="message-file-attachment" width="100%" [src]="message().attachment()!.url" />
         }
         @else {
           <a
             class="message-file-card"
-            [href]="message.attachment.url"
-            [attr.download]="message.attachment.name + '.' + message.attachment.extension"
+            [href]="message().attachment()!.url"
+            [attr.download]="message().attachment()!.name + '.' + message().attachment()!.extension"
             target="_blank"
             rel="noopener noreferrer"
-            [attr.aria-label]="'Open attachment ' + message.attachment.name"
+            [attr.aria-label]="'Open attachment ' + message().attachment()!.name"
           >
             <div class="message-file-card__content">
               <p class="message-file-card__name">
-                {{ message.attachment.name }}.{{ message.attachment.extension }}
+                {{ message().attachment()!.name }}.{{ message().attachment()!.extension }}
               </p>
               <p class="message-file-card__meta">
-                {{ message.attachment.size | filesize }}
+                {{ message().attachment()!.size | filesize }}
                 <span class="message-file-card__dot"></span>
-                {{ message.attachment.extension }}
+                {{ message().attachment()!.extension }}
               </p>
             </div>
 
@@ -56,24 +56,26 @@
         }
       </div>
     }
-    <div class="message-markdown" markdown [data]="message.value | highlight: searchTerm"></div>
-    @if (message instanceof questionType && message.possibleAnswers.length) {
+    <div class="message-markdown" markdown [data]="message().value() | highlight: searchTerm()"></div>
+    @if (asQuestion(message()); as question) {
+      @if (question.possibleAnswers().length) {
       <app-question-answer-controls
-        [question]="message"
+        [question]="question"
         (answerSelected)="answerSelected.emit($event)"
         (answerSheetOpenChange)="answerSheetOpenChange.emit($event)"
       ></app-question-answer-controls>
+      }
     }
     <div class="message-metadata-container">
       <time>
-        @if (message.editedAt) {
+        @if (message().editedAt()) {
           <span class="message-edited-mark">(edited)</span>
         }
-        {{ (message.editedAt ?? message.time) | date: 'HH:mm' }}
+        {{ (message().editedAt() ?? message().time()) | date: 'HH:mm' }}
       </time>
-      @if (!isSupporterMessage(message)) {
+      @if (!isSupporterMessage(message())) {
         <svg 
-        [lucideIcon]="statusIcons[message.status]"
+        [lucideIcon]="statusIcons[message().status()]"
         class="status-icon"
         aria-hidden="true"></svg>
       }

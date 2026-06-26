@@ -1,11 +1,12 @@
 import {
   Component,
   ViewEncapsulation,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { DialogRef, DIALOG_DATA, DialogCloseOptions } from '@angular/cdk/dialog';
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import {
   LucideCheck,
   LucideDynamicIcon,
@@ -48,25 +49,25 @@ export class AnswerSheetComponent {
   readonly isMultipleSelection = this.data.isMultipleSelection;
   readonly title = this.data.title;
 
-  selectedAnswerIndexes = new Set<number>();
-  selectedSingleAnswerIndex: number | null = null;
-  answerSearchTerm = '';
-  isSearchOpen = false;
+  selectedAnswerIndexes = signal(new Set<number>());
+  selectedSingleAnswerIndex = signal<number | null>(null);
+  answerSearchTerm = signal('');
+  isSearchOpen = signal(false);
   isShown = signal(true);
   finalAnswers?: Answer[];
 
   constructor() {
     this.dialogRef.backdropClick.subscribe(() => {
-      this.close()
-    })
+      this.close();
+    });
   }
 
   close(): void {
-    this.isShown.set(false)
+    this.isShown.set(false);
   }
 
   openSearch(): void {
-    this.isSearchOpen = true;
+    this.isSearchOpen.set(true);
   }
 
   selectAnswer(answer: Answer, answerIndex: number): void {
@@ -75,64 +76,60 @@ export class AnswerSheetComponent {
       return;
     }
 
-    this.selectedSingleAnswerIndex = answerIndex;
-    this.close()
+    this.selectedSingleAnswerIndex.set(answerIndex);
+    this.finalAnswers = [answer];
+    this.close();
   }
 
   setAnswerSelected(answerIndex: number, isSelected: boolean): void {
-    if (isSelected) {
-      this.selectedAnswerIndexes.add(answerIndex);
-      return;
-    }
-
-    this.selectedAnswerIndexes.delete(answerIndex);
+    this.selectedAnswerIndexes.update((selectedAnswerIndexes) => {
+      const next = new Set(selectedAnswerIndexes);
+      isSelected ? next.add(answerIndex) : next.delete(answerIndex);
+      return next;
+    });
   }
 
   toggleAnswer(answerIndex: number): void {
     this.setAnswerSelected(
       answerIndex,
-      !this.selectedAnswerIndexes.has(answerIndex),
+      !this.selectedAnswerIndexes().has(answerIndex),
     );
   }
 
   confirmAnswers(_form?: NgForm): void {
-    if (!this.selectedAnswerIndexes.size) {
+    if (!this.selectedAnswerIndexes().size) {
       return;
     }
 
     this.finalAnswers = this.answers.filter((_answer, index) =>
-      this.selectedAnswerIndexes.has(index)
-    )
-    this.close()
+      this.selectedAnswerIndexes().has(index)
+    );
+    this.close();
   }
 
   isAnswerSelected(answerIndex: number): boolean {
-    return this.selectedAnswerIndexes.has(answerIndex);
+    return this.selectedAnswerIndexes().has(answerIndex);
   }
 
-  get filteredAnswers(): SheetAnswerOption[] {
+  filteredAnswers = computed<SheetAnswerOption[]>(() => {
     const answers = this.answers.map((answer, index) => ({
       answer,
       index,
     }));
 
     const normalizedSearchTerm =
-      this.answerSearchTerm.trim().toLocaleLowerCase();
+      this.answerSearchTerm().trim().toLocaleLowerCase();
 
     if (!normalizedSearchTerm) {
       return answers;
     }
 
     return answers.filter(({ answer }) =>
-      answer.value.toLocaleLowerCase().includes(normalizedSearchTerm),
+      answer.value().toLocaleLowerCase().includes(normalizedSearchTerm),
     );
-  }
+  });
 
-  get shouldShowSearch(): boolean {
-    return this.answers.length >= MIN_NUMBER_TO_SHOW_SEARCH;
-  }
+  shouldShowSearch = computed(() => this.answers.length >= MIN_NUMBER_TO_SHOW_SEARCH);
 
-  get isTall(): boolean {
-    return this.answers.length >= MIN_NUMBER_TO_SHOW_SEARCH;
-  }
+  isTall = computed(() => this.answers.length >= MIN_NUMBER_TO_SHOW_SEARCH);
 }

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Attachment, MessageOptions } from '../../classes/Message';
 import { ChatInputComponent } from "../chat-input-component/chat-input-component";
@@ -8,43 +8,49 @@ import { FilesizePipe } from '../../pipes/filesize.pipe';
   selector: 'app-file-preview-component',
   imports: [FormsModule, FilesizePipe, ChatInputComponent],
   templateUrl: './file-preview-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './file-preview-component.scss',
 })
-export class FilePreviewComponent implements OnInit {
-  @Input({ required: true }) file!: File;
-  @Input() fileAlt?: string; 
-  @Input({ required: true }) processFileUrl!: (file: File) => string | Promise<string>;
+export class FilePreviewComponent {
+  file = input.required<File>();
+  fileAlt = input<string | undefined>(undefined);
+  processFileUrl = input.required<(file: File) => string | Promise<string>>();
+  previewFile = signal<File | undefined>(undefined);
+  currentFile = computed(() => this.previewFile() ?? this.file());
   processedFileUrl = signal('');
-  fileInfo!: Attachment; 
+  fileInfo = signal<Attachment | undefined>(undefined);
+  caption = signal('');
+  resolvedFileAlt = computed(() => this.fileAlt() ?? this.currentFile().name);
 
-  async ngOnInit(){
-    this.fileAlt = this.fileAlt ?? this.file.name;
-    const dotIndex = this.file.name.lastIndexOf('.');
-    const [name, extension] = [this.file.name.slice(0,dotIndex), this.file.name.slice(dotIndex+1)];
-    this.fileInfo = { extension, name, url: this.processedFileUrl(), size: this.file.size, type: this.file.type };
-    let processedFileUrl = this.processFileUrl(this.file);
-    if(typeof processedFileUrl != "string") processedFileUrl = await processedFileUrl;
-    this.fileInfo.url = processedFileUrl;
-    this.processedFileUrl.set(processedFileUrl)
+  constructor() {
+    effect(async () => {
+      const file = this.currentFile();
+      const processFileUrl = this.processFileUrl();
+      this.processedFileUrl.set('');
+      const dotIndex = file.name.lastIndexOf('.');
+      const name = dotIndex >= 0 ? file.name.slice(0, dotIndex) : file.name;
+      const extension = dotIndex >= 0 ? file.name.slice(dotIndex + 1) : '';
+      const initialInfo = { extension, name, url: '', size: file.size, type: file.type };
+      this.fileInfo.set(initialInfo);
+      const processedFileUrl = await processFileUrl(file);
+      this.processedFileUrl.set(processedFileUrl);
+      this.fileInfo.set({ ...initialInfo, url: processedFileUrl });
+    });
   }
 
-  @Output() closed = new EventEmitter<void>();
-  @Output() submitted = new EventEmitter<{value: string, options?: MessageOptions}>();
-
-  caption = '';
+  closed = output<void>();
+  submitted = output<{value: string, options?: MessageOptions}>();
 
   closePreview(): void {
     this.closed.emit();
   }
 
   submitFile(message: string): void {
-    this.submitted.emit({ value: message, options: { attachment: this.fileInfo } });
-    this.caption = '';
+    const attachment = this.fileInfo();
+    this.submitted.emit({ value: message, options: attachment ? { attachment } : undefined });
+    this.caption.set('');
   }
 
-  changeFile(newFile: File){
-    this.file = newFile;
-    this.ngOnInit()
+  changeFile(newFile: File): void {
+    this.previewFile.set(newFile);
   }
 }

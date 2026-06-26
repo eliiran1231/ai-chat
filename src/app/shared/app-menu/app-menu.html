@@ -1,11 +1,11 @@
 <div class="app-menu">
   <button type="button" class="app-menu__trigger" aria-label="Menu" [cdkMenuTriggerFor]="menu">
-    <svg [lucideIcon]="menuIcon" class="app-menu__trigger-icon"></svg>
+    <svg [lucideIcon]="menuIcon()" class="app-menu__trigger-icon"></svg>
   </button>
 
   <ng-template #menu>
     <div class="app-menu__panel" cdkMenu>
-      @for (item of items; track item.id) {
+      @for (item of items(); track item.id) {
         <button
           type="button"
           class="app-menu__item"

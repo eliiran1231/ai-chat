@@ -32,9 +32,9 @@ export class Agent {
     }
 
     private findLastSupporterQuestion(messages: Message[]): Question | undefined {
-        for (let i = this.chat.messages.length - 1; i >= 0; i--) {
-            const message = this.chat.messages[i];
-            if (message instanceof Question && message.from === 'supporter') {
+        for (let i = messages.length - 1; i >= 0; i--) {
+            const message = messages[i];
+            if (message instanceof Question && message.from() === 'supporter') {
                 return message;
             }
         }
@@ -44,21 +44,21 @@ export class Agent {
     init(chat: Chat, supporter: Supporter): void | Promise<void> {
         this.chat = chat;
         this.supporter = supporter;
-        this.lastQuestion = this.findLastSupporterQuestion(chat.messages);
+        this.lastQuestion = this.findLastSupporterQuestion(chat.messages());
         this.onAnswerSelectedHandler = chat.user.onAnswerSelected.subscribe(({answer, associatedQuestion, associatedQuestionIndex }) => this.onAnswerSelected(answer, associatedQuestion, associatedQuestionIndex as number));
         this.onMessageDeletedHandler = chat.onMessageDeleted.subscribe(this.onMessageDeleted.bind(this));
         this.onMessageEditedHandler = chat.onMessageEdited.subscribe(this.onMessageEdited.bind(this));
     }
 
     respond(edited = false) : void | Promise<void> {
-        this.lastMessage = this.chat.messages.at(-1);
+        this.lastMessage = this.chat.messages().at(-1);
         if (!this.lastMessage) {
             throw new Error("respond was called but there is nothing to respond to");
         }
-        else if (this.lastMessage.from == "supporter") {
+        else if (this.lastMessage.from() == "supporter") {
             throw new Error("respond was called but there is nothing to respond to. the last message is from the agent");
         }
-        this.lastMessage.status = MessageStatus.Read;
+        this.lastMessage.status.set(MessageStatus.Read);
         if (this.lastQuestion && this.lastMessage instanceof Answer && !this.lastQuestion?.isAnswerValid(this.lastMessage)) {
             this.onInvalidAnswer(this.lastMessage, this.lastQuestion);
         }
@@ -73,35 +73,35 @@ export class Agent {
         if (!Array.isArray(answer)) {
             return answer.clone();
         }
-        return new Answer(answer.map(a => a.value).join(', '));
+        return new Answer(answer.map(a => a.value()).join(', '));
     }
 
     onAnswerSelected(answer: Answer | Answer[], associatedQuestion: Question, associatedQuestionIndex: number) {
         const joinedAnswer = this.joinedAnswer(answer);
 
-        if (associatedQuestionIndex >= this.chat.messages.length - 1) {
+        if (associatedQuestionIndex >= this.chat.messages().length - 1) {
             this.chat.user.answer(joinedAnswer);
             return;
         }
 
         let responseToEdit: Message | undefined;
-        for (let i = associatedQuestionIndex + 1; i < this.chat.messages.length; i++) {
-            const candidate = this.chat.messages[i];
-            if (candidate instanceof Answer && candidate.from === "client") {
+        for (let i = associatedQuestionIndex + 1; i < this.chat.messages().length; i++) {
+            const candidate = this.chat.messages()[i];
+            if (candidate instanceof Answer && candidate.from() === "client") {
                 responseToEdit = candidate;
                 break;
             }
         }
-        responseToEdit?.edit(joinedAnswer.value); 
+        responseToEdit?.edit(joinedAnswer.value()); 
     }
 
     async onMessageEdited(message: Message) {
-        for (let i = this.chat.messages.length - 1; i >= 0; i--) {
-            const msg = this.chat.messages[i];
-            if (msg.id === message.id) break;
+        for (let i = this.chat.messages().length - 1; i >= 0; i--) {
+            const msg = this.chat.messages()[i];
+            if (msg.id() === message.id()) break;
             await msg.delete();
         }
-        this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages);
+        this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
         this.respond(true);
     }
 

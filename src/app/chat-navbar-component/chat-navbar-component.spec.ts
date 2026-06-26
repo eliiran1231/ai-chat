@@ -1,6 +1,7 @@
 import { Injector } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Chat } from '../../classes/Chat';
+import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
 import { DefaultManager } from '../../chat-managers/DefaultManager';
 import { ChatProvider } from '../../interfaces/ChatProvider';
@@ -47,5 +48,15 @@ describe('ChatNavbarComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should close search mode when a message is selected', () => {
+    component.searchMode.set(true);
+
+    fixture.componentRef.setInput('selectedMessage', new Message('Selected message'));
+    fixture.detectChanges();
+
+    expect(component.searchMode()).toBe(false);
+    expect(component.messageOptionsMode()).toBe(true);
   });
 });

@@ -1,8 +1,8 @@
 import { ValidatorSpec } from "../interfaces/validation/ValidatorSpec";
+import { syncedSignal, SyncedSignal } from "../signals/syncedSignal";
 import { Answer } from "./Answer";
 import { MessageOptions, Message } from "./Message";
 import { coerceValidatorSpec, normalizeValidatorSpec, validateValue } from "./MessageValidator";
-import { dbProperty } from "./DBEntity";
 
 
 export function getPersistableValidationErrorMessage(
@@ -27,14 +27,10 @@ export type QuestionOptions = MessageOptions & {
 export type AnswerSelectionMode = 'single' | 'multiple';
 
 export class Question extends Message {
-    @dbProperty
-    public possibleAnswers: Answer[] = [];
-    @dbProperty
-    public answerSelectionMode: AnswerSelectionMode = 'single';
-    @dbProperty
-    public validatorSpec?: ValidatorSpec;
-    @dbProperty
-    public validationErrorMessage: string | Message  = "Invalid answer. Please try again.";
+    public possibleAnswers: SyncedSignal<Answer[]> = syncedSignal([]);
+    public validatorSpec?: SyncedSignal<ValidatorSpec>;
+    public validationErrorMessage: Message  = new Message("Invalid answer. Please try again.");
+    public answerSelectionMode: SyncedSignal<AnswerSelectionMode> = syncedSignal('single');
 
     constructor(value: string, options?: QuestionOptions) {
         super(value, options);
@@ -45,18 +41,21 @@ export class Question extends Message {
             this.setPossibleAnswers(options.possibleAnswers);
         }
         if (options?.answerSelectionMode) {
-            this.answerSelectionMode = options.answerSelectionMode;
+            this.answerSelectionMode.set(options.answerSelectionMode);
         }
-        this.enableDbChanges();
     }
 
     setValidator(validator: RegExp | ValidatorSpec, validationErrorMessage?: string | Message) {
-        this.validatorSpec = coerceValidatorSpec(normalizeValidatorSpec(validator));
-        if(validationErrorMessage) this.validationErrorMessage = validationErrorMessage;
+        const spec = coerceValidatorSpec(normalizeValidatorSpec(validator))
+        spec && this.validatorSpec?.set(spec);
+        if(typeof validationErrorMessage === 'string') {
+            this.validationErrorMessage.value.set(validationErrorMessage);
+        }
+        else this.validationErrorMessage.value.set(validationErrorMessage?.value() ?? "Invalid answer. Please try again.");
     }
 
     setPossibleAnswers(answers: string[] | Answer[]) {
-        this.possibleAnswers = this.normalizeAnswers(answers);
+        this.possibleAnswers.set(this.normalizeAnswers(answers));
     }
 
     private normalizeAnswers(answers: string[] | Answer[]) {
@@ -67,19 +66,33 @@ export class Question extends Message {
     }
     
     isAnswerValid(answer: Answer) {
-        if (this.answerSelectionMode === 'multiple') {
-            const answerValues = answer.value
+        if (this.answerSelectionMode() === 'multiple') {
+            const answerValues = answer.value()
                 .split(',')
                 .map(value => value.trim())
                 .filter(Boolean);
             return !!answerValues.length &&
-                answerValues.every(value => validateValue(value, this.validatorSpec));
+                answerValues.every(value => validateValue(value, this.validatorSpec?.()));
         }
 
-        return validateValue(answer.value, this.validatorSpec);
+        return validateValue(answer.value(), this.validatorSpec?.());
     }
 
     override clone(): Question {
-        return new Question(this.value, { ...this })
+        return new Question(this.value(), {
+            id: this.id(),
+            tag: this.tag(),
+            attachment: this.attachment(),
+            editable: this.editable(),
+            deletable: this.deletable(),
+            time: this.time(),
+            from: this.from(),
+            status: this.status(),
+            editedAt: this.editedAt(),
+            validator: this.validatorSpec?.(),
+            validationErrorMessage: this.validationErrorMessage,
+            possibleAnswers: this.possibleAnswers(),
+            answerSelectionMode: this.answerSelectionMode(),
+        })
     }
 }
