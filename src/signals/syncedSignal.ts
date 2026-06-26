@@ -23,8 +23,7 @@ export function syncedSignal<T>(initialValue: T): SyncedSignal<T> {
     clearTimeout(internalSignal.lastTaskId);
     internalSignal.lastTaskId = setTimeout(() => {
       const { parent, prop } = internalSignal;
-      if(!(parent && prop)) throw new Error("sync signal couldnt sync, are you sure the synced signal exists under a synced entity?");
-      parent?.['onChanges'](parent, prop, value);
+      if(parent && prop) parent['onChanges'](parent, prop, value);
     }, 500);
   };
 
