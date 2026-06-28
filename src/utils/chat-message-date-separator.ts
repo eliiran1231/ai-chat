@@ -6,8 +6,8 @@ export function shouldShowMessageTail(messages: Message[], index: number): boole
 
   return (
     index === 0 ||
-    previousMessage?.from !== message.from ||
-    !isSameLocalDate(previousMessage.time, message.time)
+    previousMessage?.from() !== message.from() ||
+    !isSameLocalDate(previousMessage.time(), message.time())
   );
 }
 
@@ -15,7 +15,7 @@ export function shouldShowDateSeparator(messages: Message[], index: number): boo
   const message = messages[index];
   const previousMessage = messages[index - 1];
 
-  return index === 0 || !isSameLocalDate(previousMessage.time, message.time);
+  return index === 0 || !isSameLocalDate(previousMessage.time(), message.time());
 }
 
 export function getLocalDayNumber(date: Date): number {

@@ -148,7 +148,7 @@ export class MessageService {
   }
 
   async createMessage(message: MessagePayload) {
-    const messageId = message.id ?? randomUUID();
+    const messageId = message.id || randomUUID();
     const commonArgs = [
       messageId,
       message.chatId,

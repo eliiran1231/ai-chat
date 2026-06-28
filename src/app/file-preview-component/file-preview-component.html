@@ -10,15 +10,17 @@
 
   <div class="preview-stage">
     @if(processedFileUrl()){
-      @if(file.type.startsWith('image')){
-        <img class="preview-image" [src]="processedFileUrl()" [alt]="fileAlt" />
+      @if(currentFile().type.startsWith('image')){
+        <img class="preview-image" [src]="processedFileUrl()" [alt]="resolvedFileAlt()" />
       }
       @else {
+        @if (fileInfo(); as info) {
         <div class="file-details">
-          <h3 class="file-name">{{ fileInfo.name }}</h3>
-          <p class="file-size">size: {{ fileInfo.size | filesize }}</p>
-          <p class="file-extension">type: {{ fileInfo.extension }}</p>
+          <h3 class="file-name">{{ info.name }}</h3>
+          <p class="file-size">size: {{ info.size | filesize }}</p>
+          <p class="file-extension">type: {{ info.extension }}</p>
         </div>
+        }
       }
     }
     @else {
@@ -28,6 +30,7 @@
 
   <app-chat-input-component
     theme="dark"
+    [(caption)]="caption"
     (messageSubmit)="submitFile($event)"
     (fileSubmit)="changeFile($event)"
     [requiredContent]=false

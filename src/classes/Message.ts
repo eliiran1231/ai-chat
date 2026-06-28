@@ -1,7 +1,9 @@
 import { Chat } from "./Chat";
 import { Uuid } from "../interfaces/db/Uuid";
-import { DBEntity, dbProperty } from "./DBEntity";
+import { SyncedEntity } from "./SyncedEntity";
 import { MessageStatus } from "../enums/MessagesStatus";
+import { isSignal, signal, Signal } from '@angular/core';
+import { syncedSignal, SyncedSignal } from '../signals/syncedSignal';
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
@@ -24,26 +26,17 @@ export type MessageOptions = {
     editedAt?: Date
 }
 
-export class Message extends DBEntity {
-    id!: Uuid;
-    @dbProperty
-    from?: MessageSender;
-    @dbProperty
-    time: Date;
-    @dbProperty
-    editedAt?: Date;
-    @dbProperty
-    tag: string;
-    @dbProperty
-    value: string;
-    @dbProperty
-    status: MessageStatus;
-    @dbProperty
-    attachment?: Attachment;
-    @dbProperty
-    editable: boolean;
-    @dbProperty
-    deletable: boolean;
+export class Message extends SyncedEntity {
+    readonly id: Signal<Uuid>;
+    readonly from: SyncedSignal<MessageSender | undefined>;
+    readonly time: SyncedSignal<Date>;
+    readonly editedAt: SyncedSignal<Date | undefined>;
+    readonly tag: SyncedSignal<string>;
+    readonly value: SyncedSignal<string>;
+    readonly status: SyncedSignal<MessageStatus>;
+    readonly attachment: SyncedSignal<Attachment | undefined>;
+    readonly editable: SyncedSignal<boolean>;
+    readonly deletable: SyncedSignal<boolean>;
     private _chat!: Chat;
     private lastAction = () => this._chat['manager']?.requestSend(this);
 
@@ -53,48 +46,47 @@ export class Message extends DBEntity {
 
     constructor(value: string, options?: MessageOptions) {
         super();
-        this.value = value;
-        this.attachment = options?.attachment;
-        if (options?.id) this.id = options.id;
-        this.editable = options?.editable ?? true;
-        this.deletable = options?.deletable ?? true;
-        this.tag = options?.tag ?? 'general';
-        this.from = options?.from;
-        this.time = options?.time ?? new Date();
-        this.editedAt = options?.editedAt;
-        this.status = options?.status ?? MessageStatus.Pending;
-        if (new.target === Message) this.enableDbChanges();
+        this.id = signal(options?.id ?? crypto.randomUUID());
+        this.from = syncedSignal<MessageSender | undefined>(options?.from);
+        this.time = syncedSignal(options?.time ?? new Date());
+        this.editedAt = syncedSignal<Date | undefined>(options?.editedAt);
+        this.tag = syncedSignal(options?.tag ?? 'general');
+        this.value = syncedSignal(value);
+        this.status = syncedSignal(options?.status ?? MessageStatus.Failed);
+        this.attachment = syncedSignal<Attachment | undefined>(options?.attachment);
+        this.editable = syncedSignal(options?.editable ?? true);
+        this.deletable = syncedSignal(options?.deletable ?? true);
+        this.initSync()
     }
 
     async edit(newValue: string): Promise<boolean> {
         this.lastAction = () => this._chat['manager'].requestEdit(this, newValue);
         if (
-            !this.editable ||
-            this.from === 'supporter' ||
+            !this.editable() ||
+            this.from() === 'supporter' ||
             !this._chat ||
-            this.value === newValue ||
+            this.value() === newValue ||
             await this._chat['manager'].requestEdit(this, newValue) == MessageStatus.Failed
         ) return false;            
-        this.value = newValue;
-        this.editedAt = new Date();
+        this.value.set(newValue);
+        this.editedAt.set(new Date());
         this._chat.onMessageEdited.next(this);
         return true;
     }
 
     setAttachment(attachment?: Attachment): void {
-        this.attachment = attachment;
+        this.attachment.set(attachment);
     }
 
     async delete(): Promise<boolean> {
         this.lastAction = () => this._chat['manager'].requestDelete(this);
         if (
-            !this.deletable ||
+            !this.deletable() ||
             !this._chat ||
             await this._chat['manager'].requestDelete(this) === MessageStatus.Failed
         ) return false;
         this._chat.onMessageDeleted.next(this);
-        const index = this._chat.messages.lastIndexOf(this);
-        index >= 0 && this._chat.messages.splice(index, 1);
+        this._chat.messages.update(msgs => msgs.filter(msg => msg !== this));
         return true;
     }
 
@@ -103,6 +95,14 @@ export class Message extends DBEntity {
     }
 
     clone(): Message {
-        return new Message(this.value, { ...this })
+        const options: any = { ...this };
+        delete options._chat;
+        delete options.lastAction;
+        for (const key of Object.keys(options)) {
+            if (isSignal(options[key])) {
+                options[key] = options[key]();
+            }
+        }
+        return new (this.constructor as typeof Message)(this.value(), options);
     }
 }

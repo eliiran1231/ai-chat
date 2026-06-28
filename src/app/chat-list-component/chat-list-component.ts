@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LucideDynamicIcon, LucideSearch, LucideSquarePen } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
@@ -8,52 +8,51 @@ import DOMPurify from 'dompurify';
   selector: 'app-chat-list-component',
   imports: [FormsModule, LucideDynamicIcon, DatePipe],
   templateUrl: './chat-list-component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {
   readonly searchIcon = LucideSearch;
   readonly composeIcon = LucideSquarePen;
-  @Input({ required: true }) chats: Chat[] = [];
-  @Input() searchTerm = '';
-  @Input() selectedChat: Chat | null = null;
+  chats = input<Chat[]>([]);
+  searchTerm = input<string>('');
+  selectedChat = input<Chat | null>(null);
 
-  @Output() openChat = new EventEmitter<Chat>();
-  @Output() searchTermChange = new EventEmitter<string>();
-  @Output() createChat = new EventEmitter<void>();
+  openChat = output<Chat>();
+  searchTermChange = output<string>();
+  createChat = output<void>();
 
-  get filteredChats(): Chat[] {
-    const query = this.searchTerm.trim().toLowerCase();
-    const chats = !query
-      ? [...this.chats]
-      : this.chats.filter((chat) => {
+  filteredChats = computed(() => {
+    const query = this.searchTerm().trim().toLowerCase();
+    const chatsArray = !query
+      ? [...this.chats()]
+      : this.chats().filter((chat) => {
           const lastMessage = this.lastMessageText(chat).toLowerCase();
           return (
-            chat.name.toLowerCase().includes(query) ||
-            chat.status.toLowerCase().includes(query) ||
+            chat.name().toLowerCase().includes(query) ||
+            chat.status().toLowerCase().includes(query) ||
             lastMessage.includes(query)
           );
         });
 
-    return chats.sort(
+    return chatsArray.sort(
       (a, b) =>
-        (b.messages.at(-1)?.time?.getTime() ?? 0) - (a.messages.at(-1)?.time?.getTime() ?? 0),
+        (b.messages().at(-1)?.time?.()?.getTime() ?? 0) - (a.messages().at(-1)?.time?.()?.getTime() ?? 0),
     );
-  }
+  });
 
   lastMessageText(chat: Chat): string {
-    const lastMessage = chat.messages.at(-1);
+    const lastMessage = chat.messages().at(-1);
     if (!lastMessage) {
-      return chat.subtitle || 'start the conversation';
+      return chat.subtitle() || 'start the conversation';
     }
 
-    return DOMPurify.sanitize(lastMessage.value || lastMessage.attachment?.name || '', {
+    return DOMPurify.sanitize(lastMessage.value() || lastMessage.attachment()?.name || '', {
       ALLOWED_TAGS: [],
     });
   }
 
   lastMessageTime(chat: Chat): Date | undefined {
-    return chat.messages.at(-1)?.time;
+    return chat.messages().at(-1)?.time();
   }
 
   onOpenChat(chat: Chat): void {
@@ -61,7 +60,6 @@ export class ChatListComponent {
   }
 
   onSearchTermChange(value: string): void {
-    this.searchTerm = value;
     this.searchTermChange.emit(value);
   }
 

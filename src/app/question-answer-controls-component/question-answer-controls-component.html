@@ -1,12 +1,12 @@
-@if (showInlineAnswers) {
+@if (showInlineAnswers()) {
   <div class="possible-answers-container possible-answers-container--inline">
-    @for (possibleAnswer of question.possibleAnswers; track $index) {
+    @for (possibleAnswer of question().possibleAnswers(); track $index) {
       <button type="button" class="possible-answer" (click)="selectAnswer(possibleAnswer)">
-        {{ possibleAnswer.value }}
+        {{ possibleAnswer.value() }}
       </button>
     }
   </div>
-} @else if (showSheetTrigger) {
+} @else if (showSheetTrigger()) {
   <div class="possible-answers-container possible-answers-container--sheet">
     <button
       type="button"

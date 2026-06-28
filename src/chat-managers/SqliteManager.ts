@@ -22,7 +22,7 @@ export class SqliteManager extends ChatManager {
   override async onSendRequested(message: Message): Promise<MessageStatus> {
     super.onSendRequested(message);
     try {
-        const persisted = this.chatProvider.addMessage(this.chat.id, message) as Promise<void>;
+        const persisted = this.chatProvider.addMessage(this.chat.id(), message) as Promise<void>;
         this.pendingMessagePersists.set(message, persisted);
         void persisted.finally(() => this.pendingMessagePersists.delete(message));
         await persisted;
@@ -48,7 +48,7 @@ export class SqliteManager extends ChatManager {
     super.onDeleteRequested(message);
     try {
       await this.pendingMessagePersists.get(message);
-      await this.chatProvider.deleteMessage(message.id);
+      await this.chatProvider.deleteMessage(message.id());
       return MessageStatus.Sent;
     } catch (error) {
       console.error(error);

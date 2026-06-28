@@ -19,17 +19,17 @@ export class AiAgent extends Agent {
 
   override init(chat: Chat, supporter: Supporter) {
     super.init(chat, supporter);
-    if (chat.messages.length === 0) {
+    if (chat.messages().length === 0) {
       supporter.sendMessage('Hello, how can I help you today?');
     }
   }
 
   override async respond(): Promise<void> {
     super.respond();
-    const lastMessage = this.chat.messages.at(-1) as Message;
-    this.aiService.sendMessage(lastMessage.value as string).subscribe((response) => {
-      this.chat.name = response.model;
-      this.chat.updateAvatar({
+    const lastMessage = this.chat.messages().at(-1) as Message;
+    this.aiService.sendMessage(lastMessage.value()).subscribe((response) => {
+      this.chat.name.set(response.model);
+      this.chat.avatar.set({
         type: 'text',
         value: response.model.slice(0, 2).toUpperCase(),
       });

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, input, output} from '@angular/core';
 import { LucideIconInput } from '@lucide/angular';
 
 import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
@@ -8,26 +8,23 @@ import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
   standalone: true,
   imports: [AppMenu],
   templateUrl: './sidebar-menu.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './sidebar-menu.scss',
 })
 export class SidebarMenuComponent {
-  @Input({ required: true }) menuIcon!: LucideIconInput;
-  @Input({ required: true }) isFullscreen = false;
-  @Input({ required: true }) enterFullscreenIcon!: LucideIconInput;
-  @Input({ required: true }) exitFullscreenIcon!: LucideIconInput;
+  menuIcon = input.required<LucideIconInput>();
+  isFullscreen = input.required<boolean>();
+  enterFullscreenIcon = input.required<LucideIconInput>();
+  exitFullscreenIcon = input.required<LucideIconInput>();
 
-  @Output() fullscreenToggled = new EventEmitter<void>();
+  fullscreenToggled = output<void>();
 
-  get menuItems(): AppMenuItem[] {
-    return [
+  menuItems = computed<AppMenuItem[]>(() => [
       {
         id: 'fullscreen',
-        label: this.isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen',
-        icon: this.isFullscreen ? this.exitFullscreenIcon : this.enterFullscreenIcon,
+        label: this.isFullscreen() ? 'Exit fullscreen' : 'Enter fullscreen',
+        icon: this.isFullscreen() ? this.exitFullscreenIcon() : this.enterFullscreenIcon(),
       },
-    ];
-  }
+    ]);
 
   onMenuItemSelected(id: string): void {
     if (id === 'fullscreen') {
