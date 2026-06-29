@@ -40,9 +40,9 @@ export class Chat extends SyncedEntity {
   readonly avatar: SyncedSignal<Avatar>;
   readonly isRead = computed(() => this.unreadCount() === 0 && this.messages().every((message) => message.status() === MessageStatus.Read));
   readonly supporter: Supporter;
+  readonly active: WritableSignal<boolean> = signal(false);
   readonly user: Client;
   private manager: ChatManager;
-  public active: Signal<boolean> = signal(false);
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
 

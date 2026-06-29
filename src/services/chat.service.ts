@@ -14,14 +14,22 @@ export class ChatService {
   readonly chats = signal<Chat[]>([]);
   private readonly _chatMap = new Map<string, Chat>()
   private loaded = false;
-  routeId: WritableSignal<string | null | undefined> = signal(undefined);
+  private selectedChatId: WritableSignal<string | null | undefined> = signal(undefined);
   private defaultProvider = inject(SqliteProvider);
   private isCreatingChat = signal(false); 
   private pendingCreateChat = signal<Promise<Chat> | null>(null);
-  selectedChat = computed(() => this.getChatById(this.routeId()));
+  selectedChat = computed(() => this.getChatById(this.selectedChatId()));
   injector = inject(Injector);
 
   constructor(@Inject(CHAT_PROVIDER) private chatProviders: ChatProvider[] = []) {
+  }
+
+  setSelectedChatId(id: string | null | undefined) {
+    if (this.selectedChatId() === id) return;
+    const prev = this.selectedChatId();
+    this.selectedChatId.set(id);
+    if (prev) this._chatMap.get(prev)?.active.set(false);
+    if (id) this._chatMap.get(id)?.active.set(true);
   }
 
   async loadChats(): Promise<void> {
@@ -38,10 +46,7 @@ export class ChatService {
       .filter(fulfilledFilter)
       .flatMap(r => r.value)
     this.chats.set(chats);
-    chats.forEach(chat=> {
-      chat.active = computed(()=>this.routeId() == chat.id());
-      this._chatMap.set(chat.id(), chat)
-    });
+    chats.forEach(chat=> this._chatMap.set(chat.id(), chat));
     this.loaded = true;
   }
 
