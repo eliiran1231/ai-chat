@@ -1,11 +1,11 @@
 import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { MarkdownComponent } from 'ngx-markdown';
+import { checkcheck } from '../../assets/icons/check-check';
 import {
   LucideChevronDown,
   LucideDynamicIcon,
   LucideCheck,
-  LucideCheckCheck,
   LucideClock,
   LucideCircleAlert
 } from '@lucide/angular';
@@ -36,7 +36,7 @@ export class MessageBubbleComponent {
   readonly statusIcons = {
     [MessageStatus.Pending]: LucideClock,
     [MessageStatus.Sent]: LucideCheck,
-    [MessageStatus.Read]: LucideCheckCheck,
+    [MessageStatus.Read]: checkcheck,
     [MessageStatus.Failed]: LucideCircleAlert,
   };
 
