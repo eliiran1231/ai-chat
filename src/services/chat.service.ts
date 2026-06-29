@@ -1,4 +1,4 @@
-import { Inject, Injectable, Injector, computed, inject, signal } from '@angular/core';
+import { Inject, Injectable, Injector, Signal, WritableSignal, computed, inject, signal } from '@angular/core';
 import { Chat } from '../classes/Chat';
 import { ChatProvider } from '../interfaces/ChatProvider';
 import { CHAT_PROVIDER } from './chat-providers.module';
@@ -15,7 +15,7 @@ export class ChatService {
   private readonly _chatMap = new Map<string, Chat>()
   private loaded = false;
   private router = inject(Router);
-  private routeId = signal<string | undefined>(undefined)
+  routeId: WritableSignal<string | null | undefined> = signal(undefined);
   private defaultProvider = inject(SqliteProvider);
   private isCreatingChat = signal(false); 
   private pendingCreateChat = signal<Promise<Chat> | null>(null);
@@ -71,7 +71,6 @@ export class ChatService {
 
   async openChat(chat: Chat): Promise<void> {
     await this.router.navigate(['/chats', chat.id()]);
-    this.routeId.set(chat.id())
   }
 
   async createChat(
@@ -108,10 +107,9 @@ export class ChatService {
     }
   }
 
-  async closeChat(): Promise<void> {
+  closeChat(): void {
     const chat = this.selectedChat();
     if (!chat) return;
-    await this.router.navigate(['/chats']);
-    this.routeId.set(undefined)
+    this.router.navigate(['/chats']);
   }
 }

@@ -11,6 +11,9 @@ import {
   LucideMinimize,
 } from '@lucide/angular';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -29,6 +32,10 @@ export class HomeComponent implements OnInit {
   readonly enterFullscreenIcon = LucideMaximize;
   readonly exitFullscreenIcon = LucideMinimize;
   private profileService = inject(ProfileService);
+  private route = inject(ActivatedRoute);
+  private routeId = toSignal(
+    this.route.paramMap.pipe(map(params => params.get('id')))
+  );
   chatService = inject(ChatService);
   searchTerm = signal('');
   // whatsappLogoUrl: string | null = 'image.png';
@@ -37,6 +44,12 @@ export class HomeComponent implements OnInit {
   isMenuOpen = signal(false);
   isFullscreen = signal(false);
   selectedTab = signal<'chats' | 'profile' | 'calls'>('chats');
+
+  constructor(){
+    effect(()=>{
+      this.chatService.routeId.set(this.routeId());
+    })
+  }
 
   async ngOnInit(): Promise<void> {
     void this.profileService.loadBasicInfo();
