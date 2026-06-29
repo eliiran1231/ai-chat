@@ -1,4 +1,4 @@
-import { Component, HostListener, Injector, OnInit, computed, signal } from '@angular/core';
+import { Component, HostListener, Injector, OnInit, Signal, computed, inject, signal } from '@angular/core';
 import { ChatComponent } from '../chat/chat-component';
 import { Chat } from '../../classes/Chat';
 import { ChatService } from '../../services/chat.service';
@@ -16,6 +16,9 @@ import { AiAgent } from '../../agents/AiAgent/AiAgent';
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
 import { SqliteProvider } from '../../chat-providers/SqliteProvider';
 import { ChatProvider } from '../../interfaces/ChatProvider';
+import { ActivatedRoute, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -33,27 +36,28 @@ export class HomeComponent implements OnInit {
   readonly menuIcon = LucideEllipsisVertical;
   readonly enterFullscreenIcon = LucideMaximize;
   readonly exitFullscreenIcon = LucideMinimize;
+  private chatService = inject(ChatService);
+  private profileService = inject(ProfileService);
+  private defaultProvider = inject(SqliteProvider);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private injector = inject(Injector);
   searchTerm = signal('');
   // whatsappLogoUrl: string | null = 'image.png';
   whatsappLogoUrl = signal<string | undefined>(undefined);
-  selectedChat = signal<Chat | null>(null);
-  chats = signal<Chat[]>([]);
+  chats = this.chatService.chats;
   isCreatingChat = signal(false);
   isMenuOpen = signal(false);
   isFullscreen = signal(false);
   pendingCreateChat = signal<Promise<Chat> | null>(null);
   selectedTab = signal<'chats' | 'profile' | 'calls'>('chats');
-  constructor(
-    private chatService: ChatService,
-    private injector: Injector,
-    private profileService: ProfileService,
-    private defaultProvider: SqliteProvider
-    ) {
-  }
+  routeId = toSignal(
+    this.route.paramMap.pipe(map(params => params.get('id')))
+  );
+  selectedChat = computed(() => this.chatService.getChatById(this.routeId()));
 
   async ngOnInit(): Promise<void> {
     void this.profileService.loadBasicInfo();
-    this.chats.set(await this.chatService.getChats());
     this.syncFullscreenState();
     queueMicrotask(() => window.focus());
   }
@@ -61,7 +65,8 @@ export class HomeComponent implements OnInit {
   unreadChatsCount = computed(() => this.chats().filter((chat) => chat.unreadCount() > 0).length);
 
   async openChat(chat: Chat): Promise<void> {
-    this.selectedChat.set(chat);
+    this.selectedChat()?.active.set(false);
+    this.router.navigate(['/chats', chat.id()]);
     chat.active.set(true);
   }
 
@@ -69,7 +74,7 @@ export class HomeComponent implements OnInit {
     const chat = this.selectedChat();
     if (!chat) return;
     chat.active.set(false);
-    this.selectedChat.set(null);
+    this.router.navigate(['/chats']);
   }
 
   async toggleFullscreen(): Promise<void> {
@@ -101,9 +106,9 @@ export class HomeComponent implements OnInit {
   }
   async deleteChat(chat: Chat): Promise<void> {
     await chat.delete();
-    this.chats.update((prev) => prev.filter((existingChat) => existingChat.id !== chat.id));
+    this.chatService.removeChat(chat);
     if (this.selectedChat()?.id === chat.id) {
-      this.selectedChat.set(null);
+      this.router.navigate(['/chats']);
     }
   }
 
@@ -127,7 +132,7 @@ export class HomeComponent implements OnInit {
           timeLabel: 'now',
         }
       );
-      this.chats.update((prev) => [...prev, chat]);
+      this.chatService.addChat(chat);
       if (openChat) await this.openChat(chat);
       return chat;
     })();

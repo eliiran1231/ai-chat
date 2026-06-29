@@ -15,7 +15,7 @@ export class ChatListComponent {
   readonly composeIcon = LucideSquarePen;
   chats = input<Chat[]>([]);
   searchTerm = input<string>('');
-  selectedChat = input<Chat | null>(null);
+  selectedChat = input<Chat | undefined>(undefined);
 
   openChat = output<Chat>();
   searchTermChange = output<string>();
@@ -26,13 +26,13 @@ export class ChatListComponent {
     const chatsArray = !query
       ? [...this.chats()]
       : this.chats().filter((chat) => {
-          const lastMessage = this.lastMessageText(chat).toLowerCase();
-          return (
-            chat.name().toLowerCase().includes(query) ||
-            chat.status().toLowerCase().includes(query) ||
-            lastMessage.includes(query)
-          );
-        });
+        const lastMessage = this.lastMessageText(chat).toLowerCase();
+        return (
+          chat.name().toLowerCase().includes(query) ||
+          chat.status().toLowerCase().includes(query) ||
+          lastMessage.includes(query)
+        );
+      });
 
     return chatsArray.sort(
       (a, b) =>
