@@ -14,7 +14,6 @@ export class ChatService {
   readonly chats = signal<Chat[]>([]);
   private readonly _chatMap = new Map<string, Chat>()
   private loaded = false;
-  private router = inject(Router);
   routeId: WritableSignal<string | null | undefined> = signal(undefined);
   private defaultProvider = inject(SqliteProvider);
   private isCreatingChat = signal(false); 
@@ -58,23 +57,11 @@ export class ChatService {
 
   async deleteChat(chat: Chat): Promise<void> {
     await chat.delete();
-    this.removeChat(chat);
-    if (this.selectedChat()?.id() === chat.id()) {
-      this.router.navigate(['/chats']);
-    }
-  }
-
-  private removeChat(chat: Chat): void {
     this.chats.update(prev => prev.filter(c => c.id() !== chat.id()));
-    this._chatMap.delete(chat.id());
-  }
-
-  async openChat(chat: Chat): Promise<void> {
-    await this.router.navigate(['/chats', chat.id()]);
+    this._chatMap.delete(chat.id())
   }
 
   async createChat(
-    openChat = true,
     initialAgent: Agent = new AiAgent(this.injector),
     provider: ChatProvider = this.defaultProvider
   ): Promise<Chat> {
@@ -94,7 +81,6 @@ export class ChatService {
         }
       );
       this.addChat(chat);
-      if (openChat) this.openChat(chat);
       return chat;
     })();
     this.pendingCreateChat.set(pending);
@@ -105,11 +91,5 @@ export class ChatService {
       this.isCreatingChat.set(false);
       this.pendingCreateChat.set(null);
     }
-  }
-
-  closeChat(): void {
-    const chat = this.selectedChat();
-    if (!chat) return;
-    this.router.navigate(['/chats']);
   }
 }

@@ -13,7 +13,8 @@ import {
 import { SidebarMenuComponent } from '../shared/sidebar-menu/sidebar-menu';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Chat } from '../../classes/Chat';
 
 @Component({
   selector: 'app-home',
@@ -33,6 +34,7 @@ export class HomeComponent implements OnInit {
   readonly exitFullscreenIcon = LucideMinimize;
   private profileService = inject(ProfileService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private routeId = toSignal(
     this.route.paramMap.pipe(map(params => params.get('id')))
   );
@@ -86,5 +88,25 @@ export class HomeComponent implements OnInit {
 
     event.preventDefault();
     await this.toggleFullscreen();
+  }
+
+  openChat(chat: Chat) {
+    return this.router.navigate(['/chats', chat.id()]);
+  }
+
+  closeChat() {
+    return this.router.navigate(['/chats']);
+  }
+
+  async createChat(){
+    let chat = await this.chatService.createChat();
+    await this.openChat(chat);
+  }
+
+  async deleteChat(chat: Chat): Promise<void> {
+    await this.chatService.deleteChat(chat)
+    if (this.chatService.selectedChat()?.id() === chat.id()) {
+      this.router.navigate(['/chats']);
+    }
   }
 }

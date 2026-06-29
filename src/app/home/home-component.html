@@ -54,8 +54,8 @@
         [searchTerm]="searchTerm()"
         [selectedChat]="chatService.selectedChat()"
         (searchTermChange)="searchTerm.set($event)"
-        (openChat)="chatService.openChat($event)"
-        (createChat)="chatService.createChat()"
+        (openChat)="openChat($event)"
+        (createChat)="createChat()"
       ></app-chat-list-component>
     }
     @else if (selectedTab() === 'profile') {
@@ -71,8 +71,8 @@
       <app-chat
        [chat]="chat" 
        [showBackButton]="true" 
-       (back)="chatService.closeChat()" 
-       (deleteChat)="chatService.deleteChat($event)" 
+       (back)="closeChat()" 
+       (deleteChat)="deleteChat($event)" 
       />
     }
     @else {
