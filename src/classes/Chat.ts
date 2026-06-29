@@ -37,12 +37,12 @@ export class Chat extends SyncedEntity {
   readonly tipLabel: SyncedSignal<string>;
   readonly draftMessage: WritableSignal<string>;
   readonly messages: WritableSignal<Message[]>;
-  readonly active: WritableSignal<boolean> = signal(false);
   readonly avatar: SyncedSignal<Avatar>;
   readonly isRead = computed(() => this.unreadCount() === 0 && this.messages().every((message) => message.status() === MessageStatus.Read));
   readonly supporter: Supporter;
   readonly user: Client;
   private manager: ChatManager;
+  public active: Signal<boolean> = signal(false);
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
 
