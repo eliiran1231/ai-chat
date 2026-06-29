@@ -49,7 +49,7 @@ export class HomeComponent implements OnInit {
 
   constructor(){
     effect(()=>{
-      this.chatService.setSelectedChatId(this.routeId());
+      this.chatService['setSelectedChatId'](this.routeId());
     })
   }
 

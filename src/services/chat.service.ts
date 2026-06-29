@@ -24,7 +24,7 @@ export class ChatService {
   constructor(@Inject(CHAT_PROVIDER) private chatProviders: ChatProvider[] = []) {
   }
 
-  setSelectedChatId(id: string | null | undefined) {
+  private setSelectedChatId(id: string | null | undefined) {
     if (this.selectedChatId() === id) return;
     const prev = this.selectedChatId();
     this.selectedChatId.set(id);
