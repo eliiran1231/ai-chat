@@ -45,9 +45,10 @@ __screenshots__/
 Thumbs.db
 
 # Compiled Files
-main.js 
-services/*.js
-ipc/*.js
+main.js
+services/**/*.js
+ipc/**/*.js
+interfaces/**/*.js
 
 # Local PowerSync credentials
 /powersync/docker/.env

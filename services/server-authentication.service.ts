@@ -1,12 +1,10 @@
 import { app, safeStorage } from 'electron';
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import * as path from 'node:path';
-import type {
-  AuthCredentials,
-  AuthenticationService,
-  AuthUser,
-  RegistrationDetails,
-} from './authentication.service.js';
+import type { AuthCredentials } from '../interfaces/auth/AuthCredentials.js';
+import type { AuthenticationService } from '../interfaces/auth/AuthenticationService.js';
+import type { AuthUser } from '../interfaces/auth/AuthUser.js';
+import type { RegistrationDetails } from '../interfaces/auth/RegistrationDetails.js';
 
 interface AuthResponse {
   access_token: string;

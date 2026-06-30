@@ -4,10 +4,8 @@ import { dbService } from '../services/db.service.js';
 import {
   authenticationService,
 } from '../services/server-authentication.service.js';
-import type {
-  AuthCredentials,
-  RegistrationDetails,
-} from '../services/authentication.service.js';
+import type { AuthCredentials } from '../interfaces/auth/AuthCredentials.js';
+import type { RegistrationDetails } from '../interfaces/auth/RegistrationDetails.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
 export function registerAuthenticationHandlers(): void {

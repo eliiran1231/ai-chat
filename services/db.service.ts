@@ -3,7 +3,7 @@ import * as path from 'node:path';
 import { PowerSyncDatabase } from '@powersync/node';
 import { AppSchema } from './powersync-schema.js';
 import { PowerSyncConnector } from './powersync.connector.js';
-import type { AuthenticationService } from './authentication.service.js';
+import type { AuthenticationService } from '../interfaces/auth/AuthenticationService.js';
 import { authenticationService } from './server-authentication.service.js';
 
 export type SqlParameter = string | number | null;

@@ -3,7 +3,7 @@ import type {
   PowerSyncBackendConnector,
   PowerSyncCredentials,
 } from '@powersync/node';
-import type { AuthenticationService } from './authentication.service.js';
+import type { AuthenticationService } from '../interfaces/auth/AuthenticationService.js';
 
 const backendUrl = process.env['BACKEND_URL'] ?? 'http://localhost:3001';
 

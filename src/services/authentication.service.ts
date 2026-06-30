@@ -1,26 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { ElectronService } from './electron.service';
-
-export interface AuthUser {
-  id: string;
-  email: string;
-}
-
-export interface AuthCredentials {
-  email: string;
-  password: string;
-}
-
-export interface RegistrationDetails extends AuthCredentials {
-  displayName?: string;
-}
-
-export abstract class AuthenticationProvider {
-  abstract register(details: RegistrationDetails): Promise<AuthUser>;
-  abstract login(credentials: AuthCredentials): Promise<AuthUser>;
-  abstract logout(): Promise<void>;
-  abstract getCurrentUser(): Promise<AuthUser | null>;
-}
+import type { AuthCredentials } from '../interfaces/auth/AuthCredentials';
+import type { AuthenticationProvider } from '../interfaces/auth/AuthenticationProvider';
+import type { AuthUser } from '../interfaces/auth/AuthUser';
+import type { RegistrationDetails } from '../interfaces/auth/RegistrationDetails';
 
 @Injectable({ providedIn: 'root' })
 export class ServerAuthenticationService implements AuthenticationProvider {

@@ -1,16 +1,6 @@
-export interface AuthUser {
-  id: string;
-  email: string;
-}
-
-export interface AuthCredentials {
-  email: string;
-  password: string;
-}
-
-export interface RegistrationDetails extends AuthCredentials {
-  displayName?: string;
-}
+import type { AuthCredentials } from './AuthCredentials.js';
+import type { AuthUser } from './AuthUser.js';
+import type { RegistrationDetails } from './RegistrationDetails.js';
 
 export interface AuthenticationService {
   register(details: RegistrationDetails): Promise<AuthUser>;
