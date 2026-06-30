@@ -38,7 +38,7 @@ export class Message extends SyncedEntity {
     readonly editable: SyncedSignal<boolean>;
     readonly deletable: SyncedSignal<boolean>;
     private _chat!: Chat;
-    private lastAction = () => this._chat['manager']?.requestSend(this);
+    private lastAction = () => this._chat['manager']?.requestMessageSend(this);
 
     setChat(chat: Chat) {
         this._chat = chat;
@@ -60,13 +60,13 @@ export class Message extends SyncedEntity {
     }
 
     async edit(newValue: string): Promise<boolean> {
-        this.lastAction = () => this._chat['manager'].requestEdit(this, newValue);
+        this.lastAction = () => this._chat['manager'].requestMessageEdit(this, newValue);
         if (
             !this.editable() ||
             this.from() === 'supporter' ||
             !this._chat ||
             this.value() === newValue ||
-            await this._chat['manager'].requestEdit(this, newValue) == MessageStatus.Failed
+            await this._chat['manager'].requestMessageEdit(this, newValue) == MessageStatus.Failed
         ) return false;            
         this.value.set(newValue);
         this.editedAt.set(new Date());
@@ -79,11 +79,11 @@ export class Message extends SyncedEntity {
     }
 
     async delete(): Promise<boolean> {
-        this.lastAction = () => this._chat['manager'].requestDelete(this);
+        this.lastAction = () => this._chat['manager'].requestMessageDelete(this);
         if (
             !this.deletable() ||
             !this._chat ||
-            await this._chat['manager'].requestDelete(this) === MessageStatus.Failed
+            await this._chat['manager'].requestMessageDelete(this) === MessageStatus.Failed
         ) return false;
         this._chat.onMessageDeleted.next(this);
         this._chat.messages.update(msgs => msgs.filter(msg => msg !== this));

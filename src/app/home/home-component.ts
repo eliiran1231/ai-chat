@@ -104,7 +104,7 @@ export class HomeComponent implements OnInit {
   }
 
   async deleteChat(chat: Chat): Promise<void> {
-    await this.chatService.deleteChat(chat)
+    await chat.delete()
     if (this.chatService.selectedChat()?.id() === chat.id()) {
       this.router.navigate(['/chats']);
     }

@@ -4,13 +4,16 @@ import { Chat } from "./Chat";
 import { MessageStatus } from "../enums/MessagesStatus";
 import { SyncedEntity } from "./SyncedEntity";
 import { ChatProvider } from "../interfaces/ChatProvider";
+import { ChatService } from "../services/chat.service";
 
 export class ChatManager {
     protected chat!: Chat;
     protected chatProvider: ChatProvider;
+    protected chatService: ChatService;
 
     constructor(injector: Injector, chatProvider: ChatProvider) {
         this.chatProvider = chatProvider;
+        this.chatService = injector.get(ChatService);
     }
 
     init(chat: Chat): void | Promise<void>{
@@ -24,43 +27,48 @@ export class ChatManager {
         return status;
     }
 
-    requestSend(message: Message) {
-        return this.request(()=>this.onSendRequested(message), message);
+    requestMessageSend(message: Message) {
+        return this.request(()=>this.onMessageSendRequested(message), message);
     }
 
-    requestEdit(message: Message, newValue: string) {
+    requestMessageEdit(message: Message, newValue: string) {
         let oldMessage = message.clone();
         message.value.set(newValue, true);
         message.editedAt.set(new Date(), true);
-        return this.request(()=>this.onEditRequested(message, oldMessage), message);
+        return this.request(()=>this.onMessageEditRequested(message, oldMessage), message);
     }
 
-    requestDelete(message: Message) {
-        return this.request(()=>this.onDeleteRequested(message), message);
+    requestMessageDelete(message: Message) {
+        return this.request(()=>this.onMessageDeleteRequested(message), message);
     }
 
-    requestChatDelete(){
-        return this.chatProvider.deleteChat(this.chat.id());
+    async requestDelete(){
+        const isDeleted = await this.onDeleteRequested()
+        isDeleted && this.chatService.removeChat(this.chat.id());
     }
 
-    requestPropChange(target: SyncedEntity, prop: string | Symbol | undefined, newValue: any): void | Promise<void>{
-        return this.onPropChangeRequested(target, prop, newValue);
+    requestPropChange(target: SyncedEntity, prop: string | Symbol | undefined, newValue: any){
+        return this.onMessagePropChangeRequested(target, prop, newValue);
     }
 
-    protected onSendRequested(message: Message): MessageStatus | Promise<MessageStatus> {
+    protected onMessageSendRequested(message: Message): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 
-    protected onEditRequested(message: Message, oldMessage: Message): MessageStatus | Promise<MessageStatus> {
+    protected onMessageEditRequested(message: Message, oldMessage: Message): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 
-    protected onPropChangeRequested(target: SyncedEntity, prop: string | Symbol | undefined, newValue: any){
-        
+    protected onMessagePropChangeRequested(target: SyncedEntity, prop: string | Symbol | undefined, newValue: any){
+        return MessageStatus.Read;
     }
 
-    protected onDeleteRequested(message: Message): MessageStatus | Promise<MessageStatus> {
+    protected onMessageDeleteRequested(message: Message): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
+    }
+
+    protected onDeleteRequested(): boolean | Promise<boolean> {
+        return true;
     }
 
     handleFile(file: File): string | Promise<string> {

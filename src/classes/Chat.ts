@@ -86,6 +86,6 @@ export class Chat extends SyncedEntity {
   }
 
   delete(){
-    return this.manager.requestChatDelete();
+    return this.manager.requestDelete();
   }
 }

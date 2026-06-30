@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { Agent } from '../classes/Agent';
 import { AiAgent } from '../agents/AiAgent/AiAgent';
 import { SqliteProvider } from '../chat-providers/SqliteProvider';
+import { Uuid } from '../interfaces/db/Uuid';
 
 @Injectable({
   providedIn: 'root'
@@ -60,10 +61,9 @@ export class ChatService {
     this._chatMap.set(chat.id(), chat);
   }
 
-  async deleteChat(chat: Chat): Promise<void> {
-    await chat.delete();
-    this.chats.update(prev => prev.filter(c => c.id() !== chat.id()));
-    this._chatMap.delete(chat.id())
+  removeChat(chatId: Uuid): void {
+    this.chats.update(prev => prev.filter(c => c.id() !== chatId));
+    this._chatMap.delete(chatId)
   }
 
   async createChat(
