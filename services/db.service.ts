@@ -1,83 +1,98 @@
 import { app } from 'electron';
-import * as path from 'path';
-import sqlite3 from 'sqlite3';
+import * as path from 'node:path';
+import { PowerSyncDatabase } from '@powersync/node';
+import { AppSchema } from './powersync-schema.js';
+import { PowerSyncConnector } from './powersync.connector.js';
+import type { AuthenticationService } from './authentication.service.js';
+import { authenticationService } from './server-authentication.service.js';
 
 export type SqlParameter = string | number | null;
 export type RunResult = { lastID: number; changes: number };
-
-const sqlite = sqlite3.verbose();
 type Uuid = string;
 
 export class DbService {
-  private database?: sqlite3.Database;
+  private database?: PowerSyncDatabase;
+  private syncStarted = false;
 
-  close(): void {
-    this.database?.close();
+  constructor(private readonly authentication: AuthenticationService = authenticationService) {}
+
+  async initialize(): Promise<void> {
+    if (this.database) return;
+
+    this.database = new PowerSyncDatabase({
+      schema: AppSchema,
+      database: {
+        dbFilename: path.join(app.getPath('userData'), 'ai-chat-powersync.sqlite'),
+      },
+    });
+
+    if (!this.authentication.hasSession()) return;
+    await this.connect();
+  }
+
+  async connect(): Promise<void> {
+    if (!this.database) throw new Error('PowerSync database has not been initialized.');
+    if (this.syncStarted) return;
+
+    this.syncStarted = true;
+    const connector = new PowerSyncConnector(this.authentication);
+    void this.database.connect(connector).catch((error) => {
+      this.syncStarted = false;
+      console.error('PowerSync connection failed; continuing with local data.', error);
+    });
+
+    const firstSyncTimeout = new AbortController();
+    const timeout = setTimeout(() => firstSyncTimeout.abort(), 15_000);
+    try {
+      await this.database.waitForFirstSync(firstSyncTimeout.signal);
+    } catch {
+      console.warn('PowerSync first sync was not available; starting in offline mode.');
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  async disconnectAndClear(): Promise<void> {
+    if (!this.database) return;
+    await this.database.disconnectAndClear();
+    this.syncStarted = false;
+  }
+
+  async close(): Promise<void> {
+    if (!this.database) return;
+    await this.database.close();
     this.database = undefined;
+    this.syncStarted = false;
   }
 
   public parseJsonColumn(value: string | null, fieldName: string, rowId: Uuid) {
-    if (!value) {
-      return undefined;
-    }
-
+    if (!value) return undefined;
     try {
       return JSON.parse(value);
     } catch (error) {
-      console.warn(`Failed to parse ${fieldName} for message ${rowId}.`, error);
+      console.warn(`Failed to parse ${fieldName} for row ${rowId}.`, error);
       return undefined;
     }
   }
 
-  run(sql: string, params: SqlParameter[] = []): Promise<RunResult> {
-    return new Promise((resolve, reject) => {
-      this.getDatabase().run(
-        sql,
-        params,
-        function onRun(this: sqlite3.RunResult, error: Error | null) {
-          if (error) {
-            reject(error);
-            return;
-          }
-
-          resolve({ lastID: this.lastID, changes: this.changes });
-        },
-      );
-    });
+  async run(sql: string, params: SqlParameter[] = []): Promise<RunResult> {
+    const result = await this.getDatabase().execute(sql, params);
+    return {
+      lastID: result.insertId ?? 0,
+      changes: result.rows?.length ?? result.rowsAffected,
+    };
   }
 
   all<T>(sql: string, params: SqlParameter[] = []): Promise<T[]> {
-    return new Promise((resolve, reject) => {
-      this.getDatabase().all<T>(sql, params, (error: Error | null, rows: T[]) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-
-        resolve(rows);
-      });
-    });
+    return this.getDatabase().getAll<T>(sql, params);
   }
 
-  get<T>(sql: string, params: SqlParameter[] = []): Promise<T | undefined> {
-    return new Promise((resolve, reject) => {
-      this.getDatabase().get<T>(sql, params, (error: Error | null, row: T | undefined) => {
-        if (error) {
-          reject(error);
-          return;
-        }
-
-        resolve(row);
-      });
-    });
+  async get<T>(sql: string, params: SqlParameter[] = []): Promise<T | undefined> {
+    return (await this.getDatabase().getOptional<T>(sql, params)) ?? undefined;
   }
 
-  private getDatabase(): sqlite3.Database {
-    if (!this.database) {
-      const databasePath = path.join(app.getPath('userData'), 'ai-chat.sqlite');
-      this.database = new sqlite.Database(databasePath);
-    }
-
+  private getDatabase(): PowerSyncDatabase {
+    if (!this.database) throw new Error('PowerSync database has not been initialized.');
     return this.database;
   }
 }

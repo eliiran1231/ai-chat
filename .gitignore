@@ -48,3 +48,8 @@ Thumbs.db
 main.js 
 services/*.js
 ipc/*.js
+
+# Local PowerSync credentials
+/powersync/docker/.env
+/backend/.env
+/backend/.keys/

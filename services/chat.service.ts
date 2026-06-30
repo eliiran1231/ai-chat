@@ -51,25 +51,6 @@ export interface CommitChatPayload {
 export class ChatService {
   constructor(private readonly db: DbService) {}
 
-  async initialize(): Promise<void> {
-    await this.db.run(`
-      CREATE TABLE IF NOT EXISTS chats (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        status TEXT,
-        avatar TEXT,
-        subtitle TEXT,
-        time_label TEXT,
-        unread_count INTEGER DEFAULT 0,
-        highlight_time INTEGER DEFAULT 0,
-        avatar_ring INTEGER DEFAULT 0,
-        tip_label TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
-      )
-    `);
-  }
-
   async getChats() {
     const rows = await this.db.all<ChatRow>(`
       SELECT
@@ -173,6 +154,7 @@ export class ChatService {
             tip_label = ?,
             updated_at = ?
         WHERE id = ?
+        RETURNING id
       `,
       [
         chat.name,
@@ -214,7 +196,7 @@ export class ChatService {
   async deleteChat(chatId: Uuid): Promise<boolean> {
     await this.db.run(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
     await this.db.run(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
-    const result = await this.db.run(`DELETE FROM chats WHERE id = ?`, [chatId]);
+    const result = await this.db.run(`DELETE FROM chats WHERE id = ? RETURNING id`, [chatId]);
     return result.changes > 0;
   }
 

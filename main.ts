@@ -5,12 +5,10 @@ import * as os from 'os';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { dbService } from './services/db.service.js';
-import { chatService } from './services/chat.service.js';
-import { messageService } from './services/message.service.js';
-import { supporterService } from './services/supporter.service.js';
 import { registerChatHandlers } from './ipc/chat.handler.js';
 import { registerMessageHandlers } from './ipc/message.handler.js';
 import { registerSupporterHandlers } from './ipc/supporter.handler.js';
+import { registerAuthenticationHandlers } from './ipc/authentication.handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -108,13 +106,11 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
-  await dbService.run(`PRAGMA foreign_keys = ON`);
-  await chatService.initialize();
-  await messageService.initialize();
-  await supporterService.initialize();
+  await dbService.initialize();
   registerChatHandlers();
   registerMessageHandlers();
   registerSupporterHandlers();
+  registerAuthenticationHandlers();
   registerSystemHandlers();
   //Menu.setApplicationMenu(null);
   createWindow();
@@ -128,7 +124,7 @@ app.whenReady().then(async () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    dbService.close();
+    void dbService.close();
     app.quit();
   }
 });

@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
+
+config:
+  edition: 3
+
+# Development-only global stream. Once the backend adds users/tenants, add an
+# ownership column and scope these queries with auth.user_id().
+streams:
+  chat_data:
+    auto_subscribe: true
+    queries:
+      - SELECT * FROM chats
+      - SELECT * FROM messages
+      - SELECT * FROM supporters

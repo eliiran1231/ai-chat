@@ -93,30 +93,6 @@ function isAttachmentPayload(value: unknown): value is AttachmentPayload {
 export class MessageService {
   constructor(private readonly db: DbService) {}
 
-  async initialize(): Promise<void> {
-    await this.db.run(`
-      CREATE TABLE IF NOT EXISTS messages (
-        id TEXT PRIMARY KEY,
-        chat_id TEXT NOT NULL,
-        sender TEXT NOT NULL,
-        message_type TEXT NOT NULL DEFAULT 'message',
-        value TEXT NOT NULL,
-        tag TEXT,
-        time TEXT NOT NULL,
-        edited_at TEXT,
-        attachment TEXT,
-        possible_answers TEXT,
-        answer_selection_mode TEXT,
-        validator_spec TEXT,
-        validation_error_message TEXT,
-        status INTEGER NOT NULL DEFAULT 0,
-        editable INTEGER NOT NULL DEFAULT 1,
-        deletable INTEGER NOT NULL DEFAULT 1,
-        FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
-      )
-    `);
-  }
-
   async getChatMessages(chatId: Uuid) {
     const rows = await this.db.all<MessageRow>(
       `
@@ -243,6 +219,7 @@ export class MessageService {
             editable = ?,
             deletable = ?
         WHERE id = ?
+        RETURNING id
       `,
       [
         message.from ?? null,
@@ -271,6 +248,7 @@ export class MessageService {
       `
         DELETE FROM messages
         WHERE id = ? AND deletable = 1
+        RETURNING id
       `,
       [messageId],
     );
