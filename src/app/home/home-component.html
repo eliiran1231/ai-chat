@@ -1,4 +1,4 @@
-<section class="whatsapp-layout" [class.whatsapp-layout--mobile-chat]="selectedChat()">
+<section class="whatsapp-layout" [class.whatsapp-layout--mobile-chat]="chatService.selectedChat()">
   <aside class="chat-sidebar">
     <header class="mobile-appbar">
       <div class="brand-row">
@@ -52,10 +52,10 @@
       <app-chat-list-component
         [chats]="chats()"
         [searchTerm]="searchTerm()"
-        [selectedChat]="selectedChat()"
+        [selectedChat]="chatService.selectedChat()"
         (searchTermChange)="searchTerm.set($event)"
         (openChat)="openChat($event)"
-        (createChat)="createNewChat()"
+        (createChat)="createChat()"
       ></app-chat-list-component>
     }
     @else if (selectedTab() === 'profile') {
@@ -67,8 +67,13 @@
   </aside>
 
   <section class="chat-stage">
-    @if(selectedChat(); as chat){
-      <app-chat [chat]="chat" [showBackButton]="true" (back)="closeChat()" (deleteChat)="deleteChat($event)" />
+    @if(chatService.selectedChat(); as chat){
+      <app-chat
+       [chat]="chat" 
+       [showBackButton]="true" 
+       (back)="closeChat()" 
+       (deleteChat)="deleteChat($event)" 
+      />
     }
     @else {
       <section class="chat-placeholder">

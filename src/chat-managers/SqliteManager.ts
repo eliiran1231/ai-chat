@@ -19,8 +19,8 @@ export class SqliteManager extends ChatManager {
     super.init(chat);
   }
 
-  override async onSendRequested(message: Message): Promise<MessageStatus> {
-    super.onSendRequested(message);
+  override async onMessageSendRequested(message: Message): Promise<MessageStatus> {
+    super.onMessageSendRequested(message);
     try {
         const persisted = this.chatProvider.addMessage(this.chat.id(), message) as Promise<void>;
         this.pendingMessagePersists.set(message, persisted);
@@ -33,8 +33,8 @@ export class SqliteManager extends ChatManager {
     }
   }
 
-  override async onEditRequested(message: Message, oldMessage: Message): Promise<MessageStatus> {
-    super.onEditRequested(message, oldMessage);
+  override async onMessageEditRequested(message: Message, oldMessage: Message): Promise<MessageStatus> {
+    super.onMessageEditRequested(message, oldMessage);
     try {
       await this.chatProvider.editMessage(message);
       return MessageStatus.Sent;
@@ -44,8 +44,8 @@ export class SqliteManager extends ChatManager {
     }
   }
 
-  override async onDeleteRequested(message: Message): Promise<MessageStatus> {
-    super.onDeleteRequested(message);
+  override async onMessageDeleteRequested(message: Message): Promise<MessageStatus> {
+    super.onMessageDeleteRequested(message);
     try {
       await this.pendingMessagePersists.get(message);
       await this.chatProvider.deleteMessage(message.id());
@@ -53,6 +53,17 @@ export class SqliteManager extends ChatManager {
     } catch (error) {
       console.error(error);
       return MessageStatus.Failed;
+    }
+  }
+
+  override async onDeleteRequested(): Promise<boolean> {
+    super.onDeleteRequested();
+    try {
+      await this.chatProvider.deleteChat(this.chat.id());
+      return true;
+    }
+    catch {
+      return false;
     }
   }
 }

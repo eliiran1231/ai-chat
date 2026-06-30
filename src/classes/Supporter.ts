@@ -82,7 +82,7 @@ export class Supporter extends SyncedEntity {
         message.from.set("supporter");
         message.setChat(this.chat);
         this.chat.messages.update((msgs: Message[]) => [...msgs, message]);
-        message.status.set(await this.chat['manager'].requestSend(message));
+        message.status.set(await this.chat['manager'].requestMessageSend(message));
         if (message.status() === MessageStatus.Failed) {
             return false;
         }

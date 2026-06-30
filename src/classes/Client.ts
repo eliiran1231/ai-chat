@@ -34,7 +34,7 @@ export class Client {
         message.from.set("client");
         message.setChat(this.chat);
         this.chat.messages.update(msgs => [...msgs, message]);
-        message.status.set(await this.chat['manager'].requestSend(message));
+        message.status.set(await this.chat['manager'].requestMessageSend(message));
         if (message.status() === MessageStatus.Failed) {
             return false;
         }
