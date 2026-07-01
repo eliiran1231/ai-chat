@@ -18,6 +18,7 @@ const chatProviderStub: ChatProvider = {
     id: 'test',
     displayName: 'Test',
     description: 'Test chat provider',
+    avatarUrl: 'test-provider.png',
     authenticationComponent: TestAuthenticationComponent,
   },
   authentication: {

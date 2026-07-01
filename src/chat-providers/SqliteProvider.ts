@@ -30,6 +30,7 @@ export class SqliteProvider implements ChatProvider {
     id: 'powersync',
     displayName: 'PowerSync',
     description: 'Sync chats through your self-hosted PowerSync + PostgreSQL backend.',
+    avatarUrl: 'https://avatars.githubusercontent.com/u/147553714?s=200&v=4',
     authenticationComponent: PowerSyncConnectComponent,
   };
   private dbService = inject(DbService);

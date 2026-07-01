@@ -9,6 +9,7 @@ export interface ChatProviderMetadata {
     id: string;
     displayName: string;
     description: string;
+    avatarUrl: string;
     authenticationComponent: Type<unknown>;
 }
 

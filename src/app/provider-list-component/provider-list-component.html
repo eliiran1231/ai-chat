@@ -12,6 +12,13 @@
     @for (card of filteredProviderCards(); track card.metadata.id) {
       <article class="provider-card">
         <div class="provider-card__summary">
+          <div class="provider-card__avatar">
+            <img
+              [src]="card.metadata.avatarUrl"
+              [alt]="card.metadata.displayName + ' logo'"
+            />
+          </div>
+
           <div class="provider-card__details">
             <h3>{{ card.metadata.displayName }}</h3>
             <p>{{ card.metadata.description }}</p>
