@@ -1,4 +1,4 @@
-import { Injector } from '@angular/core';
+import { Component, Injector } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Chat } from '../../classes/Chat';
 import { Supporter } from '../../classes/Supporter';
@@ -10,7 +10,23 @@ import { REGISTERED_AGENTS } from '../../services/agents.module';
 
 import { FilePreviewComponent } from './file-preview-component';
 
+@Component({ template: '' })
+class TestAuthenticationComponent {}
+
 const chatProviderStub: ChatProvider = {
+  metadata: {
+    id: 'test',
+    displayName: 'Test',
+    description: 'Test chat provider',
+    authenticationComponent: TestAuthenticationComponent,
+  },
+  authentication: {
+    loggedIn: true,
+    register: async () => ({ id: 'test-user', email: 'test@example.com' }),
+    login: async () => ({ id: 'test-user', email: 'test@example.com' }),
+    logout: async () => {},
+    getCurrentUser: async () => ({ id: 'test-user', email: 'test@example.com' }),
+  },
   createChat: () => {
     throw new Error('Not implemented');
   },

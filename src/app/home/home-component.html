@@ -40,10 +40,10 @@
         <button
           type="button"
           class="top-tab"
-          [class.top-tab--active]="selectedTab() === 'calls'"
-          (click)="selectedTab.set('calls')"
+          [class.top-tab--active]="selectedTab() === 'providers'"
+          (click)="selectedTab.set('providers')"
         >
-          Calls
+          providers
         </button>
       </nav>
     </header>
@@ -61,8 +61,8 @@
     @else if (selectedTab() === 'profile') {
       <app-profile-component></app-profile-component>
     }
-    @else if (selectedTab() === 'calls') {
-      <!-- <app-calls-component></app-calls-component> -->
+    @else if (selectedTab() === 'providers') {
+      <app-provider-list-component></app-provider-list-component>
     }
   </aside>
 

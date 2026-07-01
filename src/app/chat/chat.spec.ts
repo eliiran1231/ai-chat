@@ -1,6 +1,6 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Injector } from '@angular/core';
+import { Component, Injector } from '@angular/core';
 import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
@@ -11,7 +11,23 @@ import { Uuid } from '../../interfaces/db/Uuid';
 import { REGISTERED_AGENTS } from '../../services/agents.module';
 import { ChatComponent } from './chat-component';
 
+@Component({ template: '' })
+class TestAuthenticationComponent {}
+
 const chatProviderStub: ChatProvider = {
+  metadata: {
+    id: 'test',
+    displayName: 'Test',
+    description: 'Test chat provider',
+    authenticationComponent: TestAuthenticationComponent,
+  },
+  authentication: {
+    loggedIn: true,
+    register: async () => ({ id: 'test-user', email: 'test@example.com' }),
+    login: async () => ({ id: 'test-user', email: 'test@example.com' }),
+    logout: async () => {},
+    getCurrentUser: async () => ({ id: 'test-user', email: 'test@example.com' }),
+  },
   createChat: () => {
     throw new Error('Not implemented');
   },

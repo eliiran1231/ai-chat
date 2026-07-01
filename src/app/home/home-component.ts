@@ -15,6 +15,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Chat } from '../../classes/Chat';
+import { ProviderListComponent } from '../provider-list-component/provider-list-component';
 
 @Component({
   selector: 'app-home',
@@ -23,6 +24,7 @@ import { Chat } from '../../classes/Chat';
     SidebarMenuComponent,
     ChatListComponent,
     ProfileComponent,
+    ProviderListComponent,
     CommonModule,
   ],
   templateUrl: './home-component.html',
@@ -45,7 +47,7 @@ export class HomeComponent implements OnInit {
   chats = this.chatService.chats;
   isMenuOpen = signal(false);
   isFullscreen = signal(false);
-  selectedTab = signal<'chats' | 'profile' | 'calls'>('chats');
+  selectedTab = signal<'chats' | 'profile' | 'providers'>('chats');
 
   constructor(){
     effect(()=>{
