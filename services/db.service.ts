@@ -1,14 +1,18 @@
 import { app } from 'electron';
 import * as path from 'node:path';
-import { PowerSyncDatabase, type Transaction } from '@powersync/node';
+import { PowerSyncDatabase } from '@powersync/node';
 import { AppSchema } from './powersync-schema.js';
 import { PowerSyncConnector } from './powersync.connector.js';
 import type { AuthenticationService } from '../interfaces/auth/AuthenticationService.js';
 import { authenticationService } from './server-authentication.service.js';
 
 export type SqlParameter = string | number | null;
-export type RunResult = { lastID: number; changes: number };
 type Uuid = string;
+
+export interface DbTransaction {
+  execute(sql: string, params?: SqlParameter[]): Promise<void>;
+  executeReturning<T>(sql: string, params?: SqlParameter[]): Promise<T[]>;
+}
 
 export class DbService {
   private database?: PowerSyncDatabase;
@@ -80,16 +84,27 @@ export class DbService {
     }
   }
 
-  async run(sql: string, params: SqlParameter[] = []): Promise<RunResult> {
-    const result = await this.getDatabase().execute(sql, params);
-    return {
-      lastID: result.insertId ?? 0,
-      changes: result.rows?.length ?? result.rowsAffected,
-    };
+  async execute(sql: string, params: SqlParameter[] = []): Promise<void> {
+    await this.getDatabase().execute(sql, params);
   }
 
-  writeTransaction<T>(callback: (transaction: Transaction) => Promise<T>): Promise<T> {
-    return this.getDatabase().writeTransaction(callback);
+  async executeReturning<T>(sql: string, params: SqlParameter[] = []): Promise<T[]> {
+    const result = await this.getDatabase().execute(sql, params);
+    return (result.rows?._array ?? []) as T[];
+  }
+
+  writeTransaction<T>(callback: (transaction: DbTransaction) => Promise<T>): Promise<T> {
+    return this.getDatabase().writeTransaction((transaction) =>
+      callback({
+        execute: async (sql, params = []) => {
+          await transaction.execute(sql, params);
+        },
+        executeReturning: async <Row>(sql: string, params: SqlParameter[] = []) => {
+          const result = await transaction.execute(sql, params);
+          return (result.rows?._array ?? []) as Row[];
+        },
+      }),
+    );
   }
 
   all<T>(sql: string, params: SqlParameter[] = []): Promise<T[]> {

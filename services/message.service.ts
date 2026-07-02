@@ -166,7 +166,7 @@ export class MessageService {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-    await this.db.run(sql, commonArgs);
+    await this.db.execute(sql, commonArgs);
 
     const row = await this.db.get<MessageRow>(
       `
@@ -201,7 +201,7 @@ export class MessageService {
   }
 
   async commitMessage(message: CommitMessagePayload): Promise<boolean> {
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         UPDATE messages
         SET sender = COALESCE(?, sender),
@@ -240,11 +240,11 @@ export class MessageService {
       ],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   async deleteMessage(messageId: Uuid): Promise<boolean> {
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         DELETE FROM messages
         WHERE id = ? AND deletable = 1
@@ -253,7 +253,7 @@ export class MessageService {
       [messageId],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   private mapMessageRow(row: MessageRow) {

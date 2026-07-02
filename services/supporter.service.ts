@@ -62,7 +62,7 @@ export class SupporterService {
   async createSupporter(supporter: SupporterPayload) {
     const now = new Date().toISOString();
     const supporterId = supporter.id || randomUUID();
-    await this.db.run(
+    await this.db.execute(
       `
         INSERT INTO supporters (
           id,
@@ -116,7 +116,7 @@ export class SupporterService {
     chatId,
     agentName,
   }: UpdateSupporterAgentPayload): Promise<boolean> {
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         UPDATE supporters
         SET agent_name = ?,
@@ -127,11 +127,11 @@ export class SupporterService {
       [agentName, new Date().toISOString(), chatId],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   async commitSupporter({ id, name, expects, context }: CommitSupporterPayload): Promise<boolean> {
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         UPDATE supporters
         SET context = ?,
@@ -144,7 +144,7 @@ export class SupporterService {
       [context ?? '', name ?? null, expects ?? null, new Date().toISOString(), id],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   private mapSupporterRow(row: SupporterRow | undefined) {

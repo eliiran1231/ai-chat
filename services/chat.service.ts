@@ -76,7 +76,7 @@ export class ChatService {
   async createChat(chat: ChatPayload) {
     const now = new Date().toISOString();
     const chatId = randomUUID();
-    await this.db.run(
+    await this.db.execute(
       `
         INSERT INTO chats (
           id,
@@ -140,7 +140,7 @@ export class ChatService {
 
   async commitChat(chat: CommitChatPayload): Promise<boolean> {
     const now = new Date().toISOString();
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         UPDATE chats
         SET name = ?,
@@ -171,7 +171,7 @@ export class ChatService {
       ],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   public parseAvatarColumn(value: string | null, rowId: Uuid) {
@@ -197,10 +197,11 @@ export class ChatService {
     return this.db.writeTransaction(async (transaction) => {
       await transaction.execute(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
       await transaction.execute(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
-      const result = await transaction.execute(`DELETE FROM chats WHERE id = ? RETURNING id`, [
-        chatId,
-      ]);
-      return result.rowsAffected > 0;
+      const rows = await transaction.executeReturning<{ id: Uuid }>(
+        `DELETE FROM chats WHERE id = ? RETURNING id`,
+        [chatId],
+      );
+      return rows.length > 0;
     });
   }
 
