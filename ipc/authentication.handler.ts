@@ -4,8 +4,9 @@ import { dbService } from '../services/db.service.js';
 import {
   authenticationService,
 } from '../services/server-authentication.service.js';
-import type { AuthCredentials } from '../interfaces/auth/AuthCredentials.js';
-import type { RegistrationDetails } from '../interfaces/auth/RegistrationDetails.js';
+import type { AuthCredentials } from '../shared/auth/AuthCredentials.js';
+import type { RegistrationDetails } from '../shared/auth/RegistrationDetails.js';
+import { AUTH_CHANNELS } from '../shared/ipc/auth-channels.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
 interface LogoutPolicy {
@@ -16,7 +17,7 @@ const defaultLogoutPolicy: LogoutPolicy = { clearLocalData: false };
 
 export function registerAuthenticationHandlers(): void {
   ipcMain.handle(
-    'auth:register',
+    AUTH_CHANNELS.register,
     withIpcErrorHandling(async (_event: IpcMainInvokeEvent, details: RegistrationDetails) => {
       const user = await authenticationService.register(details);
       await dbService.connect();
@@ -24,16 +25,16 @@ export function registerAuthenticationHandlers(): void {
     }),
   );
   ipcMain.handle(
-    'auth:login',
+    AUTH_CHANNELS.login,
     withIpcErrorHandling(async (_event: IpcMainInvokeEvent, credentials: AuthCredentials) => {
       const user = await authenticationService.login(credentials);
       await dbService.connect();
       return user;
     }),
   );
-  ipcMain.handle('auth:getCurrentUser', () => authenticationService.getCurrentUser());
+  ipcMain.handle(AUTH_CHANNELS.getCurrentUser, () => authenticationService.getCurrentUser());
   ipcMain.handle(
-    'auth:logout',
+    AUTH_CHANNELS.logout,
     withIpcErrorHandling(async (_event: IpcMainInvokeEvent, policy = defaultLogoutPolicy) => {
       try {
         await authenticationService.logout();

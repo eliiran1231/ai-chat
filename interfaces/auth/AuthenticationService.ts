@@ -1,6 +1,6 @@
-import type { AuthCredentials } from './AuthCredentials.js';
-import type { AuthUser } from './AuthUser.js';
-import type { RegistrationDetails } from './RegistrationDetails.js';
+import type { AuthCredentials } from '../../shared/auth/AuthCredentials.js';
+import type { AuthUser } from '../../shared/auth/AuthUser.js';
+import type { RegistrationDetails } from '../../shared/auth/RegistrationDetails.js';
 
 export interface AuthenticationService {
   register(details: RegistrationDetails): Promise<AuthUser>;

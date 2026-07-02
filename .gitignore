@@ -49,6 +49,7 @@ main.js
 services/**/*.js
 ipc/**/*.js
 interfaces/**/*.js
+shared/**/*.js
 
 # Local PowerSync credentials
 /powersync/docker/.env

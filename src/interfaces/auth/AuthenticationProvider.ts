@@ -1,7 +1,7 @@
 import type { Signal } from '@angular/core';
-import type { AuthCredentials } from './AuthCredentials';
-import type { AuthUser } from './AuthUser';
-import type { RegistrationDetails } from './RegistrationDetails';
+import type { AuthCredentials } from '../../../shared/auth/AuthCredentials';
+import type { AuthUser } from '../../../shared/auth/AuthUser';
+import type { RegistrationDetails } from '../../../shared/auth/RegistrationDetails';
 
 export interface LogoutPolicy {
   clearLocalData: boolean;

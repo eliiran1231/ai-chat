@@ -2,7 +2,7 @@ import { NgComponentOutlet } from '@angular/common';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Component, inject, Injector, signal } from '@angular/core';
 import { ChatProvider } from '../../interfaces/ChatProvider';
-import { AuthUser } from '../../interfaces/auth/AuthUser';
+import type { AuthUser } from '../../../shared/auth/AuthUser';
 import { PROVIDER_AUTHENTICATION_DIALOG_CONTEXT } from './provider-authentication-dialog-context.token';
 
 export interface ProviderConnectDialogData {

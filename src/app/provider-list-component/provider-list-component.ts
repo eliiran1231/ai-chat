@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, Inject, OnInit, inject, signal } from '@angular/core';
 import { Dialog, DialogModule } from '@angular/cdk/dialog';
 import { ChatProvider } from '../../interfaces/ChatProvider';
-import { AuthUser } from '../../interfaces/auth/AuthUser';
+import type { AuthUser } from '../../../shared/auth/AuthUser';
 import { CHAT_PROVIDER } from '../../services/chat-providers.module';
 import {
   ProviderConnectDialogComponent,
