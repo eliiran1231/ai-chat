@@ -26,11 +26,7 @@ export class DbService {
       },
     });
 
-    if (!this.authentication.hasSession()) {
-      await this.database.disconnectAndClear();
-      return;
-    }
-    await this.connect();
+    if (this.authentication.hasSession()) await this.connect();
   }
 
   async connect(): Promise<void> {
@@ -55,7 +51,13 @@ export class DbService {
     }
   }
 
-  async disconnectAndClear(): Promise<void> {
+  async disconnect(): Promise<void> {
+    if (!this.database) return;
+    await this.database.disconnect();
+    this.syncStarted = false;
+  }
+
+  async clearLocalData(): Promise<void> {
     if (!this.database) return;
     await this.database.disconnectAndClear();
     this.syncStarted = false;

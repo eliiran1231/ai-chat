@@ -1,12 +1,17 @@
 import { inject, Injectable } from '@angular/core';
 import type { AuthCredentials } from '../interfaces/auth/AuthCredentials';
-import type { AuthenticationProvider } from '../interfaces/auth/AuthenticationProvider';
+import {
+  defaultAuthenticationProviderOptions,
+  type AuthenticationProvider,
+  type AuthenticationProviderOptions,
+} from '../interfaces/auth/AuthenticationProvider';
 import type { AuthUser } from '../interfaces/auth/AuthUser';
 import type { RegistrationDetails } from '../interfaces/auth/RegistrationDetails';
 import { ElectronService } from '../services/electron.service';
 
 @Injectable({ providedIn: 'root' })
 export class PowerSyncAuthenticationService implements AuthenticationProvider {
+  readonly options: AuthenticationProviderOptions = defaultAuthenticationProviderOptions;
   loggedIn: boolean = false;
   private readonly electron = inject(ElectronService);
 
@@ -23,7 +28,7 @@ export class PowerSyncAuthenticationService implements AuthenticationProvider {
   }
 
   async logout(): Promise<void> {
-    await this.electron.invoke<void>('auth:logout');
+    await this.electron.invoke<void>('auth:logout', this.options.logoutPolicy);
     this.loggedIn = false;
   }
 

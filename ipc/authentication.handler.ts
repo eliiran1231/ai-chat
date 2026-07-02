@@ -8,6 +8,12 @@ import type { AuthCredentials } from '../interfaces/auth/AuthCredentials.js';
 import type { RegistrationDetails } from '../interfaces/auth/RegistrationDetails.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
+interface LogoutPolicy {
+  clearLocalData: boolean;
+}
+
+const defaultLogoutPolicy: LogoutPolicy = { clearLocalData: false };
+
 export function registerAuthenticationHandlers(): void {
   ipcMain.handle(
     'auth:register',
@@ -28,11 +34,12 @@ export function registerAuthenticationHandlers(): void {
   ipcMain.handle('auth:getCurrentUser', () => authenticationService.getCurrentUser());
   ipcMain.handle(
     'auth:logout',
-    withIpcErrorHandling(async () => {
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, policy = defaultLogoutPolicy) => {
       try {
         await authenticationService.logout();
       } finally {
-        await dbService.disconnectAndClear();
+        await dbService.disconnect();
+        if (policy.clearLocalData) await dbService.clearLocalData();
       }
     }),
   );
