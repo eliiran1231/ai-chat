@@ -57,8 +57,6 @@ describe('AnswerSheetComponent', () => {
 
   it('emits a single answer from the radio control', async () => {
     const answers = renderAnswers(['One', 'Two']);
-    let selectedAnswer: Answer | undefined;
-    component.answerSelected.subscribe((answer) => (selectedAnswer = answer));
 
     const firstRadio = fixture.nativeElement.querySelector(
       'input[type="radio"]',
@@ -67,15 +65,11 @@ describe('AnswerSheetComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(selectedAnswer).toBe(answers[0]);
+    expect(component.finalAnswers).toEqual([answers[0]]);
   });
 
   it('confirms multiple answers from checkbox controls on submit', async () => {
     const answers = renderAnswers(['One', 'Two', 'Three'], true);
-    let confirmedAnswers: Answer[] = [];
-    component.answersConfirmed.subscribe((selectedAnswers) => {
-      confirmedAnswers = selectedAnswers;
-    });
 
     const checkboxes = fixture.nativeElement.querySelectorAll(
       'input[type="checkbox"]',
@@ -95,6 +89,6 @@ describe('AnswerSheetComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(confirmedAnswers).toEqual([answers[0], answers[2]]);
+    expect(component.finalAnswers).toEqual([answers[0], answers[2]]);
   });
 });

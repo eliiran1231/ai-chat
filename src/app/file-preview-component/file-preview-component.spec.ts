@@ -22,12 +22,12 @@ const chatProviderStub: ChatProvider = {
     authenticationComponent: TestAuthenticationComponent,
   },
   authentication: {
-    loggedIn: true,
+    loggedIn: (() => true) as any,
     register: async () => ({ id: 'test-user', email: 'test@example.com' }),
     login: async () => ({ id: 'test-user', email: 'test@example.com' }),
     logout: async () => {},
     getCurrentUser: async () => ({ id: 'test-user', email: 'test@example.com' }),
-  },
+  } as any,
   createChat: () => {
     throw new Error('Not implemented');
   },
@@ -86,7 +86,7 @@ describe('FilePreviewComponent', () => {
 
     expect(submitted[0].value).toBe('Fresh slice');
     expect(submitted[0].options?.attachment).toEqual(component.fileInfo);
-    expect(chat.draftMessage).toBe('');
-    expect(component.caption).toBe('');
+    expect(chat.draftMessage()).toBe('');
+    expect(component.caption()).toBe('');
   });
 });

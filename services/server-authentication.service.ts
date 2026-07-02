@@ -52,11 +52,14 @@ export class ServerAuthenticationService implements AuthenticationService {
         const headers: Record<string, string> = { 'Content-Type': 'application/json' };
         if (this.accessToken) headers['Authorization'] = `Bearer ${this.accessToken}`;
 
-        await fetch(`${this.backendUrl}/api/auth/logout`, {
+        const response = await fetch(`${this.backendUrl}/api/auth/logout`, {
           method: 'POST',
           headers,
           body: JSON.stringify({ refresh_token: refreshToken }),
         });
+        if (!response.ok) {
+          console.warn(`Server-side session revocation failed (${response.status}).`);
+        }
       }
     } finally {
       this.clearSession();

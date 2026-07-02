@@ -31,7 +31,7 @@ describe('MessageBubbleComponent', () => {
     fixture = TestBed.createComponent(MessageBubbleComponent);
     component = fixture.componentInstance;
     const message = new Message('hello');
-    message.from = 'supporter';
+    message.from.set('supporter');
     fixture.componentRef.setInput('message', message);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -43,7 +43,7 @@ describe('MessageBubbleComponent', () => {
 
   it('highlights the search term in the message body', async () => {
     const message = new Message('hello world');
-    message.from = 'supporter';
+    message.from.set('supporter');
 
     fixture.componentRef.setInput('message', message);
     fixture.componentRef.setInput('searchTerm', 'world');
@@ -59,7 +59,7 @@ describe('MessageBubbleComponent', () => {
     const question = new Question('Pick one', {
       possibleAnswers: ['One', 'Two'],
     });
-    question.from = 'supporter';
+    question.from.set('supporter');
 
     fixture.componentRef.setInput('message', question);
     fixture.detectChanges();

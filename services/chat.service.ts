@@ -14,6 +14,7 @@ interface ChatRow {
   highlight_time: number;
   avatar_ring: number;
   tip_label: string | null;
+  owner_user_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -64,6 +65,7 @@ export class ChatService {
         highlight_time,
         avatar_ring,
         tip_label,
+        owner_user_id,
         created_at,
         updated_at
       FROM chats
@@ -89,10 +91,11 @@ export class ChatService {
           highlight_time,
           avatar_ring,
           tip_label,
+          owner_user_id,
           created_at,
           updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         chatId,
@@ -105,6 +108,7 @@ export class ChatService {
         chat.highlightTime ? 1 : 0,
         chat.avatarRing ? 1 : 0,
         chat.tipLabel ?? null,
+        null,
         now,
         now,
       ],
@@ -123,6 +127,7 @@ export class ChatService {
           highlight_time,
           avatar_ring,
           tip_label,
+          owner_user_id,
           created_at,
           updated_at
         FROM chats

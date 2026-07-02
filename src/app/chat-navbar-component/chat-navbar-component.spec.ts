@@ -21,12 +21,12 @@ const chatProviderStub: ChatProvider = {
     authenticationComponent: TestAuthenticationComponent,
   },
   authentication: {
-    loggedIn: true,
+    loggedIn: (() => true) as any,
     register: async () => ({ id: 'test-user', email: 'test@example.com' }),
     login: async () => ({ id: 'test-user', email: 'test@example.com' }),
     logout: async () => {},
     getCurrentUser: async () => ({ id: 'test-user', email: 'test@example.com' }),
-  },
+  } as any,
   createChat: () => {
     throw new Error('Not implemented');
   },

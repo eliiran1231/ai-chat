@@ -4,6 +4,8 @@ import type {
   PowerSyncCredentials,
 } from '@powersync/node';
 import type { AuthenticationService } from '../interfaces/auth/AuthenticationService.js';
+import type { BlockedUpload } from '../shared/sync/SyncState.js';
+import type { UploadResponse } from '../shared/sync/UploadResponse.js';
 
 const backendUrl = process.env['BACKEND_URL'] ?? 'http://localhost:3001';
 
@@ -12,13 +14,11 @@ interface TokenResponse {
   powersync_url: string;
 }
 
-interface UploadResponse {
-  success: boolean;
-  error?: string;
-}
-
 export class PowerSyncConnector implements PowerSyncBackendConnector {
-  constructor(private readonly authentication: AuthenticationService) {}
+  constructor(
+    private readonly authentication: AuthenticationService,
+    private readonly reportBlockedUpload: (upload: BlockedUpload | undefined) => void = () => {},
+  ) {}
 
   async fetchCredentials(): Promise<PowerSyncCredentials> {
     const accessToken = await this.authentication.getAccessToken();
@@ -51,10 +51,21 @@ export class PowerSyncConnector implements PowerSyncBackendConnector {
 
     if (!response.ok) throw new Error(`PowerSync upload failed (${response.status}).`);
     const result = (await response.json()) as UploadResponse;
-    if (!result.success) {
-      throw new Error(`PowerSync upload was rejected: ${result.error ?? 'Unknown error'}`);
+    if (result.outcome === 'accepted') {
+      this.reportBlockedUpload(undefined);
+      await transaction.complete();
+      return;
     }
 
-    await transaction.complete();
+    const message = result.error ?? 'Unknown upload error';
+    if (result.outcome === 'permanent_error') {
+      this.reportBlockedUpload({
+        operationIds: transaction.crud.map((operation) => operation.id),
+        message,
+      });
+      throw new Error(`PowerSync upload is permanently blocked: ${message}`);
+    }
+
+    throw new Error(`PowerSync upload should be retried: ${message}`);
   }
 }

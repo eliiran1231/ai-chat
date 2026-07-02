@@ -10,7 +10,9 @@ const database = vi.hoisted(() => ({
   getAll: vi.fn(),
   getOptional: vi.fn(),
   writeTransaction: vi.fn(),
+  registerListener: vi.fn(),
 }));
+const listeners = vi.hoisted(() => ({ statusChanged: undefined as undefined | ((status: any) => void) }));
 
 vi.mock('electron', () => ({ app: { getPath: () => 'test-user-data' } }));
 vi.mock('@powersync/node', async (importOriginal) => {
@@ -34,6 +36,10 @@ describe('DbService sync lifecycle', () => {
     vi.clearAllMocks();
     database.connect.mockResolvedValue(undefined);
     database.execute.mockResolvedValue({ rowsAffected: 0 });
+    database.registerListener.mockImplementation(({ statusChanged }) => {
+      listeners.statusChanged = statusChanged;
+      return vi.fn();
+    });
   });
 
   it('starts sync for a persisted session', async () => {
@@ -74,6 +80,29 @@ describe('DbService sync lifecycle', () => {
     service.startSync();
     await expect(service.waitForInitialSync()).resolves.toBe(true);
     expect(database.connect).toHaveBeenCalledTimes(2);
+  });
+
+  it('derives connecting, syncing, online, and offline states', async () => {
+    database.waitForFirstSync.mockResolvedValue(undefined);
+    const service = new DbService(authenticated);
+    await service.initialize();
+
+    listeners.statusChanged?.({
+      connecting: false,
+      connected: true,
+      lastSyncedAt: new Date('2026-01-01T00:00:00.000Z'),
+      dataFlowStatus: { downloading: true, uploading: false },
+    });
+    expect(service.getSyncState().kind).toBe('syncing');
+    listeners.statusChanged?.({
+      connecting: false,
+      connected: true,
+      lastSyncedAt: new Date('2026-01-01T00:00:00.000Z'),
+      dataFlowStatus: { downloading: false, uploading: false },
+    });
+    expect(service.getSyncState()).toMatchObject({ kind: 'online', connected: true });
+    await service.disconnect();
+    expect(service.getSyncState().kind).toBe('offline');
   });
 
   it('clears or retains local data according to logout policy', async () => {

@@ -10,6 +10,7 @@ import { registerMessageHandlers } from './ipc/message.handler.js';
 import { registerSupporterHandlers } from './ipc/supporter.handler.js';
 import { registerAuthenticationHandlers } from './ipc/authentication.handler.js';
 import { authenticationService } from './services/server-authentication.service.js';
+import { registerSyncHandlers } from './ipc/sync.handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -113,6 +114,7 @@ app.whenReady().then(async () => {
   registerMessageHandlers();
   registerSupporterHandlers();
   registerAuthenticationHandlers();
+  registerSyncHandlers();
   registerSystemHandlers();
   //Menu.setApplicationMenu(null);
   createWindow();

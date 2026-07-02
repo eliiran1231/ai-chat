@@ -23,12 +23,12 @@ const chatProviderStub: ChatProvider = {
     authenticationComponent: TestAuthenticationComponent,
   },
   authentication: {
-    loggedIn: true,
+    loggedIn: (() => true) as any,
     register: async () => ({ id: 'test-user', email: 'test@example.com' }),
     login: async () => ({ id: 'test-user', email: 'test@example.com' }),
     logout: async () => {},
     getCurrentUser: async () => ({ id: 'test-user', email: 'test@example.com' }),
-  },
+  } as any,
   createChat: () => {
     throw new Error('Not implemented');
   },
@@ -76,9 +76,9 @@ describe('ChatComponent', () => {
       { status: 'Online', avatar: { type: 'text', value: 'TC' } },
     );
     if (typeof draftMessage === 'string') {
-      chat.draftMessage = draftMessage;
+      chat.draftMessage.set(draftMessage);
     } else {
-      chat.messages = draftMessage;
+      chat.messages.set(draftMessage);
     }
 
     fixture.componentRef.setInput('chat', chat);
@@ -115,13 +115,13 @@ describe('ChatComponent', () => {
     await fixture.whenStable();
 
     expect(chat.messages).toHaveLength(1);
-    expect(chat.messages[0].value).toBe('Hello from Enter');
-    expect(chat.draftMessage).toBe('');
+    expect(chat.messages()[0].value()).toBe('Hello from Enter');
+    expect(chat.draftMessage()).toBe('');
   });
 
   it('renders AI messages as markdown', async () => {
     const message = new Message('**bold** and *italic*');
-    message.from = 'supporter';
+    message.from.set('supporter');
     await renderChat([message]);
 
     const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
@@ -131,7 +131,7 @@ describe('ChatComponent', () => {
 
   it('renders user messages through the message bubble markdown view', async () => {
     const message = new Message('**bold**');
-    message.from = 'client';
+    message.from.set('client');
     await renderChat([message]);
 
     const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
@@ -142,7 +142,7 @@ describe('ChatComponent', () => {
     const message = new Message(
       '![A mushroom-head robot drinking bubble tea](https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg)',
     );
-    message.from = 'supporter';
+    message.from.set('supporter');
     await renderChat([
       message,
     ]);

@@ -21,7 +21,7 @@ describe('PowerSyncConnector.uploadData', () => {
     const complete = vi.fn();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ success: true }),
+      json: () => Promise.resolve({ outcome: 'accepted' }),
     }));
 
     await new PowerSyncConnector(authentication).uploadData(databaseWithTransaction(complete));
@@ -29,17 +29,37 @@ describe('PowerSyncConnector.uploadData', () => {
     expect(complete).toHaveBeenCalledOnce();
   });
 
-  it('does not complete a rejected upload', async () => {
+  it('does not complete a retryable upload failure', async () => {
     const complete = vi.fn();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ success: false, error: 'rejected' }),
+      json: () => Promise.resolve({ outcome: 'retryable_error', error: 'try again' }),
     }));
 
     await expect(
       new PowerSyncConnector(authentication).uploadData(databaseWithTransaction(complete)),
-    ).rejects.toThrow('rejected');
+    ).rejects.toThrow('try again');
     expect(complete).not.toHaveBeenCalled();
+  });
+
+  it('reports and retains a permanently blocked upload', async () => {
+    const complete = vi.fn();
+    const reportBlocked = vi.fn();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ outcome: 'permanent_error', error: 'invalid row' }),
+    }));
+
+    await expect(
+      new PowerSyncConnector(authentication, reportBlocked).uploadData(
+        databaseWithTransaction(complete),
+      ),
+    ).rejects.toThrow('permanently blocked');
+    expect(complete).not.toHaveBeenCalled();
+    expect(reportBlocked).toHaveBeenCalledWith({
+      operationIds: ['1'],
+      message: 'invalid row',
+    });
   });
 
   it('preserves queued CRUD when the network fails', async () => {

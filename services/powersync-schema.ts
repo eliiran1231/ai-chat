@@ -12,6 +12,7 @@ const chats = new Table(
     highlight_time: column.integer,
     avatar_ring: column.integer,
     tip_label: column.text,
+    owner_user_id: column.text,
     created_at: column.text,
     updated_at: column.text
   },

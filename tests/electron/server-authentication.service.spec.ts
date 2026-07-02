@@ -73,4 +73,21 @@ describe('ServerAuthenticationService', () => {
     expect(service.hasSession()).toBe(false);
     expect(service.getCurrentUser()).toBeNull();
   });
+
+  it('logs failed server revocation and still clears the local session', async () => {
+    fileSystem.existsSync.mockReturnValue(true);
+    fileSystem.readFileSync.mockReturnValue(JSON.stringify({
+      encryptedRefreshToken: 'encrypted',
+      user: { id: 'u1', email: 'user@example.com' },
+    }));
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 503 }));
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const service = new ServerAuthenticationService();
+    service.initialize();
+
+    await service.logout();
+
+    expect(warning).toHaveBeenCalledWith('Server-side session revocation failed (503).');
+    expect(service.hasSession()).toBe(false);
+  });
 });

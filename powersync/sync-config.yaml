@@ -3,12 +3,10 @@
 config:
   edition: 3
 
-# Development-only global stream. Once the backend adds users/tenants, add an
-# ownership column and scope these queries with auth.user_id().
 streams:
   chat_data:
     auto_subscribe: true
     queries:
-      - SELECT * FROM chats
-      - SELECT * FROM messages
-      - SELECT * FROM supporters
+      - SELECT * FROM chats WHERE owner_user_id = auth.user_id()
+      - SELECT messages.* FROM messages INNER JOIN chats ON chats.id = messages.chat_id WHERE chats.owner_user_id = auth.user_id()
+      - SELECT supporters.* FROM supporters INNER JOIN chats ON chats.id = supporters.chat_id WHERE chats.owner_user_id = auth.user_id()

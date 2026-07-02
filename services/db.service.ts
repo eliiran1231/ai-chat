@@ -5,6 +5,7 @@ import { AppSchema } from './powersync-schema.js';
 import { PowerSyncConnector } from './powersync.connector.js';
 import type { AuthenticationService } from '../interfaces/auth/AuthenticationService.js';
 import { authenticationService } from './server-authentication.service.js';
+import type { BlockedUpload, SyncState } from '../shared/sync/SyncState.js';
 
 export type SqlParameter = string | number | null;
 type Uuid = string;
@@ -21,6 +22,10 @@ export interface InitialSyncOptions {
 export class DbService {
   private database?: PowerSyncDatabase;
   private syncStarted = false;
+  private blockedUpload?: BlockedUpload;
+  private syncState: SyncState = { kind: 'local-only', connected: false };
+  private readonly syncStateListeners = new Set<(state: SyncState) => void>();
+  private unregisterStatusListener?: () => void;
 
   constructor(private readonly authentication: AuthenticationService = authenticationService) {}
 
@@ -32,6 +37,9 @@ export class DbService {
       database: {
         dbFilename: path.join(app.getPath('userData'), 'ai-chat-powersync.sqlite'),
       },
+    });
+    this.unregisterStatusListener = this.database.registerListener({
+      statusChanged: (status) => this.updateFromPowerSyncStatus(status),
     });
 
     if (this.authentication.hasSession()) {
@@ -45,9 +53,23 @@ export class DbService {
     if (this.syncStarted) return;
 
     this.syncStarted = true;
-    const connector = new PowerSyncConnector(this.authentication);
+    this.setSyncState({ kind: 'connecting', connected: false });
+    const connector = new PowerSyncConnector(this.authentication, (upload) => {
+      this.blockedUpload = upload;
+      if (upload) {
+        this.setSyncState({ kind: 'blocked', connected: true, blockedUpload: upload });
+      }
+    });
     void this.database.connect(connector).catch((error) => {
       this.syncStarted = false;
+      const message = this.errorMessage(error);
+      this.setSyncState({
+        kind: message.toLocaleLowerCase().includes('authenticated')
+          ? 'authentication-required'
+          : 'error',
+        connected: false,
+        error: message,
+      });
       console.error('PowerSync connection failed; continuing with local data.', error);
     });
   }
@@ -60,6 +82,7 @@ export class DbService {
       await this.database.waitForFirstSync(firstSyncTimeout.signal);
       return true;
     } catch {
+      this.setSyncState({ kind: 'offline', connected: false });
       console.warn('PowerSync first sync was not available; starting in offline mode.');
       return false;
     } finally {
@@ -71,17 +94,25 @@ export class DbService {
     if (!this.database) return;
     await this.database.disconnect();
     this.syncStarted = false;
+    this.setSyncState({
+      kind: this.authentication.hasSession() ? 'offline' : 'local-only',
+      connected: false,
+    });
   }
 
   async clearLocalData(): Promise<void> {
     if (!this.database) return;
     await this.database.disconnectAndClear();
     this.syncStarted = false;
+    this.blockedUpload = undefined;
+    this.setSyncState({ kind: 'local-only', connected: false });
   }
 
   async close(): Promise<void> {
     if (!this.database) return;
     await this.database.close();
+    this.unregisterStatusListener?.();
+    this.unregisterStatusListener = undefined;
     this.database = undefined;
     this.syncStarted = false;
   }
@@ -125,6 +156,55 @@ export class DbService {
 
   async get<T>(sql: string, params: SqlParameter[] = []): Promise<T | undefined> {
     return (await this.getDatabase().getOptional<T>(sql, params)) ?? undefined;
+  }
+
+  getSyncState(): SyncState {
+    return this.syncState;
+  }
+
+  subscribeToSyncState(listener: (state: SyncState) => void): () => void {
+    this.syncStateListeners.add(listener);
+    listener(this.syncState);
+    return () => this.syncStateListeners.delete(listener);
+  }
+
+  private updateFromPowerSyncStatus(status: PowerSyncDatabase['currentStatus']): void {
+    if (this.blockedUpload) return;
+    const flow = status.dataFlowStatus;
+    const flowError = flow.uploadError ?? flow.downloadError;
+    if (flowError) {
+      this.setSyncState({
+        kind: 'error',
+        connected: status.connected,
+        lastSyncedAt: status.lastSyncedAt?.toISOString(),
+        error: this.errorMessage(flowError),
+      });
+      return;
+    }
+
+    const kind: SyncState['kind'] = status.connecting
+      ? 'connecting'
+      : flow.downloading || flow.uploading
+        ? 'syncing'
+        : status.connected
+          ? 'online'
+          : this.authentication.hasSession()
+            ? 'offline'
+            : 'local-only';
+    this.setSyncState({
+      kind,
+      connected: status.connected,
+      lastSyncedAt: status.lastSyncedAt?.toISOString(),
+    });
+  }
+
+  private setSyncState(state: SyncState): void {
+    this.syncState = state;
+    for (const listener of this.syncStateListeners) listener(state);
+  }
+
+  private errorMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
   }
 
   private getDatabase(): PowerSyncDatabase {

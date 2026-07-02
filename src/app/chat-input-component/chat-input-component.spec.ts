@@ -20,12 +20,12 @@ const chatProviderStub: ChatProvider = {
     authenticationComponent: TestAuthenticationComponent,
   },
   authentication: {
-    loggedIn: true,
+    loggedIn: (() => true) as any,
     register: async () => ({ id: 'test-user', email: 'test@example.com' }),
     login: async () => ({ id: 'test-user', email: 'test@example.com' }),
     logout: async () => {},
     getCurrentUser: async () => ({ id: 'test-user', email: 'test@example.com' }),
-  },
+  } as any,
   createChat: () => {
     throw new Error('Not implemented');
   },
@@ -74,7 +74,7 @@ describe('ChatInputComponent', () => {
 
   it('emits a trimmed message on submit', () => {
     const emittedMessages: string[] = [];
-    component.caption = '  hello world  ';
+    component.caption.set('  hello world  ');
     component.messageSubmit.subscribe((message) => emittedMessages.push(message));
 
     component.submitMessage();
