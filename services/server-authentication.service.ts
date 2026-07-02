@@ -23,6 +23,7 @@ export class ServerAuthenticationService implements AuthenticationService {
   private accessToken?: string;
   private refreshToken?: string;
   private accessTokenExpiresAt = 0;
+  private refreshPromise?: Promise<string>;
   private user: AuthUser | null = null;
   private initialized = false;
 
@@ -73,6 +74,14 @@ export class ServerAuthenticationService implements AuthenticationService {
     }
     if (!this.refreshToken) throw new Error('The user is not authenticated.');
 
+    this.refreshPromise ??= this.refreshAccessToken().finally(() => {
+      this.refreshPromise = undefined;
+    });
+
+    return this.refreshPromise;
+  }
+
+  private async refreshAccessToken(): Promise<string> {
     const response = await this.request<AuthResponse>('/api/auth/refresh', {
       refresh_token: this.refreshToken,
     });
