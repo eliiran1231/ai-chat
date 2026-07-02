@@ -20,7 +20,8 @@ export function registerAuthenticationHandlers(): void {
     AUTH_CHANNELS.register,
     withIpcErrorHandling(async (_event: IpcMainInvokeEvent, details: RegistrationDetails) => {
       const user = await authenticationService.register(details);
-      await dbService.connect();
+      dbService.startSync();
+      await dbService.waitForInitialSync();
       return user;
     }),
   );
@@ -28,7 +29,8 @@ export function registerAuthenticationHandlers(): void {
     AUTH_CHANNELS.login,
     withIpcErrorHandling(async (_event: IpcMainInvokeEvent, credentials: AuthCredentials) => {
       const user = await authenticationService.login(credentials);
-      await dbService.connect();
+      dbService.startSync();
+      await dbService.waitForInitialSync();
       return user;
     }),
   );

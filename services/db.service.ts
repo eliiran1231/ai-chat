@@ -14,6 +14,10 @@ export interface DbTransaction {
   executeReturning<T>(sql: string, params?: SqlParameter[]): Promise<T[]>;
 }
 
+export interface InitialSyncOptions {
+  timeoutMs?: number;
+}
+
 export class DbService {
   private database?: PowerSyncDatabase;
   private syncStarted = false;
@@ -30,10 +34,13 @@ export class DbService {
       },
     });
 
-    if (this.authentication.hasSession()) await this.connect();
+    if (this.authentication.hasSession()) {
+      this.startSync();
+      await this.waitForInitialSync();
+    }
   }
 
-  async connect(): Promise<void> {
+  startSync(): void {
     if (!this.database) throw new Error('PowerSync database has not been initialized.');
     if (this.syncStarted) return;
 
@@ -43,13 +50,18 @@ export class DbService {
       this.syncStarted = false;
       console.error('PowerSync connection failed; continuing with local data.', error);
     });
+  }
 
+  async waitForInitialSync({ timeoutMs = 15_000 }: InitialSyncOptions = {}): Promise<boolean> {
+    if (!this.database) throw new Error('PowerSync database has not been initialized.');
     const firstSyncTimeout = new AbortController();
-    const timeout = setTimeout(() => firstSyncTimeout.abort(), 15_000);
+    const timeout = setTimeout(() => firstSyncTimeout.abort(), timeoutMs);
     try {
       await this.database.waitForFirstSync(firstSyncTimeout.signal);
+      return true;
     } catch {
       console.warn('PowerSync first sync was not available; starting in offline mode.');
+      return false;
     } finally {
       clearTimeout(timeout);
     }
