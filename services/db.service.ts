@@ -26,7 +26,10 @@ export class DbService {
       },
     });
 
-    if (!this.authentication.hasSession()) return;
+    if (!this.authentication.hasSession()) {
+      await this.database.disconnectAndClear();
+      return;
+    }
     await this.connect();
   }
 

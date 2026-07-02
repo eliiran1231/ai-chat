@@ -9,10 +9,12 @@ import {
   ProviderConnectDialogData,
 } from '../provider-connect-dialog/provider-connect-dialog-component';
 import { SidebarSearchComponent } from '../shared/sidebar-search/sidebar-search-component';
+import { ChatService } from '../../services/chat.service';
 
 interface ProviderCard {
   provider: ChatProvider;
   metadata: ChatProviderMetadata;
+  connected: boolean;
   busy: boolean;
   error?: string;
   user?: AuthUser | null;
@@ -36,6 +38,7 @@ export class ProviderListComponent implements OnInit {
     );
   });
   private readonly dialog = inject(Dialog);
+  private readonly chatService = inject(ChatService);
 
   constructor(@Inject(CHAT_PROVIDER) private readonly providers: ChatProvider[] = []) {}
 
@@ -44,6 +47,7 @@ export class ProviderListComponent implements OnInit {
       this.providers.map((provider) => ({
         provider,
         metadata: provider.metadata,
+        connected: false,
         busy: true,
         user: null,
       })),
@@ -55,12 +59,14 @@ export class ProviderListComponent implements OnInit {
           const user = await provider.authentication.getCurrentUser();
           this.patchProvider(provider.metadata.id, {
             busy: false,
+            connected: Boolean(user),
             user,
             error: undefined,
           });
         } catch (error) {
           this.patchProvider(provider.metadata.id, {
             busy: false,
+            connected: false,
             error: this.errorMessage(error),
           });
         }
@@ -80,13 +86,15 @@ export class ProviderListComponent implements OnInit {
       },
     );
 
-    dialogRef.closed.subscribe((user) => {
+    dialogRef.closed.subscribe(async (user) => {
       if (!user) return;
       this.patchProvider(card.metadata.id, {
         user,
+        connected: true,
         busy: false,
         error: undefined,
       });
+      await this.chatService.loadProviderChats(card.provider);
     });
   }
 
@@ -94,7 +102,8 @@ export class ProviderListComponent implements OnInit {
     this.patchProvider(card.metadata.id, { busy: true, error: undefined });
     try {
       await card.provider.authentication.logout();
-      this.patchProvider(card.metadata.id, { busy: false, user: null });
+      this.chatService.clearChats(card.provider.metadata.id);
+      this.patchProvider(card.metadata.id, { busy: false, connected: false, user: null });
     } catch (error) {
       this.patchProvider(card.metadata.id, { busy: false, error: this.errorMessage(error) });
     }

@@ -42,7 +42,8 @@ export class Chat extends SyncedEntity {
   readonly supporter: Supporter;
   readonly active: WritableSignal<boolean> = signal(false);
   readonly user: Client;
-  private manager: ChatManager;
+  /** @internal Used by collaborating chat-domain classes. */
+  readonly manager: ChatManager;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
 
@@ -87,5 +88,10 @@ export class Chat extends SyncedEntity {
 
   delete(){
     return this.manager.requestDelete();
+  }
+
+  /** @internal Used by ChatService for provider-scoped lifecycle operations. */
+  belongsToProvider(providerId: string): boolean {
+    return this.manager['chatProvider'].metadata.id === providerId;
   }
 }

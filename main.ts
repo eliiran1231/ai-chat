@@ -9,6 +9,7 @@ import { registerChatHandlers } from './ipc/chat.handler.js';
 import { registerMessageHandlers } from './ipc/message.handler.js';
 import { registerSupporterHandlers } from './ipc/supporter.handler.js';
 import { registerAuthenticationHandlers } from './ipc/authentication.handler.js';
+import { authenticationService } from './services/server-authentication.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -106,6 +107,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
+  authenticationService.initialize();
   await dbService.initialize();
   registerChatHandlers();
   registerMessageHandlers();

@@ -130,17 +130,11 @@ button {
 }
 
 .provider-card__connected {
-  min-width: 0;
-  max-width: 100%;
-  color: #3b4a54;
-  font-size: 0.9rem;
+  flex: 0 0 auto;
+}
 
-  span {
-    max-width: 12rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+.provider-card__signed-in {
+  color: #3b4a54 !important;
 }
 
 .provider-card__error {

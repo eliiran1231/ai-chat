@@ -24,9 +24,15 @@ export class ServerAuthenticationService implements AuthenticationService {
   private refreshToken?: string;
   private accessTokenExpiresAt = 0;
   private user: AuthUser | null = null;
+  private initialized = false;
 
   constructor(backendUrl = process.env['BACKEND_URL'] ?? 'http://localhost:3001') {
     this.backendUrl = backendUrl;
+  }
+
+  initialize(): void {
+    if (this.initialized) return;
+    this.initialized = true;
     this.restoreSession();
   }
 
