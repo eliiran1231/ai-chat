@@ -37,7 +37,7 @@ const messages = new Table(
     editable: column.integer,
     deletable: column.integer
   },
-  { indexes: {} }
+  { indexes: { messages_chat: ['chat_id'] } }
 );
 
 const supporters = new Table(
@@ -51,7 +51,7 @@ const supporters = new Table(
     created_at: column.text,
     updated_at: column.text
   },
-  { indexes: {} }
+  { indexes: { supporters_chat: ['chat_id'] } }
 );
 
 export const AppSchema = new Schema({

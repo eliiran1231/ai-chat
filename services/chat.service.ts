@@ -194,10 +194,14 @@ export class ChatService {
   }
 
   async deleteChat(chatId: Uuid): Promise<boolean> {
-    await this.db.run(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
-    await this.db.run(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
-    const result = await this.db.run(`DELETE FROM chats WHERE id = ? RETURNING id`, [chatId]);
-    return result.changes > 0;
+    return this.db.writeTransaction(async (transaction) => {
+      await transaction.execute(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
+      await transaction.execute(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
+      const result = await transaction.execute(`DELETE FROM chats WHERE id = ? RETURNING id`, [
+        chatId,
+      ]);
+      return result.rowsAffected > 0;
+    });
   }
 
   private mapChatRow(row: ChatRow) {

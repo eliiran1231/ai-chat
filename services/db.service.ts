@@ -1,6 +1,6 @@
 import { app } from 'electron';
 import * as path from 'node:path';
-import { PowerSyncDatabase } from '@powersync/node';
+import { PowerSyncDatabase, type Transaction } from '@powersync/node';
 import { AppSchema } from './powersync-schema.js';
 import { PowerSyncConnector } from './powersync.connector.js';
 import type { AuthenticationService } from '../interfaces/auth/AuthenticationService.js';
@@ -86,6 +86,10 @@ export class DbService {
       lastID: result.insertId ?? 0,
       changes: result.rows?.length ?? result.rowsAffected,
     };
+  }
+
+  writeTransaction<T>(callback: (transaction: Transaction) => Promise<T>): Promise<T> {
+    return this.getDatabase().writeTransaction(callback);
   }
 
   all<T>(sql: string, params: SqlParameter[] = []): Promise<T[]> {
