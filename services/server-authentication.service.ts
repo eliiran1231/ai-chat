@@ -49,9 +49,12 @@ export class ServerAuthenticationService implements AuthenticationService {
     const refreshToken = this.refreshToken;
     try {
       if (refreshToken) {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (this.accessToken) headers['Authorization'] = `Bearer ${this.accessToken}`;
+
         await fetch(`${this.backendUrl}/api/auth/logout`, {
           method: 'POST',
-          headers: { Authorization: `Bearer ${await this.getAccessToken()}`, 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({ refresh_token: refreshToken }),
         });
       }
