@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import type { AuthCredentials } from '../interfaces/auth/AuthCredentials';
 import {
   defaultAuthenticationProviderOptions,
@@ -12,29 +12,31 @@ import { ElectronService } from '../services/electron.service';
 @Injectable({ providedIn: 'root' })
 export class PowerSyncAuthenticationService implements AuthenticationProvider {
   readonly options: AuthenticationProviderOptions = defaultAuthenticationProviderOptions;
-  loggedIn: boolean = false;
+  private readonly _currentUser = signal<AuthUser | null>(null);
+  readonly currentUser = this._currentUser.asReadonly();
+  readonly loggedIn = computed(() => this.currentUser() !== null);
   private readonly electron = inject(ElectronService);
 
   async register(details: RegistrationDetails): Promise<AuthUser> {
     const user = await this.electron.invoke<AuthUser>('auth:register', details);
-    this.loggedIn = true;
+    this._currentUser.set(user);
     return user;
   }
 
   async login(credentials: AuthCredentials): Promise<AuthUser> {
     const user = await this.electron.invoke<AuthUser>('auth:login', credentials);
-    this.loggedIn = true;
+    this._currentUser.set(user);
     return user;
   }
 
   async logout(): Promise<void> {
     await this.electron.invoke<void>('auth:logout', this.options.logoutPolicy);
-    this.loggedIn = false;
+    this._currentUser.set(null);
   }
 
   async getCurrentUser(): Promise<AuthUser | null> {
     const user = await this.electron.invoke<AuthUser | null>('auth:getCurrentUser');
-    this.loggedIn = Boolean(user);
+    this._currentUser.set(user);
     return user;
   }
 }

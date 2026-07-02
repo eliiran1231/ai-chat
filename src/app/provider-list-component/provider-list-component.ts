@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, Inject, OnInit, inject, signal } from '@angular/core';
 import { Dialog, DialogModule } from '@angular/cdk/dialog';
-import { ChatProvider, ChatProviderMetadata } from '../../interfaces/ChatProvider';
+import { ChatProvider } from '../../interfaces/ChatProvider';
 import { AuthUser } from '../../interfaces/auth/AuthUser';
 import { CHAT_PROVIDER } from '../../services/chat-providers.module';
 import {
@@ -11,15 +11,6 @@ import {
 import { SidebarSearchComponent } from '../shared/sidebar-search/sidebar-search-component';
 import { ChatService } from '../../services/chat.service';
 
-interface ProviderCard {
-  provider: ChatProvider;
-  metadata: ChatProviderMetadata;
-  connected: boolean;
-  busy: boolean;
-  error?: string;
-  user?: AuthUser | null;
-}
-
 @Component({
   selector: 'app-provider-list-component',
   imports: [CommonModule, DialogModule, SidebarSearchComponent],
@@ -27,60 +18,45 @@ interface ProviderCard {
   styleUrl: './provider-list-component.scss',
 })
 export class ProviderListComponent implements OnInit {
-  readonly providerCards = signal<ProviderCard[]>([]);
   readonly searchTerm = signal('');
-  readonly filteredProviderCards = computed(() => {
+  readonly busyProviderIds = signal<ReadonlySet<string>>(new Set());
+  readonly providerErrors = signal<Readonly<Record<string, string>>>({});
+  readonly filteredProviders = computed(() => {
     const query = this.searchTerm().trim().toLocaleLowerCase();
-    if (!query) return this.providerCards();
+    if (!query) return this.providers;
 
-    return this.providerCards().filter(({ metadata }) =>
+    return this.providers.filter(({ metadata }) =>
       `${metadata.displayName} ${metadata.description}`.toLocaleLowerCase().includes(query),
     );
   });
   private readonly dialog = inject(Dialog);
   private readonly chatService = inject(ChatService);
 
-  constructor(@Inject(CHAT_PROVIDER) private readonly providers: ChatProvider[] = []) {}
+  constructor(@Inject(CHAT_PROVIDER) readonly providers: ChatProvider[] = []) {}
 
   async ngOnInit(): Promise<void> {
-    this.providerCards.set(
-      this.providers.map((provider) => ({
-        provider,
-        metadata: provider.metadata,
-        connected: false,
-        busy: true,
-        user: null,
-      })),
-    );
-
     await Promise.all(
       this.providers.map(async (provider) => {
+        this.setBusy(provider, true);
         try {
-          const user = await provider.authentication.getCurrentUser();
-          this.patchProvider(provider.metadata.id, {
-            busy: false,
-            connected: Boolean(user),
-            user,
-            error: undefined,
-          });
+          await provider.authentication.getCurrentUser();
+          this.clearError(provider);
         } catch (error) {
-          this.patchProvider(provider.metadata.id, {
-            busy: false,
-            connected: false,
-            error: this.errorMessage(error),
-          });
+          this.setError(provider, error);
+        } finally {
+          this.setBusy(provider, false);
         }
       }),
     );
   }
 
-  openConnectDialog(card: ProviderCard): void {
-    this.patchProvider(card.metadata.id, { error: undefined });
+  openConnectDialog(provider: ChatProvider): void {
+    this.clearError(provider);
     const dialogRef = this.dialog.open<AuthUser | undefined, ProviderConnectDialogData>(
       ProviderConnectDialogComponent,
       {
-        data: { provider: card.provider },
-        ariaLabel: `Connect ${card.metadata.displayName}`,
+        data: { provider },
+        ariaLabel: `Connect ${provider.metadata.displayName}`,
         backdropClass: 'provider-dialog-backdrop',
         disableClose: true,
       },
@@ -88,31 +64,49 @@ export class ProviderListComponent implements OnInit {
 
     dialogRef.closed.subscribe(async (user) => {
       if (!user) return;
-      this.patchProvider(card.metadata.id, {
-        user,
-        connected: true,
-        busy: false,
-        error: undefined,
-      });
-      await this.chatService.loadProviderChats(card.provider);
+      await this.chatService.loadProviderChats(provider);
     });
   }
 
-  async disconnect(card: ProviderCard): Promise<void> {
-    this.patchProvider(card.metadata.id, { busy: true, error: undefined });
+  async disconnect(provider: ChatProvider): Promise<void> {
+    this.setBusy(provider, true);
+    this.clearError(provider);
     try {
-      await card.provider.authentication.logout();
-      this.chatService.clearChats(card.provider.metadata.id);
-      this.patchProvider(card.metadata.id, { busy: false, connected: false, user: null });
+      await provider.authentication.logout();
+      this.chatService.clearChats(provider.metadata.id);
     } catch (error) {
-      this.patchProvider(card.metadata.id, { busy: false, error: this.errorMessage(error) });
+      this.setError(provider, error);
+    } finally {
+      this.setBusy(provider, false);
     }
   }
 
-  private patchProvider(providerId: string, patch: Partial<ProviderCard>): void {
-    this.providerCards.update((cards) =>
-      cards.map((card) => (card.metadata.id === providerId ? { ...card, ...patch } : card)),
-    );
+  isBusy(provider: ChatProvider): boolean {
+    return this.busyProviderIds().has(provider.metadata.id);
+  }
+
+  errorFor(provider: ChatProvider): string | undefined {
+    return this.providerErrors()[provider.metadata.id];
+  }
+
+  private setBusy(provider: ChatProvider, busy: boolean): void {
+    this.busyProviderIds.update((ids) => {
+      const next = new Set(ids);
+      if (busy) next.add(provider.metadata.id);
+      else next.delete(provider.metadata.id);
+      return next;
+    });
+  }
+
+  private clearError(provider: ChatProvider): void {
+    this.providerErrors.update(({ [provider.metadata.id]: _, ...errors }) => errors);
+  }
+
+  private setError(provider: ChatProvider, error: unknown): void {
+    this.providerErrors.update((errors) => ({
+      ...errors,
+      [provider.metadata.id]: this.errorMessage(error),
+    }));
   }
 
   private errorMessage(error: unknown): string {

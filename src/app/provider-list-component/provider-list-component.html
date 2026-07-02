@@ -6,43 +6,43 @@
     (searchTermChange)="searchTerm.set($event)"
   />
 
-  @if (providerCards().length === 0) {
+  @if (providers.length === 0) {
     <p class="provider-list__empty">No chat providers are registered yet.</p>
   } @else {
-      @for (card of filteredProviderCards(); track card.metadata.id) {
+      @for (provider of filteredProviders(); track provider.metadata.id) {
         <article class="provider-card">
           <div class="provider-card__summary">
             <div class="provider-card__avatar">
               <img
-                [src]="card.metadata.avatarUrl"
-                [alt]="card.metadata.displayName + ' logo'"
+                [src]="provider.metadata.avatarUrl"
+                [alt]="provider.metadata.displayName + ' logo'"
               />
             </div>
 
           <div class="provider-card__details">
-            <h3>{{ card.metadata.displayName }}</h3>
-            @if (card.connected && card.user) {
-              <p class="provider-card__signed-in">Signed in as {{ card.user.email }}</p>
+            <h3>{{ provider.metadata.displayName }}</h3>
+            @if (provider.authentication.currentUser(); as user) {
+              <p class="provider-card__signed-in">Signed in as {{ user.email }}</p>
             } @else {
-              <p>{{ card.metadata.description }}</p>
+              <p>{{ provider.metadata.description }}</p>
             }
           </div>
 
-          @if (card.connected) {
+          @if (provider.authentication.loggedIn()) {
             <div class="provider-card__connected">
-              <button type="button" (click)="disconnect(card)" [disabled]="card.busy">
-                  {{ card.busy ? 'Disconnecting...' : 'Disconnect' }}
+              <button type="button" (click)="disconnect(provider)" [disabled]="isBusy(provider)">
+                  {{ isBusy(provider) ? 'Disconnecting...' : 'Disconnect' }}
                 </button>
               </div>
             } @else {
-              <button type="button" (click)="openConnectDialog(card)" [disabled]="card.busy">
-                {{ card.busy ? 'Checking...' : 'Connect' }}
+              <button type="button" (click)="openConnectDialog(provider)" [disabled]="isBusy(provider)">
+                {{ isBusy(provider) ? 'Checking...' : 'Connect' }}
               </button>
             }
           </div>
 
-          @if (card.error) {
-            <p class="provider-card__error">{{ card.error }}</p>
+          @if (errorFor(provider); as error) {
+            <p class="provider-card__error">{{ error }}</p>
           }
         </article>
       } @empty {

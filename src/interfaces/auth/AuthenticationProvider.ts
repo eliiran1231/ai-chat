@@ -1,3 +1,4 @@
+import type { Signal } from '@angular/core';
 import type { AuthCredentials } from './AuthCredentials';
 import type { AuthUser } from './AuthUser';
 import type { RegistrationDetails } from './RegistrationDetails';
@@ -16,7 +17,8 @@ export const defaultAuthenticationProviderOptions: AuthenticationProviderOptions
 
 export interface AuthenticationProvider {
   readonly options: AuthenticationProviderOptions;
-  loggedIn: boolean;
+  readonly currentUser: Signal<AuthUser | null>;
+  readonly loggedIn: Signal<boolean>;
   register(details: RegistrationDetails): Promise<AuthUser>;
   login(credentials: AuthCredentials): Promise<AuthUser>;
   logout(): Promise<void>;
