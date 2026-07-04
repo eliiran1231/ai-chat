@@ -51,16 +51,17 @@ export class DbService {
   startSync(): void {
     if (!this.database) throw new Error('PowerSync database has not been initialized.');
     if (this.syncStarted) return;
+    const database = this.database;
 
     this.syncStarted = true;
     this.setSyncState({ kind: 'connecting', connected: false });
     const connector = new PowerSyncConnector(this.authentication, (upload) => {
       this.blockedUpload = upload;
       if (upload) {
-        this.setSyncState({ kind: 'blocked', connected: true, blockedUpload: upload });
+        this.setSyncState({ kind: 'blocked', connected: database.currentStatus.connected, blockedUpload: upload });
       }
     });
-    void this.database.connect(connector).catch((error) => {
+    void database.connect(connector).catch((error) => {
       this.syncStarted = false;
       const message = this.errorMessage(error);
       this.setSyncState({
