@@ -83,7 +83,15 @@ export class DbService {
       await this.database.waitForFirstSync(firstSyncTimeout.signal);
       return true;
     } catch {
-      this.setSyncState({ kind: 'offline', connected: false });
+      if (
+        this.syncState.kind === 'connecting' ||
+        this.syncState.kind === 'syncing'
+      ) {
+        this.setSyncState({
+          kind: 'offline',
+          connected: false,
+        });
+      }
       console.warn('PowerSync first sync was not available; starting in offline mode.');
       return false;
     } finally {
