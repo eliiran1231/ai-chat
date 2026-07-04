@@ -63,7 +63,8 @@ export class PowerSyncConnector implements PowerSyncBackendConnector {
         operationIds: transaction.crud.map((operation) => operation.id),
         message,
       });
-      throw new Error(`PowerSync upload is permanently blocked: ${message}`);
+      await transaction.complete();
+      return;
     }
 
     throw new Error(`PowerSync upload should be retried: ${message}`);

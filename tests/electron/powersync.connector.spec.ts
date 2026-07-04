@@ -42,7 +42,7 @@ describe('PowerSyncConnector.uploadData', () => {
     expect(complete).not.toHaveBeenCalled();
   });
 
-  it('reports and retains a permanently blocked upload', async () => {
+  it('reports and completes a permanently rejected upload to unblock the queue', async () => {
     const complete = vi.fn();
     const reportBlocked = vi.fn();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
@@ -50,12 +50,11 @@ describe('PowerSyncConnector.uploadData', () => {
       json: () => Promise.resolve({ outcome: 'permanent_error', error: 'invalid row' }),
     }));
 
-    await expect(
-      new PowerSyncConnector(authentication, reportBlocked).uploadData(
-        databaseWithTransaction(complete),
-      ),
-    ).rejects.toThrow('permanently blocked');
-    expect(complete).not.toHaveBeenCalled();
+    await new PowerSyncConnector(authentication, reportBlocked).uploadData(
+      databaseWithTransaction(complete),
+    );
+
+    expect(complete).toHaveBeenCalledOnce();
     expect(reportBlocked).toHaveBeenCalledWith({
       operationIds: ['1'],
       message: 'invalid row',

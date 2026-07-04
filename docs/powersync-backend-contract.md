@@ -15,7 +15,7 @@ type UploadResponse =
 
 - `accepted`: every operation was durably committed. Repeated transaction delivery must be idempotent.
 - `retryable_error`: no operation was committed; retrying may succeed.
-- `permanent_error`: no operation was committed. The client pauses automatic retries for the transaction, retains it locally, and reports it as blocked until it is explicitly resolved.
+- `permanent_error`: no operation was committed. The client records the rejected transaction details for explicit resolution, completes the PowerSync transaction to unblock the upload queue, and reports the rejection in the UI.
 - Do not use HTTP 4xx for row validation failures because PowerSync treats 4xx upload failures as queue-blocking. Reserve 401/403 for an invalid session that must be refreshed or reauthenticated.
 
 The backend derives `owner_user_id` from the authenticated JWT subject and ignores any client-provided ownership value. Authorization is checked for every chat, message, and supporter operation.
