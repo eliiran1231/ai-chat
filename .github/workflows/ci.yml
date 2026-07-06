@@ -17,6 +17,6 @@ jobs:
       - run: npm ci
       - run: npx electron-rebuild -f -w better-sqlite3
       - run: npx tsc --project tsconfig.app.json --noEmit
-      - run: npx tsc --project tsconfig.spec.json --noEmit
+      - run: npm test -- --watch=false
       - run: npm run build:electron
       - run: npm run test:electron

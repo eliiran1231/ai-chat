@@ -1,41 +1,11 @@
-import { Component, Injector } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
-import { DefaultManager } from '../../chat-managers/DefaultManager';
-import { ChatProvider } from '../../interfaces/ChatProvider';
 import { Uuid } from '../../interfaces/db/Uuid';
+import { createChatManagerStub } from '../../testing/chat-manager.stub';
 
 import { ChatNavbarComponent } from './chat-navbar-component';
-
-@Component({ template: '' })
-class TestAuthenticationComponent {}
-
-const chatProviderStub: ChatProvider = {
-  metadata: {
-    id: 'test',
-    displayName: 'Test',
-    description: 'Test chat provider',
-    avatarUrl: 'test-provider.png',
-    authenticationComponent: TestAuthenticationComponent,
-  },
-  authentication: {
-    loggedIn: (() => true) as any,
-    register: async () => ({ id: 'test-user', email: 'test@example.com' }),
-    login: async () => ({ id: 'test-user', email: 'test@example.com' }),
-    logout: async () => {},
-    getCurrentUser: async () => ({ id: 'test-user', email: 'test@example.com' }),
-  } as any,
-  createChat: () => {
-    throw new Error('Not implemented');
-  },
-  addMessage: () => {},
-  deleteMessage: () => {},
-  editMessage: () => {},
-  getChats: () => [],
-  deleteChat: () => {},
-};
 
 describe('ChatNavbarComponent', () => {
   let component: ChatNavbarComponent;
@@ -43,7 +13,7 @@ describe('ChatNavbarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChatNavbarComponent]
+      imports: [ChatNavbarComponent],
     })
     .compileComponents();
 
@@ -55,7 +25,7 @@ describe('ChatNavbarComponent', () => {
         'test-chat-id' as Uuid,
         'Test Chat',
         new Supporter('test-supporter-id' as Uuid),
-        new DefaultManager(TestBed.inject(Injector), chatProviderStub),
+        createChatManagerStub(),
         { status: 'Online', avatar: { type: 'text', value: 'TC' } },
       ),
     );

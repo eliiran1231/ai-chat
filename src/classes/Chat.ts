@@ -5,7 +5,7 @@ import { Supporter } from './Supporter';
 import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
 import { SyncedEntity } from './SyncedEntity';
-import { ChatManager } from './ChatManager';
+import type { ChatManager } from './ChatManager';
 import { syncedSignal, SyncedSignal } from '../signals/syncedSignal';
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
 
