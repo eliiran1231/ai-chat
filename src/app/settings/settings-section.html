@@ -24,12 +24,22 @@
           @switch (row.control) {
             @case ('toggle') {
               <label class="settings-switch">
-                <input type="checkbox" [checked]="row.checked" />
+                <input
+                  type="checkbox"
+                  [checked]="isToggleChecked(row)"
+                  [disabled]="isNotificationControlDisabled(row)"
+                  (change)="onToggleChange(row, $event)"
+                />
                 <span></span>
               </label>
             }
             @case ('select') {
-              <select [value]="row.value" [attr.aria-label]="row.label">
+              <select
+                [value]="selectValue(row)"
+                [disabled]="isNotificationControlDisabled(row)"
+                [attr.aria-label]="row.label"
+                (change)="onSelectChange(row, $event)"
+              >
                 @for (option of row.options; track option) {
                   <option [value]="option">{{ option }}</option>
                 }

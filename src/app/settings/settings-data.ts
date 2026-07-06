@@ -8,6 +8,8 @@ import {
   LucideIconInput,
 } from '@lucide/angular';
 
+import type { NotificationSettingKey } from '../../services/notification-settings.service';
+
 export interface SettingsCategory {
   path: SettingsSectionKey;
   title: string;
@@ -28,6 +30,7 @@ export interface SettingsRow {
   checked?: boolean;
   options?: string[];
   danger?: boolean;
+  notificationSettingKey?: NotificationSettingKey;
 }
 
 export interface SettingsSection {
@@ -130,7 +133,7 @@ export const SETTINGS_SECTIONS: Record<SettingsSectionKey, SettingsSection> = {
         label: 'Enable notifications',
         description: 'Allow new message alerts.',
         control: 'toggle',
-        checked: true,
+        notificationSettingKey: 'enableNotifications',
       },
       {
         label: 'Notify me',
@@ -138,12 +141,13 @@ export const SETTINGS_SECTIONS: Record<SettingsSectionKey, SettingsSection> = {
         control: 'select',
         value: 'Always',
         options: ['Always', 'Only when minimized', 'Never'],
+        notificationSettingKey: 'notifyMe',
       },
       {
         label: 'Show preview',
         description: 'Include message text in notification previews.',
         control: 'toggle',
-        checked: true,
+        notificationSettingKey: 'showPreview',
       },
       {
         label: 'Notification sound',
@@ -151,6 +155,7 @@ export const SETTINGS_SECTIONS: Record<SettingsSectionKey, SettingsSection> = {
         control: 'select',
         value: 'Default',
         options: ['Default', 'Soft', 'Bright', 'None'],
+        notificationSettingKey: 'notificationSound',
       },
     ],
   },

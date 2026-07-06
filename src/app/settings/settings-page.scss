@@ -85,6 +85,10 @@
   cursor: pointer;
 }
 
+.settings-switch input:disabled {
+  cursor: not-allowed;
+}
+
 .settings-switch span {
   width: 100%;
   height: 100%;
@@ -110,6 +114,10 @@
   background: #0b8b72;
 }
 
+.settings-switch input:disabled + span {
+  opacity: 0.55;
+}
+
 .settings-switch input:checked + span::after {
   transform: translateX(1.2rem);
 }
@@ -127,6 +135,13 @@
 .settings-row select {
   min-width: 9rem;
   padding: 0 2rem 0 0.75rem;
+}
+
+.settings-row select:disabled {
+  border-color: #c9d1d5;
+  color: #8a969d;
+  cursor: not-allowed;
+  opacity: 0.75;
 }
 
 .settings-range {
