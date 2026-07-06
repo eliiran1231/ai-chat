@@ -8,12 +8,26 @@ import { dbService } from './services/db.service.js';
 import { chatService } from './services/chat.service.js';
 import { messageService } from './services/message.service.js';
 import { supporterService } from './services/supporter.service.js';
+import { appSettingsService } from './services/app-settings.service.js';
 import { registerChatHandlers } from './ipc/chat.handler.js';
 import { registerMessageHandlers } from './ipc/message.handler.js';
 import { registerSupporterHandlers } from './ipc/supporter.handler.js';
+import { registerSettingsHandlers } from './ipc/settings.handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+let isQuitting = false;
+let mainWindow: BrowserWindow | null = null;
+
+function showMainWindow(): void {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    createWindow();
+    return;
+  }
+
+  mainWindow.show();
+  mainWindow.focus();
+}
 
 function getNetworkIp(): string {
   const interfaces = os.networkInterfaces();
@@ -80,10 +94,24 @@ function createWindow(): void {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
+  mainWindow = win;
 
   win.once('ready-to-show', () => {
     win.focus();
     win.webContents.focus();
+  });
+
+  win.on('close', (event) => {
+    if (!isQuitting && appSettingsService.shouldRunInBackground()) {
+      event.preventDefault();
+      win.hide();
+    }
+  });
+
+  win.on('closed', () => {
+    if (mainWindow === win) {
+      mainWindow = null;
+    }
   });
 
   win.webContents.setWindowOpenHandler(({ url }: { url: string }) => {
@@ -109,21 +137,25 @@ function createWindow(): void {
 
 app.whenReady().then(async () => {
   await dbService.run(`PRAGMA foreign_keys = ON`);
+  await appSettingsService.initialize();
   await chatService.initialize();
   await messageService.initialize();
   await supporterService.initialize();
   registerChatHandlers();
   registerMessageHandlers();
   registerSupporterHandlers();
+  registerSettingsHandlers();
   registerSystemHandlers();
   //Menu.setApplicationMenu(null);
   createWindow();
 
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
+    showMainWindow();
   });
+});
+
+app.on('before-quit', () => {
+  isQuitting = true;
 });
 
 app.on('window-all-closed', () => {

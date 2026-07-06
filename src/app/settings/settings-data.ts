@@ -8,6 +8,8 @@ import {
   LucideIconInput,
 } from '@lucide/angular';
 
+import type { GeneralSettingKey } from '../../services/app-settings.service';
+
 export interface SettingsCategory {
   path: SettingsSectionKey;
   title: string;
@@ -19,6 +21,7 @@ export type SettingsSectionKey =
   'general' | 'profile' | 'notifications' | 'chats' | 'appearance' | 'about';
 
 export type SettingsControlType = 'toggle' | 'select' | 'range' | 'button' | 'info';
+export type SettingsAction = 'resetGeneralSettings';
 
 export interface SettingsRow {
   label: string;
@@ -28,6 +31,8 @@ export interface SettingsRow {
   checked?: boolean;
   options?: string[];
   danger?: boolean;
+  settingKey?: GeneralSettingKey;
+  action?: SettingsAction;
 }
 
 export interface SettingsSection {
@@ -78,31 +83,29 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
 export const SETTINGS_SECTIONS: Record<SettingsSectionKey, SettingsSection> = {
   general: {
     title: 'General',
-    description: 'Control startup behavior, reading comfort, and language preferences.',
+    description: 'Control startup and background behavior.',
     rows: [
       {
         label: 'Start at login',
         description: 'Open the app automatically when you sign in to this computer.',
         control: 'toggle',
+        settingKey: 'startAtLogin',
       },
       {
         label: 'Run in background',
         description: 'Keep the app available after closing the main window.',
         control: 'toggle',
-        checked: true,
+        settingKey: 'runInBackground',
       },
+      // todo: add font size support to the display
+      // todo: add a separate language section between the cards
       {
-        label: 'Font size',
-        description: 'Adjust the size used for app and message text.',
-        control: 'range',
-        value: '16',
-      },
-      {
-        label: 'Language',
-        description: 'Choose the app display language.',
-        control: 'select',
-        value: 'English',
-        options: ['English', 'Hebrew', 'Spanish', 'French'],
+        label: 'Reset all settings',
+        description: '',
+        control: 'button',
+        value: 'Reset',
+        danger: true,
+        action: 'resetGeneralSettings',
       },
     ],
   },

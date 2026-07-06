@@ -24,7 +24,11 @@
           @switch (row.control) {
             @case ('toggle') {
               <label class="settings-switch">
-                <input type="checkbox" [checked]="row.checked" />
+                <input
+                  type="checkbox"
+                  [checked]="isToggleChecked(row)"
+                  (change)="onToggleChange(row, $event)"
+                />
                 <span></span>
               </label>
             }
@@ -50,6 +54,7 @@
                 type="button"
                 class="settings-action"
                 [class.settings-action--danger]="row.danger"
+                (click)="onButtonClick(row)"
               >
                 {{ row.value }}
               </button>
