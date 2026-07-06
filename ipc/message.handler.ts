@@ -5,12 +5,17 @@ import type { CommitMessagePayload } from '../services/message.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
 type Uuid = string;
+type GetChatMessagesRequest = {
+  chatId: Uuid;
+  offset: number;
+  limit: number;
+};
 
 export function registerMessageHandlers(): void {
   ipcMain.handle(
     'db:getChatMessages',
-    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: Uuid) =>
-      messageService.getChatMessages(chatId),
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, request: GetChatMessagesRequest) =>
+      messageService.getChatMessages(request.chatId, request.offset, request.limit),
     ),
   );
   ipcMain.handle(

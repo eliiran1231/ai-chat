@@ -6,18 +6,16 @@ import { AgentsService } from '../services/agents.service';
 import {
   getPersistableValidationErrorMessage,
   Question,
-  QuestionOptions,
 } from '../classes/Question';
-import { Message, MessageOptions } from '../classes/Message';
+import { Message } from '../classes/Message';
 import { Answer } from '../classes/Answer';
-import { coerceValidatorSpec } from '../classes/MessageValidator';
-import { MessageRecord } from '../interfaces/db/MessageRecord';
 import { Supporter } from '../classes/Supporter';
 import { SupporterRecord } from '../interfaces/db/SupporterRecord';
 import { Agent } from '../classes/Agent';
 import { ChatRecord } from '../interfaces/db/ChatRecord';
 import { Uuid } from '../interfaces/db/Uuid';
 import { SqliteManager } from '../chat-managers/SqliteManager';
+import { SqliteMessagesSource } from '../message-sources/SqliteMessagesSource';
 
 @Injectable({
   providedIn: 'root',
@@ -130,10 +128,7 @@ export class SqliteProvider implements ChatProvider {
     const records = await this.dbService.getChats();
     return Promise.all(
       records.map(async (record) => {
-        const [messages, persistedSupporterRecord] = await Promise.all([
-          this.dbService.getChatMessages(record.id),
-          this.dbService.getChatSupporter(record.id),
-        ]);
+        const persistedSupporterRecord = await this.dbService.getChatSupporter(record.id);
         if (!persistedSupporterRecord?.agentName)
           throw new Error("couldn't retrieve agent from SQL");
         const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
@@ -146,7 +141,7 @@ export class SqliteProvider implements ChatProvider {
             context: '',
           }));
 
-        return this.hydrateChat(record, initialAgent, messages, supporterRecord);
+        return this.hydrateChat(record, initialAgent, supporterRecord, false);
       }),
     );
   }
@@ -170,19 +165,19 @@ export class SqliteProvider implements ChatProvider {
       context: '{}',
     });
 
-    return this.hydrateChat(record, initialAgent, [], supporterRecord);
+    return this.hydrateChat(record, initialAgent, supporterRecord, true);
   }
 
   async deleteChat(chatId: Uuid): Promise<void> {
     return void this.dbService.deleteChat(chatId);
   }
 
-  hydrateChat(
+  async hydrateChat(
     record: ChatRecord,
     initialAgent: Agent,
-    messageRecords: MessageRecord[],
     supporterRecord: SupporterRecord,
-  ): Chat {
+    isNewChat: boolean,
+  ): Promise<Chat> {
     let context;
     try {
       context = supporterRecord ? JSON.parse(supporterRecord.context) : {};
@@ -207,11 +202,8 @@ export class SqliteProvider implements ChatProvider {
       tipLabel: record.tipLabel,
     });
     chat.setSaveChangesHandler((target) => void this.commitChatChanges(target));
-    for (const messageRecord of messageRecords) {
-      const message = this.hydrateMessage(messageRecord, manager);
-      message.setChat(chat);
-      chat.messages.update(messages => [...messages, message]);
-    }
+    chat.addMessagesSource(new SqliteMessagesSource(chat, this.dbService, this));
+    await chat.loadMessages();
     supporter.setSaveChangesHandler(this.commitSupporterChanges.bind(this));
     supporter.onAgentSwitch.subscribe((agent) =>
       this.dbService.updateSupporterAgent({
@@ -219,43 +211,8 @@ export class SqliteProvider implements ChatProvider {
         agentName: agent.name,
       }),
     );
-    supporter.setAgent(initialAgent);
+    await supporter.setAgent(initialAgent, isNewChat);
     return chat;
   }
 
-  private hydrateMessage(record: MessageRecord, manager: SqliteManager): Message {
-    const messageType = record.messageType ?? 'message';
-    const options: MessageOptions = {
-      ...record,
-      time: new Date(record.time),
-      editedAt: record.editedAt ? new Date(record.editedAt) : undefined,
-    };
-
-    const message =
-      messageType === 'question'
-        ? this.hydrateQuestion(record, options)
-        : messageType === 'answer'
-          ? new Answer(record.value, options)
-          : new Message(record.value, options);
-    message.setSaveChangesHandler((target) => void this.commitMessageChanges(target));
-    return message;
-  }
-
-  private hydrateQuestion(record: MessageRecord, options: MessageOptions): Question {
-    const validatorSpec = coerceValidatorSpec(record.validatorSpec);
-    const questionOptions: QuestionOptions = {
-      ...options,
-      possibleAnswers: record.possibleAnswers,
-      answerSelectionMode: record.answerSelectionMode,
-      validationErrorMessage: record.validationErrorMessage,
-      validator: validatorSpec,
-    };
-    const question = new Question(record.value, questionOptions);
-
-    if (!validatorSpec && record.validationErrorMessage) {
-      question.validationErrorMessage = new Message(record.validationErrorMessage);
-    }
-
-    return question;
-  }
 }

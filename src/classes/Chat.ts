@@ -8,6 +8,7 @@ import { SyncedEntity } from './SyncedEntity';
 import { ChatManager } from './ChatManager';
 import { syncedSignal, SyncedSignal } from '../signals/syncedSignal';
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
+import { MessagesSource } from './MessagesSource';
 
 export type Avatar = {
   type: 'image' | 'text';
@@ -42,6 +43,9 @@ export class Chat extends SyncedEntity {
   readonly supporter: Supporter;
   readonly active: WritableSignal<boolean> = signal(false);
   readonly user: Client;
+  private readonly messageSources: MessagesSource[] = [];
+  private activeMessageSourceIndex = 0;
+  private messagesLoad?: Promise<Message[]>;
   private manager: ChatManager;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
@@ -79,6 +83,39 @@ export class Chat extends SyncedEntity {
     this.avatarRing = syncedSignal(options.avatarRing ?? false);
     this.tipLabel = syncedSignal(options.tipLabel ?? '');
     this.initSync()
+  }
+
+  addMessagesSource(source: MessagesSource): void {
+    this.messageSources.push(source);
+  }
+
+  loadOlderMessages(): Promise<Message[]> {
+    if (this.messagesLoad) return this.messagesLoad;
+
+    this.messagesLoad = this.trackMessageLoad();
+    return this.messagesLoad;
+  }
+
+  loadMessages(): Promise<Message[]> {
+    return this.loadOlderMessages();
+  }
+
+  private async loadNextMessageChunk(): Promise<Message[]> {
+    while (this.activeMessageSourceIndex < this.messageSources.length) {
+      const source = this.messageSources[this.activeMessageSourceIndex];
+      const messages = await source.loadChunk();
+      if (source.isExhausted()) this.activeMessageSourceIndex++;
+      if (messages.length > 0) return messages;
+    }
+    return [];
+  }
+
+  private async trackMessageLoad(): Promise<Message[]> {
+    try {
+      return await this.loadNextMessageChunk();
+    } finally {
+      this.messagesLoad = undefined;
+    }
   }
 
   processFileUrl(file: File): string | Promise<string> {
