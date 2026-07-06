@@ -109,18 +109,7 @@ export const SETTINGS_SECTIONS: Record<SettingsSectionKey, SettingsSection> = {
   profile: {
     title: 'Profile',
     description: 'Manage the details other people see when they chat with you.',
-    rows: [
-      {
-        label: 'Display name',
-        description: 'Natan',
-        control: 'info',
-      },
-      {
-        label: 'Username',
-        description: 'Visible only inside this local app for now.',
-        control: 'info',
-      },
-    ],
+    rows: [],
   },
   notifications: {
     title: 'Notifications',
