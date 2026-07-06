@@ -20,6 +20,12 @@ export class ProviderSelectionDialogComponent {
   readonly data = inject<ProviderSelectionDialogData>(DIALOG_DATA);
   private readonly dialog = inject(ANIMATED_DIALOG_CONTEXT);
 
+  ngOnInit(): void {
+    if(this.data.providers.length === 1) {
+      this.selectProvider(this.data.providers[0]);
+    }
+  }
+
   selectProvider(provider: ChatProvider): void {
     this.dialog.close(provider);
   }

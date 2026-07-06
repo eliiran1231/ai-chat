@@ -3,10 +3,13 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, Injector, signal, Type } from '@angular/core';
 import { ANIMATED_DIALOG_CONTEXT } from './animated-dialog-context.token';
 
+export type AnimatedDialogAnimation = 'none' | 'pop';
+
 export interface AnimatedDialogData {
   component: Type<unknown>;
   width?: string;
   height?: string;
+  animation?: AnimatedDialogAnimation;
 }
 
 @Component({
@@ -22,6 +25,9 @@ export class AnimatedDialogComponent {
   private readonly injector = inject(Injector);
 
   readonly isShown = signal(true);
+  readonly animation = this.data.animation ?? 'pop';
+  readonly enterAnimation = this.animation === 'pop' ? 'provider-dialog-enter' : '';
+  readonly leaveAnimation = this.animation === 'pop' ? 'provider-dialog-leave' : '';
   readonly contentInjector = Injector.create({
     parent: this.injector,
     providers: [
@@ -48,6 +54,11 @@ export class AnimatedDialogComponent {
   }
 
   private beginClose(result?: unknown): void {
+    if (this.animation === 'none') {
+      this.dialogRef.close(result);
+      return;
+    }
+
     this.closeResult = result;
     this.isShown.set(false);
   }

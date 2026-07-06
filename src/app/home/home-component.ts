@@ -119,7 +119,8 @@ export class HomeComponent implements OnInit {
         data: {
           component: ProviderSelectionDialogComponent,
           providers: this.providers,
-          width: '90vw'
+          width: '90vw',
+          animation: this.providers.length == 1 ? 'none' : 'pop'
         },
         ariaLabel: 'Choose a chat provider',
         backdropClass: 'provider-dialog-backdrop',
