@@ -1,0 +1,56 @@
+<section class="settings-layout" [class.settings-layout--section-open]="sectionOpen()">
+  <aside class="settings-sidebar">
+    <header class="settings-sidebar__header">
+      <button
+        type="button"
+        class="settings-icon-button"
+        aria-label="Close settings"
+        title="Back"
+        (click)="closeSettings()"
+      >
+        <svg [lucideIcon]="backIcon" aria-hidden="true"></svg>
+      </button>
+      <h1>Settings</h1>
+    </header>
+
+    <nav class="settings-nav" aria-label="Settings sections">
+      @for (category of categories; track category.path) {
+        <a
+          class="settings-nav__item"
+          [routerLink]="['/settings', category.path]"
+          [replaceUrl]="true"
+          routerLinkActive="settings-nav__item--active"
+        >
+          <svg
+            [lucideIcon]="category.icon"
+            class="settings-nav__item-icon"
+            aria-hidden="true"
+          ></svg>
+          <span>
+            <strong>{{ category.title }}</strong>
+            <small>{{ category.description }}</small>
+          </span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="settings-stage">
+    @if (sectionOpen()) {
+      <header class="settings-stage__header">
+        <button
+          type="button"
+          class="settings-mobile-back"
+          aria-label="Back to settings list"
+          (click)="backToSettingsList()"
+        >
+          <svg [lucideIcon]="backIcon" aria-hidden="true"></svg>
+        </button>
+
+        <h2>{{ pageTitle() }}</h2>
+      </header>
+    }
+
+    <router-outlet></router-outlet>
+  </main>
+</section>

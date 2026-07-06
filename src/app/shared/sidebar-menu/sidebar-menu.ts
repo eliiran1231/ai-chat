@@ -1,5 +1,5 @@
-import { Component, computed, input, output} from '@angular/core';
-import { LucideIconInput } from '@lucide/angular';
+import { Component, computed, input, output } from '@angular/core';
+import { LucideIconInput, LucideSettings } from '@lucide/angular';
 
 import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
 
@@ -17,18 +17,28 @@ export class SidebarMenuComponent {
   exitFullscreenIcon = input.required<LucideIconInput>();
 
   fullscreenToggled = output<void>();
+  settingsOpened = output<void>();
 
   menuItems = computed<AppMenuItem[]>(() => [
-      {
-        id: 'fullscreen',
-        label: this.isFullscreen() ? 'Exit fullscreen' : 'Enter fullscreen',
-        icon: this.isFullscreen() ? this.exitFullscreenIcon() : this.enterFullscreenIcon(),
-      },
-    ]);
+    {
+      id: 'settings',
+      label: 'Settings',
+      icon: LucideSettings,
+    },
+    {
+      id: 'fullscreen',
+      label: this.isFullscreen() ? 'Exit fullscreen' : 'Enter fullscreen',
+      icon: this.isFullscreen() ? this.exitFullscreenIcon() : this.enterFullscreenIcon(),
+    },
+  ]);
 
   onMenuItemSelected(id: string): void {
     if (id === 'fullscreen') {
       this.fullscreenToggled.emit();
+    }
+
+    if (id === 'settings') {
+      this.settingsOpened.emit();
     }
   }
 }
