@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { PROVIDER_AUTHENTICATION_DIALOG_CONTEXT } from '../provider-connect-dialog/provider-authentication-dialog-context.token';
+import { PROVIDER_AUTHENTICATION_DIALOG_CONTEXT } from '../animated-dialog-component/animated-dialog-context.token';
 
 @Component({
   selector: 'app-powersync-connect',

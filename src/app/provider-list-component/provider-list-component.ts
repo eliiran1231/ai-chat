@@ -13,9 +13,12 @@ import { ChatProvider } from '../../interfaces/ChatProvider';
 import type { AuthUser } from '../../../shared/auth/AuthUser';
 import { CHAT_PROVIDER } from '../../services/chat-providers.module';
 import {
+  AnimatedDialogComponent,
+} from '../animated-dialog-component/animated-dialog-component';
+import {
   ProviderConnectDialogComponent,
   ProviderConnectDialogData,
-} from '../provider-connect-dialog/provider-connect-dialog-component';
+} from '../provider-connect-dialog-component/provider-connect-dialog-component';
 import { SidebarSearchComponent } from '../shared/sidebar-search/sidebar-search-component';
 import { ChatService } from '../../services/chat.service';
 import { ProviderCardComponent } from '../provider-card-component/provider-card-component';
@@ -63,9 +66,9 @@ export class ProviderListComponent implements OnInit {
   openConnectDialog(provider: ChatProvider): void {
     this.clearError(provider);
     const dialogRef = this.dialog.open<AuthUser | undefined, ProviderConnectDialogData>(
-      ProviderConnectDialogComponent,
+      AnimatedDialogComponent,
       {
-        data: { provider },
+        data: { component: ProviderConnectDialogComponent, provider },
         ariaLabel: `Connect ${provider.metadata.displayName}`,
         backdropClass: 'provider-dialog-backdrop',
         disableClose: true,

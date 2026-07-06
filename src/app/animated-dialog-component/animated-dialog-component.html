@@ -1,0 +1,13 @@
+@if (isShown()) {
+  <section
+    class="provider-dialog"
+    [style.--dialog-width]="data.width"
+    [style.--dialog-height]="data.height"
+    [style.--dialog-max-height]="data.height ? 'none' : null"
+    animate.enter="provider-dialog-enter"
+    animate.leave="provider-dialog-leave"
+    (animationend)="finishClose()"
+  >
+    <ng-container *ngComponentOutlet="data.component; injector: contentInjector" />
+  </section>
+}
