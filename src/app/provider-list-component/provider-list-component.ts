@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Inject, OnInit, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  Inject,
+  OnInit,
+  inject,
+  signal,
+} from '@angular/core';
 import { Dialog, DialogModule } from '@angular/cdk/dialog';
 import { ChatProvider } from '../../interfaces/ChatProvider';
 import type { AuthUser } from '../../../shared/auth/AuthUser';
@@ -10,12 +18,14 @@ import {
 } from '../provider-connect-dialog/provider-connect-dialog-component';
 import { SidebarSearchComponent } from '../shared/sidebar-search/sidebar-search-component';
 import { ChatService } from '../../services/chat.service';
+import { ProviderCardComponent } from '../provider-card-component/provider-card-component';
 
 @Component({
   selector: 'app-provider-list-component',
-  imports: [CommonModule, DialogModule, SidebarSearchComponent],
+  imports: [CommonModule, DialogModule, SidebarSearchComponent, ProviderCardComponent],
   templateUrl: './provider-list-component.html',
   styleUrl: './provider-list-component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProviderListComponent implements OnInit {
   readonly searchTerm = signal('');
@@ -87,6 +97,23 @@ export class ProviderListComponent implements OnInit {
 
   errorFor(provider: ChatProvider): string | undefined {
     return this.providerErrors()[provider.metadata.id];
+  }
+
+  actionText(provider: ChatProvider): string {
+    if (this.isBusy(provider)) {
+      return provider.authentication.loggedIn() ? 'Disconnecting...' : 'Checking...';
+    }
+
+    return provider.authentication.loggedIn() ? 'Disconnect' : 'Connect';
+  }
+
+  handleAction(provider: ChatProvider): void {
+    if (provider.authentication.loggedIn()) {
+      void this.disconnect(provider);
+      return;
+    }
+
+    this.openConnectDialog(provider);
   }
 
   private setBusy(provider: ChatProvider, busy: boolean): void {

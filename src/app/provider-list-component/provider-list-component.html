@@ -10,41 +10,16 @@
     <p class="provider-list__empty">No chat providers are registered yet.</p>
   } @else {
       @for (provider of filteredProviders(); track provider.metadata.id) {
-        <article class="provider-card">
-          <div class="provider-card__summary">
-            <div class="provider-card__avatar">
-              <img
-                [src]="provider.metadata.avatarUrl"
-                [alt]="provider.metadata.displayName + ' logo'"
-              />
-            </div>
-
-          <div class="provider-card__details">
-            <h3>{{ provider.metadata.displayName }}</h3>
-            @if (provider.authentication.currentUser(); as user) {
-              <p class="provider-card__signed-in">Signed in as {{ user.email }}</p>
-            } @else {
-              <p>{{ provider.metadata.description }}</p>
-            }
-          </div>
-
-          @if (provider.authentication.loggedIn()) {
-            <div class="provider-card__connected">
-              <button type="button" (click)="disconnect(provider)" [disabled]="isBusy(provider)">
-                  {{ isBusy(provider) ? 'Disconnecting...' : 'Disconnect' }}
-                </button>
-              </div>
-            } @else {
-              <button type="button" (click)="openConnectDialog(provider)" [disabled]="isBusy(provider)">
-                {{ isBusy(provider) ? 'Checking...' : 'Connect' }}
-              </button>
-            }
-          </div>
-
-          @if (errorFor(provider); as error) {
-            <p class="provider-card__error">{{ error }}</p>
-          }
-        </article>
+        <app-provider-card
+          [metadata]="provider.metadata"
+          [secondaryText]="provider.authentication.currentUser()?.email
+            ? 'Signed in as ' + provider.authentication.currentUser()?.email
+            : provider.metadata.description"
+          [buttonText]="actionText(provider)"
+          [disabled]="isBusy(provider)"
+          [error]="errorFor(provider)"
+          (action)="handleAction(provider)"
+        />
       } @empty {
         <p class="provider-list__empty">No providers match your search</p>
       }
