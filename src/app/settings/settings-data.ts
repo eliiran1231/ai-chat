@@ -8,6 +8,8 @@ import {
   LucideIconInput,
 } from '@lucide/angular';
 
+import type { ChatSettingKey } from '../../services/chat-settings.service';
+
 export interface SettingsCategory {
   path: SettingsSectionKey;
   title: string;
@@ -19,6 +21,7 @@ export type SettingsSectionKey =
   'general' | 'profile' | 'notifications' | 'chats' | 'appearance' | 'about';
 
 export type SettingsControlType = 'toggle' | 'select' | 'range' | 'button' | 'info';
+export type SettingsAction = 'deleteAllChats';
 
 export interface SettingsRow {
   label: string;
@@ -28,6 +31,8 @@ export interface SettingsRow {
   checked?: boolean;
   options?: string[];
   danger?: boolean;
+  action?: SettingsAction;
+  chatSettingKey?: ChatSettingKey;
 }
 
 export interface SettingsSection {
@@ -160,23 +165,17 @@ export const SETTINGS_SECTIONS: Record<SettingsSectionKey, SettingsSection> = {
     rows: [
       {
         label: 'Enter sends message',
-        description: 'Use Shift + Enter for a new line.',
+        description: 'Use Shift + Enter for a new line',
         control: 'toggle',
-        checked: true,
-      },
-      {
-        label: 'Chat theme',
-        description: 'Theme controls are planned for a future version.',
-        control: 'select',
-        value: 'System',
-        options: ['System', 'Light', 'Dark'],
+        chatSettingKey: 'enterSendsMessage',
       },
       {
         label: 'Delete all chats',
-        description: 'This action is UI-only and does not delete data yet.',
+        description: 'Permanently delete all chats and messages.',
         control: 'button',
         value: 'Delete',
         danger: true,
+        action: 'deleteAllChats',
       },
     ],
   },

@@ -1,8 +1,9 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { Component, input, model, output, signal } from '@angular/core';
+import { Component, inject, input, model, output, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LucideDynamicIcon, LucidePaperclip, LucideSendHorizontal } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
+import { ChatSettingsService } from '../../services/chat-settings.service';
 
 @Component({
   selector: 'app-chat-input-component',
@@ -11,6 +12,7 @@ import { Chat } from '../../classes/Chat';
   styleUrl: './chat-input-component.scss',
 })
 export class ChatInputComponent {
+  private chatSettingsService = inject(ChatSettingsService);
   readonly composerMaxRows = 5;
   readonly attachIcon = LucidePaperclip;
   readonly sendIcon = LucideSendHorizontal;
@@ -48,7 +50,16 @@ export class ChatInputComponent {
 
 
   handleComposerKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+    if (event.key !== 'Enter' || event.isComposing) {
+      return;
+    }
+
+    const enterSendsMessage = this.chatSettingsService.settings().enterSendsMessage;
+    const shouldSend =
+      (enterSendsMessage && !event.shiftKey) ||
+      (!enterSendsMessage && event.ctrlKey);
+
+    if (shouldSend) {
       event.preventDefault();
       (event.target as HTMLTextAreaElement).form?.requestSubmit();
     }

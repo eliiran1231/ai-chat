@@ -66,6 +66,17 @@ export class ChatService {
     this._chatMap.delete(chatId)
   }
 
+  async deleteAllChats(): Promise<void> {
+    const chats = [...this.chats()];
+    const selectedChatId = this.selectedChatId();
+
+    await Promise.all(chats.map((chat) => chat.delete()));
+
+    if (selectedChatId && !this._chatMap.has(selectedChatId)) {
+      this.setSelectedChatId(undefined);
+    }
+  }
+
   async createChat(
     initialAgent: Agent = new AiAgent(this.injector),
     provider: ChatProvider = this.defaultProvider

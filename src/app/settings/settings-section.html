@@ -17,14 +17,18 @@
       <article class="settings-row">
         <div class="settings-row__copy">
           <h3>{{ row.label }}</h3>
-          <p>{{ row.description }}</p>
+          <p>{{ rowDescription(row) }}</p>
         </div>
 
         <div class="settings-row__control">
           @switch (row.control) {
             @case ('toggle') {
               <label class="settings-switch">
-                <input type="checkbox" [checked]="row.checked" />
+                <input
+                  type="checkbox"
+                  [checked]="isToggleChecked(row)"
+                  (change)="onToggleChange(row, $event)"
+                />
                 <span></span>
               </label>
             }
@@ -50,6 +54,7 @@
                 type="button"
                 class="settings-action"
                 [class.settings-action--danger]="row.danger"
+                (click)="onButtonClick(row)"
               >
                 {{ row.value }}
               </button>
