@@ -1,43 +1,13 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Component, Injector } from '@angular/core';
-import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
+import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
-import { DefaultManager } from '../../chat-managers/DefaultManager';
-import { ChatProvider } from '../../interfaces/ChatProvider';
 import { Uuid } from '../../interfaces/db/Uuid';
-import { REGISTERED_AGENTS } from '../../services/agents.module';
+import { createChatManagerStub } from '../../testing/chat-manager.stub';
+import { sanitizeMarkdown } from '../../utils/sanitize-markdown';
 import { ChatComponent } from './chat-component';
-
-@Component({ template: '' })
-class TestAuthenticationComponent {}
-
-const chatProviderStub: ChatProvider = {
-  metadata: {
-    id: 'test',
-    displayName: 'Test',
-    description: 'Test chat provider',
-    avatarUrl: 'test-provider.png',
-    authenticationComponent: TestAuthenticationComponent,
-  },
-  authentication: {
-    loggedIn: (() => true) as any,
-    register: async () => ({ id: 'test-user', email: 'test@example.com' }),
-    login: async () => ({ id: 'test-user', email: 'test@example.com' }),
-    logout: async () => {},
-    getCurrentUser: async () => ({ id: 'test-user', email: 'test@example.com' }),
-  } as any,
-  createChat: () => {
-    throw new Error('Not implemented');
-  },
-  addMessage: () => {},
-  deleteMessage: () => {},
-  editMessage: () => {},
-  getChats: () => [],
-  deleteChat: () => {},
-};
 
 describe('ChatComponent', () => {
   let fixture: ComponentFixture<ChatComponent>;
@@ -48,6 +18,10 @@ describe('ChatComponent', () => {
       providers: [
         provideHttpClient(),
         provideMarkdown({
+          sanitize: {
+            provide: SANITIZE,
+            useValue: sanitizeMarkdown,
+          },
           markedOptions: {
             provide: MARKED_OPTIONS,
             useValue: {
@@ -56,10 +30,6 @@ describe('ChatComponent', () => {
             },
           },
         }),
-        {
-          provide: REGISTERED_AGENTS,
-          useValue: {},
-        },
       ],
     }).compileComponents();
 
@@ -72,7 +42,7 @@ describe('ChatComponent', () => {
       'test-chat-id' as Uuid,
       'Test Chat',
       supporter,
-      new DefaultManager(TestBed.inject(Injector), chatProviderStub),
+      createChatManagerStub(),
       { status: 'Online', avatar: { type: 'text', value: 'TC' } },
     );
     if (typeof draftMessage === 'string') {
@@ -84,6 +54,7 @@ describe('ChatComponent', () => {
     fixture.componentRef.setInput('chat', chat);
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
 
     return chat;
   }
@@ -114,7 +85,7 @@ describe('ChatComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(chat.messages).toHaveLength(1);
+    expect(chat.messages()).toHaveLength(1);
     expect(chat.messages()[0].value()).toBe('Hello from Enter');
     expect(chat.draftMessage()).toBe('');
   });
@@ -124,9 +95,12 @@ describe('ChatComponent', () => {
     message.from.set('supporter');
     await renderChat([message]);
 
-    const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
-    expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
-    expect(bubble?.querySelector('em')?.textContent).toBe('italic');
+    await vi.waitFor(() => {
+      const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
+
+      expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
+      expect(bubble?.querySelector('em')?.textContent).toBe('italic');
+    });
   });
 
   it('renders user messages through the message bubble markdown view', async () => {
@@ -134,8 +108,11 @@ describe('ChatComponent', () => {
     message.from.set('client');
     await renderChat([message]);
 
-    const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
-    expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
+    await vi.waitFor(() => {
+      const bubble = fixture.nativeElement.querySelector('.message-markdown') as HTMLElement | null;
+
+      expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
+    });
   });
 
   it('renders markdown files as img elements', async () => {
@@ -147,13 +124,16 @@ describe('ChatComponent', () => {
       message,
     ]);
 
-    const file = fixture.nativeElement.querySelector(
-      '.message-markdown img',
-    ) as HTMLImageElement | null;
-    expect(file?.getAttribute('src')).toBe(
-      'https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg',
-    );
-    expect(file?.getAttribute('alt')).toBe('A mushroom-head robot drinking bubble tea');
+    await vi.waitFor(() => {
+      const file = fixture.nativeElement.querySelector(
+        '.message-markdown img',
+      ) as HTMLImageElement | null;
+
+      expect(file?.getAttribute('src')).toBe(
+        'https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg',
+      );
+      expect(file?.getAttribute('alt')).toBe('A mushroom-head robot drinking bubble tea');
+    });
   });
 
   it('renders one date separator per message day', async () => {

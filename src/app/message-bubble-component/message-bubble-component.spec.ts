@@ -1,8 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MARKED_OPTIONS, provideMarkdown } from 'ngx-markdown';
+import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
+import { sanitizeMarkdown } from '../../utils/sanitize-markdown';
 
 import { MessageBubbleComponent } from './message-bubble-component';
 
@@ -16,6 +17,10 @@ describe('MessageBubbleComponent', () => {
       providers: [
         provideHttpClient(),
         provideMarkdown({
+          sanitize: {
+            provide: SANITIZE,
+            useValue: sanitizeMarkdown,
+          },
           markedOptions: {
             provide: MARKED_OPTIONS,
             useValue: {
@@ -27,17 +32,20 @@ describe('MessageBubbleComponent', () => {
       ],
     })
     .compileComponents();
-
-    fixture = TestBed.createComponent(MessageBubbleComponent);
-    component = fixture.componentInstance;
-    const message = new Message('hello');
-    message.from.set('supporter');
-    fixture.componentRef.setInput('message', message);
-    fixture.detectChanges();
-    await fixture.whenStable();
   });
 
-  it('should create', () => {
+  async function renderMessage(message: Message, searchTerm = ''): Promise<void> {
+    fixture = TestBed.createComponent(MessageBubbleComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput('message', message);
+    fixture.componentRef.setInput('searchTerm', searchTerm);
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+
+  it('should create', async () => {
+    await renderMessage(new Message('hello'));
+
     expect(component).toBeTruthy();
   });
 
@@ -45,14 +53,15 @@ describe('MessageBubbleComponent', () => {
     const message = new Message('hello world');
     message.from.set('supporter');
 
-    fixture.componentRef.setInput('message', message);
-    fixture.componentRef.setInput('searchTerm', 'world');
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await renderMessage(message, 'world');
 
-    const highlightedText = fixture.nativeElement.querySelector('.message-markdown mark') as HTMLElement | null;
+    await vi.waitFor(() => {
+      const highlightedText = fixture.nativeElement.querySelector(
+        '.message-markdown mark',
+      ) as HTMLElement | null;
 
-    expect(highlightedText?.textContent).toBe('world');
+      expect(highlightedText?.textContent).toBe('world');
+    });
   });
 
   it('renders question answer controls for questions with possible answers', async () => {
@@ -61,9 +70,7 @@ describe('MessageBubbleComponent', () => {
     });
     question.from.set('supporter');
 
-    fixture.componentRef.setInput('message', question);
-    fixture.detectChanges();
-    await fixture.whenStable();
+    await renderMessage(question);
 
     const answerControls = fixture.nativeElement.querySelector(
       'app-question-answer-controls',
