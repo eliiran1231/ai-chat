@@ -8,6 +8,8 @@ import {
   LucideIconInput,
 } from '@lucide/angular';
 
+import type { DisplaySettingKey } from '../../services/display-settings.service';
+
 export interface SettingsCategory {
   path: SettingsSectionKey;
   title: string;
@@ -19,6 +21,7 @@ export type SettingsSectionKey =
   'general' | 'profile' | 'notifications' | 'chats' | 'appearance' | 'about';
 
 export type SettingsControlType = 'toggle' | 'select' | 'range' | 'button' | 'info';
+export type SettingsAction = 'resetDisplayPreferences';
 
 export interface SettingsRow {
   label: string;
@@ -28,6 +31,8 @@ export interface SettingsRow {
   checked?: boolean;
   options?: string[];
   danger?: boolean;
+  displaySettingKey?: DisplaySettingKey;
+  action?: SettingsAction;
 }
 
 export interface SettingsSection {
@@ -185,11 +190,19 @@ export const SETTINGS_SECTIONS: Record<SettingsSectionKey, SettingsSection> = {
     description: 'Shape the look and density of the app.',
     rows: [
       {
+        label: 'Font size',
+        description: 'Adjust the size used for app and message text.',
+        control: 'range',
+        value: '16',
+        displaySettingKey: 'fontSize',
+      },
+      {
         label: 'Theme',
         description: 'Choose the visual theme.',
         control: 'select',
         value: 'System',
         options: ['System', 'Light', 'Dark'],
+        displaySettingKey: 'theme',
       },
       {
         label: 'Display density',
@@ -197,13 +210,23 @@ export const SETTINGS_SECTIONS: Record<SettingsSectionKey, SettingsSection> = {
         control: 'select',
         value: 'Comfortable',
         options: ['Comfortable', 'Compact', 'Spacious'],
+        displaySettingKey: 'displayDensity',
       },
       {
         label: 'Message bubble style',
-        description: 'Alternate chat styles can be connected later.',
+        description: 'Choose how message bubbles are shaped.',
         control: 'select',
         value: 'Default',
         options: ['Default', 'Rounded', 'Minimal'],
+        displaySettingKey: 'messageBubbleStyle',
+      },
+      {
+        label: 'Reset display preferences',
+        description: 'Restore the default display settings.',
+        control: 'button',
+        value: 'Reset',
+        danger: true,
+        action: 'resetDisplayPreferences',
       },
     ],
   },

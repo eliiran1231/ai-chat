@@ -8,8 +8,8 @@
   height: 100%;
   display: grid;
   grid-template-columns: 26rem minmax(0, 1fr);
-  background: #fff;
-  color: #111b21;
+  background: var(--app-surface);
+  color: var(--app-text);
 }
 
 .settings-sidebar,
@@ -21,8 +21,8 @@
 .settings-sidebar {
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #d6dadd;
-  background: #fff;
+  border-right: 1px solid var(--app-border);
+  background: var(--app-surface);
 }
 
 .settings-sidebar__header {
@@ -32,8 +32,8 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
-  border-bottom: 1px solid #ebedef;
-  background: #0b8b72;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-accent);
   color: #fff;
 }
 
@@ -47,7 +47,7 @@
 .settings-mobile-back {
   border: 0;
   background: transparent;
-  color: #667781;
+  color: var(--app-text-soft);
   cursor: pointer;
 }
 
@@ -62,7 +62,7 @@
 
 .settings-icon-button:hover,
 .settings-icon-button:focus-visible {
-  background: #118c7e;
+  background: var(--app-accent-dark);
   outline: none;
 }
 
@@ -87,14 +87,14 @@
   min-height: 4rem;
   padding: 0.65rem 0.75rem;
   border-radius: 0.55rem;
-  color: #111b21;
+  color: var(--app-text);
   text-decoration: none;
 }
 
 .settings-nav__item:hover,
 .settings-nav__item:focus-visible,
 .settings-nav__item--active {
-  background: #f0f2f5;
+  background: var(--app-panel);
   outline: none;
 }
 
@@ -104,8 +104,8 @@
   display: grid;
   place-items: center;
   border-radius: 0.5rem;
-  background: #edf1f3;
-  color: #667781;
+  background: var(--app-panel);
+  color: var(--app-text-soft);
   font-size: 0.85rem;
   font-weight: 700;
 }
@@ -133,14 +133,14 @@
 
 .settings-nav__item small {
   margin-top: 0.18rem;
-  color: #667781;
+  color: var(--app-text-soft);
   font-size: 0.78rem;
 }
 
 .settings-stage {
   min-width: 0;
   overflow-y: auto;
-  background: #fff;
+  background: var(--app-surface);
 }
 
 .settings-stage__header {
@@ -152,13 +152,13 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0 2rem;
-  border-bottom: 1px solid #ebedef;
-  background: #fff;
+  border-bottom: 1px solid var(--app-border);
+  background: var(--app-surface);
 }
 
 .settings-stage__header h2 {
   margin: 0;
-  color: #0b8b72;
+  color: var(--app-accent);
   font-size: 1.55rem;
   font-weight: 650;
 }
@@ -175,7 +175,7 @@
 
 .settings-mobile-back:hover,
 .settings-mobile-back:focus-visible {
-  background: #f0f2f5;
+  background: var(--app-panel);
   outline: none;
 }
 
@@ -204,7 +204,7 @@
   }
 
   .settings-mobile-back {
-    color: #111b21;
+    color: var(--app-text);
   }
 
   .settings-stage__header {

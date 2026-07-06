@@ -32,7 +32,7 @@
   min-width: 10.5rem;
   padding: 0.35rem;
   border-radius: 0.8rem;
-  background: #fff;
+  background: var(--app-surface);
   box-shadow: 0 12px 28px rgba(17, 27, 33, 0.2);
 }
 
@@ -45,7 +45,7 @@
   border-radius: 0.55rem;
   padding: 0.7rem 0.8rem;
   background: transparent;
-  color: #111b21;
+  color: var(--app-text);
   text-align: left;
   cursor: pointer;
 }
@@ -58,7 +58,7 @@
 
 .app-menu__item:hover,
 .app-menu__item:focus-visible {
-  background: #f0f2f5;
+  background: var(--app-panel);
   outline: none;
 }
 

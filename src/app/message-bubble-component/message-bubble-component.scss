@@ -21,8 +21,8 @@
   scroll-margin-block: 5.5rem;
   padding-left: .75rem;
   padding-right: .75rem;
-  padding-top: 0.225rem;
-  padding-bottom: 0.225rem;
+  padding-top: calc(0.225rem * var(--app-density));
+  padding-bottom: calc(0.225rem * var(--app-density));
 }
 
 .message-row--supporter {
@@ -50,7 +50,7 @@
 .message-bubble {
   position: relative;
   max-width: min(78%, 34rem);
-  border-radius: 0.55rem;
+  border-radius: var(--message-bubble-radius);
   overflow: visible;
   box-shadow: 0 1px 0.5px color-mix(in srgb, var(--wa-green-dark) 13%, transparent);
 }
@@ -94,7 +94,7 @@
 
 .message-bubble--supporter {
   background: var(--wa-supporter-bubble);
-  border-top-left-radius: 0.2rem;
+  border-top-left-radius: min(0.2rem, var(--message-bubble-radius));
 }
 
 .message-bubble--supporter.message-bubble--with-tail::after {
@@ -104,7 +104,7 @@
 
 .message-bubble--user {
   background: var(--wa-user-bubble);
-  border-top-right-radius: 0.2rem;
+  border-top-right-radius: min(0.2rem, var(--message-bubble-radius));
 }
 
 .message-bubble--user .message-options-button {

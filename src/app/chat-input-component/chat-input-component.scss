@@ -1,13 +1,13 @@
 :host {
-  --composer-accent: #25d366;
+  --composer-accent: var(--app-accent-strong);
   --composer-accent-shadow: rgba(37, 211, 102, 0.28);
-  --composer-panel: #f0f2f5;
-  --composer-border: #d1d7db;
-  --composer-surface: #ffffff;
+  --composer-panel: var(--app-panel);
+  --composer-border: var(--app-border);
+  --composer-surface: var(--app-surface);
   --composer-surface-border: rgba(17, 27, 33, 0.06);
-  --composer-text: #111b21;
-  --composer-text-soft: #667781;
-  --composer-placeholder: #667781;
+  --composer-text: var(--app-text);
+  --composer-text-soft: var(--app-text-soft);
+  --composer-placeholder: var(--app-text-soft);
   --composer-send-text: #ffffff;
 
   display: block;
@@ -18,7 +18,10 @@
   grid-template-columns: auto auto 1fr auto;
   align-items: end;
   gap: 0.55rem;
-  padding: 0.7rem 0.8rem calc(0.7rem + env(safe-area-inset-bottom));
+  padding:
+    calc(0.7rem * var(--app-density))
+    calc(0.8rem * var(--app-density))
+    calc((0.7rem * var(--app-density)) + env(safe-area-inset-bottom));
   background: var(--composer-panel);
   border-top: 1px solid var(--composer-border);
 }
@@ -108,15 +111,15 @@
 }
 
 .chat-composer--light {
-  --composer-accent: #25d366;
+  --composer-accent: var(--app-accent-strong);
   --composer-accent-shadow: rgba(37, 211, 102, 0.28);
-  --composer-panel: #f0f2f5;
-  --composer-border: #d1d7db;
-  --composer-surface: #ffffff;
+  --composer-panel: var(--app-panel);
+  --composer-border: var(--app-border);
+  --composer-surface: var(--app-surface);
   --composer-surface-border: rgba(17, 27, 33, 0.06);
-  --composer-text: #111b21;
-  --composer-text-soft: #667781;
-  --composer-placeholder: #667781;
+  --composer-text: var(--app-text);
+  --composer-text-soft: var(--app-text-soft);
+  --composer-placeholder: var(--app-text-soft);
   --composer-send-text: #ffffff;
 }
 
