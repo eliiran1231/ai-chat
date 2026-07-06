@@ -97,8 +97,6 @@ export const SETTINGS_SECTIONS: Record<SettingsSectionKey, SettingsSection> = {
         control: 'toggle',
         settingKey: 'runInBackground',
       },
-      // todo: add font size support to the display
-      // todo: add a separate language section between the cards
       {
         label: 'Reset all settings',
         description: '',
