@@ -14,7 +14,7 @@
     </header>
 
     <nav class="settings-nav" aria-label="Settings sections">
-      @for (category of categories; track category.path) {
+      @for (category of categories(); track category.path) {
         <a
           class="settings-nav__item"
           [routerLink]="['/settings', category.path]"
