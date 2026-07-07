@@ -1,18 +1,9 @@
 import { dbService, type DbService } from './db.service.js';
 import { randomUUID } from 'crypto';
+import { eq } from 'drizzle-orm';
+import { supporters, type SupporterRow } from './drizzle-schema.js';
 
 type Uuid = string;
-
-interface SupporterRow {
-  id: Uuid;
-  chat_id: Uuid;
-  agent_name: string;
-  name: string;
-  expects: string | null;
-  context: string | null;
-  created_at: string;
-  updated_at: string;
-}
 
 export interface SupporterPayload {
   id?: Uuid;
@@ -39,22 +30,11 @@ export class SupporterService {
   constructor(private readonly db: DbService) {}
 
   async getChatSupporter(chatId: Uuid) {
-    const row = await this.db.get<SupporterRow>(
-      `
-        SELECT
-          id,
-          chat_id,
-          agent_name,
-          name,
-          expects,
-          context,
-          created_at,
-          updated_at
-        FROM supporters
-        WHERE chat_id = ?
-      `,
-      [chatId],
-    );
+    const [row] = await this.db.orm
+      .select()
+      .from(supporters)
+      .where(eq(supporters.chatId, chatId))
+      .limit(1);
 
     return this.mapSupporterRow(row);
   }
@@ -62,48 +42,19 @@ export class SupporterService {
   async createSupporter(supporter: SupporterPayload) {
     const now = new Date().toISOString();
     const supporterId = supporter.id || randomUUID();
-    await this.db.execute(
-      `
-        INSERT INTO supporters (
-          id,
-          chat_id,
-          agent_name,
-          name,
-          expects,
-          context,
-          created_at,
-          updated_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        supporterId,
-        supporter.chatId,
-        supporter.agentName,
-        supporter.name ?? 'Supporter',
-        supporter.expects ?? 'question',
-        supporter.context ?? '',
-        now,
-        now,
-      ],
-    );
-
-    const row = await this.db.get<SupporterRow>(
-      `
-        SELECT
-          id,
-          chat_id,
-          agent_name,
-          name,
-          expects,
-          context,
-          created_at,
-          updated_at
-        FROM supporters
-        WHERE id = ?
-      `,
-      [supporterId],
-    );
+    const [row] = await this.db.orm
+      .insert(supporters)
+      .values({
+        id: supporterId,
+        chatId: supporter.chatId,
+        agentName: supporter.agentName,
+        name: supporter.name ?? 'Supporter',
+        expects: supporter.expects ?? 'question',
+        context: supporter.context ?? '',
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning();
 
     if (!row) {
       throw new Error(`Created supporter ${supporterId} could not be loaded.`);
@@ -116,33 +67,26 @@ export class SupporterService {
     chatId,
     agentName,
   }: UpdateSupporterAgentPayload): Promise<boolean> {
-    const rows = await this.db.executeReturning<{ id: Uuid }>(
-      `
-        UPDATE supporters
-        SET agent_name = ?,
-            updated_at = ?
-        WHERE chat_id = ?
-        RETURNING id
-      `,
-      [agentName, new Date().toISOString(), chatId],
-    );
+    const rows = await this.db.orm
+      .update(supporters)
+      .set({ agentName, updatedAt: new Date().toISOString() })
+      .where(eq(supporters.chatId, chatId))
+      .returning({ id: supporters.id });
 
     return rows.length > 0;
   }
 
   async commitSupporter({ id, name, expects, context }: CommitSupporterPayload): Promise<boolean> {
-    const rows = await this.db.executeReturning<{ id: Uuid }>(
-      `
-        UPDATE supporters
-        SET context = ?,
-            name = COALESCE(?, name),
-            expects = COALESCE(?, expects),
-            updated_at = ?
-        WHERE id = ?
-        RETURNING id
-      `,
-      [context ?? '', name ?? null, expects ?? null, new Date().toISOString(), id],
-    );
+    const rows = await this.db.orm
+      .update(supporters)
+      .set({
+        context: context ?? '',
+        ...(name == null ? {} : { name }),
+        ...(expects == null ? {} : { expects }),
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(supporters.id, id))
+      .returning({ id: supporters.id });
 
     return rows.length > 0;
   }
@@ -154,13 +98,13 @@ export class SupporterService {
 
     return {
       id: row.id,
-      chatId: row.chat_id,
-      agentName: row.agent_name,
+      chatId: row.chatId,
+      agentName: row.agentName,
       name: row.name,
       expects: row.expects ?? 'question',
       context: row.context ?? '',
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     };
   }
 }

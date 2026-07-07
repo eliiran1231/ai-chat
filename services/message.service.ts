@@ -1,27 +1,10 @@
 import { dbService, type DbService } from './db.service.js';
 import { randomUUID } from 'crypto';
+import { and, desc, eq } from 'drizzle-orm';
+import { messages, type MessageRow } from './drizzle-schema.js';
 
 type Uuid = string;
 type AnswerSelectionMode = 'single' | 'multiple';
-
-interface MessageRow {
-  id: Uuid;
-  chat_id: Uuid;
-  sender: string;
-  message_type: string | null;
-  value: string;
-  tag: string | null;
-  time: string;
-  edited_at: string | null;
-  attachment: string | null;
-  possible_answers: string | null;
-  answer_selection_mode: string | null;
-  validator_spec: string | null;
-  validation_error_message: string | null;
-  status: number;
-  editable: number;
-  deletable: number;
-}
 
 interface AttachmentPayload {
   name: string;
@@ -94,105 +77,42 @@ export class MessageService {
   constructor(private readonly db: DbService) {}
 
   async getChatMessages(chatId: Uuid, offset: number, limit: number) {
-    const rows = await this.db.all<MessageRow>(
-      `
-        SELECT
-          id,
-          chat_id,
-          sender,
-          message_type,
-          value,
-          tag,
-          time,
-          edited_at,
-          attachment,
-          possible_answers,
-          answer_selection_mode,
-          validator_spec,
-          validation_error_message,
-          status,
-          editable,
-          deletable
-        FROM messages
-        WHERE chat_id = ?
-        ORDER BY time DESC, id DESC
-        LIMIT ? OFFSET ?
-      `,
-      [chatId, limit, offset],
-    );
+    const rows = await this.db.orm
+      .select()
+      .from(messages)
+      .where(eq(messages.chatId, chatId))
+      .orderBy(desc(messages.time), desc(messages.id))
+      .limit(limit)
+      .offset(offset);
 
     return rows.reverse().map((row) => this.mapMessageRow(row));
   }
 
   async createMessage(message: MessagePayload) {
     const messageId = message.id || randomUUID();
-    const commonArgs = [
-      messageId,
-      message.chatId,
-      message.from ?? 'client',
-      message.messageType ?? 'message',
-      message.value,
-      message.tag ?? null,
-      message.time,
-      message.editedAt ?? null,
-      message.attachment ? JSON.stringify(message.attachment) : null,
-      message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
-      message.answerSelectionMode ?? null,
-      message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
-      message.validationErrorMessage ?? null,
-      message.status ?? MessageStatus.Pending,
-      message.editable === false ? 0 : 1,
-      message.deletable === false ? 0 : 1,
-    ];
-
-    const sql = `
-          INSERT INTO messages (
-            id,
-            chat_id,
-            sender,
-            message_type,
-            value,
-            tag,
-            time,
-            edited_at,
-            attachment,
-            possible_answers,
-            answer_selection_mode,
-            validator_spec,
-            validation_error_message,
-            status,
-            editable,
-            deletable
-          )
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `;
-
-    await this.db.execute(sql, commonArgs);
-
-    const row = await this.db.get<MessageRow>(
-      `
-        SELECT
-          id,
-          chat_id,
-          sender,
-          message_type,
-          value,
-          tag,
-          time,
-          edited_at,
-          attachment,
-          possible_answers,
-          answer_selection_mode,
-          validator_spec,
-          validation_error_message,
-          status,
-          editable,
-          deletable
-        FROM messages
-        WHERE id = ?
-      `,
-      [messageId],
-    );
+    const [row] = await this.db.orm
+      .insert(messages)
+      .values({
+        id: messageId,
+        chatId: message.chatId,
+        sender: message.from ?? 'client',
+        messageType: message.messageType ?? 'message',
+        value: message.value,
+        tag: message.tag ?? null,
+        time: message.time,
+        editedAt: message.editedAt ?? null,
+        attachment: message.attachment ? JSON.stringify(message.attachment) : null,
+        possibleAnswers: message.possibleAnswers?.length
+          ? JSON.stringify(message.possibleAnswers)
+          : null,
+        answerSelectionMode: message.answerSelectionMode ?? null,
+        validatorSpec: message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
+        validationErrorMessage: message.validationErrorMessage ?? null,
+        status: message.status ?? MessageStatus.Pending,
+        editable: message.editable === false ? 0 : 1,
+        deletable: message.deletable === false ? 0 : 1,
+      })
+      .returning();
 
     if (!row) {
       throw new Error(`Created message ${messageId} could not be loaded.`);
@@ -202,57 +122,37 @@ export class MessageService {
   }
 
   async commitMessage(message: CommitMessagePayload): Promise<boolean> {
-    const rows = await this.db.executeReturning<{ id: Uuid }>(
-      `
-        UPDATE messages
-        SET sender = COALESCE(?, sender),
-            message_type = COALESCE(?, message_type),
-            value = ?,
-            tag = ?,
-            time = ?,
-            edited_at = ?,
-            attachment = ?,
-            possible_answers = ?,
-            answer_selection_mode = ?,
-            validator_spec = ?,
-            validation_error_message = ?,
-            status = ?,
-            editable = ?,
-            deletable = ?
-        WHERE id = ?
-        RETURNING id
-      `,
-      [
-        message.from ?? null,
-        message.messageType ?? null,
-        message.value,
-        message.tag ?? null,
-        message.time,
-        message.editedAt ?? null,
-        message.attachment ? JSON.stringify(message.attachment) : null,
-        message.possibleAnswers?.length ? JSON.stringify(message.possibleAnswers) : null,
-        message.answerSelectionMode ?? null,
-        message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
-        message.validationErrorMessage ?? null,
-        message.status,
-        message.editable ? 1 : 0,
-        message.deletable ? 1 : 0,
-        message.id,
-      ],
-    );
+    const rows = await this.db.orm
+      .update(messages)
+      .set({
+        ...(message.from === undefined ? {} : { sender: message.from }),
+        ...(message.messageType === undefined ? {} : { messageType: message.messageType }),
+        value: message.value,
+        tag: message.tag ?? null,
+        time: message.time,
+        editedAt: message.editedAt ?? null,
+        attachment: message.attachment ? JSON.stringify(message.attachment) : null,
+        possibleAnswers: message.possibleAnswers?.length
+          ? JSON.stringify(message.possibleAnswers)
+          : null,
+        answerSelectionMode: message.answerSelectionMode ?? null,
+        validatorSpec: message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
+        validationErrorMessage: message.validationErrorMessage ?? null,
+        status: message.status,
+        editable: message.editable ? 1 : 0,
+        deletable: message.deletable ? 1 : 0,
+      })
+      .where(eq(messages.id, message.id))
+      .returning({ id: messages.id });
 
     return rows.length > 0;
   }
 
   async deleteMessage(messageId: Uuid): Promise<boolean> {
-    const rows = await this.db.executeReturning<{ id: Uuid }>(
-      `
-        DELETE FROM messages
-        WHERE id = ? AND deletable = 1
-        RETURNING id
-      `,
-      [messageId],
-    );
+    const rows = await this.db.orm
+      .delete(messages)
+      .where(and(eq(messages.id, messageId), eq(messages.deletable, 1)))
+      .returning({ id: messages.id });
 
     return rows.length > 0;
   }
@@ -260,25 +160,25 @@ export class MessageService {
   private mapMessageRow(row: MessageRow) {
     return {
       id: row.id,
-      chatId: row.chat_id,
+      chatId: row.chatId,
       from: row.sender,
-      messageType: row.message_type ?? 'message',
+      messageType: row.messageType ?? 'message',
       value: row.value,
       tag: row.tag ?? undefined,
       time: row.time,
-      editedAt: row.edited_at ?? undefined,
+      editedAt: row.editedAt ?? undefined,
       status: row.status,
       editable: Boolean(row.editable),
       deletable: Boolean(row.deletable),
       attachment: this.parseAttachmentColumn(row.attachment, 'attachment', row.id),
       possibleAnswers: this.parseStringArrayColumn(
-        row.possible_answers,
+        row.possibleAnswers,
         'possible_answers',
         row.id,
       ),
-      answerSelectionMode: this.parseAnswerSelectionMode(row.answer_selection_mode, row.id),
-      validatorSpec: this.db.parseJsonColumn(row.validator_spec, 'validator_spec', row.id),
-      validationErrorMessage: row.validation_error_message ?? undefined,
+      answerSelectionMode: this.parseAnswerSelectionMode(row.answerSelectionMode, row.id),
+      validatorSpec: this.db.parseJsonColumn(row.validatorSpec, 'validator_spec', row.id),
+      validationErrorMessage: row.validationErrorMessage ?? undefined,
     };
   }
 
