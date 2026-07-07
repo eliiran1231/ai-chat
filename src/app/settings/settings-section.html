@@ -6,9 +6,21 @@
   @if (isProfileSection()) {
     <div class="settings-profile-hero">
       <app-profile-avatar></app-profile-avatar>
-      <button type="button" class="settings-profile-edit" aria-label="Edit profile photo">
+      <button
+        type="button"
+        class="settings-profile-edit"
+        aria-label="Edit profile photo"
+        (click)="profilePhotoInput.click()"
+      >
         <svg [lucideIcon]="editIcon" aria-hidden="true"></svg>
       </button>
+      <input
+        #profilePhotoInput
+        class="settings-profile-file"
+        type="file"
+        accept="image/*"
+        (change)="onProfilePhotoSelected($event)"
+      />
     </div>
   }
 
@@ -20,50 +32,49 @@
           <p>{{ row.description }}</p>
         </div>
 
-        <div class="settings-row__control">
-          @switch (row.control) {
-            @case ('toggle') {
-              <label class="settings-switch">
+        @if (row.control !== 'info') {
+          <div class="settings-row__control">
+            @switch (row.control) {
+              @case ('toggle') {
+                <label class="settings-switch">
+                  <input
+                    type="checkbox"
+                    [checked]="isToggleChecked(row)"
+                    (change)="onToggleChange(row, $event)"
+                  />
+                  <span></span>
+                </label>
+              }
+              @case ('select') {
+                <select [value]="row.value" [attr.aria-label]="row.label">
+                  @for (option of row.options; track option) {
+                    <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              }
+              @case ('range') {
                 <input
-                  type="checkbox"
-                  [checked]="isToggleChecked(row)"
-                  (change)="onToggleChange(row, $event)"
+                  class="settings-range"
+                  type="range"
+                  min="12"
+                  max="22"
+                  [value]="row.value"
+                  [attr.aria-label]="row.label"
                 />
-                <span></span>
-              </label>
+              }
+              @case ('button') {
+                <button
+                  type="button"
+                  class="settings-action"
+                  [class.settings-action--danger]="row.danger"
+                  (click)="onButtonClick(row)"
+                >
+                  {{ row.value }}
+                </button>
+              }
             }
-            @case ('select') {
-              <select [value]="row.value" [attr.aria-label]="row.label">
-                @for (option of row.options; track option) {
-                  <option [value]="option">{{ option }}</option>
-                }
-              </select>
-            }
-            @case ('range') {
-              <input
-                class="settings-range"
-                type="range"
-                min="12"
-                max="22"
-                [value]="row.value"
-                [attr.aria-label]="row.label"
-              />
-            }
-            @case ('button') {
-              <button
-                type="button"
-                class="settings-action"
-                [class.settings-action--danger]="row.danger"
-                (click)="onButtonClick(row)"
-              >
-                {{ row.value }}
-              </button>
-            }
-            @case ('info') {
-              <span class="settings-info">View</span>
-            }
-          }
-        </div>
+          </div>
+        }
       </article>
     }
   </div>

@@ -6,6 +6,7 @@ import { map } from 'rxjs';
 
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
 import { AppSettingsService } from '../../services/app-settings.service';
+import { ProfileService } from '../../services/profile.service';
 import { SettingsService } from '../../services/settings.service';
 import type { SettingsRow } from './settings-data';
 
@@ -18,6 +19,7 @@ import type { SettingsRow } from './settings-data';
 export class SettingsSectionComponent {
   private route = inject(ActivatedRoute);
   private appSettingsService = inject(AppSettingsService);
+  private profileService = inject(ProfileService);
   private settingsService = inject(SettingsService);
 
   readonly editIcon = LucidePenLine;
@@ -62,5 +64,17 @@ export class SettingsSectionComponent {
     if (row.action === 'resetGeneralSettings') {
       void this.appSettingsService.resetGeneralSettings();
     }
+  }
+
+  onProfilePhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+
+    if (!input || !file || !file.type.startsWith('image/')) {
+      return;
+    }
+
+    void this.profileService.setProfilePhoto(file);
+    input.value = '';
   }
 }

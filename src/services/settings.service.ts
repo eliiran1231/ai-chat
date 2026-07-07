@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import {
   LucideBell,
   LucideIconInput,
@@ -17,7 +17,6 @@ import {
   SettingsSection,
   SettingsSectionKey,
 } from '../app/settings/settings-data';
-import { BasicInfo } from '../interfaces/BasicInfo';
 import { ProfileService } from './profile.service';
 
 const SETTINGS_ICON_MAP: Record<SettingsIconKey, LucideIconInput> = {
@@ -35,7 +34,7 @@ const SETTINGS_ICON_MAP: Record<SettingsIconKey, LucideIconInput> = {
 export class SettingsService {
   private readonly config = settingsConfig as SettingsConfig;
   private readonly profileService = inject(ProfileService);
-  private readonly profileInfo = signal<BasicInfo>(this.profileService.basicInfo);
+  private readonly profileInfo = this.profileService.basicInfo;
 
   readonly categories = computed<SettingsCategory[]>(() =>
     this.config.categories.map((category) => ({
@@ -80,8 +79,7 @@ export class SettingsService {
   }
 
   private async loadProfileInfo(): Promise<void> {
-    const basicInfo = await this.profileService.loadBasicInfo();
-    this.profileInfo.set(basicInfo);
+    await this.profileService.loadBasicInfo();
   }
 
   private toSectionKey(category: string | null): SettingsSectionKey {

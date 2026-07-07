@@ -29,7 +29,7 @@ export interface SettingsRow {
   checked?: boolean;
   options?: string[];
   danger?: boolean;
-  profileField?: keyof Pick<BasicInfo, 'displayName' | 'username'>;
+  profileField?: keyof BasicInfo;
   settingKey?: GeneralSettingKey;
   action?: SettingsAction;
 }

@@ -79,6 +79,18 @@
           "description": "",
           "control": "info",
           "profileField": "username"
+        },
+        {
+          "label": "Computer name",
+          "description": "",
+          "control": "info",
+          "profileField": "computerName"
+        },
+        {
+          "label": "IP address",
+          "description": "",
+          "control": "info",
+          "profileField": "ip"
         }
       ]
     },
