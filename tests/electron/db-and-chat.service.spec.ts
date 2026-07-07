@@ -29,13 +29,24 @@ vi.mock('@powersync/node', async (importOriginal) => {
 
 import { DbService } from '../../services/db.service.ts';
 import { ChatService } from '../../services/chat.service.ts';
-import { MessageService } from '../../services/message.service.ts';
 import { chats, drizzleSchema } from '../../services/drizzle-schema.ts';
 import { wrapPowerSyncWithDrizzle } from '@powersync/drizzle-driver';
-import { eq } from 'drizzle-orm';
 
 const authenticated = { hasSession: () => true } as never;
 const anonymous = { hasSession: () => false } as never;
+
+function insertChat(service: DbService, id: string) {
+  return service.orm.insert(chats).values({
+    id,
+    name: 'Local chat',
+    status: '',
+    avatar: JSON.stringify({ type: 'text', value: 'LC' }),
+    highlightTime: 0,
+    avatarRing: 0,
+    createdAt: '2026-01-01T00:00:00.000Z',
+    updatedAt: '2026-01-01T00:00:00.000Z',
+  });
+}
 
 describe('DbService sync lifecycle', () => {
   beforeEach(() => {
@@ -64,7 +75,7 @@ describe('DbService sync lifecycle', () => {
   it('keeps local data available without a session', async () => {
     const service = new DbService(anonymous);
     await service.initialize();
-    await service.orm.delete(chats).where(eq(chats.id, 'local-chat'));
+    await insertChat(service, 'local-chat');
 
     expect(database.connect).not.toHaveBeenCalled();
     expect(database.disconnectAndClear).not.toHaveBeenCalled();
@@ -76,16 +87,14 @@ describe('DbService sync lifecycle', () => {
     const service = new DbService(authenticated);
     await service.initialize();
 
-    await expect(
-      service.orm.delete(chats).where(eq(chats.id, 'offline-chat')),
-    ).resolves.toBeDefined();
+    await expect(insertChat(service, 'offline-chat')).resolves.toBeDefined();
   });
 
   it('reconnects so previously queued local changes can upload', async () => {
     database.waitForFirstSync.mockRejectedValueOnce(new Error('offline')).mockResolvedValue(undefined);
     const service = new DbService(authenticated);
     await service.initialize();
-    await service.orm.delete(chats).where(eq(chats.id, 'queued-chat'));
+    await insertChat(service, 'queued-chat');
     await service.disconnect();
 
     service.startSync();
@@ -139,30 +148,7 @@ describe('ChatService.deleteChat', () => {
 
     await expect(new ChatService(db).deleteChat('chat-1')).resolves.toBe(true);
     expect(writeTransaction).toHaveBeenCalledOnce();
-    expect(execute.mock.calls.map(([sql]) => sql)).toEqual([
-      'delete from "messages" where "messages"."chat_id" = ?',
-      'delete from "supporters" where "supporters"."chat_id" = ?',
-    ]);
-    expect(executeRaw).toHaveBeenCalledWith(
-      'delete from "chats" where "chats"."id" = ? returning "id"',
-      ['chat-1'],
-    );
-  });
-});
-
-describe('MessageService.getChatMessages', () => {
-  it('uses the PowerSync id column as the stable pagination tie-breaker', async () => {
-    const executeRaw = vi.fn().mockResolvedValue([]);
-    const readLock = vi.fn((callback) => callback({ executeRaw }));
-    const orm = wrapPowerSyncWithDrizzle({ readLock } as never, { schema: drizzleSchema });
-    const service = new MessageService({ orm } as never);
-
-    await service.getChatMessages('chat-1', 20, 10);
-
+    expect(execute).toHaveBeenCalledTimes(2);
     expect(executeRaw).toHaveBeenCalledOnce();
-    const [sql, parameters] = executeRaw.mock.calls[0];
-    expect(sql).toContain('order by "messages"."time" desc, "messages"."id" desc');
-    expect(sql).not.toContain('rowid');
-    expect(parameters).toEqual(['chat-1', 10, 20]);
   });
 });

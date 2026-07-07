@@ -1,6 +1,9 @@
 import type { PowerSyncSQLiteDatabase } from '@powersync/drizzle-driver';
 import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
+// PowerSync schemas carry column types and indexes, but not NOT NULL constraints.
+// These markers document invariants enforced by our service/backend write paths;
+// they do not migrate or reject older rows already stored by PowerSync.
 export const chats = sqliteTable('chats', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
