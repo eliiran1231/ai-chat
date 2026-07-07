@@ -4,8 +4,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon, LucidePenLine } from '@lucide/angular';
 import { map } from 'rxjs';
 
-import { SETTINGS_SECTIONS, SettingsSectionKey } from './settings-data';
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-settings-section',
@@ -15,22 +15,18 @@ import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar'
 })
 export class SettingsSectionComponent {
   private route = inject(ActivatedRoute);
+  private settingsService = inject(SettingsService);
   readonly editIcon = LucidePenLine;
 
   readonly sectionKey = toSignal(
-    this.route.data.pipe(map((data) => data['section'] as SettingsSectionKey)),
+    this.route.paramMap.pipe(map((params) => params.get('category'))),
     {
-      initialValue: this.route.snapshot.data['section'] as SettingsSectionKey,
+      initialValue: this.route.snapshot.paramMap.get('category'),
     },
   );
 
-  readonly section = computed(() => {
-    const sectionKey = this.sectionKey();
-
-    if (!sectionKey) {
-      return SETTINGS_SECTIONS['general'];
-    }
-
-    return SETTINGS_SECTIONS[sectionKey];
-  });
+  readonly section = computed(() => this.settingsService.getSection(this.sectionKey()));
+  readonly isProfileSection = computed(() =>
+    this.settingsService.isProfileSection(this.sectionKey()),
+  );
 }

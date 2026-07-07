@@ -1,11 +1,18 @@
 import { Location } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  RouterLink,
+  RouterLinkActive,
+  RouterOutlet,
+} from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
 import { LucideChevronLeft, LucideDynamicIcon } from '@lucide/angular';
 
-import { SETTINGS_CATEGORIES } from './settings-data';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-settings-layout',
@@ -14,25 +21,26 @@ import { SETTINGS_CATEGORIES } from './settings-data';
   styleUrl: './settings-layout.scss',
 })
 export class SettingsLayoutComponent {
+  private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
+  private settingsService = inject(SettingsService);
 
   readonly backIcon = LucideChevronLeft;
-  readonly categories = SETTINGS_CATEGORIES;
+  readonly categories = this.settingsService.categories;
 
-  private currentUrl = toSignal(
+  private categoryPath = toSignal(
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-      map((event) => event.urlAfterRedirects),
-      startWith(this.router.url),
+      startWith(null),
+      map(() => this.route.firstChild?.snapshot?.paramMap.get('category') ?? null),
     ),
-    { initialValue: this.router.url },
+    { initialValue: null },
   );
 
-  readonly sectionOpen = computed(() => /^\/settings\/[^?]+/.test(this.currentUrl()));
+  readonly sectionOpen = computed(() => Boolean(this.categoryPath()));
   readonly pageTitle = computed(() => {
-    const path = this.currentUrl().split('?')[0].split('/').at(-1);
-    const category = this.categories.find((item) => item.path === path);
+    const category = this.settingsService.getCategory(this.categoryPath());
 
     return category?.title ?? 'Settings';
   });
