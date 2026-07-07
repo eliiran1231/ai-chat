@@ -38,22 +38,6 @@ export interface CommitSupporterPayload {
 export class SupporterService {
   constructor(private readonly db: DbService) {}
 
-  async initialize(): Promise<void> {
-    await this.db.run(`
-      CREATE TABLE IF NOT EXISTS supporters (
-        id TEXT PRIMARY KEY,
-        chat_id TEXT NOT NULL UNIQUE,
-        agent_name TEXT NOT NULL,
-        name TEXT NOT NULL DEFAULT 'Supporter',
-        expects TEXT NOT NULL DEFAULT 'question',
-        context TEXT NOT NULL DEFAULT '',
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
-      )
-    `);
-  }
-
   async getChatSupporter(chatId: Uuid) {
     const row = await this.db.get<SupporterRow>(
       `
@@ -78,7 +62,7 @@ export class SupporterService {
   async createSupporter(supporter: SupporterPayload) {
     const now = new Date().toISOString();
     const supporterId = supporter.id || randomUUID();
-    await this.db.run(
+    await this.db.execute(
       `
         INSERT INTO supporters (
           id,
@@ -132,21 +116,22 @@ export class SupporterService {
     chatId,
     agentName,
   }: UpdateSupporterAgentPayload): Promise<boolean> {
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         UPDATE supporters
         SET agent_name = ?,
             updated_at = ?
         WHERE chat_id = ?
+        RETURNING id
       `,
       [agentName, new Date().toISOString(), chatId],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   async commitSupporter({ id, name, expects, context }: CommitSupporterPayload): Promise<boolean> {
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         UPDATE supporters
         SET context = ?,
@@ -154,11 +139,12 @@ export class SupporterService {
             expects = COALESCE(?, expects),
             updated_at = ?
         WHERE id = ?
+        RETURNING id
       `,
       [context ?? '', name ?? null, expects ?? null, new Date().toISOString(), id],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   private mapSupporterRow(row: SupporterRow | undefined) {

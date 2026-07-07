@@ -3,6 +3,10 @@
 @include cdk.overlay();
 @include cdk.text-field-autosize();
 
+.provider-dialog-backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
+
 html,
 body {
   margin: 0;

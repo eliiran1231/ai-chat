@@ -15,15 +15,26 @@ import { Agent } from '../classes/Agent';
 import { ChatRecord } from '../interfaces/db/ChatRecord';
 import { Uuid } from '../interfaces/db/Uuid';
 import { SqliteManager } from '../chat-managers/SqliteManager';
+import { AuthenticationProvider } from '../interfaces/auth/AuthenticationProvider';
+import { PowerSyncAuthenticationService } from '../authenticators/powersync.authenticator';
+import { PowerSyncConnectComponent } from '../app/powersync-connect-component/powersync-connect-component';
 import { SqliteMessagesSource } from '../message-sources/SqliteMessagesSource';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SqliteProvider implements ChatProvider {
-    private dbService = inject(DbService);
-    private agentsService = inject(AgentsService);
-    private injector: Injector = inject(Injector);
+  readonly metadata = {
+    id: 'powersync',
+    displayName: 'PowerSync',
+    description: 'Sync chats through your self-hosted PowerSync + PostgreSQL backend.',
+    avatarUrl: 'https://avatars.githubusercontent.com/u/147553714?s=200&v=4',
+    authenticationComponent: PowerSyncConnectComponent,
+  };
+  private dbService = inject(DbService);
+  private agentsService = inject(AgentsService);
+  private injector: Injector = inject(Injector);
+  authentication: AuthenticationProvider = inject(PowerSyncAuthenticationService);
 
   async addMessage(chatId: Uuid, message: Message): Promise<void> {
     await this.persistMessage(chatId, message);

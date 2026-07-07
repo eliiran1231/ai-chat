@@ -93,30 +93,6 @@ function isAttachmentPayload(value: unknown): value is AttachmentPayload {
 export class MessageService {
   constructor(private readonly db: DbService) {}
 
-  async initialize(): Promise<void> {
-    await this.db.run(`
-      CREATE TABLE IF NOT EXISTS messages (
-        id TEXT PRIMARY KEY,
-        chat_id TEXT NOT NULL,
-        sender TEXT NOT NULL,
-        message_type TEXT NOT NULL DEFAULT 'message',
-        value TEXT NOT NULL,
-        tag TEXT,
-        time TEXT NOT NULL,
-        edited_at TEXT,
-        attachment TEXT,
-        possible_answers TEXT,
-        answer_selection_mode TEXT,
-        validator_spec TEXT,
-        validation_error_message TEXT,
-        status INTEGER NOT NULL DEFAULT 0,
-        editable INTEGER NOT NULL DEFAULT 1,
-        deletable INTEGER NOT NULL DEFAULT 1,
-        FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE
-      )
-    `);
-  }
-
   async getChatMessages(chatId: Uuid, offset: number, limit: number) {
     const rows = await this.db.all<MessageRow>(
       `
@@ -139,7 +115,7 @@ export class MessageService {
           deletable
         FROM messages
         WHERE chat_id = ?
-        ORDER BY time DESC, rowid DESC
+        ORDER BY time DESC, id DESC
         LIMIT ? OFFSET ?
       `,
       [chatId, limit, offset],
@@ -191,7 +167,7 @@ export class MessageService {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-    await this.db.run(sql, commonArgs);
+    await this.db.execute(sql, commonArgs);
 
     const row = await this.db.get<MessageRow>(
       `
@@ -226,7 +202,7 @@ export class MessageService {
   }
 
   async commitMessage(message: CommitMessagePayload): Promise<boolean> {
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         UPDATE messages
         SET sender = COALESCE(?, sender),
@@ -244,6 +220,7 @@ export class MessageService {
             editable = ?,
             deletable = ?
         WHERE id = ?
+        RETURNING id
       `,
       [
         message.from ?? null,
@@ -264,19 +241,20 @@ export class MessageService {
       ],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   async deleteMessage(messageId: Uuid): Promise<boolean> {
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         DELETE FROM messages
         WHERE id = ? AND deletable = 1
+        RETURNING id
       `,
       [messageId],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   private mapMessageRow(row: MessageRow) {

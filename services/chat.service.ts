@@ -14,6 +14,7 @@ interface ChatRow {
   highlight_time: number;
   avatar_ring: number;
   tip_label: string | null;
+  owner_user_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -51,25 +52,6 @@ export interface CommitChatPayload {
 export class ChatService {
   constructor(private readonly db: DbService) {}
 
-  async initialize(): Promise<void> {
-    await this.db.run(`
-      CREATE TABLE IF NOT EXISTS chats (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        status TEXT,
-        avatar TEXT,
-        subtitle TEXT,
-        time_label TEXT,
-        unread_count INTEGER DEFAULT 0,
-        highlight_time INTEGER DEFAULT 0,
-        avatar_ring INTEGER DEFAULT 0,
-        tip_label TEXT,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
-      )
-    `);
-  }
-
   async getChats() {
     const rows = await this.db.all<ChatRow>(`
       SELECT
@@ -83,6 +65,7 @@ export class ChatService {
         highlight_time,
         avatar_ring,
         tip_label,
+        owner_user_id,
         created_at,
         updated_at
       FROM chats
@@ -95,7 +78,7 @@ export class ChatService {
   async createChat(chat: ChatPayload) {
     const now = new Date().toISOString();
     const chatId = randomUUID();
-    await this.db.run(
+    await this.db.execute(
       `
         INSERT INTO chats (
           id,
@@ -108,10 +91,11 @@ export class ChatService {
           highlight_time,
           avatar_ring,
           tip_label,
+          owner_user_id,
           created_at,
           updated_at
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         chatId,
@@ -124,6 +108,7 @@ export class ChatService {
         chat.highlightTime ? 1 : 0,
         chat.avatarRing ? 1 : 0,
         chat.tipLabel ?? null,
+        null,
         now,
         now,
       ],
@@ -142,6 +127,7 @@ export class ChatService {
           highlight_time,
           avatar_ring,
           tip_label,
+          owner_user_id,
           created_at,
           updated_at
         FROM chats
@@ -159,7 +145,7 @@ export class ChatService {
 
   async commitChat(chat: CommitChatPayload): Promise<boolean> {
     const now = new Date().toISOString();
-    const result = await this.db.run(
+    const rows = await this.db.executeReturning<{ id: Uuid }>(
       `
         UPDATE chats
         SET name = ?,
@@ -173,6 +159,7 @@ export class ChatService {
             tip_label = ?,
             updated_at = ?
         WHERE id = ?
+        RETURNING id
       `,
       [
         chat.name,
@@ -189,7 +176,7 @@ export class ChatService {
       ],
     );
 
-    return result.changes > 0;
+    return rows.length > 0;
   }
 
   public parseAvatarColumn(value: string | null, rowId: Uuid) {
@@ -212,10 +199,15 @@ export class ChatService {
   }
 
   async deleteChat(chatId: Uuid): Promise<boolean> {
-    await this.db.run(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
-    await this.db.run(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
-    const result = await this.db.run(`DELETE FROM chats WHERE id = ?`, [chatId]);
-    return result.changes > 0;
+    return this.db.writeTransaction(async (transaction) => {
+      await transaction.execute(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
+      await transaction.execute(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
+      const rows = await transaction.executeReturning<{ id: Uuid }>(
+        `DELETE FROM chats WHERE id = ? RETURNING id`,
+        [chatId],
+      );
+      return rows.length > 0;
+    });
   }
 
   private mapChatRow(row: ChatRow) {

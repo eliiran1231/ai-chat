@@ -1,0 +1,27 @@
+<section class="provider-list" aria-label="Chat providers">
+  <app-sidebar-search
+    [searchTerm]="searchTerm()"
+    placeholder="Search providers"
+    ariaLabel="Search providers"
+    (searchTermChange)="searchTerm.set($event)"
+  />
+
+  @if (providers.length === 0) {
+    <p class="provider-list__empty">No chat providers are registered yet.</p>
+  } @else {
+      @for (provider of filteredProviders(); track provider.metadata.id) {
+        <app-provider-card
+          [metadata]="provider.metadata"
+          [secondaryText]="provider.authentication.currentUser()?.email
+            ? 'Signed in as ' + provider.authentication.currentUser()?.email
+            : provider.metadata.description"
+          [buttonText]="actionText(provider)"
+          [disabled]="isBusy(provider)"
+          [error]="errorFor(provider)"
+          (action)="handleAction(provider)"
+        />
+      } @empty {
+        <p class="provider-list__empty">No providers match your search</p>
+      }
+  }
+</section>

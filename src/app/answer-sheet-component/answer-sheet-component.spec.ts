@@ -1,24 +1,42 @@
+import { DialogRef, DIALOG_DATA } from '@angular/cdk/dialog';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { EMPTY } from 'rxjs';
 import { Answer } from '../../classes/Answer';
-import { AnswerSheetComponent } from './answer-sheet-component';
+import {
+  AnswerSheetComponent,
+  SheetAnswerInputs,
+} from './answer-sheet-component';
 
 describe('AnswerSheetComponent', () => {
   let component: AnswerSheetComponent;
   let fixture: ComponentFixture<AnswerSheetComponent>;
+  let dialogData: SheetAnswerInputs;
 
   beforeEach(async () => {
+    dialogData = {
+      answers: [],
+      isMultipleSelection: false,
+      title: 'Choose an answer',
+    };
+
     await TestBed.configureTestingModule({
       imports: [AnswerSheetComponent],
+      providers: [
+        { provide: DIALOG_DATA, useValue: dialogData },
+        {
+          provide: DialogRef,
+          useValue: { backdropClick: EMPTY, close: vi.fn() },
+        },
+      ],
     }).compileComponents();
-
-    fixture = TestBed.createComponent(AnswerSheetComponent);
-    component = fixture.componentInstance;
   });
 
   function renderAnswers(answers: string[], isMultipleSelection = false): Answer[] {
     const answerModels = answers.map((answer) => new Answer(answer));
-    fixture.componentRef.setInput('answers', answerModels);
-    fixture.componentRef.setInput('isMultipleSelection', isMultipleSelection);
+    dialogData.answers = answerModels;
+    dialogData.isMultipleSelection = isMultipleSelection;
+    fixture = TestBed.createComponent(AnswerSheetComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
     return answerModels;
   }
@@ -39,13 +57,15 @@ describe('AnswerSheetComponent', () => {
     ) as HTMLButtonElement;
     searchToggle.click();
     fixture.detectChanges();
+    await fixture.whenStable();
 
     const searchInput = fixture.nativeElement.querySelector(
       'input[name="answerSearchTerm"]',
     ) as HTMLInputElement;
     searchInput.value = '14';
-    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-    fixture.detectChanges();
+    searchInput.dispatchEvent(
+      new InputEvent('input', { bubbles: true, data: '14', inputType: 'insertText' }),
+    );
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -57,8 +77,6 @@ describe('AnswerSheetComponent', () => {
 
   it('emits a single answer from the radio control', async () => {
     const answers = renderAnswers(['One', 'Two']);
-    let selectedAnswer: Answer | undefined;
-    component.answerSelected.subscribe((answer) => (selectedAnswer = answer));
 
     const firstRadio = fixture.nativeElement.querySelector(
       'input[type="radio"]',
@@ -67,15 +85,11 @@ describe('AnswerSheetComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(selectedAnswer).toBe(answers[0]);
+    expect(component.finalAnswers).toEqual([answers[0]]);
   });
 
   it('confirms multiple answers from checkbox controls on submit', async () => {
     const answers = renderAnswers(['One', 'Two', 'Three'], true);
-    let confirmedAnswers: Answer[] = [];
-    component.answersConfirmed.subscribe((selectedAnswers) => {
-      confirmedAnswers = selectedAnswers;
-    });
 
     const checkboxes = fixture.nativeElement.querySelectorAll(
       'input[type="checkbox"]',
@@ -95,6 +109,6 @@ describe('AnswerSheetComponent', () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    expect(confirmedAnswers).toEqual([answers[0], answers[2]]);
+    expect(component.finalAnswers).toEqual([answers[0], answers[2]]);
   });
 });

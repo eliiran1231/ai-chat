@@ -5,7 +5,7 @@ import { Supporter } from './Supporter';
 import { Client } from './Client';
 import { Uuid } from '../interfaces/db/Uuid';
 import { SyncedEntity } from './SyncedEntity';
-import { ChatManager } from './ChatManager';
+import type { ChatManager } from './ChatManager';
 import { syncedSignal, SyncedSignal } from '../signals/syncedSignal';
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { MessageLoader } from './MessageLoader';
@@ -43,8 +43,9 @@ export class Chat extends SyncedEntity {
   readonly supporter: Supporter;
   readonly active: WritableSignal<boolean> = signal(false);
   readonly user: Client;
+  /** @internal Used by collaborating chat-domain classes. */
+  readonly manager: ChatManager;
   readonly loader = new MessageLoader();
-  private manager: ChatManager;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
 
@@ -89,5 +90,10 @@ export class Chat extends SyncedEntity {
 
   delete(){
     return this.manager.requestDelete();
+  }
+
+  /** @internal Used by ChatService for provider-scoped lifecycle operations. */
+  belongsToProvider(providerId: string): boolean {
+    return this.manager['chatProvider'].metadata.id === providerId;
   }
 }
