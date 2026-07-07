@@ -1,19 +1,15 @@
 import { app } from 'electron';
 import * as path from 'node:path';
 import { PowerSyncDatabase } from '@powersync/node';
+import { wrapPowerSyncWithDrizzle } from '@powersync/drizzle-driver';
 import { AppSchema } from './powersync-schema.js';
+import { drizzleSchema, type AppDrizzleDatabase } from './drizzle-schema.js';
 import { PowerSyncConnector } from './powersync.connector.js';
 import type { AuthenticationService } from '../interfaces/auth/AuthenticationService.js';
 import { authenticationService } from './server-authentication.service.js';
 import type { BlockedUpload, SyncState } from '../shared/sync/SyncState.js';
 
-export type SqlParameter = string | number | null;
 type Uuid = string;
-
-export interface DbTransaction {
-  execute(sql: string, params?: SqlParameter[]): Promise<void>;
-  executeReturning<T>(sql: string, params?: SqlParameter[]): Promise<T[]>;
-}
 
 export interface InitialSyncOptions {
   timeoutMs?: number;
@@ -21,6 +17,7 @@ export interface InitialSyncOptions {
 
 export class DbService {
   private database?: PowerSyncDatabase;
+  private drizzleDatabase?: AppDrizzleDatabase;
   private syncStarted = false;
   private blockedUpload?: BlockedUpload;
   private syncState: SyncState = { kind: 'local-only', connected: false };
@@ -38,6 +35,7 @@ export class DbService {
         dbFilename: path.join(app.getPath('userData'), 'ai-chat-powersync.sqlite'),
       },
     });
+    this.drizzleDatabase = wrapPowerSyncWithDrizzle(this.database, { schema: drizzleSchema });
     this.unregisterStatusListener = this.database.registerListener({
       statusChanged: (status) => this.updateFromPowerSyncStatus(status),
     });
@@ -123,6 +121,7 @@ export class DbService {
     this.unregisterStatusListener?.();
     this.unregisterStatusListener = undefined;
     this.database = undefined;
+    this.drizzleDatabase = undefined;
     this.syncStarted = false;
   }
 
@@ -136,35 +135,9 @@ export class DbService {
     }
   }
 
-  async execute(sql: string, params: SqlParameter[] = []): Promise<void> {
-    await this.getDatabase().execute(sql, params);
-  }
-
-  async executeReturning<T>(sql: string, params: SqlParameter[] = []): Promise<T[]> {
-    const result = await this.getDatabase().execute(sql, params);
-    return (result.rows?._array ?? []) as T[];
-  }
-
-  writeTransaction<T>(callback: (transaction: DbTransaction) => Promise<T>): Promise<T> {
-    return this.getDatabase().writeTransaction((transaction) =>
-      callback({
-        execute: async (sql, params = []) => {
-          await transaction.execute(sql, params);
-        },
-        executeReturning: async <Row>(sql: string, params: SqlParameter[] = []) => {
-          const result = await transaction.execute(sql, params);
-          return (result.rows?._array ?? []) as Row[];
-        },
-      }),
-    );
-  }
-
-  all<T>(sql: string, params: SqlParameter[] = []): Promise<T[]> {
-    return this.getDatabase().getAll<T>(sql, params);
-  }
-
-  async get<T>(sql: string, params: SqlParameter[] = []): Promise<T | undefined> {
-    return (await this.getDatabase().getOptional<T>(sql, params)) ?? undefined;
+  get orm(): AppDrizzleDatabase {
+    if (!this.drizzleDatabase) throw new Error('PowerSync database has not been initialized.');
+    return this.drizzleDatabase;
   }
 
   getSyncState(): SyncState {
@@ -214,11 +187,6 @@ export class DbService {
 
   private errorMessage(error: unknown): string {
     return error instanceof Error ? error.message : String(error);
-  }
-
-  private getDatabase(): PowerSyncDatabase {
-    if (!this.database) throw new Error('PowerSync database has not been initialized.');
-    return this.database;
   }
 }
 

@@ -1,23 +1,9 @@
 import { dbService, type DbService } from './db.service.js';
 import { randomUUID } from 'crypto';
+import { desc, eq } from 'drizzle-orm';
+import { chats, messages, supporters, type ChatRow } from './drizzle-schema.js';
 
 type Uuid = string;
-
-interface ChatRow {
-  id: Uuid;
-  name: string;
-  status: string;
-  avatar: string;
-  subtitle: string | null;
-  time_label: string | null;
-  unread_count: number | null;
-  highlight_time: number;
-  avatar_ring: number;
-  tip_label: string | null;
-  owner_user_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
 
 interface AvatarPayload {
   type: 'image' | 'text';
@@ -53,24 +39,7 @@ export class ChatService {
   constructor(private readonly db: DbService) {}
 
   async getChats() {
-    const rows = await this.db.all<ChatRow>(`
-      SELECT
-        id,
-        name,
-        status,
-        avatar,
-        subtitle,
-        time_label,
-        unread_count,
-        highlight_time,
-        avatar_ring,
-        tip_label,
-        owner_user_id,
-        created_at,
-        updated_at
-      FROM chats
-      ORDER BY id DESC
-    `);
+    const rows = await this.db.orm.select().from(chats).orderBy(desc(chats.id));
 
     return rows.map((row) => this.mapChatRow(row));
   }
@@ -78,63 +47,24 @@ export class ChatService {
   async createChat(chat: ChatPayload) {
     const now = new Date().toISOString();
     const chatId = randomUUID();
-    await this.db.execute(
-      `
-        INSERT INTO chats (
-          id,
-          name,
-          status,
-          avatar,
-          subtitle,
-          time_label,
-          unread_count,
-          highlight_time,
-          avatar_ring,
-          tip_label,
-          owner_user_id,
-          created_at,
-          updated_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        chatId,
-        chat.name,
-        chat.status,
-        JSON.stringify(chat.avatar),
-        chat.subtitle ?? null,
-        chat.timeLabel ?? null,
-        chat.unreadCount ?? 0,
-        chat.highlightTime ? 1 : 0,
-        chat.avatarRing ? 1 : 0,
-        chat.tipLabel ?? null,
-        null,
-        now,
-        now,
-      ],
-    );
-
-    const row = await this.db.get<ChatRow>(
-      `
-        SELECT
-          id,
-          name,
-          status,
-          avatar,
-          subtitle,
-          time_label,
-          unread_count,
-          highlight_time,
-          avatar_ring,
-          tip_label,
-          owner_user_id,
-          created_at,
-          updated_at
-        FROM chats
-        WHERE id = ?
-      `,
-      [chatId],
-    );
+    const [row] = await this.db.orm
+      .insert(chats)
+      .values({
+        id: chatId,
+        name: chat.name,
+        status: chat.status,
+        avatar: JSON.stringify(chat.avatar),
+        subtitle: chat.subtitle ?? null,
+        timeLabel: chat.timeLabel ?? null,
+        unreadCount: chat.unreadCount ?? 0,
+        highlightTime: chat.highlightTime ? 1 : 0,
+        avatarRing: chat.avatarRing ? 1 : 0,
+        tipLabel: chat.tipLabel ?? null,
+        ownerUserId: null,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning();
 
     if (!row) {
       throw new Error(`Created chat ${chatId} could not be loaded.`);
@@ -145,36 +75,22 @@ export class ChatService {
 
   async commitChat(chat: CommitChatPayload): Promise<boolean> {
     const now = new Date().toISOString();
-    const rows = await this.db.executeReturning<{ id: Uuid }>(
-      `
-        UPDATE chats
-        SET name = ?,
-            status = ?,
-            avatar = ?,
-            subtitle = ?,
-            time_label = ?,
-            unread_count = ?,
-            highlight_time = ?,
-            avatar_ring = ?,
-            tip_label = ?,
-            updated_at = ?
-        WHERE id = ?
-        RETURNING id
-      `,
-      [
-        chat.name,
-        chat.status,
-        JSON.stringify(chat.avatar),
-        chat.subtitle ?? null,
-        chat.timeLabel ?? null,
-        chat.unreadCount,
-        chat.highlightTime ? 1 : 0,
-        chat.avatarRing ? 1 : 0,
-        chat.tipLabel ?? null,
-        now,
-        chat.id,
-      ],
-    );
+    const rows = await this.db.orm
+      .update(chats)
+      .set({
+        name: chat.name,
+        status: chat.status,
+        avatar: JSON.stringify(chat.avatar),
+        subtitle: chat.subtitle ?? null,
+        timeLabel: chat.timeLabel ?? null,
+        unreadCount: chat.unreadCount,
+        highlightTime: chat.highlightTime ? 1 : 0,
+        avatarRing: chat.avatarRing ? 1 : 0,
+        tipLabel: chat.tipLabel ?? null,
+        updatedAt: now,
+      })
+      .where(eq(chats.id, chat.id))
+      .returning({ id: chats.id });
 
     return rows.length > 0;
   }
@@ -199,13 +115,13 @@ export class ChatService {
   }
 
   async deleteChat(chatId: Uuid): Promise<boolean> {
-    return this.db.writeTransaction(async (transaction) => {
-      await transaction.execute(`DELETE FROM messages WHERE chat_id = ?`, [chatId]);
-      await transaction.execute(`DELETE FROM supporters WHERE chat_id = ?`, [chatId]);
-      const rows = await transaction.executeReturning<{ id: Uuid }>(
-        `DELETE FROM chats WHERE id = ? RETURNING id`,
-        [chatId],
-      );
+    return this.db.orm.transaction(async (transaction) => {
+      await transaction.delete(messages).where(eq(messages.chatId, chatId));
+      await transaction.delete(supporters).where(eq(supporters.chatId, chatId));
+      const rows = await transaction
+        .delete(chats)
+        .where(eq(chats.id, chatId))
+        .returning({ id: chats.id });
       return rows.length > 0;
     });
   }
@@ -217,13 +133,13 @@ export class ChatService {
       status: row.status,
       avatar: this.parseAvatarColumn(row.avatar, row.id),
       subtitle: row.subtitle ?? undefined,
-      timeLabel: row.time_label ?? undefined,
-      unreadCount: row.unread_count ?? undefined,
-      highlightTime: Boolean(row.highlight_time),
-      avatarRing: Boolean(row.avatar_ring),
-      tipLabel: row.tip_label ?? undefined,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
+      timeLabel: row.timeLabel ?? undefined,
+      unreadCount: row.unreadCount ?? undefined,
+      highlightTime: Boolean(row.highlightTime),
+      avatarRing: Boolean(row.avatarRing),
+      tipLabel: row.tipLabel ?? undefined,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
     };
   }
 }
