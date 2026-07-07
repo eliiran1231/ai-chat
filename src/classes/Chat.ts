@@ -8,6 +8,7 @@ import { SyncedEntity } from './SyncedEntity';
 import { ChatManager } from './ChatManager';
 import { syncedSignal, SyncedSignal } from '../signals/syncedSignal';
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
+import { MessageLoader } from './MessageLoader';
 
 export type Avatar = {
   type: 'image' | 'text';
@@ -42,6 +43,7 @@ export class Chat extends SyncedEntity {
   readonly supporter: Supporter;
   readonly active: WritableSignal<boolean> = signal(false);
   readonly user: Client;
+  readonly loader = new MessageLoader();
   private manager: ChatManager;
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
