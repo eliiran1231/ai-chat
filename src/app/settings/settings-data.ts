@@ -1,6 +1,8 @@
 import { LucideIconInput } from '@lucide/angular';
+
 import { BasicInfo } from '../../interfaces/BasicInfo';
 import type { GeneralSettingKey } from '../../services/app-settings.service';
+import type { NotificationSettingKey } from '../../services/notification-settings.service';
 
 export type SettingsSectionKey =
   'general' | 'profile' | 'notifications' | 'chats' | 'appearance' | 'about';
@@ -31,6 +33,7 @@ export interface SettingsRow {
   danger?: boolean;
   profileField?: keyof BasicInfo;
   settingKey?: GeneralSettingKey;
+  notificationSettingKey?: NotificationSettingKey;
   action?: SettingsAction;
 }
 

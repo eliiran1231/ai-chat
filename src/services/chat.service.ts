@@ -7,6 +7,7 @@ import { Agent } from '../classes/Agent';
 import { AiAgent } from '../agents/AiAgent/AiAgent';
 import { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { Uuid } from '../interfaces/db/Uuid';
+import { AppNotificationService } from './app-notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +20,8 @@ export class ChatService {
   private defaultProvider = inject(SqliteProvider);
   private isCreatingChat = signal(false); 
   private pendingCreateChat = signal<Promise<Chat> | null>(null);
+  private notifiedChatIds = new Set<string>();
+  private notificationService = inject(AppNotificationService);
   selectedChat = computed(() => this.getChatById(this.selectedChatId()));
   injector = inject(Injector);
 
@@ -47,7 +50,7 @@ export class ChatService {
       .filter(fulfilledFilter)
       .flatMap(r => r.value)
     this.chats.set(chats);
-    chats.forEach(chat=> this._chatMap.set(chat.id(), chat));
+    chats.forEach(chat => this.addChatToMap(chat));
     this.loaded = true;
   }
 
@@ -58,12 +61,29 @@ export class ChatService {
 
   addChat(chat: Chat): void {
     this.chats.update(prev => [...prev, chat]);
+    this.addChatToMap(chat);
+  }
+
+  private addChatToMap(chat: Chat): void {
     this._chatMap.set(chat.id(), chat);
+    this.watchChatNotifications(chat);
   }
 
   removeChat(chatId: Uuid): void {
     this.chats.update(prev => prev.filter(c => c.id() !== chatId));
     this._chatMap.delete(chatId)
+    this.notifiedChatIds.delete(chatId);
+  }
+
+  private watchChatNotifications(chat: Chat): void {
+    if (this.notifiedChatIds.has(chat.id())) {
+      return;
+    }
+
+    this.notifiedChatIds.add(chat.id());
+    chat.supporter.onMessageAdded.subscribe((message) => {
+      void this.notificationService.notifySupporterMessage(chat, message);
+    });
   }
 
   async createChat(

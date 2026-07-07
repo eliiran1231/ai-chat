@@ -102,27 +102,29 @@
           "label": "Enable notifications",
           "description": "Allow new message alerts.",
           "control": "toggle",
-          "checked": true
+          "notificationSettingKey": "enableNotifications"
         },
         {
           "label": "Notify me",
           "description": "Choose when notifications should appear.",
           "control": "select",
           "value": "Always",
-          "options": ["Always", "Only when minimized", "Never"]
+          "options": ["Always", "Only when minimized", "Never"],
+          "notificationSettingKey": "notifyMe"
         },
         {
           "label": "Show preview",
           "description": "Include message text in notification previews.",
           "control": "toggle",
-          "checked": true
+          "notificationSettingKey": "showPreview"
         },
         {
           "label": "Notification sound",
           "description": "Pick a custom sound for future notifications.",
           "control": "select",
           "value": "Default",
-          "options": ["Default", "Soft", "Bright", "None"]
+          "options": ["Default", "Soft", "Bright", "None"],
+          "notificationSettingKey": "notificationSound"
         }
       ]
     },

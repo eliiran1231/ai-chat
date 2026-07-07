@@ -40,13 +40,19 @@
                   <input
                     type="checkbox"
                     [checked]="isToggleChecked(row)"
+                    [disabled]="isControlDisabled(row)"
                     (change)="onToggleChange(row, $event)"
                   />
                   <span></span>
                 </label>
               }
               @case ('select') {
-                <select [value]="row.value" [attr.aria-label]="row.label">
+                <select
+                  [value]="selectValue(row)"
+                  [disabled]="isControlDisabled(row)"
+                  [attr.aria-label]="row.label"
+                  (change)="onSelectChange(row, $event)"
+                >
                   @for (option of row.options; track option) {
                     <option [value]="option">{{ option }}</option>
                   }
@@ -67,6 +73,7 @@
                   type="button"
                   class="settings-action"
                   [class.settings-action--danger]="row.danger"
+                  [disabled]="isControlDisabled(row)"
                   (click)="onButtonClick(row)"
                 >
                   {{ row.value }}
