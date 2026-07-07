@@ -5,11 +5,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon, LucidePenLine } from '@lucide/angular';
 import { firstValueFrom, map } from 'rxjs';
 
-import { SETTINGS_SECTIONS, SettingsRow, SettingsSectionKey } from './settings-data';
-import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
 import { ChatService } from '../../services/chat.service';
 import { ChatSettingsService } from '../../services/chat-settings.service';
 import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog';
+import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
+import { SettingsService } from '../../services/settings.service';
+import type { SettingsRow } from './settings-data';
 
 @Component({
   selector: 'app-settings-section',
@@ -22,25 +23,22 @@ export class SettingsSectionComponent {
   private dialog = inject(Dialog);
   private chatService = inject(ChatService);
   private chatSettingsService = inject(ChatSettingsService);
+  private settingsService = inject(SettingsService);
+
   readonly editIcon = LucidePenLine;
   readonly chatSettings = this.chatSettingsService.settings;
 
   readonly sectionKey = toSignal(
-    this.route.data.pipe(map((data) => data['section'] as SettingsSectionKey)),
+    this.route.paramMap.pipe(map((params) => params.get('category'))),
     {
-      initialValue: this.route.snapshot.data['section'] as SettingsSectionKey,
+      initialValue: this.route.snapshot.paramMap.get('category'),
     },
   );
 
-  readonly section = computed(() => {
-    const sectionKey = this.sectionKey();
-
-    if (!sectionKey) {
-      return SETTINGS_SECTIONS['general'];
-    }
-
-    return SETTINGS_SECTIONS[sectionKey];
-  });
+  readonly section = computed(() => this.settingsService.getSection(this.sectionKey()));
+  readonly isProfileSection = computed(() =>
+    this.settingsService.isProfileSection(this.sectionKey()),
+  );
 
   isToggleChecked(row: SettingsRow): boolean {
     if (this.sectionKey() === 'chats' && row.chatSettingKey === 'enterSendsMessage') {
@@ -74,6 +72,7 @@ export class SettingsSectionComponent {
 
     row.checked = input.checked;
   }
+
   async onButtonClick(row: SettingsRow): Promise<void> {
     if (row.action !== 'deleteAllChats') {
       return;
