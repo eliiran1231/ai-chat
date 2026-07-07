@@ -4,8 +4,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon, LucidePenLine } from '@lucide/angular';
 import { map } from 'rxjs';
 
-import { SETTINGS_SECTIONS, SettingsRow, SettingsSectionKey } from './settings-data';
+import { SettingsRow } from './settings-data';
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
+import { SettingsService } from '../../services/settings.service';
 import {
   DisplayDensity,
   DisplaySettingKey,
@@ -22,27 +23,24 @@ import {
 })
 export class SettingsSectionComponent {
   private route = inject(ActivatedRoute);
+  private settingsService = inject(SettingsService);
   private displaySettingsService = inject(DisplaySettingsService);
+
   readonly editIcon = LucidePenLine;
   readonly displaySettings = this.displaySettingsService.settings;
   readonly fontSizeDraft = signal(this.displaySettings().fontSize);
 
   readonly sectionKey = toSignal(
-    this.route.data.pipe(map((data) => data['section'] as SettingsSectionKey)),
+    this.route.paramMap.pipe(map((params) => params.get('category'))),
     {
-      initialValue: this.route.snapshot.data['section'] as SettingsSectionKey,
+      initialValue: this.route.snapshot.paramMap.get('category'),
     },
   );
 
-  readonly section = computed(() => {
-    const sectionKey = this.sectionKey();
-
-    if (!sectionKey) {
-      return SETTINGS_SECTIONS['general'];
-    }
-
-    return SETTINGS_SECTIONS[sectionKey];
-  });
+  readonly section = computed(() => this.settingsService.getSection(this.sectionKey()));
+  readonly isProfileSection = computed(() =>
+    this.settingsService.isProfileSection(this.sectionKey()),
+  );
 
   rangeValue(row: SettingsRow): number {
     if (row.displaySettingKey === 'fontSize') {
