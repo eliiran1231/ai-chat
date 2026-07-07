@@ -29,7 +29,7 @@
       <article class="settings-row">
         <div class="settings-row__copy">
           <h3>{{ row.label }}</h3>
-          <p>{{ row.description }}</p>
+          <p>{{ rowDescription(row) }}</p>
         </div>
 
         @if (row.control !== 'info') {

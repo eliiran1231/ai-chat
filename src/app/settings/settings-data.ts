@@ -2,6 +2,7 @@ import { LucideIconInput } from '@lucide/angular';
 
 import { BasicInfo } from '../../interfaces/BasicInfo';
 import type { GeneralSettingKey } from '../../services/app-settings.service';
+import type { ChatSettingKey } from '../../services/chat-settings.service';
 import type { NotificationSettingKey } from '../../services/notification-settings.service';
 
 export type SettingsSectionKey =
@@ -10,7 +11,7 @@ export type SettingsSectionKey =
 export type SettingsIconKey = 'settings' | 'user' | 'bell' | 'message-square' | 'palette' | 'info';
 
 export type SettingsControlType = 'toggle' | 'select' | 'range' | 'button' | 'info';
-export type SettingsAction = 'resetGeneralSettings';
+export type SettingsAction = 'resetGeneralSettings' | 'deleteAllChats';
 
 export interface SettingsCategoryConfig {
   path: SettingsSectionKey;
@@ -33,6 +34,7 @@ export interface SettingsRow {
   danger?: boolean;
   profileField?: keyof BasicInfo;
   settingKey?: GeneralSettingKey;
+  chatSettingKey?: ChatSettingKey;
   notificationSettingKey?: NotificationSettingKey;
   action?: SettingsAction;
 }

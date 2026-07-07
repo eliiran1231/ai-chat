@@ -134,23 +134,17 @@
       "rows": [
         {
           "label": "Enter sends message",
-          "description": "Use Shift + Enter for a new line.",
+          "description": "Use Shift + Enter for a new line",
           "control": "toggle",
-          "checked": true
-        },
-        {
-          "label": "Chat theme",
-          "description": "Theme controls are planned for a future version.",
-          "control": "select",
-          "value": "System",
-          "options": ["System", "Light", "Dark"]
+          "chatSettingKey": "enterSendsMessage"
         },
         {
           "label": "Delete all chats",
-          "description": "This action is UI-only and does not delete data yet.",
+          "description": "Permanently delete all chats and messages.",
           "control": "button",
           "value": "Delete",
-          "danger": true
+          "danger": true,
+          "action": "deleteAllChats"
         }
       ]
     },

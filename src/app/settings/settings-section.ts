@@ -1,11 +1,15 @@
 import { Component, computed, inject } from '@angular/core';
+import { Dialog, DialogModule } from '@angular/cdk/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon, LucidePenLine } from '@lucide/angular';
-import { map } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog';
 import { AppSettingsService } from '../../services/app-settings.service';
+import { ChatService } from '../../services/chat.service';
+import { ChatSettingsService } from '../../services/chat-settings.service';
 import { NotificationSettingsService } from '../../services/notification-settings.service';
 import { ProfileService } from '../../services/profile.service';
 import { SettingsService } from '../../services/settings.service';
@@ -13,18 +17,22 @@ import type { SettingsRow } from './settings-data';
 
 @Component({
   selector: 'app-settings-section',
-  imports: [ProfileAvatarComponent, LucideDynamicIcon],
+  imports: [ProfileAvatarComponent, LucideDynamicIcon, DialogModule],
   templateUrl: './settings-section.html',
   styleUrl: './settings-page.scss',
 })
 export class SettingsSectionComponent {
   private route = inject(ActivatedRoute);
+  private dialog = inject(Dialog);
   private appSettingsService = inject(AppSettingsService);
+  private chatService = inject(ChatService);
+  private chatSettingsService = inject(ChatSettingsService);
   private notificationSettingsService = inject(NotificationSettingsService);
   private profileService = inject(ProfileService);
   private settingsService = inject(SettingsService);
 
   readonly editIcon = LucidePenLine;
+  readonly chatSettings = this.chatSettingsService.settings;
   readonly generalSettings = this.appSettingsService.generalSettings;
   readonly notificationSettings = this.notificationSettingsService.settings;
 
@@ -40,6 +48,16 @@ export class SettingsSectionComponent {
     this.settingsService.isProfileSection(this.sectionKey()),
   );
 
+  rowDescription(row: SettingsRow): string {
+    if (this.sectionKey() === 'chats' && row.chatSettingKey === 'enterSendsMessage') {
+      return this.chatSettings().enterSendsMessage
+        ? 'Use Shift + Enter for a new line'
+        : 'Use Ctrl + Enter to send';
+    }
+
+    return row.description;
+  }
+
   isToggleChecked(row: SettingsRow): boolean {
     if (this.sectionKey() === 'general' && row.settingKey) {
       return this.generalSettings()[row.settingKey];
@@ -48,6 +66,10 @@ export class SettingsSectionComponent {
     if (this.sectionKey() === 'notifications' && row.notificationSettingKey) {
       const value = this.notificationSettings()[row.notificationSettingKey];
       return typeof value === 'boolean' ? value : false;
+    }
+
+    if (this.sectionKey() === 'chats' && row.chatSettingKey) {
+      return this.chatSettings()[row.chatSettingKey];
     }
 
     return Boolean(row.checked);
@@ -87,6 +109,11 @@ export class SettingsSectionComponent {
       return;
     }
 
+    if (this.sectionKey() === 'chats' && row.chatSettingKey) {
+      this.chatSettingsService.updateSetting(row.chatSettingKey, input.checked);
+      return;
+    }
+
     row.checked = input.checked;
   }
 
@@ -105,9 +132,14 @@ export class SettingsSectionComponent {
     row.value = select.value;
   }
 
-  onButtonClick(row: SettingsRow): void {
+  async onButtonClick(row: SettingsRow): Promise<void> {
     if (row.action === 'resetGeneralSettings') {
-      void this.appSettingsService.resetGeneralSettings();
+      await this.appSettingsService.resetGeneralSettings();
+      return;
+    }
+
+    if (row.action === 'deleteAllChats') {
+      await this.deleteAllChats();
     }
   }
 
@@ -121,5 +153,25 @@ export class SettingsSectionComponent {
 
     void this.profileService.setProfilePhoto(file);
     input.value = '';
+  }
+
+  private async deleteAllChats(): Promise<void> {
+    const dialogRef = this.dialog.open<boolean | undefined, unknown, ConfirmDialogComponent>(
+      ConfirmDialogComponent,
+      {
+        data: {
+          title: 'Delete all chats?',
+          message: 'This will permanently delete all chats and their messages.',
+          confirmLabel: 'Delete',
+          cancelLabel: 'Cancel',
+          danger: true,
+        },
+      },
+    );
+    const confirmed = await firstValueFrom(dialogRef.closed);
+
+    if (confirmed) {
+      await this.chatService.deleteAllChats();
+    }
   }
 }

@@ -42,7 +42,7 @@ export class ChatManager {
         return this.request(()=>this.onMessageDeleteRequested(message), message);
     }
 
-    async requestDelete(){
+    async requestDelete(): Promise<void> {
         const isDeleted = await this.onDeleteRequested()
         isDeleted && this.chatService.removeChat(this.chat.id());
     }
