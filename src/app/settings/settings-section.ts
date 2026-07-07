@@ -6,6 +6,7 @@ import { LucideDynamicIcon, LucidePenLine } from '@lucide/angular';
 import { firstValueFrom, map } from 'rxjs';
 
 import { SettingsRow } from './settings-data';
+import { SettingsRowComponent } from './settings-row';
 import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog';
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
 import { AppSettingsService } from '../../services/app-settings.service';
@@ -24,7 +25,7 @@ import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'app-settings-section',
-  imports: [ProfileAvatarComponent, LucideDynamicIcon, DialogModule],
+  imports: [ProfileAvatarComponent, SettingsRowComponent, LucideDynamicIcon, DialogModule],
   templateUrl: './settings-section.html',
   styleUrl: './settings-page.scss',
 })
@@ -114,64 +115,46 @@ export class SettingsSectionComponent {
     );
   }
 
-  onToggleChange(row: SettingsRow, event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-
-    if (!input) {
-      return;
-    }
-
+  onToggleChange(row: SettingsRow, checked: boolean): void {
     if (this.sectionKey() === 'general' && row.settingKey) {
-      void this.appSettingsService.updateGeneralSetting(row.settingKey, input.checked);
+      void this.appSettingsService.updateGeneralSetting(row.settingKey, checked);
       return;
     }
 
     if (this.sectionKey() === 'notifications' && row.notificationSettingKey) {
-      this.notificationSettingsService.updateSetting(row.notificationSettingKey, input.checked);
+      this.notificationSettingsService.updateSetting(row.notificationSettingKey, checked);
       return;
     }
 
     if (this.sectionKey() === 'chats' && row.chatSettingKey) {
-      this.chatSettingsService.updateSetting(row.chatSettingKey, input.checked);
+      this.chatSettingsService.updateSetting(row.chatSettingKey, checked);
       return;
     }
 
-    row.checked = input.checked;
+    row.checked = checked;
   }
 
-  onSelectChange(row: SettingsRow, event: Event): void {
-    const select = event.target as HTMLSelectElement | null;
-
-    if (!select) {
-      return;
-    }
-
+  onSelectChange(row: SettingsRow, value: string): void {
     if (this.sectionKey() === 'notifications' && row.notificationSettingKey) {
-      this.notificationSettingsService.updateSetting(row.notificationSettingKey, select.value);
+      this.notificationSettingsService.updateSetting(row.notificationSettingKey, value);
       return;
     }
 
     if (row.displaySettingKey && row.displaySettingKey !== 'fontSize') {
-      this.updateDisplaySetting(row.displaySettingKey, select.value);
+      this.updateDisplaySetting(row.displaySettingKey, value);
       return;
     }
 
-    row.value = select.value;
+    row.value = value;
   }
 
-  onRangeInput(row: SettingsRow, event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-
-    if (!input) {
-      return;
-    }
-
+  onRangeInput(row: SettingsRow, value: number): void {
     if (row.displaySettingKey === 'fontSize') {
-      this.fontSizeDraft.set(Number(input.value));
+      this.fontSizeDraft.set(value);
       return;
     }
 
-    row.value = input.value;
+    row.value = String(value);
   }
 
   applyRange(row: SettingsRow): void {

@@ -69,6 +69,10 @@ export class SettingsService {
   }
 
   getCategory(category: string | null): SettingsCategory | undefined {
+    if (!category) {
+      return undefined;
+    }
+
     const sectionKey = this.toSectionKey(category);
 
     return this.categories().find((item) => item.path === sectionKey);

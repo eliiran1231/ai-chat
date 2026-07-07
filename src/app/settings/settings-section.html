@@ -26,70 +26,19 @@
 
   <div class="settings-list">
     @for (row of section().rows; track row.label) {
-      <article class="settings-row">
-        <div class="settings-row__copy">
-          <h3>{{ row.label }}</h3>
-          <p>{{ rowDescription(row) }}</p>
-        </div>
-
-        @if (row.control !== 'info') {
-          <div class="settings-row__control">
-            @switch (row.control) {
-              @case ('toggle') {
-                <label class="settings-switch">
-                  <input
-                    type="checkbox"
-                    [checked]="isToggleChecked(row)"
-                    [disabled]="isControlDisabled(row)"
-                    (change)="onToggleChange(row, $event)"
-                  />
-                  <span></span>
-                </label>
-              }
-              @case ('select') {
-                <select
-                  [value]="selectValue(row)"
-                  [disabled]="isControlDisabled(row)"
-                  [attr.aria-label]="row.label"
-                  (change)="onSelectChange(row, $event)"
-                >
-                  @for (option of row.options; track option) {
-                    <option [value]="option">{{ option }}</option>
-                  }
-                </select>
-              }
-              @case ('range') {
-                <div class="settings-range-control">
-                  <output class="settings-range-value">{{ rangeValue(row) }}px</output>
-                  <div class="settings-range-control__row">
-                    <input
-                      class="settings-range"
-                      type="range"
-                      min="12"
-                      max="22"
-                      [value]="rangeValue(row)"
-                      [attr.aria-label]="row.label"
-                      (input)="onRangeInput(row, $event)"
-                    />
-                    <button type="button" class="settings-action" (click)="applyRange(row)">Apply</button>
-                  </div>
-                </div>
-              }
-              @case ('button') {
-                <button
-                  type="button"
-                  class="settings-action"
-                  [class.settings-action--danger]="row.danger"
-                  [disabled]="isControlDisabled(row)"
-                  (click)="onButtonClick(row)"
-                >
-                  {{ row.value }}
-                </button>
-              }
-            }
-          </div>
-        }
-      </article>
+      <app-settings-row
+        [row]="row"
+        [description]="rowDescription(row)"
+        [checked]="isToggleChecked(row)"
+        [disabled]="isControlDisabled(row)"
+        [rangeValue]="rangeValue(row)"
+        [selectValue]="selectValue(row)"
+        (action)="onButtonClick(row)"
+        (rangeApply)="applyRange(row)"
+        (rangeInput)="onRangeInput(row, $event)"
+        (selectChange)="onSelectChange(row, $event)"
+        (toggleChange)="onToggleChange(row, $event)"
+      ></app-settings-row>
     }
   </div>
 </section>

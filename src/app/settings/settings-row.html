@@ -1,0 +1,64 @@
+<article class="settings-row">
+  <div class="settings-row__copy">
+    <h3>{{ row().label }}</h3>
+    <p>{{ description() }}</p>
+  </div>
+
+  @if (row().control !== 'info') {
+    <div class="settings-row__control">
+      @switch (row().control) {
+        @case ('toggle') {
+          <label class="settings-switch">
+            <input
+              type="checkbox"
+              [checked]="checked()"
+              [disabled]="disabled()"
+              (change)="onToggleChange($event)"
+            />
+            <span></span>
+          </label>
+        }
+        @case ('select') {
+          <select
+            [value]="selectValue()"
+            [disabled]="disabled()"
+            [attr.aria-label]="row().label"
+            (change)="onSelectChange($event)"
+          >
+            @for (option of row().options; track option) {
+              <option [value]="option">{{ option }}</option>
+            }
+          </select>
+        }
+        @case ('range') {
+          <div class="settings-range-control">
+            <output class="settings-range-value">{{ rangeValue() }}px</output>
+            <div class="settings-range-control__row">
+              <input
+                class="settings-range"
+                type="range"
+                min="12"
+                max="22"
+                [value]="rangeValue()"
+                [attr.aria-label]="row().label"
+                (input)="onRangeInput($event)"
+              />
+              <button type="button" class="settings-action" (click)="rangeApply.emit()">Apply</button>
+            </div>
+          </div>
+        }
+        @case ('button') {
+          <button
+            type="button"
+            class="settings-action"
+            [class.settings-action--danger]="row().danger"
+            [disabled]="disabled()"
+            (click)="action.emit()"
+          >
+            {{ row().value }}
+          </button>
+        }
+      }
+    </div>
+  }
+</article>
