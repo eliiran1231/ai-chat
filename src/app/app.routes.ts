@@ -20,34 +20,8 @@ export const routes: Routes = [
         pathMatch: 'full',
       },
       {
-        path: 'general',
+        path: ':category',
         component: SettingsSectionComponent,
-        data: { section: 'general' },
-      },
-      {
-        path: 'profile',
-        component: SettingsSectionComponent,
-        data: { section: 'profile' },
-      },
-      {
-        path: 'notifications',
-        component: SettingsSectionComponent,
-        data: { section: 'notifications' },
-      },
-      {
-        path: 'chats',
-        component: SettingsSectionComponent,
-        data: { section: 'chats' },
-      },
-      {
-        path: 'appearance',
-        component: SettingsSectionComponent,
-        data: { section: 'appearance' },
-      },
-      {
-        path: 'about',
-        component: SettingsSectionComponent,
-        data: { section: 'about' },
       },
     ],
   },

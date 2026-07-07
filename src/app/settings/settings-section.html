@@ -3,7 +3,7 @@
     <span>{{ section().description }}</span>
   </header>
 
-  @if (sectionKey() === 'profile') {
+  @if (isProfileSection()) {
     <div class="settings-profile-hero">
       <app-profile-avatar></app-profile-avatar>
       <button type="button" class="settings-profile-edit" aria-label="Edit profile photo">
