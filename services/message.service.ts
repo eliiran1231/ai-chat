@@ -93,7 +93,7 @@ function isAttachmentPayload(value: unknown): value is AttachmentPayload {
 export class MessageService {
   constructor(private readonly db: DbService) {}
 
-  async getChatMessages(chatId: Uuid) {
+  async getChatMessages(chatId: Uuid, offset: number, limit: number) {
     const rows = await this.db.all<MessageRow>(
       `
         SELECT
@@ -115,12 +115,13 @@ export class MessageService {
           deletable
         FROM messages
         WHERE chat_id = ?
-        ORDER BY time ASC
+        ORDER BY time DESC, rowid DESC
+        LIMIT ? OFFSET ?
       `,
-      [chatId],
+      [chatId, limit, offset],
     );
 
-    return rows.map((row) => this.mapMessageRow(row));
+    return rows.reverse().map((row) => this.mapMessageRow(row));
   }
 
   async createMessage(message: MessagePayload) {

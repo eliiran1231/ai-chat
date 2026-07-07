@@ -17,10 +17,10 @@ export class AiAgent extends Agent {
     this.chatService = this.injector.get(ChatService);
   }
 
-  override init(chat: Chat, supporter: Supporter) {
-    super.init(chat, supporter);
-    if (chat.messages().length === 0) {
-      supporter.sendMessage('Hello, how can I help you today?');
+  override async init(chat: Chat, supporter: Supporter, isNewChat = false): Promise<void> {
+    await super.init(chat, supporter);
+    if (isNewChat) {
+      await supporter.sendMessage('Hello, how can I help you today?');
     }
   }
 

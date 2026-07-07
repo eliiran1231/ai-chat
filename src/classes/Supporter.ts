@@ -61,10 +61,10 @@ export class Supporter extends SyncedEntity {
         await this.agent.respond();
     }
 
-    async setAgent(agent: Agent){
+    async setAgent(agent: Agent, isNewChat = false){
         await this.agent?.onDestroy();
         this.agent = agent;
-        await this.agent.init(this.chat, this);
+        await this.agent.init(this.chat, this, isNewChat);
         this.onAgentSwitch.next(agent);
     }
 
