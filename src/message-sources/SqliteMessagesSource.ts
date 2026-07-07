@@ -2,13 +2,13 @@ import { Answer } from '../classes/Answer';
 import { Chat } from '../classes/Chat';
 import { Message, MessageOptions } from '../classes/Message';
 import { coerceValidatorSpec } from '../classes/MessageValidator';
-import { MessagesSource } from '../classes/MessagesSource';
+import { MessageSource } from '../classes/MessageSource';
 import { Question, QuestionOptions } from '../classes/Question';
 import type { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { DbService } from '../services/db.service';
 import { MessageRecord } from '../interfaces/db/MessageRecord';
 
-export class SqliteMessagesSource extends MessagesSource {
+export class SqliteMessagesSource extends MessageSource {
   constructor(
     chat: Chat,
     private readonly dbService: DbService,

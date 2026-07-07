@@ -84,7 +84,7 @@ export class ChatComponent {
     try {
       const previousContentHeight = this.scrollbar.adapter.contentHeight;
       const previousScrollTop = this.scrollbar.adapter.scrollTop;
-      const loaded = await this.chat().loadOlderMessages();
+      const loaded = await this.chat().loader.loadNextChunk();
 
       if (loaded.length > 0) {
         requestAnimationFrame(() => {

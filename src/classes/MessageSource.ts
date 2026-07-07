@@ -1,7 +1,7 @@
 import { Chat } from './Chat';
 import { Message } from './Message';
 
-export abstract class MessagesSource {
+export abstract class MessageSource {
   private start = 0;
   private chunkSize = 20;
   private exhausted = false;
