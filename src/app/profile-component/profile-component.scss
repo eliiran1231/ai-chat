@@ -2,15 +2,17 @@
   display: block;
   min-height: 0;
   height: 100%;
-  background: #fff;
+  background: var(--app-surface);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .profile-page {
   height: 100%;
   padding: 1.25rem 1rem 2rem;
-  background: radial-gradient(circle at top, rgba(11, 139, 114, 0.08), transparent 30%), #fff;
-  color: #101820;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--app-accent) 10%, transparent), transparent 30%),
+    var(--app-surface);
+  color: var(--app-text);
   overflow-y: auto;
 }
 
@@ -20,7 +22,7 @@
 }
 
 .profile-back {
-  color: #0b8b72;
+  color: var(--app-accent);
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 600;
@@ -35,7 +37,7 @@
 
 .profile-hero h1 {
   margin: 1rem 0 0;
-  color: #2b8f73;
+  color: var(--app-accent);
   font-size: clamp(1.25rem, 4vw, 1.8rem);
   font-weight: 500;
 }
@@ -65,7 +67,7 @@
   width: 2.5rem;
   height: 2.5rem;
   position: relative;
-  color: #66717a;
+  color: var(--app-text-soft);
   display: grid;
   place-items: center;
 }
@@ -82,14 +84,14 @@
 
 .profile-card__content p {
   margin-top: 0.35rem;
-  color: #68737b;
+  color: var(--app-text-soft);
   font-size: clamp(0.98rem, 3.3vw, 1.35rem);
   line-height: 1.25;
   word-break: break-word;
 }
 
 .profile-card__link {
-  color: #26b070 !important;
+  color: var(--app-accent-strong) !important;
 }
 
 .profile-card__icon::before,
@@ -114,7 +116,7 @@
   width: 1.2rem;
   height: 1.2rem;
   margin: 0;
-  accent-color: #2b8f73;
+  accent-color: var(--app-accent);
 }
 
 @media (max-width: 640px) {

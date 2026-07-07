@@ -153,25 +153,43 @@
       "description": "Shape the look and density of the app.",
       "rows": [
         {
+          "label": "Font size",
+          "description": "Adjust the size used for app and message text.",
+          "control": "range",
+          "value": "16",
+          "displaySettingKey": "fontSize"
+        },
+        {
           "label": "Theme",
           "description": "Choose the visual theme.",
           "control": "select",
           "value": "System",
-          "options": ["System", "Light", "Dark"]
+          "options": ["System", "Light", "Dark"],
+          "displaySettingKey": "theme"
         },
         {
           "label": "Display density",
           "description": "Control how compact lists and rows feel.",
           "control": "select",
           "value": "Comfortable",
-          "options": ["Comfortable", "Compact", "Spacious"]
+          "options": ["Comfortable", "Compact", "Spacious"],
+          "displaySettingKey": "displayDensity"
         },
         {
           "label": "Message bubble style",
-          "description": "Alternate chat styles can be connected later.",
+          "description": "Choose how message bubbles are shaped.",
           "control": "select",
           "value": "Default",
-          "options": ["Default", "Rounded", "Minimal"]
+          "options": ["Default", "Rounded", "Minimal"],
+          "displaySettingKey": "messageBubbleStyle"
+        },
+        {
+          "label": "Reset display preferences",
+          "description": "Restore the default display settings.",
+          "control": "button",
+          "value": "Reset",
+          "danger": true,
+          "action": "resetDisplayPreferences"
         }
       ]
     },

@@ -9,8 +9,8 @@
   height: 100%;
   position: relative;
   border-radius: 50%;
-  background: #cfd8df;
-  box-shadow: inset 0 -0.2rem 0 #c0cbd4;
+  background: var(--app-panel);
+  box-shadow: inset 0 -0.2rem 0 var(--app-border);
   overflow: hidden;
 }
 
@@ -26,7 +26,7 @@
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  background: #fff;
+  background: var(--app-surface);
 }
 
 .profile-avatar__head {

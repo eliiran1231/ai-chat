@@ -5,12 +5,12 @@
   flex: 1;
   min-height: 0;
   flex-direction: column;
-  background: #fff;
+  background: var(--app-surface);
 }
 
 .sidebar-tools {
   padding: 0.7rem 1rem 0.6rem;
-  background: #fff;
+  background: var(--app-surface);
 }
 
 .search-box {
@@ -21,11 +21,11 @@
   gap: 0.65rem;
   padding: 0 0.9rem;
   border-radius: 999px;
-  background: #f1f3f4;
+  background: var(--app-panel);
 }
 
 .search-box__icon {
-  color: #7a8a96;
+  color: var(--app-text-soft);
   width: 1rem;
   height: 1rem;
   stroke-width: 2.1;
@@ -36,7 +36,7 @@
   border: 0;
   outline: none;
   background: transparent;
-  color: #101820;
+  color: var(--app-text);
   font-size: 0.92rem;
 }
 
@@ -44,7 +44,7 @@
   flex: 1;
   flex-grow: 1;
   overflow-y: auto;
-  background: #fff;
+  background: var(--app-surface);
   padding-bottom: 6rem; //1rems of padding + 5rem for floating button.
 }
 
@@ -59,7 +59,7 @@
   gap: 0.95rem;
   padding: 1rem 1rem 0.95rem;
   border: 0;
-  background: #fff;
+  background: var(--app-surface);
   text-align: left;
   cursor: pointer;
   position: relative;
@@ -72,17 +72,17 @@
   right: 0;
   bottom: 0;
   height: 1px;
-  background: #eff1f2;
+  background: var(--app-border);
 }
 
 .chat-list-item__draft-label {
-  color: #21b15d;
+  color: var(--app-accent-strong);
   font-weight: bold;
 }
 
 .chat-list-item:hover,
 .chat-list-item--active {
-  background: #f8f9f9;
+  background: var(--app-panel);
 }
 
 .chat-list-item__avatar-wrap {
@@ -94,7 +94,7 @@
 }
 
 .chat-list-item__avatar-wrap--ring {
-  border: 0.18rem solid #25d366;
+  border: 0.18rem solid var(--app-accent-strong);
 }
 
 .chat-list-item__avatar {
@@ -137,19 +137,19 @@
 }
 
 .chat-list-item__top strong {
-  color: #111b21;
+  color: var(--app-text);
   font-size: 1rem;
   font-weight: 500;
 }
 
 .chat-list-item__top time {
-  color: #7a8a96;
+  color: var(--app-text-soft);
   font-size: 0.74rem;
   white-space: nowrap;
 }
 
 .chat-list-item__time--accent {
-  color: #21b15d !important;
+  color: var(--app-accent-strong) !important;
 }
 
 .chat-list-item__avatar {
@@ -175,13 +175,13 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: #7a8a96;
+  color: var(--app-text-soft);
   font-size: 0.8rem;
   cursor: pointer;
 }
 
 .chat-delete-button:hover:not(:disabled) {
-  background: #eceff1;
+  background: var(--app-panel);
   color: #d93025;
 }
 
@@ -195,7 +195,7 @@
 }
 
 .chat-list-item__bottom p {
-  color: #6f7f8a;
+  color: var(--app-text-soft);
   font-size: 0.88rem;
 }
 
@@ -206,7 +206,7 @@
   display: inline-grid;
   place-items: center;
   border-radius: 50%;
-  background: #25d366;
+  background: var(--app-accent-strong);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 700;
@@ -232,7 +232,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, #16c79a, #05a884);
+  background: linear-gradient(180deg, var(--app-accent-strong), var(--app-accent));
   color: #fff;
   box-shadow: 0 0.9rem 1.6rem rgba(0, 168, 132, 0.32);
   text-transform: lowercase;

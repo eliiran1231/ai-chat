@@ -3,11 +3,82 @@
 @include cdk.overlay();
 @include cdk.text-field-autosize();
 
+:root {
+  --app-font-size: 16px;
+  --app-bg: #e5ddd5;
+  --app-surface: #ffffff;
+  --app-panel: #f0f2f5;
+  --app-border: #d1d7db;
+  --app-text: #111b21;
+  --app-text-soft: #667781;
+  --app-accent: #0b8b72;
+  --app-accent-dark: #075e54;
+  --app-accent-soft: #e6f4ef;
+  --app-accent-strong: #25d366;
+  --app-user-bubble: #d9fdd3;
+  --app-density: 1;
+  --message-bubble-radius: 0.55rem;
+}
+
+html[data-app-theme='Dark'] {
+  --app-bg: #0b141a;
+  --app-surface: #111b21;
+  --app-panel: #202c33;
+  --app-border: #2a3942;
+  --app-text: #e9edef;
+  --app-text-soft: #8696a0;
+  --app-accent: #06473f;
+  --app-accent-dark: #032f2a;
+  --app-accent-soft: #12372f;
+  --app-accent-strong: #0f7b55;
+  --app-user-bubble: #113c32;
+  color-scheme: dark;
+}
+
+html[data-app-theme='Light'] {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-app-theme='System'] {
+    --app-bg: #0b141a;
+    --app-surface: #111b21;
+    --app-panel: #202c33;
+    --app-border: #2a3942;
+    --app-text: #e9edef;
+    --app-text-soft: #8696a0;
+    --app-accent: #06473f;
+    --app-accent-dark: #032f2a;
+    --app-accent-soft: #12372f;
+    --app-accent-strong: #0f7b55;
+    --app-user-bubble: #113c32;
+    color-scheme: dark;
+  }
+}
+
+html[data-app-density='Compact'] {
+  --app-density: 0.82;
+}
+
+html[data-app-density='Spacious'] {
+  --app-density: 1.18;
+}
+
+html[data-message-bubble-style='Rounded'] {
+  --message-bubble-radius: 1.1rem;
+}
+
+html[data-message-bubble-style='Minimal'] {
+  --message-bubble-radius: 0.25rem;
+}
+
 html,
 body {
   margin: 0;
   height: 100%;
-  background: #e5ddd5;
+  background: var(--app-bg);
+  font-size: var(--app-font-size, 16px);
+  color: var(--app-text);
   overflow: hidden;
 }
 

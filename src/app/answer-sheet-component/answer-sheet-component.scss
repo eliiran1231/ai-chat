@@ -41,12 +41,12 @@
 }
 
 .answer-sheet {
-  --as-primary: #054c44;
-  --as-accent: #25d366;
-  --as-surface: #ffffff;
-  --as-alt: #f0f2f5;
-  --as-outline: #d1d7db;
-  --as-muted: #667781;
+  --as-primary: var(--app-accent-dark);
+  --as-accent: var(--app-accent-strong);
+  --as-surface: var(--app-surface);
+  --as-alt: var(--app-panel);
+  --as-outline: var(--app-border);
+  --as-muted: var(--app-text-soft);
 
   display: flex;
   flex-direction: column;
@@ -55,7 +55,7 @@
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
   overflow: hidden;
   background: var(--as-surface);
-  color: #111b21;
+  color: var(--app-text);
   border-radius: 1.25rem 1.25rem 0 0;
   box-shadow: 0 -0.5rem 1.5rem rgba(17, 27, 33, 0.18);
 }
