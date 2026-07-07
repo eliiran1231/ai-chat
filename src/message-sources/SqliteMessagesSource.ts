@@ -12,7 +12,7 @@ export class SqliteMessagesSource extends MessagesSource {
   constructor(
     chat: Chat,
     private readonly dbService: DbService,
-    private readonly provider: SqliteProvider,
+    private readonly commitMessageChanges: (message: Message) => Promise<any>,
   ) {
     super(chat);
   }
@@ -36,7 +36,7 @@ export class SqliteMessagesSource extends MessagesSource {
         : new Message(record.value, options);
 
     message.setChat(this.chat);
-    message.setSaveChangesHandler(target => void this.provider.commitMessageChanges(target));
+    message.setSaveChangesHandler(target => void this.commitMessageChanges(target));
     return message;
   }
 

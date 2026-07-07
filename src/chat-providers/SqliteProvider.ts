@@ -202,7 +202,7 @@ export class SqliteProvider implements ChatProvider {
       tipLabel: record.tipLabel,
     });
     chat.setSaveChangesHandler((target) => void this.commitChatChanges(target));
-    chat.addMessagesSource(new SqliteMessagesSource(chat, this.dbService, this));
+    chat.addMessagesSource(new SqliteMessagesSource(chat, this.dbService, this.commitMessageChanges.bind(this)));
     await chat.loadMessages();
     supporter.setSaveChangesHandler(this.commitSupporterChanges.bind(this));
     supporter.onAgentSwitch.subscribe((agent) =>
