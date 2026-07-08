@@ -76,7 +76,7 @@
 }
 
 .chat-list-item__draft-label {
-  color: var(--app-accent-strong);
+  color: var(--app-action-accent-strong);
   font-weight: bold;
 }
 
@@ -94,18 +94,11 @@
 }
 
 .chat-list-item__avatar-wrap--ring {
-  border: 0.18rem solid var(--app-accent-strong);
+  border: 0.18rem solid var(--app-action-accent-strong);
 }
 
 .chat-list-item__avatar {
-  width: 3.25rem;
-  height: 3.25rem;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #c8d5df, #e8eef2);
-  color: #ffffff;
-  font-weight: 700;
+  --chat-avatar-size: 42px;
 }
 
 .chat-list-item__content {
@@ -149,24 +142,7 @@
 }
 
 .chat-list-item__time--accent {
-  color: var(--app-accent-strong) !important;
-}
-
-.chat-list-item__avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  overflow: hidden;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chat-list-item__avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  color: var(--app-action-accent) !important;
 }
 
 .chat-delete-button {
@@ -206,7 +182,7 @@
   display: inline-grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--app-accent-strong);
+  background: var(--app-action-accent-strong);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 700;
@@ -232,7 +208,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, var(--app-accent-strong), var(--app-accent));
+  background: linear-gradient(180deg, var(--app-action-accent-strong), var(--app-action-accent));
   color: #fff;
   box-shadow: 0 0.9rem 1.6rem rgba(0, 168, 132, 0.32);
   text-transform: lowercase;

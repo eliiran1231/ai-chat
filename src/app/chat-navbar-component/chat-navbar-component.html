@@ -109,13 +109,11 @@
         </button>
       }
 
-      <div class="avatar" aria-hidden="true">
-        @if (chat().avatar().type === 'image') {
-          <img [src]="chat().avatar().value" alt="" class="avatar__image" />
-        } @else {
-          {{ chat().avatar().value }}
-        }
-      </div>
+      <app-chat-avatar
+        class="contact-avatar"
+        [avatar]="chat().avatar()"
+        [label]="chat().name()"
+      />
       <div class="contact-meta">
         <h1>{{ chat().name() }}</h1>
         <p>{{ chat().status() }}</p>

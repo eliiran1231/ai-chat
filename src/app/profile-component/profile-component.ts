@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { LucideDynamicIcon, LucideGlobe, LucideMonitor, LucideUserRound } from '@lucide/angular';
 import { ProfileService } from '../../services/profile.service';
-import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
+import { ChatAvatarComponent } from '../shared/chat-avatar/chat-avatar';
 
 @Component({
   selector: 'app-profile-component',
-  imports: [LucideDynamicIcon, ProfileAvatarComponent],
+  imports: [LucideDynamicIcon, ChatAvatarComponent],
   templateUrl: './profile-component.html',
   styleUrl: './profile-component.scss',
 })
@@ -24,4 +24,6 @@ export class ProfileComponent {
     ipLabel: 'ip address',
     ipValue: this.basicInfo.ip,
   };
+
+  readonly profileAvatarLabel = this.profile.displayName || this.profile.usernameValue;
 }

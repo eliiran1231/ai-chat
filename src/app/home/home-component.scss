@@ -9,7 +9,7 @@
   display: grid;
   grid-template-columns: 26rem minmax(0, 1fr);
   background:
-    linear-gradient(180deg, var(--app-accent) 0 8.5rem, var(--app-accent-dark) 8.5rem 100%),
+    linear-gradient(180deg, var(--app-top-surface) 0 8.5rem, var(--app-top-surface-dark) 8.5rem 100%),
     var(--app-bg);
 }
 
@@ -33,7 +33,7 @@ app-chat-list-component {
 }
 
 .mobile-appbar {
-  background: var(--app-accent);
+  background: var(--app-top-surface);
   color: #fff;
   box-shadow: 0 2px 10px rgba(17, 27, 33, 0.18);
 }
@@ -150,7 +150,7 @@ app-chat-list-component {
   place-items: center;
   border-radius: 50%;
   background: var(--app-surface);
-  color: var(--app-accent);
+  color: var(--app-action-accent);
   font-size: 0.82rem;
   font-weight: 700;
 }
@@ -177,7 +177,7 @@ app-chat-list-component {
 }
 
 .footer-accent {
-  color: var(--app-accent-strong);
+  color: var(--app-action-accent-strong);
 }
 
 .chat-stage {
@@ -235,7 +235,7 @@ app-chat-list-component {
   display: grid;
   place-items: center;
   border-radius: 1.2rem;
-  background: linear-gradient(135deg, var(--app-accent-strong), var(--app-accent));
+  background: linear-gradient(135deg, var(--app-action-accent-strong), var(--app-action-accent));
   color: #fff;
   font-weight: 700;
 }

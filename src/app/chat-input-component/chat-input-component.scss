@@ -1,5 +1,5 @@
 :host {
-  --composer-accent: var(--app-accent-strong);
+  --composer-accent: var(--app-action-accent-strong);
   --composer-accent-shadow: rgba(37, 211, 102, 0.28);
   --composer-panel: var(--app-panel);
   --composer-border: var(--app-border);
@@ -111,7 +111,7 @@
 }
 
 .chat-composer--light {
-  --composer-accent: var(--app-accent-strong);
+  --composer-accent: var(--app-action-accent-strong);
   --composer-accent-shadow: rgba(37, 211, 102, 0.28);
   --composer-panel: var(--app-panel);
   --composer-border: var(--app-border);

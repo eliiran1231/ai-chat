@@ -51,7 +51,11 @@
   flex: 1 1 auto;
   min-width: 0;
   height: 2.8rem;
-  color: white;
+  padding: 0 0.85rem;
+  border: 1px solid color-mix(in srgb, #ffffff 14%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-surface) 18%, transparent);
+  color: #ffffff;
 }
 
 .search-icon {
@@ -69,7 +73,7 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: #ffffff;
+  color: currentColor;
   font-size: 0.95rem;
 }
 
@@ -190,24 +194,8 @@
   transform: none;
 }
 
-.avatar {
-  width: 2.8rem;
-  height: 2.8rem;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #dfe5e7, #b7c4c8);
-  color: var(--wa-green);
-  font-weight: 700;
-  flex: 0 0 auto;
-  overflow: hidden;
-  line-height: 1;
-}
-
-.avatar__image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.contact-avatar {
+  --chat-avatar-size: 2.8rem;
 }
 
 .contact-meta {

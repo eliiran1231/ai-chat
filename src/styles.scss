@@ -19,6 +19,12 @@
   --app-accent-dark: #075e54;
   --app-accent-soft: #e6f4ef;
   --app-accent-strong: #25d366;
+  --app-action-accent: #25d366;
+  --app-action-accent-hover: #1ebe5d;
+  --app-action-accent-strong: #25d366;
+  --app-message-accent: #d9fdd3;
+  --app-top-surface: #0b8b72;
+  --app-top-surface-dark: #075e54;
   --app-user-bubble: #d9fdd3;
   --app-density: 1;
   --message-bubble-radius: 0.55rem;
@@ -35,6 +41,12 @@ html[data-app-theme='Dark'] {
   --app-accent-dark: #032f2a;
   --app-accent-soft: #12372f;
   --app-accent-strong: #0f7b55;
+  --app-action-accent: #25d366;
+  --app-action-accent-hover: #1ebe5d;
+  --app-action-accent-strong: #25d366;
+  --app-message-accent: #113c32;
+  --app-top-surface: #000000;
+  --app-top-surface-dark: #000000;
   --app-user-bubble: #113c32;
   color-scheme: dark;
 }
@@ -55,6 +67,12 @@ html[data-app-theme='Light'] {
     --app-accent-dark: #032f2a;
     --app-accent-soft: #12372f;
     --app-accent-strong: #0f7b55;
+    --app-action-accent: #25d366;
+    --app-action-accent-hover: #1ebe5d;
+    --app-action-accent-strong: #25d366;
+    --app-message-accent: #113c32;
+    --app-top-surface: #000000;
+    --app-top-surface-dark: #000000;
     --app-user-bubble: #113c32;
     color-scheme: dark;
   }

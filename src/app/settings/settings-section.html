@@ -5,7 +5,7 @@
 
   @if (isProfileSection()) {
     <div class="settings-profile-hero">
-      <app-profile-avatar></app-profile-avatar>
+      <app-chat-avatar class="settings-profile-avatar" [label]="profileAvatarLabel()" />
       <button type="button" class="settings-profile-edit" aria-label="Edit profile photo">
         <svg [lucideIcon]="editIcon" aria-hidden="true"></svg>
       </button>
@@ -14,7 +14,11 @@
 
   <div class="settings-list">
     @for (row of section().rows; track row.label) {
-      <article class="settings-row">
+      <article
+        class="settings-row"
+        [class.settings-row--range]="row.control === 'range'"
+        [class.settings-row--select]="row.control === 'select'"
+      >
         <div class="settings-row__copy">
           <h3>{{ row.label }}</h3>
           <p>{{ row.description }}</p>
@@ -30,9 +34,9 @@
             }
             @case ('select') {
               <select
-                [value]="selectValue(row)"
+                [ngModel]="selectValue(row)"
                 [attr.aria-label]="row.label"
-                (change)="onSelectChange(row, $event)"
+                (ngModelChange)="onSelectChange(row, $event)"
               >
                 @for (option of row.options; track option) {
                   <option [value]="option">{{ option }}</option>
@@ -41,21 +45,21 @@
             }
             @case ('range') {
               <div class="settings-range-control">
-                <output class="settings-range-value">{{ rangeValue(row) }}px</output>
-                <div class="settings-range-control__row">
-                  <input
-                    class="settings-range"
-                    type="range"
-                    min="12"
-                    max="22"
-                    [value]="rangeValue(row)"
-                    [attr.aria-label]="row.label"
-                    (input)="onRangeInput(row, $event)"
-                  />
+                <div class="settings-range-control__summary">
+                  <output class="settings-range-value">{{ rangeValue(row) }}px</output>
                   <button type="button" class="settings-action" (click)="applyRange(row)">
                     Apply
                   </button>
                 </div>
+                <input
+                  class="settings-range"
+                  type="range"
+                  min="12"
+                  max="22"
+                  [value]="rangeValue(row)"
+                  [attr.aria-label]="row.label"
+                  (input)="onRangeInput(row, $event)"
+                />
               </div>
             }
             @case ('button') {

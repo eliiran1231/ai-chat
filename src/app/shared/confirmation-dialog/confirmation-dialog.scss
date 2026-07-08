@@ -45,14 +45,14 @@
 }
 
 .confirmation-dialog__confirm {
-  border-color: #0b8b72;
-  background: #0b8b72;
+  border-color: var(--app-action-accent);
+  background: var(--app-action-accent);
   color: #fff;
 }
 
 .confirmation-dialog__confirm:hover,
 .confirmation-dialog__confirm:focus-visible {
-  background: #118c7e;
+  background: var(--app-action-accent-hover);
 }
 
 .confirmation-dialog__confirm--danger {

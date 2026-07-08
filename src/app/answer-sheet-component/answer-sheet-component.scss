@@ -41,8 +41,8 @@
 }
 
 .answer-sheet {
-  --as-primary: var(--app-accent-dark);
-  --as-accent: var(--app-accent-strong);
+  --as-primary: var(--app-action-accent);
+  --as-accent: var(--app-action-accent-strong);
   --as-surface: var(--app-surface);
   --as-alt: var(--app-panel);
   --as-outline: var(--app-border);
@@ -217,6 +217,7 @@
 .answer-sheet__option--selected .answer-sheet__mark {
   border-color: var(--as-accent);
   background: var(--as-accent);
+  color: #fff;
 }
 
 .answer-sheet__mark svg {
@@ -231,7 +232,7 @@
   margin: 0 auto;
   border: 0;
   border-radius: 0.45rem;
-  color: var(--as-primary);
+  color: #fff;
   background: var(--as-accent);
   font-weight: 700;
   cursor: pointer;

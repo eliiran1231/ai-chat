@@ -1,11 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon, LucidePenLine } from '@lucide/angular';
 import { map } from 'rxjs';
 
 import type { SettingsRow } from './settings-data';
-import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
+import { ChatAvatarComponent } from '../shared/chat-avatar/chat-avatar';
 import { SettingsService } from '../../services/settings.service';
 import {
   DisplayDensity,
@@ -18,7 +19,7 @@ import { ConfirmationDialogService } from '../shared/confirmation-dialog/confirm
 
 @Component({
   selector: 'app-settings-section',
-  imports: [ProfileAvatarComponent, LucideDynamicIcon],
+  imports: [ChatAvatarComponent, FormsModule, LucideDynamicIcon],
   templateUrl: './settings-section.html',
   styleUrl: './settings-page.scss',
 })
@@ -42,6 +43,13 @@ export class SettingsSectionComponent {
   readonly isProfileSection = computed(() =>
     this.settingsService.isProfileSection(this.sectionKey()),
   );
+  readonly profileAvatarLabel = computed(() => {
+    const rows = this.section().rows;
+    const displayName = rows.find((row) => row.profileField === 'displayName')?.description;
+    const username = rows.find((row) => row.profileField === 'username')?.description;
+
+    return [displayName, username].find((value) => value && value !== 'Not available') ?? '';
+  });
 
   rangeValue(row: SettingsRow): number {
     if (row.displaySettingKey === 'fontSize') {
@@ -80,19 +88,13 @@ export class SettingsSectionComponent {
     }
   }
 
-  onSelectChange(row: SettingsRow, event: Event): void {
-    const select = event.target as HTMLSelectElement | null;
-
-    if (!select) {
-      return;
-    }
-
+  onSelectChange(row: SettingsRow, value: string): void {
     if (row.displaySettingKey && row.displaySettingKey !== 'fontSize') {
-      this.updateDisplaySetting(row.displaySettingKey, select.value);
+      this.updateDisplaySetting(row.displaySettingKey, value);
       return;
     }
 
-    row.value = select.value;
+    row.value = value;
   }
 
   async onButtonClick(row: SettingsRow): Promise<void> {

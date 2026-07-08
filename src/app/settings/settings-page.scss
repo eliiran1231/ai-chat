@@ -62,7 +62,7 @@
   padding: 0.5rem;
   border-radius: 0.5rem;
   background: #fff;
-  color: #0b8b72;
+  color: var(--app-action-accent);
 }
 
 .settings-overview__item span {
@@ -166,7 +166,7 @@
 }
 
 .settings-switch input:checked + span {
-  background: var(--app-accent);
+  background: var(--app-action-accent);
 }
 
 .settings-switch input:checked + span::after {
@@ -176,27 +176,50 @@
 .settings-row select,
 .settings-action {
   min-height: 2.25rem;
-  border: 1px solid var(--app-accent);
+  border: 1px solid var(--app-action-accent);
   border-radius: 0.45rem;
   background: var(--app-surface);
-  color: var(--app-accent);
+  color: var(--app-action-accent);
   font: inherit;
 }
 
 .settings-row select {
   min-width: 9rem;
+  max-width: 100%;
   padding: 0 2rem 0 0.75rem;
 }
 
 .settings-range {
-  width: 9rem;
-  accent-color: var(--app-accent);
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--app-action-accent);
 }
 
 .settings-range-control {
-  display: grid;
-  justify-items: end;
-  gap: 0.45rem;
+  display: contents;
+}
+
+.settings-row--range {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.settings-row--range .settings-row__control {
+  display: contents;
+}
+
+.settings-range-control__summary {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 0.5rem;
+}
+
+.settings-row--range .settings-range {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin-top: 0.2rem;
 }
 
 .settings-range-value {
@@ -210,12 +233,6 @@
   text-align: center;
 }
 
-.settings-range-control__row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .settings-action {
   padding: 0 0.9rem;
   cursor: pointer;
@@ -223,7 +240,7 @@
 
 .settings-action:hover,
 .settings-action:focus-visible {
-  background: var(--app-panel);
+  background: color-mix(in srgb, var(--app-action-accent) 10%, var(--app-surface));
   outline: none;
 }
 
@@ -238,7 +255,7 @@
 }
 
 .settings-info {
-  color: var(--app-accent);
+  color: var(--app-action-accent);
   font-size: 0.9rem;
 }
 
@@ -248,6 +265,10 @@
   display: flex;
   justify-content: center;
   margin: 0 auto 1.75rem;
+}
+
+.settings-profile-avatar {
+  --chat-avatar-size: min(58vw, 11rem);
 }
 
 .settings-profile-edit {
@@ -260,15 +281,15 @@
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: var(--app-accent);
+  background: var(--app-action-accent);
   color: #fff;
-  box-shadow: 0 0.9rem 1.6rem color-mix(in srgb, var(--app-accent) 32%, transparent);
+  box-shadow: 0 0.9rem 1.6rem color-mix(in srgb, var(--app-action-accent) 32%, transparent);
   cursor: pointer;
 }
 
 .settings-profile-edit:hover,
 .settings-profile-edit:focus-visible {
-  background: var(--app-accent-dark);
+  background: var(--app-action-accent-hover);
   outline: none;
 }
 
@@ -283,11 +304,39 @@
   }
 
   .settings-row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
   }
 
   .settings-row__control {
-    justify-content: flex-end;
+    width: 100%;
+    justify-content: flex-start;
+    justify-self: stretch;
+  }
+
+  .settings-row--select .settings-row__control {
+    margin-top: 0.35rem;
+  }
+
+  .settings-row select {
+    width: 100%;
+  }
+
+  .settings-row--range {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .settings-range-control__summary {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    justify-content: space-between;
+    justify-self: stretch;
+    margin-top: 0.4rem;
+  }
+
+  .settings-row--range .settings-range {
+    grid-column: 1;
+    grid-row: 3;
   }
 }

@@ -10,7 +10,7 @@
   height: 100%;
   padding: 1.25rem 1rem 2rem;
   background:
-    radial-gradient(circle at top, color-mix(in srgb, var(--app-accent) 10%, transparent), transparent 30%),
+    radial-gradient(circle at top, color-mix(in srgb, var(--app-action-accent) 10%, transparent), transparent 30%),
     var(--app-surface);
   color: var(--app-text);
   overflow-y: auto;
@@ -22,7 +22,7 @@
 }
 
 .profile-back {
-  color: var(--app-accent);
+  color: var(--app-action-accent);
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 600;
@@ -35,9 +35,13 @@
   padding-top: 0.25rem;
 }
 
+.profile-avatar {
+  --chat-avatar-size: min(58vw, 11rem);
+}
+
 .profile-hero h1 {
   margin: 1rem 0 0;
-  color: var(--app-accent);
+  color: var(--app-action-accent);
   font-size: clamp(1.25rem, 4vw, 1.8rem);
   font-weight: 500;
 }
@@ -91,7 +95,7 @@
 }
 
 .profile-card__link {
-  color: var(--app-accent-strong) !important;
+  color: var(--app-action-accent-strong) !important;
 }
 
 .profile-card__icon::before,
@@ -116,7 +120,7 @@
   width: 1.2rem;
   height: 1.2rem;
   margin: 0;
-  accent-color: var(--app-accent);
+  accent-color: var(--app-action-accent);
 }
 
 @media (max-width: 640px) {

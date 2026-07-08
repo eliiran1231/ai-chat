@@ -22,7 +22,7 @@
   border-bottom: 1px solid color-mix(in srgb, var(--wa-text-soft) 22%, transparent);
   padding: 0.48rem 0.62rem;
   background: transparent;
-  color: var(--wa-green);
+  color: var(--app-action-accent);
   font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.2;
@@ -47,9 +47,9 @@
 }
 
 .possible-answer:hover {
-  background: color-mix(in srgb, var(--wa-green) 8%, transparent);
+  background: color-mix(in srgb, var(--app-action-accent) 8%, transparent);
 }
 
 .possible-answer:active {
-  background: color-mix(in srgb, var(--wa-green) 14%, transparent);
+  background: color-mix(in srgb, var(--app-action-accent) 14%, transparent);
 }

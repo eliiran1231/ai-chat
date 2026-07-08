@@ -37,12 +37,12 @@ app-file-preview-component {
 }
 
 .chat-shell {
-  --wa-green: var(--app-accent);
-  --wa-green-dark: var(--app-accent-dark);
-  --wa-accent: var(--app-accent-strong);
+  --wa-green: var(--app-top-surface);
+  --wa-green-dark: var(--app-top-surface-dark);
+  --wa-accent: var(--app-action-accent-strong);
   --wa-thread: var(--app-bg);
   --wa-thread-pattern: rgba(255, 255, 255, 0.38);
-  --wa-user-bubble: var(--app-user-bubble);
+  --wa-user-bubble: var(--app-message-accent);
   --wa-supporter-bubble: var(--app-surface);
   --wa-panel: var(--app-panel);
   --wa-border: var(--app-border);
@@ -133,7 +133,7 @@ app-file-preview-component {
   display: grid;
   place-items: center;
   background: color-mix(in srgb, var(--app-surface) 96%, transparent);
-  color: var(--wa-green);
+  color: var(--app-action-accent);
   box-shadow: 0 8px 24px rgba(17, 27, 33, 0.16);
   cursor: pointer;
   transition:
