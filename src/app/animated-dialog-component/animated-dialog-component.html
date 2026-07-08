@@ -1,0 +1,13 @@
+@if (isShown()) {
+  <section
+    class="popup-dialog"
+    [style.--dialog-width]="data.width"
+    [style.--dialog-height]="data.height"
+    [style.--dialog-max-height]="data.height ? 'none' : null"
+    [animate.enter]="enterAnimation"
+    [animate.leave]="leaveAnimation"
+    (animationend)="finishClose()"
+  >
+    <ng-container *ngComponentOutlet="data.component; injector: contentInjector" />
+  </section>
+}

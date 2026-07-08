@@ -1,17 +1,16 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { LucideDynamicIcon, LucideSearch, LucideSquarePen } from '@lucide/angular';
+import { LucideDynamicIcon, LucideSquarePen } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
+import { SidebarSearchComponent } from '../shared/sidebar-search/sidebar-search-component';
 @Component({
   selector: 'app-chat-list-component',
-  imports: [FormsModule, LucideDynamicIcon, DatePipe],
+  imports: [LucideDynamicIcon, DatePipe, SidebarSearchComponent],
   templateUrl: './chat-list-component.html',
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {
-  readonly searchIcon = LucideSearch;
   readonly composeIcon = LucideSquarePen;
   chats = input<Chat[]>([]);
   searchTerm = input<string>('');

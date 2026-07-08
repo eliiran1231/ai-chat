@@ -4,7 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { LucideDynamicIcon, LucidePenLine } from '@lucide/angular';
 import { map } from 'rxjs';
 
-import { SettingsRow } from './settings-data';
+import type { SettingsRow } from './settings-data';
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
 import { SettingsService } from '../../services/settings.service';
 import {
@@ -14,6 +14,7 @@ import {
   DisplayTheme,
   MessageBubbleStyle,
 } from '../../services/display-settings.service';
+import { ConfirmationDialogService } from '../shared/confirmation-dialog/confirmation-dialog.service';
 
 @Component({
   selector: 'app-settings-section',
@@ -25,7 +26,7 @@ export class SettingsSectionComponent {
   private route = inject(ActivatedRoute);
   private settingsService = inject(SettingsService);
   private displaySettingsService = inject(DisplaySettingsService);
-
+  private confirmationDialog = inject(ConfirmationDialogService);
   readonly editIcon = LucidePenLine;
   readonly displaySettings = this.displaySettingsService.settings;
   readonly fontSizeDraft = signal(this.displaySettings().fontSize);
@@ -94,7 +95,15 @@ export class SettingsSectionComponent {
     row.value = select.value;
   }
 
-  onButtonClick(row: SettingsRow): void {
+  async onButtonClick(row: SettingsRow): Promise<void> {
+    if (row.confirmation) {
+      const confirmed = await this.confirmationDialog.confirm(row.confirmation);
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
     if (row.action === 'resetDisplayPreferences') {
       this.displaySettingsService.resetSettings();
       this.fontSizeDraft.set(this.displaySettings().fontSize);
