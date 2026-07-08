@@ -50,6 +50,7 @@
                 type="button"
                 class="settings-action"
                 [class.settings-action--danger]="row.danger"
+                (click)="handleAction(row)"
               >
                 {{ row.value }}
               </button>

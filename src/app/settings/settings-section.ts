@@ -6,6 +6,8 @@ import { map } from 'rxjs';
 
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
 import { SettingsService } from '../../services/settings.service';
+import { SettingsRow } from './settings-data';
+import { ConfirmationDialogService } from '../shared/confirmation-dialog/confirmation-dialog.service';
 
 @Component({
   selector: 'app-settings-section',
@@ -16,6 +18,7 @@ import { SettingsService } from '../../services/settings.service';
 export class SettingsSectionComponent {
   private route = inject(ActivatedRoute);
   private settingsService = inject(SettingsService);
+  private confirmationDialog = inject(ConfirmationDialogService);
   readonly editIcon = LucidePenLine;
 
   readonly sectionKey = toSignal(
@@ -29,4 +32,12 @@ export class SettingsSectionComponent {
   readonly isProfileSection = computed(() =>
     this.settingsService.isProfileSection(this.sectionKey()),
   );
+
+  async handleAction(row: SettingsRow): Promise<void> {
+    if (!row.confirmation) {
+      return;
+    }
+
+    await this.confirmationDialog.confirm(row.confirmation);
+  }
 }

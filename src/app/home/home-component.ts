@@ -26,9 +26,7 @@ import { Chat } from '../../classes/Chat';
 import { ProviderListComponent } from '../provider-list-component/provider-list-component';
 import { CHAT_PROVIDER } from '../../services/chat-providers.module';
 import { ChatProvider } from '../../interfaces/ChatProvider';
-import {
-  AnimatedDialogComponent,
-} from '../animated-dialog-component/animated-dialog-component';
+import { AnimatedDialogComponent } from '../animated-dialog-component/animated-dialog-component';
 import {
   ProviderSelectionDialogComponent,
   ProviderSelectionDialogData,
@@ -56,9 +54,7 @@ export class HomeComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private dialog = inject(Dialog);
-  private routeId = toSignal(
-    this.route.paramMap.pipe(map(params => params.get('id')))
-  );
+  private routeId = toSignal(this.route.paramMap.pipe(map((params) => params.get('id'))));
   chatService = inject(ChatService);
   searchTerm = signal('');
   // whatsappLogoUrl: string | null = 'image.png';
@@ -68,8 +64,8 @@ export class HomeComponent implements OnInit {
   isFullscreen = signal(false);
   selectedTab = signal<'chats' | 'profile' | 'providers'>('chats');
 
-  constructor(@Inject(CHAT_PROVIDER) readonly providers: ChatProvider[] = []){
-    effect(()=>{
+  constructor(@Inject(CHAT_PROVIDER) readonly providers: ChatProvider[] = []) {
+    effect(() => {
       this.chatService['setSelectedChatId'](this.routeId());
     });
   }
@@ -131,10 +127,10 @@ export class HomeComponent implements OnInit {
           component: ProviderSelectionDialogComponent,
           providers: this.providers,
           width: '90vw',
-          animation: this.providers.length == 1 ? 'none' : 'pop'
+          animation: this.providers.length == 1 ? 'none' : 'pop',
         },
         ariaLabel: 'Choose a chat provider',
-        backdropClass: 'provider-dialog-backdrop',
+        backdropClass: 'popup-dialog-backdrop',
         disableClose: true,
       },
     );

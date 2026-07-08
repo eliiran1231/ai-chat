@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home-component';
 import { SettingsLayoutComponent } from './settings/settings-layout';
-import { SettingsOverviewComponent } from './settings/settings-overview';
 import { SettingsSectionComponent } from './settings/settings-section';
 
 export const routes: Routes = [
@@ -14,11 +13,6 @@ export const routes: Routes = [
     path: 'settings',
     component: SettingsLayoutComponent,
     children: [
-      {
-        path: '',
-        component: SettingsOverviewComponent,
-        pathMatch: 'full',
-      },
       {
         path: ':category',
         component: SettingsSectionComponent,
