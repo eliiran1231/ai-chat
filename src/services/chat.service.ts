@@ -54,6 +54,13 @@ export class ChatService {
     this.loaded = true;
   }
 
+  async loadProviderChats(provider: ChatProvider): Promise<void> {
+    const chats = await provider.getChats();
+    this.clearChats(provider.metadata.id);
+    this.chats.update(current => [...current, ...chats]);
+    chats.forEach(chat => this._chatMap.set(chat.id(), chat));
+  }
+
   getChatById(id: string | null | undefined): Chat | undefined {
     if (!id) return undefined;
     return this._chatMap.get(id);
@@ -84,6 +91,25 @@ export class ChatService {
     chat.supporter.onMessageAdded.subscribe((message) => {
       void this.notificationService.notifySupporterMessage(chat, message);
     });
+  }
+
+  clearChats(providerId?: string): void {
+    if (providerId) {
+      const providerChatIds = new Set(
+        this.chats()
+          .filter(chat => chat.belongsToProvider(providerId))
+          .map(chat => chat.id()),
+      );
+      if (providerChatIds.has(this.selectedChatId() ?? '')) this.setSelectedChatId(null);
+      this.chats.update(chats => chats.filter(chat => !providerChatIds.has(chat.id())));
+      providerChatIds.forEach(chatId => this._chatMap.delete(chatId));
+      return;
+    }
+
+    this.chats.set([]);
+    this._chatMap.clear();
+    this.setSelectedChatId(null);
+    this.loaded = false;
   }
 
   async createChat(

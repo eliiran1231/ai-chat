@@ -8,6 +8,7 @@ import { NotificationSettingsService } from '../../services/notification-setting
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
 import { SettingsService } from '../../services/settings.service';
 import type { SettingsRow } from './settings-data';
+import { ConfirmationDialogService } from '../shared/confirmation-dialog/confirmation-dialog.service';
 
 @Component({
   selector: 'app-settings-section',
@@ -19,7 +20,7 @@ export class SettingsSectionComponent {
   private route = inject(ActivatedRoute);
   private notificationSettingsService = inject(NotificationSettingsService);
   private settingsService = inject(SettingsService);
-
+  private confirmationDialog = inject(ConfirmationDialogService);
   readonly editIcon = LucidePenLine;
   readonly notificationSettings = this.notificationSettingsService.settings;
 
@@ -89,5 +90,13 @@ export class SettingsSectionComponent {
     }
 
     row.value = select.value;
+  }
+
+  async handleAction(row: SettingsRow): Promise<void> {
+    if (!row.confirmation) {
+      return;
+    }
+
+    await this.confirmationDialog.confirm(row.confirmation);
   }
 }

@@ -3,6 +3,10 @@
 @include cdk.overlay();
 @include cdk.text-field-autosize();
 
+.popup-dialog-backdrop {
+  background: rgb(0 0 0 / 0.55);
+}
+
 html,
 body {
   margin: 0;
@@ -17,11 +21,11 @@ body {
   box-sizing: border-box;
 }
 
-.message-markdown> :first-child {
+.message-markdown > :first-child {
   margin-top: 0;
 }
 
-.message-markdown> :last-child {
+.message-markdown > :last-child {
   margin-bottom: 0;
 }
 
@@ -38,7 +42,7 @@ body {
   padding-inline-start: 1.3rem;
 }
 
-.message-markdown li+li {
+.message-markdown li + li {
   margin-top: 0.18rem;
 }
 

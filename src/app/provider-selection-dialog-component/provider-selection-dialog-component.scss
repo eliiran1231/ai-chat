@@ -1,0 +1,11 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.provider-selection-dialog__empty {
+  padding: 1rem 0.5rem;
+  color: #667781;
+  text-align: center;
+}

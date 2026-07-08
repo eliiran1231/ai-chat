@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://unpkg.com/@powersync/cli-schemas@latest/json-schema/service-config.json
+
+_type: self-hosted
+
+telemetry:
+  disable_telemetry_sharing: false
+
+replication:
+  connections:
+    - type: postgresql
+      uri: !env PS_DATA_SOURCE_URI
+      # The local PostgreSQL container does not expose TLS.
+      sslmode: disable
+
+storage:
+  type: postgresql
+  uri: !env PS_STORAGE_SOURCE_URI
+  sslmode: disable
+
+sync_config:
+  path: sync-config.yaml
+  exit_on_error: true
+
+api:
+  tokens:
+    - !env PS_ADMIN_TOKEN
+
+client_auth:
+  jwks_uri: http://host.docker.internal:3001/.well-known/jwks.json
+  audience:
+    - http://localhost:8080
+  block_local_jwks: false
+
+healthcheck:
+  probes:
+    use_http: true
