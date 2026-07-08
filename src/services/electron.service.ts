@@ -21,4 +21,9 @@ export class ElectronService {
       return this.ngZone.runTask(() => Promise.reject(error));
     }
   }
+
+  on<T>(channel: string, listener: (payload: T) => void): () => void {
+    if (!this.isElectronAvailable() || !window.electronAPI?.on) return () => {};
+    return window.electronAPI.on<T>(channel, (payload) => this.ngZone.run(() => listener(payload)));
+  }
 }

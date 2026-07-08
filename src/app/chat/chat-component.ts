@@ -62,6 +62,7 @@ export class ChatComponent {
   awayFromBottom = signal(false);
   isScrolling = signal(false);
   isAnswerSheetOpen = signal(false);
+  isLoadingOlderMessages = signal(false);
 
   onScroll(): void {
     if (!this.isScrolling()) {
@@ -70,6 +71,30 @@ export class ChatComponent {
   }
   onChatScrollEnd(): void {
     this.isScrolling.set(false);
+  }
+
+  onTopReached(): void {
+    void this.loadOlderMessages();
+  }
+
+  async loadOlderMessages(): Promise<void> {
+    if (this.isLoadingOlderMessages()) return;
+
+    this.isLoadingOlderMessages.set(true);
+    try {
+      const previousContentHeight = this.scrollbar.adapter.contentHeight;
+      const previousScrollTop = this.scrollbar.adapter.scrollTop;
+      const loaded = await this.chat().loader.loadNextChunk();
+
+      if (loaded.length > 0) {
+        requestAnimationFrame(() => {
+          const addedHeight = this.scrollbar.adapter.contentHeight - previousContentHeight;
+          this.scrollbar.adapter.scrollYTo(previousScrollTop + addedHeight);
+        });
+      }
+    } finally {
+      this.isLoadingOlderMessages.set(false);
+    }
   }
 
   @ViewChild('chatScrollbar') scrollbar!: NgScrollbar;

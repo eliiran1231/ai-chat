@@ -28,7 +28,7 @@ export type AnswerSelectionMode = 'single' | 'multiple';
 
 export class Question extends Message {
     public possibleAnswers: SyncedSignal<Answer[]> = syncedSignal([]);
-    public validatorSpec?: SyncedSignal<ValidatorSpec>;
+    public validatorSpec: SyncedSignal<ValidatorSpec | undefined> = syncedSignal(undefined);
     public validationErrorMessage: Message  = new Message("Invalid answer. Please try again.");
     public answerSelectionMode: SyncedSignal<AnswerSelectionMode> = syncedSignal('single');
 
@@ -47,7 +47,7 @@ export class Question extends Message {
 
     setValidator(validator: RegExp | ValidatorSpec, validationErrorMessage?: string | Message) {
         const spec = coerceValidatorSpec(normalizeValidatorSpec(validator))
-        spec && this.validatorSpec?.set(spec);
+        spec && this.validatorSpec.set(spec);
         if(typeof validationErrorMessage === 'string') {
             this.validationErrorMessage.value.set(validationErrorMessage);
         }

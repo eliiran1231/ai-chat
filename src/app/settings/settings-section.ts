@@ -7,6 +7,8 @@ import { map } from 'rxjs';
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
 import { ProfileService } from '../../services/profile.service';
 import { SettingsService } from '../../services/settings.service';
+import type { SettingsRow } from './settings-data';
+import { ConfirmationDialogService } from '../shared/confirmation-dialog/confirmation-dialog.service';
 
 @Component({
   selector: 'app-settings-section',
@@ -18,7 +20,7 @@ export class SettingsSectionComponent {
   private route = inject(ActivatedRoute);
   private profileService = inject(ProfileService);
   private settingsService = inject(SettingsService);
-
+  private confirmationDialog = inject(ConfirmationDialogService);
   readonly editIcon = LucidePenLine;
   readonly profileSettingsRows = this.profileService.profileSettingsRows;
 
@@ -48,5 +50,13 @@ export class SettingsSectionComponent {
 
     void this.profileService.setProfilePhoto(file);
     input.value = '';
+  }
+
+  async handleAction(row: SettingsRow): Promise<void> {
+    if (!row.confirmation) {
+      return;
+    }
+
+    await this.confirmationDialog.confirm(row.confirmation);
   }
 }

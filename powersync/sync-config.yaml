@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
+
+config:
+  edition: 3
+
+streams:
+  chat_data:
+    auto_subscribe: true
+    queries:
+      - SELECT * FROM chats WHERE owner_user_id = auth.user_id()
+      - SELECT messages.* FROM messages INNER JOIN chats ON chats.id = messages.chat_id WHERE chats.owner_user_id = auth.user_id()
+      - SELECT supporters.* FROM supporters INNER JOIN chats ON chats.id = supporters.chat_id WHERE chats.owner_user_id = auth.user_id()

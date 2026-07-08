@@ -1,11 +1,10 @@
 <div class="chat-list-shell">
-  <div class="sidebar-tools">
-    <label class="search-box" for="chat-search">
-      <svg [lucideIcon]="searchIcon" class="search-box__icon" aria-hidden="true"></svg>
-      <input id="chat-search" type="text" name="chat-search" [ngModel]="searchTerm()"
-        (ngModelChange)="onSearchTermChange($event)" placeholder="Search or start a new chat" />
-    </label>
-  </div>
+  <app-sidebar-search
+    [searchTerm]="searchTerm()"
+    placeholder="Search or start a new chat"
+    ariaLabel="Search chats"
+    (searchTermChange)="onSearchTermChange($event)"
+  />
 
   <div class="chat-list">
     @for (chat of filteredChats(); track chat.id()) {
@@ -51,7 +50,7 @@
     </button>
     } @empty {
     <div class="chat-list-empty">
-      <p>No chats match your search.</p>
+      <p>No chats match your search</p>
     </div>
     }
   </div>
