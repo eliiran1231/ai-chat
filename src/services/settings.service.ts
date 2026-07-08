@@ -3,6 +3,7 @@ import {
   LucideBell,
   LucideIconInput,
   LucideInfo,
+  LucideLanguages,
   LucideMessageSquare,
   LucidePalette,
   LucideSettings,
@@ -26,6 +27,7 @@ const SETTINGS_ICON_MAP: Record<SettingsIconKey, LucideIconInput> = {
   bell: LucideBell,
   'message-square': LucideMessageSquare,
   palette: LucidePalette,
+  languages: LucideLanguages,
   info: LucideInfo,
 };
 

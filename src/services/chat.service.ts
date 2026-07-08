@@ -1,4 +1,13 @@
-import { Inject, Injectable, Injector, Signal, WritableSignal, computed, inject, signal } from '@angular/core';
+import {
+  Inject,
+  Injectable,
+  Injector,
+  Signal,
+  WritableSignal,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { Chat } from '../classes/Chat';
 import { ChatProvider } from '../interfaces/ChatProvider';
 import { CHAT_PROVIDER } from './chat-providers.module';
@@ -9,21 +18,20 @@ import { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { Uuid } from '../interfaces/db/Uuid';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChatService {
   readonly chats = signal<Chat[]>([]);
-  private readonly _chatMap = new Map<string, Chat>()
+  private readonly _chatMap = new Map<string, Chat>();
   private loaded = false;
   private selectedChatId: WritableSignal<string | null | undefined> = signal(undefined);
   private defaultProvider = inject(SqliteProvider);
-  private isCreatingChat = signal(false); 
+  private isCreatingChat = signal(false);
   private pendingCreateChat = signal<Promise<Chat> | null>(null);
   selectedChat = computed(() => this.getChatById(this.selectedChatId()));
   injector = inject(Injector);
 
-  constructor(@Inject(CHAT_PROVIDER) private chatProviders: ChatProvider[] = []) {
-  }
+  constructor(@Inject(CHAT_PROVIDER) private chatProviders: ChatProvider[] = []) {}
 
   private setSelectedChatId(id: string | null | undefined) {
     if (this.selectedChatId() === id) return;
@@ -41,14 +49,21 @@ export class ChatService {
         console.error(result.reason);
       }
       return result.status == 'fulfilled';
-    }
-    const chatPromises = providers.map(provider => provider.getChats());
+    };
+    const chatPromises = providers.map((provider) => provider.getChats());
     const chats = (await Promise.allSettled(chatPromises))
       .filter(fulfilledFilter)
-      .flatMap(r => r.value)
+      .flatMap((r) => r.value);
     this.chats.set(chats);
-    chats.forEach(chat=> this._chatMap.set(chat.id(), chat));
+    chats.forEach((chat) => this._chatMap.set(chat.id(), chat));
     this.loaded = true;
+  }
+
+  async loadProviderChats(provider: ChatProvider): Promise<void> {
+    const chats = await provider.getChats();
+    this.clearChats(provider.metadata.id);
+    this.chats.update((current) => [...current, ...chats]);
+    chats.forEach((chat) => this._chatMap.set(chat.id(), chat));
   }
 
   getChatById(id: string | null | undefined): Chat | undefined {
@@ -57,29 +72,44 @@ export class ChatService {
   }
 
   addChat(chat: Chat): void {
-    this.chats.update(prev => [...prev, chat]);
+    this.chats.update((prev) => [...prev, chat]);
     this._chatMap.set(chat.id(), chat);
   }
 
   removeChat(chatId: Uuid): void {
-    this.chats.update(prev => prev.filter(c => c.id() !== chatId));
-    this._chatMap.delete(chatId)
+    this.chats.update((prev) => prev.filter((c) => c.id() !== chatId));
+    this._chatMap.delete(chatId);
   }
 
   async deleteAllChats(): Promise<void> {
     const chats = [...this.chats()];
-    const selectedChatId = this.selectedChatId();
 
     await Promise.all(chats.map((chat) => chat.delete()));
+    this.clearChats();
+  }
 
-    if (selectedChatId && !this._chatMap.has(selectedChatId)) {
-      this.setSelectedChatId(undefined);
+  clearChats(providerId?: string): void {
+    if (providerId) {
+      const providerChatIds = new Set(
+        this.chats()
+          .filter((chat) => chat.belongsToProvider(providerId))
+          .map((chat) => chat.id()),
+      );
+      if (providerChatIds.has(this.selectedChatId() ?? '')) this.setSelectedChatId(null);
+      this.chats.update((chats) => chats.filter((chat) => !providerChatIds.has(chat.id())));
+      providerChatIds.forEach((chatId) => this._chatMap.delete(chatId));
+      return;
     }
+
+    this.chats.set([]);
+    this._chatMap.clear();
+    this.setSelectedChatId(null);
+    this.loaded = false;
   }
 
   async createChat(
     initialAgent: Agent = new AiAgent(this.injector),
-    provider: ChatProvider = this.defaultProvider
+    provider: ChatProvider = this.defaultProvider,
   ): Promise<Chat> {
     if (this.isCreatingChat()) {
       const pendingChat = this.pendingCreateChat();
@@ -88,14 +118,10 @@ export class ChatService {
     this.isCreatingChat.set(true);
     const chatNumber = this.chats().length + 1;
     const pending = (async () => {
-      const chat = await provider.createChat(
-        `New chat ${chatNumber}`,
-        initialAgent,
-        {
-          subtitle: 'Tap to start chatting',
-          timeLabel: 'now',
-        }
-      );
+      const chat = await provider.createChat(`New chat ${chatNumber}`, initialAgent, {
+        subtitle: 'Tap to start chatting',
+        timeLabel: 'now',
+      });
       this.addChat(chat);
       return chat;
     })();

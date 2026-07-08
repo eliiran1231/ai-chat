@@ -31,6 +31,12 @@
       "icon": "palette"
     },
     {
+      "path": "languages",
+      "title": "Languages",
+      "description": "Display language, writing direction, and translation preferences.",
+      "icon": "languages"
+    },
+    {
       "path": "about",
       "title": "About",
       "description": "App information and version details.",
@@ -58,13 +64,6 @@
           "description": "Adjust the size used for app and message text.",
           "control": "range",
           "value": "16"
-        },
-        {
-          "label": "Language",
-          "description": "Choose the app display language.",
-          "control": "select",
-          "value": "English",
-          "options": ["English", "Hebrew", "Spanish", "French"]
         }
       ]
     },
@@ -134,7 +133,14 @@
           "control": "button",
           "value": "Delete",
           "danger": true,
-          "action": "deleteAllChats"
+          "action": "deleteAllChats",
+          "confirmation": {
+            "title": "Delete all chats?",
+            "message": "This will permanently delete all chats and their messages.",
+            "confirmText": "Delete",
+            "cancelText": "Cancel",
+            "danger": true
+          }
         }
       ]
     },
@@ -162,6 +168,31 @@
           "control": "select",
           "value": "Default",
           "options": ["Default", "Rounded", "Minimal"]
+        }
+      ]
+    },
+    "languages": {
+      "title": "Languages",
+      "description": "Choose how the app handles language and writing direction.",
+      "rows": [
+        {
+          "label": "Language",
+          "description": "Choose the app display language.",
+          "control": "select",
+          "value": "English",
+          "options": ["English", "Hebrew", "Spanish", "French"]
+        },
+        {
+          "label": "Writing direction",
+          "description": "Use the system direction or choose a fixed reading direction.",
+          "control": "select",
+          "value": "System",
+          "options": ["System", "Left to right", "Right to left"]
+        },
+        {
+          "label": "Auto-translate messages",
+          "description": "Offer translations for messages written in another language.",
+          "control": "toggle"
         }
       ]
     },

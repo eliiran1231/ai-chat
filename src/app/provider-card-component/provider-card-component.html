@@ -1,0 +1,20 @@
+<article class="provider-card">
+  <div class="provider-card__summary">
+    <div class="provider-card__avatar">
+      <img [src]="metadata().avatarUrl" [alt]="metadata().displayName + ' logo'" />
+    </div>
+
+    <div class="provider-card__details">
+      <h3>{{ metadata().displayName }}</h3>
+      <p>{{ secondaryText() }}</p>
+    </div>
+
+    <button type="button" (click)="action.emit()" [disabled]="disabled()">
+      {{ buttonText() }}
+    </button>
+  </div>
+
+  @if (error(); as errorMessage) {
+    <p class="provider-card__error">{{ errorMessage }}</p>
+  }
+</article>

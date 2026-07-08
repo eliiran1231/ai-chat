@@ -11,12 +11,7 @@ import { AppAgentsModule } from './app-agents.module';
 import { provideAgents } from '../services/agents.module';
 import { AppChatProvidersModule } from './app-chat-providers.module';
 import { importProvidersFrom } from '@angular/core';
-import DOMPurify from 'dompurify';
-
-DOMPurify.setConfig({
-  ALLOWED_TAGS: ['mark'],
-  ALLOWED_ATTR: [],
-})
+import { sanitizeMarkdown } from '../utils/sanitize-markdown';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -26,7 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideMarkdown({
       sanitize: {
         provide: SANITIZE,
-        useValue: DOMPurify.sanitize
+        useValue: sanitizeMarkdown
       },
       markedOptions: {
         provide: MARKED_OPTIONS,

@@ -1,14 +1,8 @@
 import { Message } from '../classes/Message';
 import { Uuid } from '../interfaces/db/Uuid';
-import { ChatMessageDateSeparator } from './chat-message-date-separator';
+import { shouldShowDateSeparator, shouldShowMessageTail } from './chat-message-date-separator';
 
 describe('ChatMessageDateSeparator', () => {
-  let dateSeparator: ChatMessageDateSeparator;
-
-  beforeEach(() => {
-    dateSeparator = new ChatMessageDateSeparator();
-  });
-
   function createMessage(
     id: string,
     time: Date,
@@ -24,22 +18,9 @@ describe('ChatMessageDateSeparator', () => {
       createMessage('third', new Date(2026, 5, 16, 9)),
     ];
 
-    expect(dateSeparator.shouldShowDateSeparator(messages, 0)).toBe(true);
-    expect(dateSeparator.shouldShowDateSeparator(messages, 1)).toBe(false);
-    expect(dateSeparator.shouldShowDateSeparator(messages, 2)).toBe(true);
-  });
-
-  it('returns date formats for today, yesterday, weekdays and older dates', () => {
-    const referenceDate = new Date(2026, 5, 17, 12);
-
-    expect(dateSeparator.getDateFormat(new Date(2026, 5, 17, 9), referenceDate)).toBe("'Today'");
-    expect(dateSeparator.getDateFormat(new Date(2026, 5, 16, 9), referenceDate)).toBe(
-      "'Yesterday'",
-    );
-    expect(dateSeparator.getDateFormat(new Date(2026, 5, 15, 9), referenceDate)).toBe('EEEE');
-    expect(dateSeparator.getDateFormat(new Date(2026, 5, 10, 9), referenceDate)).toBe(
-      'mediumDate',
-    );
+    expect(shouldShowDateSeparator(messages, 0)).toBe(true);
+    expect(shouldShowDateSeparator(messages, 1)).toBe(false);
+    expect(shouldShowDateSeparator(messages, 2)).toBe(true);
   });
 
   it('starts a new bubble group when the sender or date changes', () => {
@@ -50,9 +31,9 @@ describe('ChatMessageDateSeparator', () => {
       createMessage('fourth', new Date(2026, 5, 16, 9), 'supporter'),
     ];
 
-    expect(dateSeparator.shouldShowMessageTail(messages, 0)).toBe(true);
-    expect(dateSeparator.shouldShowMessageTail(messages, 1)).toBe(false);
-    expect(dateSeparator.shouldShowMessageTail(messages, 2)).toBe(true);
-    expect(dateSeparator.shouldShowMessageTail(messages, 3)).toBe(true);
+    expect(shouldShowMessageTail(messages, 0)).toBe(true);
+    expect(shouldShowMessageTail(messages, 1)).toBe(false);
+    expect(shouldShowMessageTail(messages, 2)).toBe(true);
+    expect(shouldShowMessageTail(messages, 3)).toBe(true);
   });
 });

@@ -1,0 +1,12 @@
+<div class="sidebar-tools">
+  <label class="search-box">
+    <svg [lucideIcon]="searchIcon" class="search-box__icon" aria-hidden="true"></svg>
+    <input
+      type="search"
+      [attr.aria-label]="ariaLabel()"
+      [ngModel]="searchTerm()"
+      (ngModelChange)="searchTermChange.emit($event)"
+      [placeholder]="placeholder()"
+    />
+  </label>
+</div>
