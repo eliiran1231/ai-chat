@@ -6,7 +6,7 @@ describe('Question', () => {
     const question = new Question('Enter digits');
     question.setValidator(/^\d+$/);
 
-    expect(question.validatorSpec).toEqual({
+    expect(question.validatorSpec()).toEqual({
       type: 'regex',
       pattern: '^\\d+$',
       flags: '',

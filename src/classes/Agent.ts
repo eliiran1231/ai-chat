@@ -41,7 +41,7 @@ export class Agent {
         return undefined;
     }
 
-    init(chat: Chat, supporter: Supporter): void | Promise<void> {
+    init(chat: Chat, supporter: Supporter, _isNewChat = false): void | Promise<void> {
         this.chat = chat;
         this.supporter = supporter;
         this.lastQuestion = this.findLastSupporterQuestion(chat.messages());
