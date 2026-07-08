@@ -38,8 +38,12 @@ export class DbService {
     return this.electronService.invoke<boolean>('db:commitChat', chat);
   }
 
-  async getChatMessages(chatId: Uuid): Promise<MessageRecord[]> {
-    return this.electronService.invoke<MessageRecord[]>('db:getChatMessages', chatId);
+  async getChatMessages(chatId: Uuid, offset: number, limit: number): Promise<MessageRecord[]> {
+    return this.electronService.invoke<MessageRecord[]>('db:getChatMessages', {
+      chatId,
+      offset,
+      limit,
+    });
   }
 
   async createMessage(message: CreateMessageRecordInput): Promise<MessageRecord> {

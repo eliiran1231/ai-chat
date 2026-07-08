@@ -8,6 +8,7 @@ import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar'
 import { AppSettingsService } from '../../services/app-settings.service';
 import { SettingsService } from '../../services/settings.service';
 import type { SettingsRow } from './settings-data';
+import { ConfirmationDialogService } from '../shared/confirmation-dialog/confirmation-dialog.service';
 
 @Component({
   selector: 'app-settings-section',
@@ -19,7 +20,7 @@ export class SettingsSectionComponent {
   private route = inject(ActivatedRoute);
   private appSettingsService = inject(AppSettingsService);
   private settingsService = inject(SettingsService);
-
+  private confirmationDialog = inject(ConfirmationDialogService);
   readonly editIcon = LucidePenLine;
   readonly generalSettings = this.appSettingsService.generalSettings;
 
@@ -58,9 +59,17 @@ export class SettingsSectionComponent {
     row.checked = input.checked;
   }
 
-  onButtonClick(row: SettingsRow): void {
+  async onButtonClick(row: SettingsRow): Promise<void> {
+    if (row.confirmation) {
+      const confirmed = await this.confirmationDialog.confirm(row.confirmation);
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
     if (row.action === 'resetGeneralSettings') {
-      void this.appSettingsService.resetGeneralSettings();
+      await this.appSettingsService.resetGeneralSettings();
     }
   }
 }

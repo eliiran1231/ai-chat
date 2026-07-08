@@ -3,9 +3,10 @@ import { BasicInfo } from '../../interfaces/BasicInfo';
 import type { GeneralSettingKey } from '../../services/app-settings.service';
 
 export type SettingsSectionKey =
-  'general' | 'profile' | 'notifications' | 'chats' | 'appearance' | 'about';
+  'general' | 'profile' | 'notifications' | 'chats' | 'appearance' | 'languages' | 'about';
 
-export type SettingsIconKey = 'settings' | 'user' | 'bell' | 'message-square' | 'palette' | 'info';
+export type SettingsIconKey =
+  'settings' | 'user' | 'bell' | 'message-square' | 'palette' | 'languages' | 'info';
 
 export type SettingsControlType = 'toggle' | 'select' | 'range' | 'button' | 'info';
 export type SettingsAction = 'resetGeneralSettings';
@@ -29,9 +30,18 @@ export interface SettingsRow {
   checked?: boolean;
   options?: string[];
   danger?: boolean;
+  confirmation?: SettingsConfirmation;
   profileField?: keyof Pick<BasicInfo, 'displayName' | 'username'>;
   settingKey?: GeneralSettingKey;
   action?: SettingsAction;
+}
+
+export interface SettingsConfirmation {
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  danger?: boolean;
 }
 
 export interface SettingsSection {

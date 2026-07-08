@@ -1,24 +1,11 @@
-import { Injector } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
-import { DefaultManager } from '../../chat-managers/DefaultManager';
-import { ChatProvider } from '../../interfaces/ChatProvider';
 import { Uuid } from '../../interfaces/db/Uuid';
+import { createChatManagerStub } from '../../testing/chat-manager.stub';
 
 import { ChatNavbarComponent } from './chat-navbar-component';
-
-const chatProviderStub: ChatProvider = {
-  createChat: () => {
-    throw new Error('Not implemented');
-  },
-  addMessage: () => {},
-  deleteMessage: () => {},
-  editMessage: () => {},
-  getChats: () => [],
-  deleteChat: () => {},
-};
 
 describe('ChatNavbarComponent', () => {
   let component: ChatNavbarComponent;
@@ -26,7 +13,7 @@ describe('ChatNavbarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ChatNavbarComponent]
+      imports: [ChatNavbarComponent],
     })
     .compileComponents();
 
@@ -38,7 +25,7 @@ describe('ChatNavbarComponent', () => {
         'test-chat-id' as Uuid,
         'Test Chat',
         new Supporter('test-supporter-id' as Uuid),
-        new DefaultManager(TestBed.inject(Injector), chatProviderStub),
+        createChatManagerStub(),
         { status: 'Online', avatar: { type: 'text', value: 'TC' } },
       ),
     );
