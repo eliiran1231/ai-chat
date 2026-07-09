@@ -1,4 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
+import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { Chat } from '../../classes/Chat';
@@ -8,11 +9,24 @@ import { Uuid } from '../../interfaces/db/Uuid';
 import { createChatManagerStub } from '../../testing/chat-manager.stub';
 import { sanitizeMarkdown } from '../../utils/sanitize-markdown';
 import { ChatComponent } from './chat-component';
+import {
+  DeepAgentClientService,
+  type DeepAgentRunState,
+} from '../../services/deep-agent-client.service';
 
 describe('ChatComponent', () => {
   let fixture: ComponentFixture<ChatComponent>;
+  let agentState: WritableSignal<DeepAgentRunState>;
+  const cancelAgent = vi.fn();
 
   beforeEach(async () => {
+    agentState = signal({
+      status: 'idle',
+      draft: '',
+      sequence: 0,
+      requiresReset: false,
+    });
+    cancelAgent.mockReset();
     await TestBed.configureTestingModule({
       imports: [ChatComponent],
       providers: [
@@ -30,6 +44,13 @@ describe('ChatComponent', () => {
             },
           },
         }),
+        {
+          provide: DeepAgentClientService,
+          useValue: {
+            stateFor: () => agentState(),
+            cancel: cancelAgent,
+          },
+        },
       ],
     }).compileComponents();
 
@@ -101,6 +122,33 @@ describe('ChatComponent', () => {
       expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
       expect(bubble?.querySelector('em')?.textContent).toBe('italic');
     });
+  });
+
+  it('renders streamed output transiently and exposes Stop without persisting it', async () => {
+    const chat = await renderChat();
+    agentState.set({
+      runId: 'run-1',
+      status: 'running',
+      draft: '**streaming**',
+      sequence: 1,
+      requiresReset: false,
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const textarea = fixture.nativeElement.querySelector('#message-input') as HTMLTextAreaElement;
+    const stop = fixture.nativeElement.querySelector('[aria-label="Stop response"]') as HTMLButtonElement;
+
+    await vi.waitFor(() => {
+      const draft = fixture.nativeElement.querySelector('.agent-run-content') as HTMLElement;
+      expect(draft.querySelector('strong')?.textContent).toBe('streaming');
+    });
+    expect(textarea.disabled).toBe(true);
+    expect(chat.messages()).toHaveLength(0);
+
+    stop.click();
+    expect(cancelAgent).toHaveBeenCalledWith(chat.id());
   });
 
   it('renders user messages through the message bubble markdown view', async () => {

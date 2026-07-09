@@ -1,0 +1,13 @@
+<div class="agent-run-row" aria-live="polite">
+  <div class="agent-run-bubble" [class.agent-run-bubble--failed]="state().status === 'failed'">
+    @if (state().draft) {
+      <markdown class="agent-run-content" [data]="state().draft"></markdown>
+    } @else if (statusText(); as status) {
+      <p class="agent-run-status">{{ status }}</p>
+    }
+
+    @if (state().status === 'failed' || state().status === 'cancelled') {
+      <button type="button" class="agent-run-retry" (click)="retry.emit()">Retry</button>
+    }
+  </div>
+</div>

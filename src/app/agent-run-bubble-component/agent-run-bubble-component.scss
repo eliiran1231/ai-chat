@@ -1,0 +1,49 @@
+:host {
+  display: block;
+}
+
+.agent-run-row {
+  display: flex;
+  justify-content: flex-start;
+  padding: 0.225rem 0.75rem;
+}
+
+.agent-run-bubble {
+  max-width: min(78%, 34rem);
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.2rem 0.55rem 0.55rem;
+  background: var(--wa-supporter-bubble);
+  box-shadow: 0 1px 0.5px color-mix(in srgb, var(--wa-green-dark) 13%, transparent);
+}
+
+.agent-run-bubble--failed {
+  border-left: 3px solid #d64545;
+}
+
+.agent-run-content,
+.agent-run-status {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.agent-run-status {
+  color: var(--wa-text-soft);
+}
+
+.agent-run-retry {
+  margin-top: 0.55rem;
+  padding: 0.35rem 0.7rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--wa-accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 780px) {
+  .agent-run-bubble {
+    max-width: 86%;
+  }
+}

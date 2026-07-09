@@ -4,7 +4,7 @@ import { ChatProvider } from '../interfaces/ChatProvider';
 import { CHAT_PROVIDER } from './chat-providers.module';
 import { Router } from '@angular/router';
 import { Agent } from '../classes/Agent';
-import { AiAgent } from '../agents/AiAgent/AiAgent';
+import { DeepAgent } from '../agents/DeepAgent/DeepAgent';
 import { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { Uuid } from '../interfaces/db/Uuid';
 
@@ -93,7 +93,7 @@ export class ChatService {
   }
 
   async createChat(
-    initialAgent: Agent = new AiAgent(this.injector),
+    initialAgent: Agent = new DeepAgent(this.injector),
     provider: ChatProvider = this.defaultProvider
   ): Promise<Chat> {
     if (this.isCreatingChat()) {

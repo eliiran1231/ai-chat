@@ -39,7 +39,7 @@ export class Client {
             return false;
         }
         this.onMessageAdded.next(message);
-        this.chat.supporter.respond()
+        await this.chat.supporter.respond();
         
         return true;
     }

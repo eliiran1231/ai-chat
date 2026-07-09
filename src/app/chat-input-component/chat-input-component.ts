@@ -1,7 +1,7 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { Component, input, model, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model, output, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { LucideDynamicIcon, LucidePaperclip, LucideSendHorizontal } from '@lucide/angular';
+import { LucideDynamicIcon, LucidePaperclip, LucideSendHorizontal, LucideSquare } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
 
 @Component({
@@ -9,22 +9,28 @@ import { Chat } from '../../classes/Chat';
   imports: [FormsModule, TextFieldModule, LucideDynamicIcon],
   templateUrl: './chat-input-component.html',
   styleUrl: './chat-input-component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChatInputComponent {
   readonly composerMaxRows = 5;
   readonly attachIcon = LucidePaperclip;
   readonly sendIcon = LucideSendHorizontal;
+  readonly stopIcon = LucideSquare;
   composerHasOverflow = signal(false);
   theme = input<'light' | 'dark'>('light');
   chat = input<Chat | undefined>(undefined);
   requiredContent = input(true);
   placeholder = input('Type a message');
   allowAttachments = input(true);
+  disabled = input(false);
+  running = input(false);
   messageSubmit = output<string>();
   fileSubmit = output<File>();
+  stopRequested = output<void>();
   caption = model('');
 
   submitMessage(form?: NgForm): void {
+    if (this.disabled() || this.running()) return;
     const trimmedMessage = this.caption().trim();
     (!this.requiredContent() || trimmedMessage) && this.messageSubmit.emit(trimmedMessage);
     this.composerHasOverflow.set(false);
@@ -33,6 +39,7 @@ export class ChatInputComponent {
   }
 
   pickFile(): void {
+    if (this.disabled()) return;
     let input = document.createElement('input');
     input.type = 'file';
     input.accept = 'file/*';
