@@ -34,8 +34,21 @@ function streamOf(...events: unknown[]): AsyncIterable<unknown> {
   };
 }
 
-function aiChunk(content: string, id = 'answer-1') {
-  return [[], [new AIMessageChunk({ id, content }), {}]];
+function aiChunk(content: string, id = 'answer-1', namespace: string[] = []) {
+  return [namespace, [new AIMessageChunk({ id, content }), {}]];
+}
+
+function aiContentBlockDelta(text: string, id = 'answer-1', namespace: string[] = []) {
+  return [
+    namespace,
+    [
+      new AIMessageChunk({
+        id,
+        content: [{ type: 'text_delta', text }] as never,
+      }),
+      {},
+    ],
+  ];
 }
 
 describe('DeepAgentService', () => {
@@ -136,6 +149,43 @@ describe('DeepAgentService', () => {
       { messages: [{ role: 'user', content: 'Hello' }] },
       expect.any(Object),
     );
+  });
+
+  it('treats root LangGraph namespaces as assistant output', async () => {
+    graph.stream.mockResolvedValue(
+      streamOf(
+        aiChunk('subagent draft', 'subagent-message', ['task:child', 'model']),
+        aiChunk('Root ', 'answer-1', ['model']),
+        aiChunk('answer', 'answer-1', ['model']),
+      ),
+    );
+    const events: DeepAgentRunEvent[] = [];
+    const service = createService();
+
+    service.start(request({ runId: 'run-namespace' }), 1, (event) => events.push(event));
+
+    await vi.waitFor(() => expect(events.at(-1)?.type).toBe('completed'));
+    expect(events.filter((event) => event.type === 'token')).toMatchObject([
+      { text: 'Root ' },
+      { text: 'answer' },
+    ]);
+    expect(events.at(-1)).toMatchObject({ type: 'completed', content: 'Root answer' });
+  });
+
+  it('streams text from content-block delta chunks', async () => {
+    graph.stream.mockResolvedValue(
+      streamOf(
+        aiContentBlockDelta('Hello ', 'answer-1', ['model']),
+        aiContentBlockDelta('there', 'answer-1', ['model']),
+      ),
+    );
+    const events: DeepAgentRunEvent[] = [];
+    const service = createService();
+
+    service.start(request({ runId: 'run-content-block' }), 1, (event) => events.push(event));
+
+    await vi.waitFor(() => expect(events.at(-1)?.type).toBe('completed'));
+    expect(events.at(-1)).toMatchObject({ type: 'completed', content: 'Hello there' });
   });
 
   it('enforces one active run per chat and scopes cancellation to the sender', async () => {

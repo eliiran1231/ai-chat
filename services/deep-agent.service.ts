@@ -202,7 +202,7 @@ export class DeepAgentService {
         const parsed = this.parseStreamEvent(raw);
         if (!parsed) continue;
         const { namespace, message } = parsed;
-        const isSubagent = namespace.length > 0;
+        const isNestedSubgraph = this.isNestedSubgraph(namespace);
 
         if (AIMessageChunk.isInstance(message)) {
           for (const [index, call] of (message.tool_call_chunks ?? []).entries()) {
@@ -217,16 +217,17 @@ export class DeepAgentService {
             }
           }
 
-          if (!isSubagent && message.text) {
+          const text = this.messageText(message);
+          if (!isNestedSubgraph && text) {
             const messageId = message.id ?? 'main';
             const reset = currentMainMessageId !== undefined && currentMainMessageId !== messageId;
             if (currentMainMessageId !== messageId) {
               currentMainMessageId = messageId;
               finalContent = '';
             }
-            finalContent += message.text;
+            finalContent += text;
             modelName = this.modelName(message.response_metadata) ?? modelName;
-            this.emit(run, { type: 'token', text: message.text, reset });
+            this.emit(run, { type: 'token', text, reset });
           }
         } else if (ToolMessage.isInstance(message)) {
           const toolCallId = message.tool_call_id;
@@ -289,10 +290,47 @@ export class DeepAgentService {
     raw: unknown,
   ): { namespace: string[]; message: unknown } | undefined {
     if (!Array.isArray(raw) || raw.length < 2) return undefined;
-    const namespace = Array.isArray(raw[0]) ? raw[0].filter((item): item is string => typeof item === 'string') : [];
-    const chunk = raw[1];
-    if (!Array.isArray(chunk) || chunk.length === 0) return undefined;
-    return { namespace, message: chunk[0] };
+
+    if (Array.isArray(raw[0])) {
+      const namespace = this.normalizeNamespace(raw[0]);
+      if (raw[1] === 'messages' && Array.isArray(raw[2])) {
+        return { namespace, message: raw[2][0] };
+      }
+      if (Array.isArray(raw[1])) {
+        return { namespace, message: raw[1][0] };
+      }
+      return undefined;
+    }
+
+    if (raw[0] === 'messages' && Array.isArray(raw[1])) {
+      return { namespace: [], message: raw[1][0] };
+    }
+
+    return undefined;
+  }
+
+  private normalizeNamespace(namespace: unknown[]): string[] {
+    return namespace.filter((item): item is string => typeof item === 'string');
+  }
+
+  private isNestedSubgraph(namespace: string[]): boolean {
+    return namespace.length > 1;
+  }
+
+  private messageText(message: AIMessageChunk): string {
+    if (message.text) return message.text;
+    const content = message.content;
+    if (typeof content === 'string') return content;
+    if (!Array.isArray(content)) return '';
+
+    return content
+      .map((block) => {
+        if (typeof block === 'string') return block;
+        if (!block || typeof block !== 'object') return '';
+        const text = (block as Record<string, unknown>)['text'];
+        return typeof text === 'string' ? text : '';
+      })
+      .join('');
   }
 
   private normalizeMessages(
