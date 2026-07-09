@@ -8,6 +8,7 @@
     "start": "ng build --base-href ./ && npm run build:electron && electron .",
     "build": "ng build && npm run build:electron",
     "build:electron": "tsc --project tsconfig.electron.json",
+    "dev": "ng build -c development --base-href ./ && electron .",
     "test:electron": "npm run build:electron && vitest run --config vitest.electron.config.ts",
     "postinstall": "electron-rebuild -f -w better-sqlite3",
     "watch": "ng build --watch --configuration development",
