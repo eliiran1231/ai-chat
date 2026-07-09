@@ -22,7 +22,6 @@ describe('ChatComponent', () => {
   beforeEach(async () => {
     agentState = signal({
       status: 'idle',
-      draft: '',
       sequence: 0,
       requiresReset: false,
     });
@@ -124,12 +123,12 @@ describe('ChatComponent', () => {
     });
   });
 
-  it('renders streamed output transiently and exposes Stop without persisting it', async () => {
+  it('renders agent activity separately and exposes Stop without adding a response message', async () => {
     const chat = await renderChat();
     agentState.set({
       runId: 'run-1',
       status: 'running',
-      draft: '**streaming**',
+      activity: 'Using get_sync_status...',
       sequence: 1,
       requiresReset: false,
     });
@@ -141,8 +140,8 @@ describe('ChatComponent', () => {
     const stop = fixture.nativeElement.querySelector('[aria-label="Stop response"]') as HTMLButtonElement;
 
     await vi.waitFor(() => {
-      const draft = fixture.nativeElement.querySelector('.agent-run-content') as HTMLElement;
-      expect(draft.querySelector('strong')?.textContent).toBe('streaming');
+      const activity = fixture.nativeElement.querySelector('.agent-run-status') as HTMLElement;
+      expect(activity.textContent?.trim()).toBe('Using get_sync_status...');
     });
     expect(textarea.disabled).toBe(true);
     expect(chat.messages()).toHaveLength(0);

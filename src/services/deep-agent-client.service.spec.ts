@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { lastValueFrom } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { ElectronService } from './electron.service';
 import { DeepAgentClientService } from './deep-agent-client.service';
@@ -39,15 +40,18 @@ describe('DeepAgentClientService', () => {
     history: [{ id: 'message-1', role: 'user' as const, content: 'Hello' }],
   };
 
-  it('streams a transient draft and resolves only the completed content', async () => {
+  it('streams accumulated response content through an observable', async () => {
     const { service, electron, emit } = setup();
-    const completion = service.startRun(baseRequest);
+    const emissions: string[] = [];
+    const output = service.startRun(baseRequest);
+    output.subscribe((value) => emissions.push(value));
+    const completion = lastValueFrom(output);
     await vi.waitFor(() => expect(electron.invoke).toHaveBeenCalled());
     const runId = service.stateFor('chat-1').runId!;
 
     emit({ type: 'token', runId, chatId: 'chat-1', sequence: 1, text: 'Hel', reset: false });
     emit({ type: 'token', runId, chatId: 'chat-1', sequence: 2, text: 'lo', reset: false });
-    expect(service.stateFor('chat-1').draft).toBe('Hello');
+    expect(emissions).toEqual(['Hel', 'Hello']);
 
     emit({ type: 'completed', runId, chatId: 'chat-1', sequence: 3, content: 'Hello' });
 
@@ -55,9 +59,12 @@ describe('DeepAgentClientService', () => {
     expect(service.stateFor('chat-1').requiresReset).toBe(false);
   });
 
-  it('ignores stale events and resets the draft for a new assistant message', async () => {
+  it('ignores stale events and resets the observable content for a new assistant message', async () => {
     const { service, electron, emit } = setup();
-    const completion = service.startRun(baseRequest);
+    const emissions: string[] = [];
+    const output = service.startRun(baseRequest);
+    output.subscribe((value) => emissions.push(value));
+    const completion = lastValueFrom(output);
     await vi.waitFor(() => expect(electron.invoke).toHaveBeenCalled());
     const runId = service.stateFor('chat-1').runId!;
 
@@ -65,14 +72,49 @@ describe('DeepAgentClientService', () => {
     emit({ type: 'token', runId, chatId: 'chat-1', sequence: 1, text: 'Ignored', reset: false });
     emit({ type: 'token', runId, chatId: 'chat-1', sequence: 3, text: 'Final', reset: true });
 
-    expect(service.stateFor('chat-1').draft).toBe('Final');
+    expect(emissions).toEqual(['Old', 'Final']);
     emit({ type: 'completed', runId, chatId: 'chat-1', sequence: 4, content: 'Final' });
     await expect(completion).resolves.toBe('Final');
   });
 
+  it('keeps tool activity in run state instead of the response stream', async () => {
+    const { service, electron, emit } = setup();
+    const emissions: string[] = [];
+    const output = service.startRun(baseRequest);
+    output.subscribe((value) => emissions.push(value));
+    const completion = lastValueFrom(output);
+    await vi.waitFor(() => expect(electron.invoke).toHaveBeenCalled());
+    const runId = service.stateFor('chat-1').runId!;
+
+    emit({
+      type: 'tool-started',
+      runId,
+      chatId: 'chat-1',
+      sequence: 1,
+      toolCallId: 'tool-1',
+      toolName: 'get_sync_status',
+    });
+    expect(service.stateFor('chat-1').activity).toBe('Using get_sync_status...');
+    expect(emissions).toEqual([]);
+
+    emit({
+      type: 'tool-finished',
+      runId,
+      chatId: 'chat-1',
+      sequence: 2,
+      toolCallId: 'tool-1',
+      toolName: 'get_sync_status',
+      success: true,
+    });
+    expect(service.stateFor('chat-1').activity).toBe('Finished get_sync_status');
+
+    emit({ type: 'completed', runId, chatId: 'chat-1', sequence: 3, content: 'Done' });
+    await expect(completion).resolves.toBe('Done');
+  });
+
   it('marks failed and cancelled runs for checkpoint rebuilding', async () => {
     const failed = setup();
-    const failedCompletion = failed.service.startRun(baseRequest);
+    const failedCompletion = lastValueFrom(failed.service.startRun(baseRequest));
     await vi.waitFor(() => expect(failed.electron.invoke).toHaveBeenCalled());
     const failedRunId = failed.service.stateFor('chat-1').runId!;
     failed.emit({
@@ -93,7 +135,7 @@ describe('DeepAgentClientService', () => {
 
     TestBed.resetTestingModule();
     const cancelled = setup();
-    const cancelledCompletion = cancelled.service.startRun(baseRequest);
+    const cancelledCompletion = lastValueFrom(cancelled.service.startRun(baseRequest));
     await vi.waitFor(() => expect(cancelled.electron.invoke).toHaveBeenCalled());
     const cancelledRunId = cancelled.service.stateFor('chat-1').runId!;
     cancelled.emit({

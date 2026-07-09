@@ -9,7 +9,7 @@ import type { DeepAgentHistoryMessage } from '../../../shared/ipc/deep-agent-cha
 export class DeepAgent extends Agent {
   private readonly client: DeepAgentClientService;
 
-  constructor(private readonly injector: Injector) {
+  constructor(injector: Injector) {
     super(injector);
     this.client = injector.get(DeepAgentClientService);
   }
@@ -25,21 +25,18 @@ export class DeepAgent extends Agent {
 
   override async respond(edited = false): Promise<void> {
     super.respond(edited);
-    const latestMessage = this.chat.messages().at(-1);
-    if (!latestMessage || latestMessage.from() !== 'client') return;
+    if (!this.lastMessage || this.lastMessage.from() !== 'client') return;
 
     const previousState = this.client.stateFor(this.chat.id());
     try {
-      const response = await this.client.startRun({
+      const response = this.client.startRun({
         chatId: this.chat.id(),
-        latestMessage: this.serializeMessage(latestMessage),
+        latestMessage: this.serializeMessage(this.lastMessage),
         history: this.chat.messages()
-          .filter((message) => message.from() === 'client' || message.from() === 'supporter')
           .map((message) => this.serializeMessage(message)),
         resetThread: edited || previousState.requiresReset,
       });
-      await this.supporter.sendMessage(response);
-      this.client.clear(this.chat.id());
+      await this.supporter.stream(response, new Message(''));
     } catch (error) {
       if (error instanceof Error && error.message !== 'DEEP_AGENT_RUN_CANCELLED') {
         console.error('Deep Agent run failed.', error);

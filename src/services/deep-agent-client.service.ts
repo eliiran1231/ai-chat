@@ -1,4 +1,5 @@
 import { Injectable, OnDestroy, signal } from '@angular/core';
+import { Observable, ReplaySubject } from 'rxjs';
 import { ElectronService } from './electron.service';
 import {
   DEEP_AGENT_CHANNELS,
@@ -19,7 +20,7 @@ export type DeepAgentRunStatus =
 export interface DeepAgentRunState {
   runId?: string;
   status: DeepAgentRunStatus;
-  draft: string;
+  activity?: string;
   error?: string;
   sequence: number;
   requiresReset: boolean;
@@ -27,15 +28,14 @@ export interface DeepAgentRunState {
 
 const IDLE_RUN_STATE: DeepAgentRunState = {
   status: 'idle',
-  draft: '',
   sequence: 0,
   requiresReset: false,
 };
 
 interface PendingRun {
   chatId: string;
-  resolve: (content: string) => void;
-  reject: (error: Error) => void;
+  content: string;
+  output: ReplaySubject<string>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -60,45 +60,42 @@ export class DeepAgentClientService implements OnDestroy {
     return status === 'running' || status === 'cancelling';
   }
 
-  async startRun(request: Omit<StartDeepAgentRunRequest, 'runId'>): Promise<string> {
+  startRun(request: Omit<StartDeepAgentRunRequest, 'runId'>): Observable<string> {
     if (this.isActive(request.chatId)) throw new Error('RUN_ALREADY_ACTIVE');
 
     const runId = crypto.randomUUID();
     const previous = this.stateFor(request.chatId);
+    const output = new ReplaySubject<string>(1);
     this.setState(request.chatId, {
       runId,
       status: 'running',
-      draft: '',
       sequence: 0,
       requiresReset: request.resetThread || previous.requiresReset,
     });
 
-    const completion = new Promise<string>((resolve, reject) => {
-      this.pendingRuns.set(runId, { chatId: request.chatId, resolve, reject });
-    });
+    this.pendingRuns.set(runId, { chatId: request.chatId, content: '', output });
 
-    try {
-      await this.electron.invoke<StartDeepAgentRunResponse>(DEEP_AGENT_CHANNELS.start, {
+    void this.electron
+      .invoke<StartDeepAgentRunResponse>(DEEP_AGENT_CHANNELS.start, {
         ...request,
         runId,
         resetThread: request.resetThread || previous.requiresReset,
-      } satisfies StartDeepAgentRunRequest);
-    } catch (error) {
-      const pending = this.pendingRuns.get(runId);
-      this.pendingRuns.delete(runId);
-      const runError = error instanceof Error ? error : new Error(String(error));
-      this.setState(request.chatId, {
-        runId,
-        status: 'failed',
-        draft: '',
-        error: runError.message,
-        sequence: 0,
-        requiresReset: true,
+      } satisfies StartDeepAgentRunRequest)
+      .catch((error) => {
+        const pending = this.pendingRuns.get(runId);
+        this.pendingRuns.delete(runId);
+        const runError = error instanceof Error ? error : new Error(String(error));
+        this.setState(request.chatId, {
+          runId,
+          status: 'failed',
+          error: runError.message,
+          sequence: 0,
+          requiresReset: true,
+        });
+        pending?.output.error(runError);
       });
-      pending?.reject(runError);
-    }
 
-    return completion;
+    return output.asObservable();
   }
 
   async cancel(chatId: string): Promise<boolean> {
@@ -127,7 +124,7 @@ export class DeepAgentClientService implements OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe();
     for (const pending of this.pendingRuns.values()) {
-      pending.reject(new Error('Deep Agent client was destroyed.'));
+      pending.output.error(new Error('Deep Agent client was destroyed.'));
     }
     this.pendingRuns.clear();
   }
@@ -137,24 +134,47 @@ export class DeepAgentClientService implements OnDestroy {
     if (state.runId !== event.runId || event.sequence <= state.sequence) return;
 
     if (event.type === 'token') {
+      const pending = this.pendingRuns.get(event.runId);
+      if (pending) {
+        pending.content = event.reset ? event.text : pending.content + event.text;
+        pending.output.next(pending.content);
+      }
       this.setState(event.chatId, {
         ...state,
-        draft: event.reset ? event.text : state.draft + event.text,
+        activity: undefined,
         sequence: event.sequence,
       });
       return;
     }
 
-    if (event.type === 'tool-started' || event.type === 'tool-finished') {
-      this.setState(event.chatId, { ...state, sequence: event.sequence });
+    if (event.type === 'tool-started') {
+      this.setState(event.chatId, {
+        ...state,
+        activity: `Using ${event.toolName}...`,
+        sequence: event.sequence,
+      });
+      return;
+    }
+
+    if (event.type === 'tool-finished') {
+      this.setState(event.chatId, {
+        ...state,
+        activity: event.success ? `Finished ${event.toolName}` : `${event.toolName} failed`,
+        sequence: event.sequence,
+      });
       return;
     }
 
     const pending = this.pendingRuns.get(event.runId);
     this.pendingRuns.delete(event.runId);
     if (event.type === 'completed') {
-      this.setState(event.chatId, { ...state, sequence: event.sequence, requiresReset: false });
-      pending?.resolve(event.content);
+      if (pending && pending.content !== event.content) pending.output.next(event.content);
+      pending?.output.complete();
+      this.setState(event.chatId, {
+        status: 'idle',
+        sequence: event.sequence,
+        requiresReset: false,
+      });
       return;
     }
 
@@ -162,23 +182,21 @@ export class DeepAgentClientService implements OnDestroy {
       this.setState(event.chatId, {
         ...state,
         status: 'cancelled',
-        draft: '',
         sequence: event.sequence,
         requiresReset: true,
       });
-      pending?.reject(new Error('DEEP_AGENT_RUN_CANCELLED'));
+      pending?.output.error(new Error('DEEP_AGENT_RUN_CANCELLED'));
       return;
     }
 
     this.setState(event.chatId, {
       ...state,
       status: 'failed',
-      draft: '',
       error: event.message,
       sequence: event.sequence,
       requiresReset: true,
     });
-    pending?.reject(new Error(event.message));
+    pending?.output.error(new Error(event.message));
   }
 
   private setState(chatId: string, state: DeepAgentRunState): void {
