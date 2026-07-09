@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, ViewChild, computed, inject, input, output, signal } from '@angular/core';
+import { Component, ViewChild, computed, input, output, signal } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -17,7 +17,6 @@ import {
   shouldShowDateSeparator,
   shouldShowMessageTail,
 } from '../../utils/chat-message-date-separator';
-import { DeepAgentClientService } from '../../services/deep-agent-client.service';
 import { AgentRunBubbleComponent } from '../agent-run-bubble-component/agent-run-bubble-component';
 
 @Component({
@@ -38,17 +37,12 @@ import { AgentRunBubbleComponent } from '../agent-run-bubble-component/agent-run
   styleUrl: './chat-component.scss',
 })
 export class ChatComponent {
-  private readonly deepAgentClient = inject(DeepAgentClientService);
   readonly shouldShowDateSeparator = shouldShowDateSeparator;
   readonly shouldShowMessageTail = shouldShowMessageTail;
 
   chat = input.required<Chat>();
-  agentRunState = computed(() => this.deepAgentClient.stateFor(this.chat().id()));
-  agentRunVisible = computed(() => this.agentRunState().status !== 'idle');
-  agentRunActive = computed(() => {
-    const status = this.agentRunState().status;
-    return status === 'running' || status === 'cancelling';
-  });
+  supporterActions = computed(() => this.chat().supporter.actions());
+  supporterActive = computed(() => this.supporterActions().length > 0);
   showBackButton = input(false);
   back = output<void>();
   readonly SCROLLBAR_OFFSET = 40;
@@ -137,12 +131,7 @@ export class ChatComponent {
   }
 
   stopAgentResponse(): void {
-    void this.deepAgentClient.cancel(this.chat().id());
-  }
-
-  retryAgentResponse(): void {
-    if (this.agentRunActive()) return;
-    void this.chat().supporter.respond();
+    void this.chat().supporter.cancelResponse();
   }
 
   closePreviewPage(): void {

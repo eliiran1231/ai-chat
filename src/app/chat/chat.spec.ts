@@ -1,5 +1,4 @@
 import { provideHttpClient } from '@angular/common/http';
-import { signal, WritableSignal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { Chat } from '../../classes/Chat';
@@ -9,23 +8,11 @@ import { Uuid } from '../../interfaces/db/Uuid';
 import { createChatManagerStub } from '../../testing/chat-manager.stub';
 import { sanitizeMarkdown } from '../../utils/sanitize-markdown';
 import { ChatComponent } from './chat-component';
-import {
-  DeepAgentClientService,
-  type DeepAgentRunState,
-} from '../../services/deep-agent-client.service';
 
 describe('ChatComponent', () => {
   let fixture: ComponentFixture<ChatComponent>;
-  let agentState: WritableSignal<DeepAgentRunState>;
-  const cancelAgent = vi.fn();
 
   beforeEach(async () => {
-    agentState = signal({
-      status: 'idle',
-      sequence: 0,
-      requiresReset: false,
-    });
-    cancelAgent.mockReset();
     await TestBed.configureTestingModule({
       imports: [ChatComponent],
       providers: [
@@ -43,13 +30,6 @@ describe('ChatComponent', () => {
             },
           },
         }),
-        {
-          provide: DeepAgentClientService,
-          useValue: {
-            stateFor: () => agentState(),
-            cancel: cancelAgent,
-          },
-        },
       ],
     }).compileComponents();
 
@@ -125,13 +105,10 @@ describe('ChatComponent', () => {
 
   it('renders agent activity separately and exposes Stop without adding a response message', async () => {
     const chat = await renderChat();
-    agentState.set({
-      runId: 'run-1',
-      status: 'running',
-      activity: 'Using get_sync_status...',
-      sequence: 1,
-      requiresReset: false,
-    });
+    const cancelResponse = vi
+      .spyOn(chat.supporter, 'cancelResponse')
+      .mockResolvedValue(undefined);
+    chat.supporter.actions.set(['Using get_sync_status...']);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -147,7 +124,7 @@ describe('ChatComponent', () => {
     expect(chat.messages()).toHaveLength(0);
 
     stop.click();
-    expect(cancelAgent).toHaveBeenCalledWith(chat.id());
+    expect(cancelResponse).toHaveBeenCalled();
   });
 
   it('renders user messages through the message bubble markdown view', async () => {

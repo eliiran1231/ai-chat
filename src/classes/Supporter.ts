@@ -7,7 +7,7 @@ import { Question } from "./Question";
 import { Uuid } from "../interfaces/db/Uuid";
 import { SyncedEntity } from "./SyncedEntity";
 import { MessageStatus } from "../enums/MessagesStatus";
-import { signal, Signal } from "@angular/core";
+import { signal, Signal, WritableSignal } from "@angular/core";
 import { syncedSignal, SyncedSignal } from "../signals/syncedSignal";
 
 export class Supporter extends SyncedEntity {
@@ -15,6 +15,7 @@ export class Supporter extends SyncedEntity {
     public readonly onMessageAdded = new Subject<Message>();
     public readonly onAgentSwitch = new Subject<Agent>();
     public readonly onContextChange = new Subject<any>();
+    public readonly actions: WritableSignal<string[]> = signal([]);
     public readonly expects: SyncedSignal<"message" | "question" | "answer">;
     public readonly name: SyncedSignal<string>;
     private _context: any; 
@@ -55,7 +56,7 @@ export class Supporter extends SyncedEntity {
 
     async stream(stream: Subscribable<string>, message: Message): Promise<void> {
         await this.appendMessage(message, true);
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             stream.subscribe({
                 next: (value => message.value.set(value, true)),
                 error: () => {
@@ -76,6 +77,10 @@ export class Supporter extends SyncedEntity {
             return;
         }
         await this.agent.respond();
+    }
+
+    async cancelResponse(): Promise<void> {
+        await this.agent?.cancelResponse();
     }
 
     async setAgent(agent: Agent, isNewChat = false){
@@ -99,7 +104,7 @@ export class Supporter extends SyncedEntity {
         message.from.set("supporter");
         message.setChat(this.chat);
         this.chat.messages.update((msgs: Message[]) => [...msgs, message]);
-        if (uiOnly) message.status.set(MessageStatus.Pending);
+        if (uiOnly) message.status.set(MessageStatus.Pending, true);
         else {
             message.status.set(
                 await this.chat['manager'].requestMessageSend(message)

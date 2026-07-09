@@ -1,21 +1,30 @@
-import { Injector } from '@angular/core';
+import { effect, EffectRef, Injector } from '@angular/core';
 import { Agent } from '../../classes/Agent';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
-import { DeepAgentClientService } from '../../services/deep-agent-client.service';
+import {
+  DeepAgentClientService,
+  type DeepAgentRunState,
+} from '../../services/deep-agent-client.service';
 import type { DeepAgentHistoryMessage } from '../../../shared/ipc/deep-agent-channels';
 
 export class DeepAgent extends Agent {
   private readonly client: DeepAgentClientService;
+  private actionsSync?: EffectRef;
 
-  constructor(injector: Injector) {
+  constructor(private readonly injector: Injector) {
     super(injector);
     this.client = injector.get(DeepAgentClientService);
   }
 
   override async init(chat: Chat, supporter: Supporter, isNewChat = false): Promise<void> {
     await super.init(chat, supporter, isNewChat);
+    this.actionsSync?.destroy();
+    this.actionsSync = effect(
+      () => supporter.actions.set(this.actionsForState(this.client.stateFor(chat.id()))),
+      { injector: this.injector },
+    );
     if (isNewChat) {
       chat.name.set('Deep Agent');
       chat.avatar.set({ type: 'text', value: 'DA' });
@@ -45,10 +54,22 @@ export class DeepAgent extends Agent {
   }
 
   override async onDestroy(): Promise<void> {
+    await this.cancelResponse();
+    this.actionsSync?.destroy();
+    this.supporter.actions.set([]);
+    super.onDestroy();
+  }
+
+  override async cancelResponse(): Promise<void> {
     if (this.client.isActive(this.chat.id())) {
       await this.client.cancel(this.chat.id());
     }
-    super.onDestroy();
+  }
+
+  private actionsForState(state: DeepAgentRunState): string[] {
+    if (state.status === 'running') return [state.activity ?? 'Thinking...'];
+    if (state.status === 'cancelling') return ['Stopping...'];
+    return [];
   }
 
   private serializeMessage(message: Message): DeepAgentHistoryMessage {

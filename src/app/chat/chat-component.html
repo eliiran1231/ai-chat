@@ -70,10 +70,9 @@
         </div>
       }
 
-      @if (agentRunVisible()) {
+      @if (supporterActions().length) {
         <app-agent-run-bubble
-          [state]="agentRunState()"
-          (retry)="retryAgentResponse()"
+          [actions]="supporterActions()"
         ></app-agent-run-bubble>
       }
     </ng-scrollbar>
@@ -93,10 +92,10 @@
       theme="light"
       [chat]="chat()"
       [(caption)]="chat().draftMessage"
-      [placeholder]="agentRunActive() ? 'Agent is responding...' : editingMessage() ? 'Edit message' : 'Type a message'"
+      [placeholder]="supporterActive() ? 'Agent is responding...' : editingMessage() ? 'Edit message' : 'Type a message'"
       [allowAttachments]="!editingMessage()"
-      [disabled]="agentRunActive()"
-      [running]="agentRunActive()"
+      [disabled]="supporterActive()"
+      [running]="supporterActive()"
       (messageSubmit)="sendMessage($event)"
       (fileSubmit)="openPreviewPage($event)"
       (stopRequested)="stopAgentResponse()"

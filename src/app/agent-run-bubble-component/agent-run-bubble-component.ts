@@ -1,5 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import type { DeepAgentRunState } from '../../services/deep-agent-client.service';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-agent-run-bubble',
@@ -8,14 +7,5 @@ import type { DeepAgentRunState } from '../../services/deep-agent-client.service
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgentRunBubbleComponent {
-  state = input.required<DeepAgentRunState>();
-  retry = output<void>();
-
-  statusText = computed(() => {
-    const state = this.state();
-    if (state.status === 'failed') return state.error ?? 'The agent could not respond.';
-    if (state.status === 'cancelled') return 'Response stopped.';
-    if (state.activity) return state.activity;
-    return state.status === 'cancelling' ? 'Stopping...' : 'Thinking...';
-  });
+  actions = input.required<string[]>();
 }
