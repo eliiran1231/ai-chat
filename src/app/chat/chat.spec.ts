@@ -4,6 +4,7 @@ import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { Supporter } from '../../classes/Supporter';
+import { MessageStatus } from '../../enums/MessagesStatus';
 import { Uuid } from '../../interfaces/db/Uuid';
 import { createChatManagerStub } from '../../testing/chat-manager.stub';
 import { sanitizeMarkdown } from '../../utils/sanitize-markdown';
@@ -125,6 +126,25 @@ describe('ChatComponent', () => {
 
     stop.click();
     expect(cancelResponse).toHaveBeenCalled();
+  });
+
+  it('retries a failed supporter response by deleting it and responding again', async () => {
+    const clientMessage = createMessage('client-message', 'Try this', new Date(), 'client');
+    const failedResponse = new Message('Nope', {
+      id: 'failed-response' as Uuid,
+      from: 'supporter',
+      status: MessageStatus.Failed,
+    });
+    const chat = await renderChat([clientMessage, failedResponse]);
+    chat.messages().forEach((message) => message.setChat(chat));
+    const respond = vi
+      .spyOn(chat.supporter, 'respond')
+      .mockResolvedValue(undefined);
+
+    await fixture.componentInstance.retryMessage(failedResponse);
+
+    expect(chat.messages()).toEqual([clientMessage]);
+    expect(respond).toHaveBeenCalledOnce();
   });
 
   it('renders user messages through the message bubble markdown view', async () => {

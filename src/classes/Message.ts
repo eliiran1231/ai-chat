@@ -90,7 +90,12 @@ export class Message extends SyncedEntity {
         return true;
     }
 
-    retry(){
+    async retry(){
+        if (this.status() !== MessageStatus.Failed) return;
+        if (this.from() === 'supporter') {
+            const deleted = await this.delete();
+            return deleted ? this._chat.supporter.respond() : Promise.resolve();
+        }
         return this.lastAction();
     }
 
