@@ -1,0 +1,222 @@
+{
+  "categories": [
+    {
+      "path": "general",
+      "title": "General",
+      "description": "Startup, language, background behavior, and text size.",
+      "icon": "settings"
+    },
+    {
+      "path": "profile",
+      "title": "Profile",
+      "description": "Name, profile photo, and account details.",
+      "icon": "user"
+    },
+    {
+      "path": "notifications",
+      "title": "Notifications",
+      "description": "Alerts, previews, timing, and notification sounds.",
+      "icon": "bell"
+    },
+    {
+      "path": "chats",
+      "title": "Chats",
+      "description": "Message behavior, chat cleanup, and future chat options.",
+      "icon": "message-square"
+    },
+    {
+      "path": "appearance",
+      "title": "Appearance",
+      "description": "Theme, density, and display preferences.",
+      "icon": "palette"
+    },
+    {
+      "path": "languages",
+      "title": "Languages",
+      "description": "Display language, writing direction, and translation preferences.",
+      "icon": "languages"
+    },
+    {
+      "path": "about",
+      "title": "About",
+      "description": "App information and version details.",
+      "icon": "info"
+    }
+  ],
+  "sections": {
+    "general": {
+      "title": "General",
+      "description": "Control startup behavior, reading comfort, and language preferences.",
+      "rows": [
+        {
+          "label": "Start at login",
+          "description": "Open the app automatically when you sign in to this computer.",
+          "control": "toggle"
+        },
+        {
+          "label": "Run in background",
+          "description": "Keep the app available after closing the main window.",
+          "control": "toggle",
+          "checked": true
+        },
+        {
+          "label": "Font size",
+          "description": "Adjust the size used for app and message text.",
+          "control": "range",
+          "value": "16"
+        }
+      ]
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Manage the details other people see when they chat with you.",
+      "rows": [
+        {
+          "label": "Display name",
+          "description": "",
+          "control": "info",
+          "profileField": "displayName"
+        },
+        {
+          "label": "Username",
+          "description": "",
+          "control": "info",
+          "profileField": "username"
+        }
+      ]
+    },
+    "notifications": {
+      "title": "Notifications",
+      "description": "Decide when the app can notify you and what those alerts include.",
+      "rows": [
+        {
+          "label": "Enable notifications",
+          "description": "Allow new message alerts.",
+          "control": "toggle",
+          "checked": true
+        },
+        {
+          "label": "Notify me",
+          "description": "Choose when notifications should appear.",
+          "control": "select",
+          "value": "Always",
+          "options": ["Always", "Only when minimized", "Never"]
+        },
+        {
+          "label": "Show preview",
+          "description": "Include message text in notification previews.",
+          "control": "toggle",
+          "checked": true
+        },
+        {
+          "label": "Notification sound",
+          "description": "Pick a custom sound for future notifications.",
+          "control": "select",
+          "value": "Default",
+          "options": ["Default", "Soft", "Bright", "None"]
+        }
+      ]
+    },
+    "chats": {
+      "title": "Chats",
+      "description": "Tune chat behavior and prepare common chat actions.",
+      "rows": [
+        {
+          "label": "Enter sends message",
+          "description": "Use Shift + Enter for a new line.",
+          "control": "toggle",
+          "checked": true
+        },
+        {
+          "label": "Chat theme",
+          "description": "Theme controls are planned for a future version.",
+          "control": "select",
+          "value": "System",
+          "options": ["System", "Light", "Dark"]
+        },
+        {
+          "label": "Delete all chats",
+          "description": "This action is UI-only and does not delete data yet.",
+          "control": "button",
+          "value": "Delete",
+          "danger": true,
+          "confirmation": {
+            "title": "Delete all chats?",
+            "message": "This action is currently UI-only, but it is still treated as a destructive settings action.",
+            "confirmText": "Delete",
+            "cancelText": "Cancel",
+            "danger": true
+          }
+        }
+      ]
+    },
+    "appearance": {
+      "title": "Appearance",
+      "description": "Shape the look and density of the app.",
+      "rows": [
+        {
+          "label": "Theme",
+          "description": "Choose the visual theme.",
+          "control": "select",
+          "value": "System",
+          "options": ["System", "Light", "Dark"]
+        },
+        {
+          "label": "Display density",
+          "description": "Control how compact lists and rows feel.",
+          "control": "select",
+          "value": "Comfortable",
+          "options": ["Comfortable", "Compact", "Spacious"]
+        },
+        {
+          "label": "Message bubble style",
+          "description": "Alternate chat styles can be connected later.",
+          "control": "select",
+          "value": "Default",
+          "options": ["Default", "Rounded", "Minimal"]
+        }
+      ]
+    },
+    "languages": {
+      "title": "Languages",
+      "description": "Choose how the app handles language and writing direction.",
+      "rows": [
+        {
+          "label": "Language",
+          "description": "Choose the app display language.",
+          "control": "select",
+          "value": "English",
+          "options": ["English", "Hebrew", "Spanish", "French"]
+        },
+        {
+          "label": "Writing direction",
+          "description": "Use the system direction or choose a fixed reading direction.",
+          "control": "select",
+          "value": "System",
+          "options": ["System", "Left to right", "Right to left"]
+        },
+        {
+          "label": "Auto-translate messages",
+          "description": "Offer translations for messages written in another language.",
+          "control": "toggle"
+        }
+      ]
+    },
+    "about": {
+      "title": "About",
+      "description": "App details and local build information.",
+      "rows": [
+        {
+          "label": "Application",
+          "description": "AI Chat",
+          "control": "info"
+        },
+        {
+          "label": "Version",
+          "description": "0.0.0",
+          "control": "info"
+        }
+      ]
+    }
+  }
+}

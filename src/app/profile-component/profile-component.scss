@@ -9,9 +9,7 @@
 .profile-page {
   height: 100%;
   padding: 1.25rem 1rem 2rem;
-  background:
-    radial-gradient(circle at top, rgba(11, 139, 114, 0.08), transparent 30%),
-    #fff;
+  background: radial-gradient(circle at top, rgba(11, 139, 114, 0.08), transparent 30%), #fff;
   color: #101820;
   overflow-y: auto;
 }
@@ -33,37 +31,6 @@
   flex-direction: column;
   align-items: center;
   padding-top: 0.25rem;
-}
-
-.profile-avatar {
-  width: min(58vw, 11rem);
-  aspect-ratio: 1;
-  position: relative;
-  border-radius: 50%;
-  background: #cfd8df;
-  box-shadow: inset 0 -0.2rem 0 #c0cbd4;
-}
-
-.profile-avatar__head,
-.profile-avatar__body {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fff;
-}
-
-.profile-avatar__head {
-  top: 23%;
-  width: 30%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-}
-
-.profile-avatar__body {
-  bottom: 13%;
-  width: 63%;
-  height: 31%;
-  border-radius: 50% 50% 15% 15% / 70% 70% 15% 15%;
 }
 
 .profile-hero h1 {
@@ -137,7 +104,6 @@
   height: 2rem;
   stroke-width: 2;
 }
-
 
 .profile-card__icon--info {
   border: 0.2rem solid currentColor;

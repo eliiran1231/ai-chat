@@ -26,8 +26,8 @@ export class AnimatedDialogComponent {
 
   readonly isShown = signal(true);
   readonly animation = this.data.animation ?? 'pop';
-  readonly enterAnimation = this.animation === 'pop' ? 'provider-dialog-enter' : '';
-  readonly leaveAnimation = this.animation === 'pop' ? 'provider-dialog-leave' : '';
+  readonly enterAnimation = this.animation === 'pop' ? 'popup-dialog-enter' : '';
+  readonly leaveAnimation = this.animation === 'pop' ? 'popup-dialog-leave' : '';
   readonly contentInjector = Injector.create({
     parent: this.injector,
     providers: [

@@ -1,0 +1,265 @@
+.settings-page {
+  width: 100%;
+  min-height: calc(100% - 4.25rem);
+  margin: 0;
+  padding: 2rem;
+  background: #fff;
+}
+
+.settings-page__header {
+  margin-bottom: 1.5rem;
+}
+
+.settings-page__header span {
+  display: block;
+  margin: 0;
+  color: #667781;
+  line-height: 1.45;
+}
+
+.settings-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.settings-overview {
+  display: flex;
+  align-items: flex-start;
+}
+
+.settings-overview .settings-list {
+  width: min(100%, 42rem);
+}
+
+.settings-overview__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 4.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #ebedef;
+  border-radius: 0.5rem;
+  background: #f5f7f8;
+  color: #111b21;
+  text-decoration: none;
+}
+
+.settings-overview__item:hover,
+.settings-overview__item:focus-visible {
+  background: #edf1f3;
+  outline: none;
+}
+
+.settings-overview__icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #0b8b72;
+}
+
+.settings-overview__item span {
+  min-width: 0;
+}
+
+.settings-overview__item strong,
+.settings-overview__item small {
+  display: block;
+}
+
+.settings-overview__item strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.settings-overview__item small {
+  margin-top: 0.25rem;
+  color: #667781;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.settings-row {
+  border: 1px solid #ebedef;
+  border-radius: 0.5rem;
+  background: #f5f7f8;
+}
+
+.settings-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 5rem;
+  padding: 1rem;
+}
+
+.settings-row__copy {
+  min-width: 0;
+}
+
+.settings-row h3,
+.settings-row p {
+  margin: 0;
+}
+
+.settings-row h3 {
+  color: #111b21;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.settings-row p {
+  margin-top: 0.25rem;
+  color: #667781;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.settings-row__control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  justify-self: end;
+}
+
+.settings-switch {
+  position: relative;
+  width: 2.75rem;
+  height: 1.55rem;
+  display: inline-flex;
+}
+
+.settings-switch input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.settings-switch span {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: #d6dadd;
+  transition: background 160ms ease;
+}
+
+.settings-switch span::after {
+  content: '';
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(17, 27, 33, 0.2);
+  transition: transform 160ms ease;
+}
+
+.settings-switch input:checked + span {
+  background: #0b8b72;
+}
+
+.settings-switch input:checked + span::after {
+  transform: translateX(1.2rem);
+}
+
+.settings-row select,
+.settings-action {
+  min-height: 2.25rem;
+  border: 1px solid #0b8b72;
+  border-radius: 0.45rem;
+  background: #fff;
+  color: #0b8b72;
+  font: inherit;
+}
+
+.settings-row select {
+  min-width: 9rem;
+  padding: 0 2rem 0 0.75rem;
+}
+
+.settings-range {
+  width: 9rem;
+  accent-color: #0b8b72;
+}
+
+.settings-action {
+  padding: 0 0.9rem;
+  cursor: pointer;
+}
+
+.settings-action:hover,
+.settings-action:focus-visible {
+  background: #edf1f3;
+  outline: none;
+}
+
+.settings-action--danger {
+  border-color: #b42318;
+  color: #b42318;
+}
+
+.settings-action--danger:hover,
+.settings-action--danger:focus-visible {
+  background: #fef3f2;
+}
+
+.settings-info {
+  color: #0b8b72;
+  font-size: 0.9rem;
+}
+
+.settings-profile-hero {
+  position: relative;
+  width: min(58vw, 11rem);
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 1.75rem;
+}
+
+.settings-profile-edit {
+  position: absolute;
+  right: 0.2rem;
+  bottom: 0.2rem;
+  width: 2.7rem;
+  height: 2.7rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #0b8b72;
+  color: #fff;
+  box-shadow: 0 0.9rem 1.6rem rgba(0, 168, 132, 0.32);
+  cursor: pointer;
+}
+
+.settings-profile-edit:hover,
+.settings-profile-edit:focus-visible {
+  background: #118c7e;
+  outline: none;
+}
+
+.settings-profile-edit svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+@media (max-width: 780px) {
+  .settings-page {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .settings-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .settings-row__control {
+    justify-content: flex-end;
+  }
+}

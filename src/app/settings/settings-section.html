@@ -1,0 +1,66 @@
+<section class="settings-page">
+  <header class="settings-page__header">
+    <span>{{ section().description }}</span>
+  </header>
+
+  @if (isProfileSection()) {
+    <div class="settings-profile-hero">
+      <app-profile-avatar></app-profile-avatar>
+      <button type="button" class="settings-profile-edit" aria-label="Edit profile photo">
+        <svg [lucideIcon]="editIcon" aria-hidden="true"></svg>
+      </button>
+    </div>
+  }
+
+  <div class="settings-list">
+    @for (row of section().rows; track row.label) {
+      <article class="settings-row">
+        <div class="settings-row__copy">
+          <h3>{{ row.label }}</h3>
+          <p>{{ row.description }}</p>
+        </div>
+
+        <div class="settings-row__control">
+          @switch (row.control) {
+            @case ('toggle') {
+              <label class="settings-switch">
+                <input type="checkbox" [checked]="row.checked" />
+                <span></span>
+              </label>
+            }
+            @case ('select') {
+              <select [value]="row.value" [attr.aria-label]="row.label">
+                @for (option of row.options; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+            }
+            @case ('range') {
+              <input
+                class="settings-range"
+                type="range"
+                min="12"
+                max="22"
+                [value]="row.value"
+                [attr.aria-label]="row.label"
+              />
+            }
+            @case ('button') {
+              <button
+                type="button"
+                class="settings-action"
+                [class.settings-action--danger]="row.danger"
+                (click)="handleAction(row)"
+              >
+                {{ row.value }}
+              </button>
+            }
+            @case ('info') {
+              <span class="settings-info">View</span>
+            }
+          }
+        </div>
+      </article>
+    }
+  </div>
+</section>

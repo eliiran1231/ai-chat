@@ -12,9 +12,7 @@ import { Dialog, DialogModule } from '@angular/cdk/dialog';
 import { ChatProvider } from '../../interfaces/ChatProvider';
 import type { AuthUser } from '../../../shared/auth/AuthUser';
 import { CHAT_PROVIDER } from '../../services/chat-providers.module';
-import {
-  AnimatedDialogComponent,
-} from '../animated-dialog-component/animated-dialog-component';
+import { AnimatedDialogComponent } from '../animated-dialog-component/animated-dialog-component';
 import {
   ProviderConnectDialogComponent,
   ProviderConnectDialogData,
@@ -70,7 +68,7 @@ export class ProviderListComponent implements OnInit {
       {
         data: { component: ProviderConnectDialogComponent, provider },
         ariaLabel: `Connect ${provider.metadata.displayName}`,
-        backdropClass: 'provider-dialog-backdrop',
+        backdropClass: 'popup-dialog-backdrop',
         disableClose: true,
       },
     );
