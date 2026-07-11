@@ -1,9 +1,10 @@
 import { app } from 'electron';
 import * as path from 'node:path';
-import { AIMessageChunk, ToolMessage, tool } from 'langchain';
+import { AIMessageChunk, ToolMessage, tool, type Interrupt } from 'langchain';
+import { Command } from '@langchain/langgraph';
 import { ChatOpenAI } from '@langchain/openai';
 import { SqliteSaver } from '@langchain/langgraph-checkpoint-sqlite';
-import { createDeepAgent, StateBackend } from 'deepagents';
+import { createDeepAgent } from 'deepagents';
 import { z } from 'zod';
 import { dbService, type DbService } from './db.service.js';
 import {
@@ -16,12 +17,30 @@ import type {
   StartDeepAgentRunRequest,
   StartDeepAgentRunResponse,
 } from '../shared/ipc/deep-agent-channels.js';
+import type { DeepAgentPermissionGate } from './permissions/deep-agent-permission.service.js';
+import { ReadOnlyFilesystemBackend } from './permissions/read-only-filesystem.backend.js';
+
+export const DEEP_AGENT_SYSTEM_PROMPT = `
+You are the assistant in a desktop chat application. Be concise and helpful.
+
+You can request permission to read files from the user's computer. When the user asks you to
+read, inspect, list, find, or search local files, use the appropriate filesystem tool instead of
+claiming that local files are unavailable or limited to a virtual filesystem. Accept absolute
+Windows paths such as C:\\Users\\name\\Documents\\notes.txt exactly as the user provides them.
+Calling read_file, ls, glob, or grep pauses execution and opens a trusted native permission prompt.
+The user must approve each operation before it runs. You cannot write or edit files and cannot run
+shell commands. Do not ask the user to rewrite an absolute local path as a sandbox-relative path.
+`.trim();
+
+interface DeepAgentStreamLike extends AsyncIterable<unknown> {
+  readonly interrupts?: readonly Interrupt[];
+}
 
 interface DeepAgentGraphLike {
   stream(
-    input: { messages: Array<{ role: 'user' | 'assistant'; content: string }> },
+    input: unknown,
     config: Record<string, unknown>,
-  ): Promise<AsyncIterable<unknown>>;
+  ): Promise<DeepAgentStreamLike>;
 }
 
 interface DeepAgentCheckpointerLike {
@@ -49,6 +68,7 @@ export interface DeepAgentServiceOptions {
   graph?: DeepAgentGraphLike;
   checkpointer?: DeepAgentCheckpointerLike;
   checkpointPath?: string;
+  permissionGate?: DeepAgentPermissionGate;
 }
 
 export class DeepAgentService {
@@ -58,6 +78,7 @@ export class DeepAgentService {
   private readonly activeRunsByChat = new Map<string, ActiveRun>();
   private readonly activeRunsById = new Map<string, ActiveRun>();
   private readonly dirtyThreads = new Set<string>();
+  private permissionGate?: DeepAgentPermissionGate;
 
   constructor(
     private readonly authentication: Pick<ServerAuthenticationService, 'getCurrentUser'> =
@@ -68,6 +89,11 @@ export class DeepAgentService {
     this.graph = options.graph;
     this.checkpointer = options.checkpointer;
     this.checkpointPath = options.checkpointPath;
+    this.permissionGate = options.permissionGate;
+  }
+
+  setPermissionGate(permissionGate: DeepAgentPermissionGate): void {
+    this.permissionGate = permissionGate;
   }
 
   initialize(): void {
@@ -99,10 +125,18 @@ export class DeepAgentService {
       name: 'ai-chat-deep-agent',
       model,
       tools: [getSyncStatus],
-      systemPrompt:
-        'You are the assistant in a desktop chat application. Be concise and helpful. ',
+      systemPrompt: DEEP_AGENT_SYSTEM_PROMPT,
       checkpointer: this.checkpointer as SqliteSaver,
-      backend: (runtime) => new StateBackend(),
+      backend: new ReadOnlyFilesystemBackend({
+        rootDir: path.parse(app.getPath('home')).root,
+        virtualMode: false,
+      }),
+      interruptOn: {
+        read_file: { allowedDecisions: ['edit', 'reject'] },
+        ls: { allowedDecisions: ['edit', 'reject'] },
+        glob: { allowedDecisions: ['edit', 'reject'] },
+        grep: { allowedDecisions: ['edit', 'reject'] },
+      },
     }) as DeepAgentGraphLike;
   }
 
@@ -141,6 +175,7 @@ export class DeepAgentService {
     const run = this.activeRunsById.get(runId);
     if (!run || run.senderId !== senderId) return false;
     run.controller.abort();
+    this.permissionGate?.dismiss();
     this.dirtyThreads.add(run.threadId);
     return true;
   }
@@ -149,6 +184,7 @@ export class DeepAgentService {
     for (const run of this.activeRunsById.values()) {
       if (run.senderId === senderId) {
         run.controller.abort();
+        this.permissionGate?.dismiss();
         this.dirtyThreads.add(run.threadId);
       }
     }
@@ -158,6 +194,7 @@ export class DeepAgentService {
     this.assertInitialized();
     const active = this.activeRunsByChat.get(chatId);
     active?.controller.abort();
+    if (active) this.permissionGate?.dismiss();
     const threadId = this.threadId(chatId);
     this.dirtyThreads.delete(threadId);
     await this.checkpointer!.deleteThread(threadId);
@@ -165,6 +202,7 @@ export class DeepAgentService {
 
   close(): void {
     for (const run of this.activeRunsById.values()) run.controller.abort();
+    this.permissionGate?.dismiss();
     this.activeRunsByChat.clear();
     this.activeRunsById.clear();
     this.checkpointer?.db?.close();
@@ -184,60 +222,82 @@ export class DeepAgentService {
         configurable: { thread_id: run.threadId },
         recursionLimit: 100,
         signal: run.controller.signal,
-        streamMode: 'messages',
+        streamMode: ['messages', 'updates'],
         subgraphs: true,
       };
       const existingCheckpoint = await this.checkpointer!.getTuple(config);
       const sourceMessages = existingCheckpoint ? [request.latestMessage] : request.history;
       const messages = this.normalizeMessages(sourceMessages, request.latestMessage);
-      const stream = await this.graph!.stream({ messages }, config);
-
       let finalContent = '';
       let currentMainMessageId: string | undefined;
       let modelName: string | undefined;
       const startedTools = new Set<string>();
 
-      for await (const raw of stream) {
-        if (run.controller.signal.aborted) break;
-        const parsed = this.parseStreamEvent(raw);
-        if (!parsed) continue;
-        const { namespace, message } = parsed;
-        const isNestedSubgraph = this.isNestedSubgraph(namespace);
+      let graphInput: unknown = { messages };
+      while (true) {
+        const stream = await this.graph!.stream(graphInput, config);
+        const streamedInterrupts: Interrupt[] = [];
+        for await (const raw of stream) {
+          if (run.controller.signal.aborted) break;
+          streamedInterrupts.push(...this.interruptsFromStreamEvent(raw));
+          const parsed = this.parseStreamEvent(raw);
+          if (!parsed) continue;
+          const { namespace, message } = parsed;
+          const isNestedSubgraph = this.isNestedSubgraph(namespace);
 
-        if (AIMessageChunk.isInstance(message)) {
-          for (const [index, call] of (message.tool_call_chunks ?? []).entries()) {
-            const toolCallId = call.id ?? `${call.name ?? 'tool'}:${index}`;
-            if (call.name && !startedTools.has(toolCallId)) {
-              startedTools.add(toolCallId);
-              this.emit(run, {
-                type: 'tool-started',
-                toolCallId,
-                toolName: call.name,
-              });
+          if (AIMessageChunk.isInstance(message)) {
+            for (const [index, call] of (message.tool_call_chunks ?? []).entries()) {
+              const toolCallId = call.id ?? `${call.name ?? 'tool'}:${index}`;
+              if (call.name && !startedTools.has(toolCallId)) {
+                startedTools.add(toolCallId);
+                this.emit(run, {
+                  type: 'tool-started',
+                  toolCallId,
+                  toolName: call.name,
+                });
+              }
             }
-          }
 
-          const text = this.messageText(message);
-          if (!isNestedSubgraph && text) {
-            const messageId = message.id ?? 'main';
-            const reset = currentMainMessageId !== undefined && currentMainMessageId !== messageId;
-            if (currentMainMessageId !== messageId) {
-              currentMainMessageId = messageId;
-              finalContent = '';
+            const text = this.messageText(message);
+            if (!isNestedSubgraph && text) {
+              const messageId = message.id ?? 'main';
+              const reset = currentMainMessageId !== undefined && currentMainMessageId !== messageId;
+              if (currentMainMessageId !== messageId) {
+                currentMainMessageId = messageId;
+                finalContent = '';
+              }
+              finalContent += text;
+              modelName = this.modelName(message.response_metadata) ?? modelName;
+              this.emit(run, { type: 'token', text, reset });
             }
-            finalContent += text;
-            modelName = this.modelName(message.response_metadata) ?? modelName;
-            this.emit(run, { type: 'token', text, reset });
+          } else if (ToolMessage.isInstance(message)) {
+            const toolCallId = message.tool_call_id;
+            this.emit(run, {
+              type: 'tool-finished',
+              toolCallId,
+              toolName: message.name ?? 'tool',
+              success: message.status !== 'error',
+            });
           }
-        } else if (ToolMessage.isInstance(message)) {
-          const toolCallId = message.tool_call_id;
-          this.emit(run, {
-            type: 'tool-finished',
-            toolCallId,
-            toolName: message.name ?? 'tool',
-            success: message.status !== 'error',
-          });
         }
+
+        if (run.controller.signal.aborted) break;
+        const interrupts = streamedInterrupts.length ? streamedInterrupts : (stream.interrupts ?? []);
+        if (!interrupts.length) break;
+        if (!this.permissionGate) throw new Error('PERMISSION_GATE_NOT_CONFIGURED');
+        let waitingEmitted = false;
+        const resume = await this.permissionGate.review(
+          interrupts,
+          run.controller.signal,
+          () => {
+            if (!waitingEmitted) {
+              waitingEmitted = true;
+              this.emit(run, { type: 'permission-requested' });
+            }
+          },
+        );
+        this.emit(run, { type: 'permission-resolved' });
+        graphInput = new Command({ resume });
       }
 
       if (run.controller.signal.aborted) {
@@ -307,6 +367,26 @@ export class DeepAgentService {
     }
 
     return undefined;
+  }
+
+  private interruptsFromStreamEvent(raw: unknown): Interrupt[] {
+    if (Array.isArray(raw) && raw[1] === 'updates') {
+      return this.interruptsFromValue(raw[2]);
+    }
+    return [];
+  }
+
+  private interruptsFromValue(value: unknown): Interrupt[] {
+    if (!value || typeof value !== 'object') return [];
+    const record = value as Record<string, unknown>;
+    const direct = record['__interrupt__'];
+    if (Array.isArray(direct)) {
+      return direct.filter(
+        (interrupt): interrupt is Interrupt =>
+          !!interrupt && typeof interrupt === 'object' && 'value' in interrupt,
+      );
+    }
+    return Object.values(record).flatMap((nested) => this.interruptsFromValue(nested));
   }
 
   private normalizeNamespace(namespace: unknown[]): string[] {

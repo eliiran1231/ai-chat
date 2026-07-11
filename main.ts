@@ -13,6 +13,10 @@ import { authenticationService } from './services/server-authentication.service.
 import { registerSyncHandlers } from './ipc/sync.handler.js';
 import { registerDeepAgentHandlers } from './ipc/deep-agent.handler.js';
 import { deepAgentService } from './services/deep-agent.service.js';
+import { PermissionViewService } from './services/permissions/permission-view.service.js';
+import { PermissionService } from './services/permissions/permission.service.js';
+import { FilesystemReadPermissionPolicy } from './services/permissions/filesystem-read-permission.policy.js';
+import { DeepAgentPermissionService } from './services/permissions/deep-agent-permission.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -73,7 +77,9 @@ function isExternalUrl(url: string): boolean {
   return /^https?:\/\//i.test(url);
 }
 
-function createWindow(): void {
+let permissionView: PermissionViewService | undefined;
+
+function createWindow(): BrowserWindow {
   const win = new BrowserWindow({
     width: 360,
     height: 680,
@@ -107,11 +113,21 @@ function createWindow(): void {
   });
 
   win.loadFile(path.join(__dirname, './dist/ai-chat/browser/index.html'));
+  permissionView = new PermissionViewService(win, path.join(__dirname, 'permission'));
+  const permissions = new PermissionService(permissionView);
+  deepAgentService.setPermissionGate(
+    new DeepAgentPermissionService(
+      permissions,
+      new FilesystemReadPermissionPolicy([path.parse(app.getPath('home')).root]),
+    ),
+  );
+  return win;
 }
 
 app.whenReady().then(async () => {
   authenticationService.initialize();
   await dbService.initialize();
+  createWindow();
   deepAgentService.initialize();
   registerChatHandlers();
   registerMessageHandlers();
@@ -121,8 +137,6 @@ app.whenReady().then(async () => {
   registerDeepAgentHandlers();
   registerSystemHandlers();
   //Menu.setApplicationMenu(null);
-  createWindow();
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
