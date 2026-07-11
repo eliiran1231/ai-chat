@@ -46,36 +46,9 @@ body {
   border-radius: 1.25rem 1.25rem 0 0;
   background: #fff;
   box-shadow: 0 -0.5rem 1.5rem rgb(17 27 33 / 18%);
-  transform: translateY(105%);
-}
-
-/* The native view starts hidden, then the root class starts both animations together. */
-.visible .backdrop {
-  animation: backdrop-enter 150ms ease-out both;
-}
-
-.visible .sheet {
-  animation: sheet-enter 180ms cubic-bezier(0.22, 0.8, 0.24, 1) both;
-}
-
-@keyframes backdrop-enter {
-  from {
-    background: rgb(17 27 33 / 0%);
-  }
-
-  to {
-    background: rgb(17 27 33 / 56%);
-  }
-}
-
-@keyframes sheet-enter {
-  from {
-    transform: translateY(105%);
-  }
-
-  to {
-    transform: translateY(0);
-  }
+  transform: translate3d(0, 100%, 0);
+  transition: transform 220ms ease-out;
+  will-change: transform;
 }
 
 .handle {
@@ -182,17 +155,12 @@ button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .visible .backdrop,
-  .visible .sheet {
-    animation: none;
-  }
-
   .visible .backdrop {
     background: rgb(17 27 33 / 56%);
   }
 
   .visible .sheet {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 
   button {
