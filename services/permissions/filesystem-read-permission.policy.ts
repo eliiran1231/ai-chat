@@ -28,7 +28,16 @@ export class FilesystemReadPermissionPolicy implements PermissionPolicy {
 
     const resolved = path.resolve(supplied);
     const canonicalPath = await fs.realpath(resolved);
-    if (!this.roots.some((root) => this.isWithin(root, canonicalPath))) {
+    const canonicalRoots = await Promise.all(
+      this.roots.map(async (root) => {
+        try {
+          return await fs.realpath(root);
+        } catch {
+          return root;
+        }
+      }),
+    );
+    if (!canonicalRoots.some((root) => this.isWithin(root, canonicalPath))) {
       throw new Error('FILESYSTEM_PATH_OUTSIDE_ALLOWED_ROOTS');
     }
 
@@ -56,8 +65,16 @@ export class FilesystemReadPermissionPolicy implements PermissionPolicy {
   }
 
   private isWithin(root: string, candidate: string): boolean {
-    const relative = path.relative(root, candidate);
+    const normalizedRoot = this.normalizeForComparison(root);
+    const normalizedCandidate = this.normalizeForComparison(candidate);
+    const relative = path.relative(normalizedRoot, normalizedCandidate);
     return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+  }
+
+  private normalizeForComparison(value: string): string {
+    const withoutExtendedPrefix = value.replace(/^\\\\\?\\/, '').replace(/^\\\\\.\\/, '');
+    const normalized = path.normalize(withoutExtendedPrefix);
+    return process.platform === 'win32' ? normalized.toLowerCase() : normalized;
   }
 
   private description(tool: string): string {
@@ -67,4 +84,3 @@ export class FilesystemReadPermissionPolicy implements PermissionPolicy {
     return 'Deep Agent wants to search file contents in this folder.';
   }
 }
-
