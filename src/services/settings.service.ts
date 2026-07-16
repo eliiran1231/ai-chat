@@ -19,6 +19,7 @@ import {
   SettingsSectionKey,
 } from '../app/settings/settings-data';
 import { ProfileService } from './profile.service';
+import { AppInfoService } from './app-info.service';
 
 const SETTINGS_ICON_MAP: Record<SettingsIconKey, LucideIconInput> = {
   settings: LucideSettings,
@@ -36,6 +37,7 @@ const SETTINGS_ICON_MAP: Record<SettingsIconKey, LucideIconInput> = {
 export class SettingsService {
   private readonly config = settingsConfig as SettingsConfig;
   private readonly profileService = inject(ProfileService);
+  private readonly appInfoService = inject(AppInfoService);
   private readonly profileInfo = this.profileService.basicInfo;
 
   readonly categories = computed<SettingsCategory[]>(() =>
@@ -54,7 +56,16 @@ export class SettingsService {
     const section = this.config.sections[sectionKey];
 
     if (sectionKey !== 'profile') {
-      return section;
+      if (sectionKey !== 'about') {
+        return section;
+      }
+
+      return {
+        ...section,
+        rows: section.rows.map((row) =>
+          row.label === 'Version' ? { ...row, description: this.appInfoService.version() } : row,
+        ),
+      };
     }
 
     const basicInfo = this.profileInfo();

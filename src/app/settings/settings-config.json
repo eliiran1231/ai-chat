@@ -225,7 +225,7 @@
         },
         {
           "label": "Version",
-          "description": "0.0.0",
+          "description": "Loading…",
           "control": "info"
         }
       ]

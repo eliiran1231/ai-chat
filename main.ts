@@ -80,6 +80,7 @@ function registerSystemHandlers(): void {
     return getBasicInfo();
   });
   ipcMain.handle('system:isWindowMinimized', () => mainWindow?.isMinimized() ?? false);
+  ipcMain.handle('system:getAppVersion', () => app.getVersion());
 }
 
 function isExternalUrl(url: string): boolean {
