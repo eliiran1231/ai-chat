@@ -12,12 +12,12 @@
 
   p {
     margin: 0.25rem 0 0;
-    color: #667781;
+    color: var(--md-sys-color-on-surface-variant);
     font-size: 0.9rem;
   }
 }
 
 .provider-list__empty {
-  color: #667781;
+  color: var(--md-sys-color-on-surface-variant);
   text-align: center;
 }

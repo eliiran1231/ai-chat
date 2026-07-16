@@ -15,10 +15,11 @@ import {
   LucideX,
 } from '@lucide/angular';
 import { MessageStatus } from '../../enums/MessagesStatus';
+import { ChatAvatarComponent } from '../shared/chat-avatar/chat-avatar';
 
 @Component({
   selector: 'app-chat-navbar-component',
-  imports: [AppMenu, LucideDynamicIcon],
+  imports: [AppMenu, ChatAvatarComponent, LucideDynamicIcon],
   templateUrl: './chat-navbar-component.html',
   styleUrl: './chat-navbar-component.scss',
 })

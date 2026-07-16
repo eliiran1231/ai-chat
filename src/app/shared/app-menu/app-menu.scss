@@ -17,7 +17,7 @@
   border: 0;
   border-radius: 50%;
   background: transparent;
-  color: #fff;
+  color: var(--md-sys-color-on-secondary);
   padding: 0;
   cursor: pointer;
 }
@@ -32,8 +32,8 @@
   min-width: 10.5rem;
   padding: 0.35rem;
   border-radius: 0.8rem;
-  background: var(--app-surface);
-  box-shadow: 0 12px 28px rgba(17, 27, 33, 0.2);
+  background: var(--md-sys-color-surface);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--md-sys-color-on-surface) 20%, transparent);
 }
 
 .app-menu__item {
@@ -45,7 +45,7 @@
   border-radius: 0.55rem;
   padding: 0.7rem 0.8rem;
   background: transparent;
-  color: var(--app-text);
+  color: var(--md-sys-color-on-surface);
   text-align: left;
   cursor: pointer;
 }
@@ -58,15 +58,15 @@
 
 .app-menu__item:hover,
 .app-menu__item:focus-visible {
-  background: var(--app-panel);
+  background: var(--md-sys-color-surface-container);
   outline: none;
 }
 
 .app-menu__item--danger {
-  color: #b42318;
+  color: var(--md-sys-color-error);
 }
 
 .app-menu__item--danger:hover,
 .app-menu__item--danger:focus-visible {
-  background: #fef3f2;
+  background: var(--md-sys-color-error-container);
 }

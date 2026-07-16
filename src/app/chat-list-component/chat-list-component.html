@@ -11,13 +11,12 @@
     <button type="button" class="chat-list-item" [class.chat-list-item--active]="selectedChat()?.id() === chat.id()"
       (click)="onOpenChat(chat)">
       <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing()">
-        <div class="chat-list-item__avatar">
-          @if (chat.avatar().type === 'image') {
-          <img [src]="chat.avatar().value" alt="avatar" class="chat-list-item__avatar-img" />
-          } @else {
-          {{ chat.avatar().value }}
-          }
-        </div>
+        <app-chat-avatar
+          class="chat-list-item__avatar"
+          [avatar]="chat.avatar()"
+          [label]="chat.name()"
+          alt="avatar"
+        />
       </div>
       <div class="chat-list-item__content">
         <div class="chat-list-item__top">

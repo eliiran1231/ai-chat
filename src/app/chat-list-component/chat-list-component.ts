@@ -3,10 +3,11 @@ import { Component, computed, input, output } from '@angular/core';
 import { LucideDynamicIcon, LucideSquarePen } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
+import { ChatAvatarComponent } from '../shared/chat-avatar/chat-avatar';
 import { SidebarSearchComponent } from '../shared/sidebar-search/sidebar-search-component';
 @Component({
   selector: 'app-chat-list-component',
-  imports: [LucideDynamicIcon, DatePipe, SidebarSearchComponent],
+  imports: [LucideDynamicIcon, DatePipe, ChatAvatarComponent, SidebarSearchComponent],
   templateUrl: './chat-list-component.html',
   styleUrl: './chat-list-component.scss',
 })

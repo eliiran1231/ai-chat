@@ -189,7 +189,14 @@
           "control": "button",
           "value": "Reset",
           "danger": true,
-          "action": "resetDisplayPreferences"
+          "action": "resetDisplayPreferences",
+          "confirmation": {
+            "title": "Reset display preferences?",
+            "message": "This will restore the display settings to their defaults.",
+            "confirmText": "Reset",
+            "cancelText": "Cancel",
+            "danger": true
+          }
         }
       ]
     },

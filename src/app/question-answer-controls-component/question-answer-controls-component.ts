@@ -1,5 +1,6 @@
 import { Component, OnDestroy, computed, inject, input, output } from '@angular/core';
 import { Dialog, DialogModule, DialogRef } from '@angular/cdk/dialog';
+import { Overlay } from '@angular/cdk/overlay';
 import { LucideDynamicIcon, LucideList } from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
 import { Question } from '../../classes/Question';
@@ -24,6 +25,7 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
   readonly listIcon = LucideList;
   readonly answerSheetTitle = 'Choose an option';
   private readonly dialog = inject(Dialog);
+  private readonly overlay = inject(Overlay);
   private answerSheetRef?: DialogRef<Answer | Answer[] | undefined, AnswerSheetComponent>;
 
   ngOnDestroy(): void {
@@ -41,9 +43,11 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
     const sheetRef = this.dialog.open<
       Answer | Answer[] | undefined, SheetAnswerInputs, AnswerSheetComponent
     >(AnswerSheetComponent, {
-      panelClass: 'answer-sheet-panel',
       backdropClass: 'answer-sheet-backdrop',
       disableClose: true,
+      width: '100%',
+      maxWidth: '50rem',
+      positionStrategy: this.overlay.position().global().centerHorizontally().bottom('0'),
       data: {
         answers: this.question().possibleAnswers(),
         isMultipleSelection: this.isMultipleSelection(),
