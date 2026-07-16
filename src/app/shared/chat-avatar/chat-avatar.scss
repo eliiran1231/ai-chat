@@ -11,8 +11,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: linear-gradient(135deg, #dfe5e7, #b7c4c8);
-  color: var(--app-user-bubble);
+  background: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-on-secondary);
   font-size: var(--chat-avatar-font-size, calc(var(--chat-avatar-size, 2.8rem) * 0.38));
   font-weight: 700;
   line-height: 1;

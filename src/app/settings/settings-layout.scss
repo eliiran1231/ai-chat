@@ -8,8 +8,8 @@
   height: 100%;
   display: grid;
   grid-template-columns: 26rem minmax(0, 1fr);
-  background: var(--app-surface);
-  color: var(--app-text);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
 }
 
 .settings-sidebar,
@@ -21,8 +21,8 @@
 .settings-sidebar {
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--app-border);
-  background: var(--app-surface);
+  border-right: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface);
 }
 
 .settings-sidebar__header {
@@ -32,9 +32,9 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
-  border-bottom: 1px solid var(--app-border);
-  background: var(--app-top-surface);
-  color: #fff;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-secondary);
+  color: var(--md-sys-color-on-secondary);
 }
 
 .settings-sidebar__header h1 {
@@ -47,7 +47,7 @@
 .settings-mobile-back {
   border: 0;
   background: transparent;
-  color: var(--app-text-soft);
+  color: var(--md-sys-color-on-surface-variant);
   cursor: pointer;
 }
 
@@ -57,12 +57,12 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: #fff;
+  color: var(--md-sys-color-on-secondary);
 }
 
 .settings-icon-button:hover,
 .settings-icon-button:focus-visible {
-  background: color-mix(in srgb, #ffffff 14%, transparent);
+  background: color-mix(in srgb, var(--md-sys-color-on-secondary) 14%, transparent);
   outline: none;
 }
 
@@ -87,14 +87,14 @@
   min-height: 4rem;
   padding: 0.65rem 0.75rem;
   border-radius: 0.55rem;
-  color: var(--app-text);
+  color: var(--md-sys-color-on-surface);
   text-decoration: none;
 }
 
 .settings-nav__item:hover,
 .settings-nav__item:focus-visible,
 .settings-nav__item--active {
-  background: var(--app-panel);
+  background: var(--md-sys-color-surface-container);
   outline: none;
 }
 
@@ -104,8 +104,8 @@
   display: grid;
   place-items: center;
   border-radius: 0.5rem;
-  background: var(--app-panel);
-  color: var(--app-text-soft);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-on-surface-variant);
   font-size: 0.85rem;
   font-weight: 700;
 }
@@ -133,14 +133,14 @@
 
 .settings-nav__item small {
   margin-top: 0.18rem;
-  color: var(--app-text-soft);
+  color: var(--md-sys-color-on-surface-variant);
   font-size: 0.78rem;
 }
 
 .settings-stage {
   min-width: 0;
   overflow-y: auto;
-  background: var(--app-surface);
+  background: var(--md-sys-color-surface);
 }
 
 .settings-stage__header {
@@ -152,13 +152,13 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0 2rem;
-  border-bottom: 1px solid var(--app-border);
-  background: var(--app-surface);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface);
 }
 
 .settings-stage__header h2 {
   margin: 0;
-  color: var(--app-action-accent);
+  color: var(--md-sys-color-primary);
   font-size: 1.55rem;
   font-weight: 650;
 }
@@ -175,7 +175,7 @@
 
 .settings-mobile-back:hover,
 .settings-mobile-back:focus-visible {
-  background: var(--app-panel);
+  background: var(--md-sys-color-surface-container);
   outline: none;
 }
 
@@ -204,7 +204,7 @@
   }
 
   .settings-mobile-back {
-    color: var(--app-text);
+    color: var(--md-sys-color-on-surface);
   }
 
   .settings-stage__header {

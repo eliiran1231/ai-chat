@@ -46,6 +46,7 @@
   padding: 1rem;
   box-sizing: border-box;
   border-radius: 1.25rem;
-  background: #fff;
-  box-shadow: 0 1.5rem 4rem rgb(17 27 33 / 0.25);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  box-shadow: 0 1.5rem 4rem color-mix(in srgb, var(--md-sys-color-on-surface) 25%, transparent);
 }

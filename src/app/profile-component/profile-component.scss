@@ -2,7 +2,7 @@
   display: block;
   min-height: 0;
   height: 100%;
-  background: var(--app-surface);
+  background: var(--md-sys-color-surface);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -10,9 +10,9 @@
   height: 100%;
   padding: 1.25rem 1rem 2rem;
   background:
-    radial-gradient(circle at top, color-mix(in srgb, var(--app-action-accent) 10%, transparent), transparent 30%),
-    var(--app-surface);
-  color: var(--app-text);
+    radial-gradient(circle at top, color-mix(in srgb, var(--md-sys-color-primary) 10%, transparent), transparent 30%),
+    var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
   overflow-y: auto;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .profile-back {
-  color: var(--app-action-accent);
+  color: var(--md-sys-color-primary);
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 600;
@@ -41,7 +41,7 @@
 
 .profile-hero h1 {
   margin: 1rem 0 0;
-  color: var(--app-action-accent);
+  color: var(--md-sys-color-primary);
   font-size: clamp(1.25rem, 4vw, 1.8rem);
   font-weight: 500;
 }
@@ -71,7 +71,7 @@
   width: 2.5rem;
   height: 2.5rem;
   position: relative;
-  color: var(--app-text-soft);
+  color: var(--md-sys-color-on-surface-variant);
   display: grid;
   place-items: center;
 }
@@ -88,14 +88,14 @@
 
 .profile-card__content p {
   margin-top: 0.35rem;
-  color: var(--app-text-soft);
+  color: var(--md-sys-color-on-surface-variant);
   font-size: clamp(0.98rem, 3.3vw, 1.35rem);
   line-height: 1.25;
   word-break: break-word;
 }
 
 .profile-card__link {
-  color: var(--app-action-accent-strong) !important;
+  color: var(--md-sys-color-tertiary) !important;
 }
 
 .profile-card__icon::before,
@@ -120,7 +120,7 @@
   width: 1.2rem;
   height: 1.2rem;
   margin: 0;
-  accent-color: var(--app-action-accent);
+  accent-color: var(--md-sys-color-primary);
 }
 
 @media (max-width: 640px) {

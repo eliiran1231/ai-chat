@@ -1,11 +1,5 @@
 .answer-sheet-backdrop {
-  background: rgba(5, 76, 68, 0.28);
-}
-
-.answer-sheet-panel {
-  position: fixed !important;
-  bottom: 0;
-  width: 100%;
+  background: color-mix(in srgb, var(--md-sys-color-secondary) 28%, transparent);
 }
 
 @keyframes slide-up {
@@ -41,23 +35,16 @@
 }
 
 .answer-sheet {
-  --as-primary: var(--app-action-accent);
-  --as-accent: var(--app-action-accent-strong);
-  --as-surface: var(--app-surface);
-  --as-alt: var(--app-panel);
-  --as-outline: var(--app-border);
-  --as-muted: var(--app-text-soft);
-
   display: flex;
   flex-direction: column;
   width: 100%;
   max-height: min(78vh, 38rem);
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
   overflow: hidden;
-  background: var(--as-surface);
-  color: var(--app-text);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
   border-radius: 1.25rem 1.25rem 0 0;
-  box-shadow: 0 -0.5rem 1.5rem rgba(17, 27, 33, 0.18);
+  box-shadow: 0 -0.5rem 1.5rem color-mix(in srgb, var(--md-sys-color-on-surface) 18%, transparent);
 }
 
 .answer-sheet--tall {
@@ -71,7 +58,7 @@
   height: 0.28rem;
   margin: 0.75rem auto 0.35rem;
   border-radius: 999px;
-  background: var(--as-muted);
+  background: var(--md-sys-color-on-surface-variant);
 }
 
 .answer-sheet__header {
@@ -82,7 +69,7 @@
   justify-content: center;
   min-height: 4rem;
   padding: 0.2rem 4rem;
-  border-bottom: 1px solid var(--as-outline);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .answer-sheet__header h2 {
@@ -104,7 +91,7 @@
   height: 2.35rem;
   border: 0;
   border-radius: 50%;
-  color: var(--as-muted);
+  color: var(--md-sys-color-on-surface-variant);
   background: transparent;
   cursor: pointer;
 }
@@ -113,7 +100,7 @@
 .answer-sheet__search-toggle:hover,
 .answer-sheet__option:hover,
 .answer-sheet__option--selected {
-  background: var(--as-alt);
+  background: var(--md-sys-color-surface-container);
 }
 
 .answer-sheet__search-toggle {
@@ -127,7 +114,7 @@
   height: 2.35rem;
   border: 0;
   border-radius: 50%;
-  color: var(--as-muted);
+  color: var(--md-sys-color-on-surface-variant);
   background: transparent;
   cursor: pointer;
 }
@@ -138,11 +125,11 @@
   gap: 0.6rem;
   width: min(100%, 22rem);
   min-height: 2.5rem;
-  border: 1px solid var(--as-outline);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 0.45rem;
   padding: 0 0.8rem;
-  color: var(--as-muted);
-  background: var(--as-alt);
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface-container);
 }
 
 .answer-sheet__search svg,
@@ -185,7 +172,7 @@
   border: 0;
   padding: 0.7rem 1.6rem;
   color: inherit;
-  background: var(--as-alt);
+  background: var(--md-sys-color-surface-container);
   font: inherit;
   font-size: 1.05rem;
   text-align: start;
@@ -204,10 +191,10 @@
   place-items: center;
   width: 1.55rem;
   height: 1.55rem;
-  border: 2px solid var(--as-muted);
+  border: 2px solid var(--md-sys-color-on-surface-variant);
   border-radius: 50%;
-  color: var(--as-primary);
-  background: var(--as-surface);
+  color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-surface);
 }
 
 .answer-sheet__mark--checkbox {
@@ -215,9 +202,9 @@
 }
 
 .answer-sheet__option--selected .answer-sheet__mark {
-  border-color: var(--as-accent);
-  background: var(--as-accent);
-  color: #fff;
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
 }
 
 .answer-sheet__mark svg {
@@ -232,21 +219,21 @@
   margin: 0 auto;
   border: 0;
   border-radius: 0.45rem;
-  color: #fff;
-  background: var(--as-accent);
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
   font-weight: 700;
   cursor: pointer;
 }
 
 .answer-sheet__confirm:disabled {
-  color: var(--as-muted);
-  background: var(--as-alt);
+  color: var(--md-sys-color-on-surface-variant);
+  background: var(--md-sys-color-surface-container);
   cursor: default;
 }
 
 .answer-sheet__footer {
   flex: 0 0 auto;
   padding: 1.1rem 0 0;
-  border-top: 1px solid var(--as-outline);
-  background: var(--as-surface);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  background: var(--md-sys-color-surface);
 }

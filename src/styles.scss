@@ -1,106 +1,25 @@
 @use '@angular/cdk';
+@use './styles/theme' as *;
+@use './styles/theme.dark' as *;
 
 @include cdk.overlay();
 @include cdk.text-field-autosize();
 
 .popup-dialog-backdrop {
-  background: rgb(0 0 0 / 0.55);
+  background: color-mix(in srgb, var(--md-sys-color-scrim) 55%, transparent);
 }
 
-:root {
-  --app-font-size: 16px;
-  --app-bg: #e5ddd5;
-  --app-surface: #ffffff;
-  --app-panel: #f0f2f5;
-  --app-border: #d1d7db;
-  --app-text: #111b21;
-  --app-text-soft: #667781;
-  --app-accent: #0b8b72;
-  --app-accent-dark: #075e54;
-  --app-accent-soft: #e6f4ef;
-  --app-accent-strong: #25d366;
-  --app-action-accent: #25d366;
-  --app-action-accent-hover: #1ebe5d;
-  --app-action-accent-strong: #25d366;
-  --app-message-accent: #d9fdd3;
-  --app-top-surface: #0b8b72;
-  --app-top-surface-dark: #075e54;
-  --app-user-bubble: #d9fdd3;
-  --app-density: 1;
-  --message-bubble-radius: 0.55rem;
-}
-
-html[data-app-theme='Dark'] {
-  --app-bg: #0b141a;
-  --app-surface: #111b21;
-  --app-panel: #202c33;
-  --app-border: #2a3942;
-  --app-text: #e9edef;
-  --app-text-soft: #8696a0;
-  --app-accent: #06473f;
-  --app-accent-dark: #032f2a;
-  --app-accent-soft: #12372f;
-  --app-accent-strong: #0f7b55;
-  --app-action-accent: #25d366;
-  --app-action-accent-hover: #1ebe5d;
-  --app-action-accent-strong: #25d366;
-  --app-message-accent: #113c32;
-  --app-top-surface: #000000;
-  --app-top-surface-dark: #000000;
-  --app-user-bubble: #113c32;
-  color-scheme: dark;
-}
-
-html[data-app-theme='Light'] {
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  html[data-app-theme='System'] {
-    --app-bg: #0b141a;
-    --app-surface: #111b21;
-    --app-panel: #202c33;
-    --app-border: #2a3942;
-    --app-text: #e9edef;
-    --app-text-soft: #8696a0;
-    --app-accent: #06473f;
-    --app-accent-dark: #032f2a;
-    --app-accent-soft: #12372f;
-    --app-accent-strong: #0f7b55;
-    --app-action-accent: #25d366;
-    --app-action-accent-hover: #1ebe5d;
-    --app-action-accent-strong: #25d366;
-    --app-message-accent: #113c32;
-    --app-top-surface: #000000;
-    --app-top-surface-dark: #000000;
-    --app-user-bubble: #113c32;
-    color-scheme: dark;
-  }
-}
-
-html[data-app-density='Compact'] {
-  --app-density: 0.82;
-}
-
-html[data-app-density='Spacious'] {
-  --app-density: 1.18;
-}
-
-html[data-message-bubble-style='Rounded'] {
-  --message-bubble-radius: 1.1rem;
-}
-
-html[data-message-bubble-style='Minimal'] {
-  --message-bubble-radius: 0.25rem;
+.cdk-dialog-container {
+  color: inherit;
 }
 
 html,
 body {
   margin: 0;
   height: 100%;
-  background: var(--app-bg);
+  background: var(--md-sys-color-background);
   font-size: var(--app-font-size, 16px);
-  color: var(--app-text);
+  color: var(--md-sys-color-on-surface);
   overflow: hidden;
 }
 
@@ -136,13 +55,13 @@ body {
 }
 
 .message-markdown a {
-  color: #0b66c3;
+  color: var(--md-sys-color-tertiary);
 }
 
 .message-markdown code {
   padding: 0.08rem 0.32rem;
   border-radius: 0.35rem;
-  background: rgba(17, 27, 33, 0.08);
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
   font-family: 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.88em;
 }
@@ -151,8 +70,8 @@ body {
   overflow-x: auto;
   padding: 0.75rem 0.85rem;
   border-radius: 0.8rem;
-  background: rgba(17, 27, 33, 0.94);
-  color: #f5f7fa;
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 94%, transparent);
+  color: var(--md-sys-color-surface-container-low);
 }
 
 .message-markdown pre code {
@@ -164,6 +83,6 @@ body {
 
 .message-markdown blockquote {
   padding-inline-start: 0.75rem;
-  border-inline-start: 0.22rem solid rgba(17, 27, 33, 0.2);
-  color: #41525d;
+  border-inline-start: 0.22rem solid color-mix(in srgb, var(--md-sys-color-on-surface) 20%, transparent);
+  color: color-mix(in srgb, var(--md-sys-color-on-surface) 82%, var(--md-sys-color-on-surface-variant));
 }

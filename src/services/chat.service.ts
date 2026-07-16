@@ -7,6 +7,7 @@ import { Agent } from '../classes/Agent';
 import { AiAgent } from '../agents/AiAgent/AiAgent';
 import { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { Uuid } from '../interfaces/db/Uuid';
+import { MockAgent } from '../agents/MockAgent/MockAgent';
 
 @Injectable({
   providedIn: 'root'
@@ -93,7 +94,7 @@ export class ChatService {
   }
 
   async createChat(
-    initialAgent: Agent = new AiAgent(this.injector),
+    initialAgent: Agent = new MockAgent(this.injector),
     provider: ChatProvider = this.defaultProvider
   ): Promise<Chat> {
     if (this.isCreatingChat()) {

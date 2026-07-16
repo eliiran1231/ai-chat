@@ -3,12 +3,12 @@
   min-height: calc(100% - 4.25rem);
   margin: 0;
   padding: calc(2rem * var(--app-density));
-  background: var(--app-surface);
+  background: var(--md-sys-color-surface);
 }
 
 .settings-empty-stage {
   min-height: 100%;
-  background: var(--app-surface);
+  background: var(--md-sys-color-surface);
 }
 
 .settings-page__header {
@@ -18,7 +18,7 @@
 .settings-page__header span {
   display: block;
   margin: 0;
-  color: var(--app-text-soft);
+  color: var(--md-sys-color-on-surface-variant);
   line-height: 1.45;
 }
 
@@ -43,16 +43,16 @@
   gap: 0.85rem;
   min-height: 4.75rem;
   padding: 0.85rem 1rem;
-  border: 1px solid #ebedef;
+  border: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 38%, var(--md-sys-color-surface));
   border-radius: 0.5rem;
-  background: #f5f7f8;
-  color: #111b21;
+  background: var(--md-sys-color-surface-container-low);
+  color: var(--md-sys-color-on-surface);
   text-decoration: none;
 }
 
 .settings-overview__item:hover,
 .settings-overview__item:focus-visible {
-  background: #edf1f3;
+  background: var(--md-sys-color-surface-container-high);
   outline: none;
 }
 
@@ -61,8 +61,8 @@
   height: 2.25rem;
   padding: 0.5rem;
   border-radius: 0.5rem;
-  background: #fff;
-  color: var(--app-action-accent);
+  background: var(--md-sys-color-surface-container);
+  color: var(--md-sys-color-primary);
 }
 
 .settings-overview__item span {
@@ -81,15 +81,15 @@
 
 .settings-overview__item small {
   margin-top: 0.25rem;
-  color: #667781;
+  color: var(--md-sys-color-on-surface-variant);
   font-size: 0.9rem;
   line-height: 1.35;
 }
 
 .settings-row {
-  border: 1px solid var(--app-border);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 0.5rem;
-  background: var(--app-panel);
+  background: var(--md-sys-color-surface-container);
 }
 
 .settings-row {
@@ -111,14 +111,14 @@
 }
 
 .settings-row h3 {
-  color: var(--app-text);
+  color: var(--md-sys-color-on-surface);
   font-size: 1rem;
   font-weight: 600;
 }
 
 .settings-row p {
   margin-top: 0.25rem;
-  color: var(--app-text-soft);
+  color: var(--md-sys-color-on-surface-variant);
   font-size: 0.9rem;
   line-height: 1.45;
 }
@@ -148,7 +148,7 @@
   width: 100%;
   height: 100%;
   border-radius: 999px;
-  background: var(--app-border);
+  background: var(--md-sys-color-outline-variant);
   transition: background 160ms ease;
 }
 
@@ -160,13 +160,13 @@
   width: 1.15rem;
   height: 1.15rem;
   border-radius: 50%;
-  background: var(--app-surface);
-  box-shadow: 0 1px 3px rgba(17, 27, 33, 0.2);
+  background: var(--md-sys-color-surface);
+  box-shadow: 0 1px 3px color-mix(in srgb, var(--md-sys-color-on-surface) 20%, transparent);
   transition: transform 160ms ease;
 }
 
 .settings-switch input:checked + span {
-  background: var(--app-action-accent);
+  background: var(--md-sys-color-primary);
 }
 
 .settings-switch input:checked + span::after {
@@ -176,10 +176,10 @@
 .settings-row select,
 .settings-action {
   min-height: 2.25rem;
-  border: 1px solid var(--app-action-accent);
+  border: 1px solid var(--md-sys-color-primary);
   border-radius: 0.45rem;
-  background: var(--app-surface);
-  color: var(--app-action-accent);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-primary);
   font: inherit;
 }
 
@@ -192,7 +192,7 @@
 .settings-range {
   width: 100%;
   min-width: 0;
-  accent-color: var(--app-action-accent);
+  accent-color: var(--md-sys-color-primary);
 }
 
 .settings-range-control {
@@ -225,10 +225,10 @@
 .settings-range-value {
   min-width: 4.5rem;
   padding: 0.28rem 0.55rem;
-  border: 1px solid var(--app-border);
+  border: 1px solid var(--md-sys-color-outline-variant);
   border-radius: 0.45rem;
-  background: var(--app-surface);
-  color: var(--app-text);
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
@@ -240,22 +240,22 @@
 
 .settings-action:hover,
 .settings-action:focus-visible {
-  background: color-mix(in srgb, var(--app-action-accent) 10%, var(--app-surface));
+  background: color-mix(in srgb, var(--md-sys-color-primary) 10%, var(--md-sys-color-surface));
   outline: none;
 }
 
 .settings-action--danger {
-  border-color: #b42318;
-  color: #b42318;
+  border-color: var(--md-sys-color-error);
+  color: var(--md-sys-color-error);
 }
 
 .settings-action--danger:hover,
 .settings-action--danger:focus-visible {
-  background: #fef3f2;
+  background: var(--md-sys-color-error-container);
 }
 
 .settings-info {
-  color: var(--app-action-accent);
+  color: var(--md-sys-color-primary);
   font-size: 0.9rem;
 }
 
@@ -281,15 +281,15 @@
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: var(--app-action-accent);
-  color: #fff;
-  box-shadow: 0 0.9rem 1.6rem color-mix(in srgb, var(--app-action-accent) 32%, transparent);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: 0 0.9rem 1.6rem color-mix(in srgb, var(--md-sys-color-primary) 32%, transparent);
   cursor: pointer;
 }
 
 .settings-profile-edit:hover,
 .settings-profile-edit:focus-visible {
-  background: var(--app-action-accent-hover);
+  background: var(--md-sys-color-inverse-primary);
   outline: none;
 }
 

@@ -1,15 +1,4 @@
 :host {
-  --composer-accent: var(--app-action-accent-strong);
-  --composer-accent-shadow: rgba(37, 211, 102, 0.28);
-  --composer-panel: var(--app-panel);
-  --composer-border: var(--app-border);
-  --composer-surface: var(--app-surface);
-  --composer-surface-border: rgba(17, 27, 33, 0.06);
-  --composer-text: var(--app-text);
-  --composer-text-soft: var(--app-text-soft);
-  --composer-placeholder: var(--app-text-soft);
-  --composer-send-text: #ffffff;
-
   display: block;
 }
 
@@ -22,8 +11,8 @@
     calc(0.7rem * var(--app-density))
     calc(0.8rem * var(--app-density))
     calc((0.7rem * var(--app-density)) + env(safe-area-inset-bottom));
-  background: var(--composer-panel);
-  border-top: 1px solid var(--composer-border);
+  background: var(--md-sys-color-surface-container);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .composer-action,
@@ -46,7 +35,7 @@
   height: 2.6rem;
   border-radius: 50%;
   background: transparent;
-  color: var(--composer-text-soft);
+  color: var(--md-sys-color-on-surface-variant);
   font-size: 1rem;
 }
 
@@ -68,8 +57,8 @@
   min-width: 0;
   padding: 0.7rem 1rem;
   border-radius: 1.45rem;
-  background: var(--composer-surface);
-  box-shadow: inset 0 0 0 1px var(--composer-surface-border);
+  background: var(--md-sys-color-surface);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-sys-color-on-surface) 6%, transparent);
 }
 
 .composer-field textarea {
@@ -80,7 +69,7 @@
   border: 0;
   outline: none;
   background: transparent;
-  color: var(--composer-text);
+  color: var(--md-sys-color-on-surface);
   font-size: 0.95rem;
   line-height: 1.4;
   resize: none;
@@ -91,17 +80,17 @@
 }
 
 .composer-field textarea::placeholder {
-  color: var(--composer-placeholder);
+  color: var(--md-sys-color-on-surface-variant);
 }
 
 .send-button {
   width: 2.9rem;
   height: 2.9rem;
   border-radius: 50%;
-  background: var(--composer-accent);
-  color: var(--composer-send-text);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
   font-size: 1.1rem;
-  box-shadow: 0 8px 16px var(--composer-accent-shadow);
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--md-sys-color-primary) 28%, transparent);
 }
 
 .send-button:disabled {
@@ -110,35 +99,37 @@
   transform: none;
 }
 
-.chat-composer--light {
-  --composer-accent: var(--app-action-accent-strong);
-  --composer-accent-shadow: rgba(37, 211, 102, 0.28);
-  --composer-panel: var(--app-panel);
-  --composer-border: var(--app-border);
-  --composer-surface: var(--app-surface);
-  --composer-surface-border: rgba(17, 27, 33, 0.06);
-  --composer-text: var(--app-text);
-  --composer-text-soft: var(--app-text-soft);
-  --composer-placeholder: var(--app-text-soft);
-  --composer-send-text: #ffffff;
-}
-
 .chat-composer--compact {
   grid-template-columns: 1fr auto;
 }
 
 .chat-composer--dark {
-  --composer-accent: linear-gradient(180deg, #2dcf73, #179e55);
-  --composer-accent-shadow: rgba(0, 0, 0, 0.3);
-  --composer-panel: rgba(18, 25, 31, 0.92);
-  --composer-border: rgba(168, 214, 255, 0.2);
-  --composer-surface: rgba(255, 255, 255, 0.04);
-  --composer-surface-border: rgba(255, 255, 255, 0.06);
-  --composer-text: #f5f8fb;
-  --composer-text-soft: rgba(245, 248, 251, 0.72);
-  --composer-placeholder: rgba(245, 248, 251, 0.55);
-  --composer-send-text: #04110a;
+  background: color-mix(in srgb, var(--md-sys-color-inverse-surface) 92%, transparent);
+  border-top-color: color-mix(in srgb, var(--md-sys-color-inverse-on-surface) 18%, transparent);
   border-radius: 2rem;
+}
+
+.chat-composer--dark .composer-action {
+  color: color-mix(in srgb, var(--md-sys-color-inverse-on-surface) 72%, transparent);
+}
+
+.chat-composer--dark .composer-field {
+  background: color-mix(in srgb, var(--md-sys-color-inverse-on-surface) 4%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-sys-color-inverse-on-surface) 6%, transparent);
+}
+
+.chat-composer--dark .composer-field textarea {
+  color: var(--md-sys-color-inverse-on-surface);
+}
+
+.chat-composer--dark .composer-field textarea::placeholder {
+  color: color-mix(in srgb, var(--md-sys-color-inverse-on-surface) 55%, transparent);
+}
+
+.chat-composer--dark .send-button {
+  background: linear-gradient(180deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+  color: var(--md-sys-color-inverse-surface);
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--md-sys-color-inverse-surface) 30%, transparent);
 }
 
 @media (max-width: 780px) {
