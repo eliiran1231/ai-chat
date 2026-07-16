@@ -86,7 +86,7 @@ export class Supporter extends SyncedEntity {
         if (message.status() === MessageStatus.Failed) {
             return false;
         }
-        if(!this.chat.active) this.chat.unreadCount.update((count) => count + 1);
+        if(!this.chat.active()) this.chat.unreadCount.update((count) => count + 1);
         else message.status.set(MessageStatus.Read);
         this.onMessageAdded.next(message);
         return true;

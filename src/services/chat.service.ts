@@ -33,7 +33,10 @@ export class ChatService {
     const prev = this.selectedChatId();
     this.selectedChatId.set(id);
     if (prev) this._chatMap.get(prev)?.active.set(false);
-    if (id) this._chatMap.get(id)?.active.set(true);
+    if (!id) return;
+    let targetChat = this._chatMap.get(id);
+    targetChat?.active.set(true);
+    targetChat?.markAsRead();
   }
 
   async loadChats(): Promise<void> {
