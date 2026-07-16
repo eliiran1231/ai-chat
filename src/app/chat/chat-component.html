@@ -29,12 +29,14 @@
     <ng-scrollbar
       #chatScrollbar
       [reachedBottomOffset]="SCROLLBAR_OFFSET"
+      [reachedTopOffset]="SCROLLBAR_OFFSET"
       [droppedBottomOffset]="SCROLLBAR_OFFSET"
       [class.is-scrolling]="isScrolling()"
       (scroll)="onScroll()"
       (scrollend)="onChatScrollEnd()"
       (droppedBottom)="showScrollButton()"
       (reachedBottom)="hideScrollButton()"
+      (reachedTop)="onTopReached()"
       (afterUpdate)="!awayFromBottom() && scrollToBottom()"
       (afterInit)="scrollToBottom()"
       appearance="compact"

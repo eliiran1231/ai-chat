@@ -1,0 +1,12 @@
+<div class="provider-selection-dialog__list">
+  @for (provider of data.providers; track provider.metadata.id) {
+    <app-provider-card
+      [metadata]="provider.metadata"
+      [secondaryText]="provider.metadata.description"
+      buttonText="Create chat"
+      (action)="selectProvider(provider)"
+    />
+  } @empty {
+    <p class="provider-selection-dialog__empty">No chat providers are available.</p>
+  }
+</div>

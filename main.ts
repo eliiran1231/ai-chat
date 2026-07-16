@@ -5,14 +5,14 @@ import * as os from 'os';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { dbService } from './services/db.service.js';
-import { chatService } from './services/chat.service.js';
-import { messageService } from './services/message.service.js';
-import { supporterService } from './services/supporter.service.js';
 import { appSettingsService } from './services/app-settings.service.js';
 import { registerChatHandlers } from './ipc/chat.handler.js';
 import { registerMessageHandlers } from './ipc/message.handler.js';
 import { registerSupporterHandlers } from './ipc/supporter.handler.js';
 import { registerSettingsHandlers } from './ipc/settings.handler.js';
+import { registerAuthenticationHandlers } from './ipc/authentication.handler.js';
+import { authenticationService } from './services/server-authentication.service.js';
+import { registerSyncHandlers } from './ipc/sync.handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -136,15 +136,15 @@ function createWindow(): void {
 }
 
 app.whenReady().then(async () => {
-  await dbService.run(`PRAGMA foreign_keys = ON`);
+  authenticationService.initialize();
+  await dbService.initialize();
   await appSettingsService.initialize();
-  await chatService.initialize();
-  await messageService.initialize();
-  await supporterService.initialize();
   registerChatHandlers();
   registerMessageHandlers();
   registerSupporterHandlers();
   registerSettingsHandlers();
+  registerAuthenticationHandlers();
+  registerSyncHandlers();
   registerSystemHandlers();
   //Menu.setApplicationMenu(null);
   createWindow();
@@ -160,7 +160,7 @@ app.on('before-quit', () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    dbService.close();
+    void dbService.close();
     app.quit();
   }
 });

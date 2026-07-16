@@ -73,7 +73,7 @@ describe('QuestionAnswerControlsComponent', () => {
 
     expect(selected).toEqual([
       {
-        answer: question.possibleAnswers[0],
+        answer: question.possibleAnswers()[0],
         associatedQuestion: question,
       },
     ]);
@@ -85,7 +85,7 @@ describe('QuestionAnswerControlsComponent', () => {
     renderQuestion(createQuestion(Array.from({ length: 10 }, (_, index) => `Answer ${index}`)));
 
     component.openAnswerSheet();
-    component.closeAnswerSheet();
+    component.ngOnDestroy();
 
     expect(states).toEqual([true, false]);
   });
