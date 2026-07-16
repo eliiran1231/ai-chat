@@ -7,9 +7,16 @@ import type { DisplaySettingKey } from '../../services/display-settings.service'
 import type { NotificationSettingKey } from '../../services/notification-settings.service';
 
 export type SettingsSectionKey =
-  'general' | 'profile' | 'notifications' | 'chats' | 'appearance' | 'about';
+  'general' | 'profile' | 'notifications' | 'chats' | 'appearance' | 'languages' | 'about';
 
-export type SettingsIconKey = 'settings' | 'user' | 'bell' | 'message-square' | 'palette' | 'info';
+export type SettingsIconKey =
+  | 'settings'
+  | 'user'
+  | 'bell'
+  | 'message-square'
+  | 'palette'
+  | 'languages'
+  | 'info';
 
 export type SettingsControlType = 'toggle' | 'select' | 'range' | 'button' | 'info';
 export type SettingsAction = 'resetGeneralSettings' | 'deleteAllChats' | 'resetDisplayPreferences';
