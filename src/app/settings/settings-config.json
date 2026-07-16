@@ -55,12 +55,19 @@
           "settingKey": "runInBackground"
         },
         {
-          "label": "Reset all settings",
-          "description": "",
+          "label": "Reset general settings",
+          "description": "Restore startup and background behavior to their defaults.",
           "control": "button",
           "value": "Reset",
           "danger": true,
-          "action": "resetGeneralSettings"
+          "action": "resetGeneralSettings",
+          "confirmation": {
+            "title": "Reset general settings?",
+            "message": "This will restore startup and background behavior to their defaults.",
+            "confirmText": "Reset",
+            "cancelText": "Cancel",
+            "danger": true
+          }
         }
       ]
     },
@@ -144,7 +151,14 @@
           "control": "button",
           "value": "Delete",
           "danger": true,
-          "action": "deleteAllChats"
+          "action": "deleteAllChats",
+          "confirmation": {
+            "title": "Delete all chats?",
+            "message": "This will permanently delete all chats and their messages.",
+            "confirmText": "Delete",
+            "cancelText": "Cancel",
+            "danger": true
+          }
         }
       ]
     },

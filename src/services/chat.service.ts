@@ -8,6 +8,7 @@ import { AiAgent } from '../agents/AiAgent/AiAgent';
 import { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { Uuid } from '../interfaces/db/Uuid';
 import { AppNotificationService } from './app-notification.service';
+import { Subscription } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class ChatService {
   private defaultProvider = inject(SqliteProvider);
   private isCreatingChat = signal(false); 
   private pendingCreateChat = signal<Promise<Chat> | null>(null);
-  private notifiedChatIds = new Set<string>();
+  private notificationSubscriptions = new Map<string, Subscription>();
   private notificationService = inject(AppNotificationService);
   selectedChat = computed(() => this.getChatById(this.selectedChatId()));
   injector = inject(Injector);
@@ -61,7 +62,7 @@ export class ChatService {
     const chats = await provider.getChats();
     this.clearChats(provider.metadata.id);
     this.chats.update(current => [...current, ...chats]);
-    chats.forEach(chat => this._chatMap.set(chat.id(), chat));
+    chats.forEach(chat => this.addChatToMap(chat));
   }
 
   getChatById(id: string | null | undefined): Chat | undefined {
@@ -82,18 +83,20 @@ export class ChatService {
   removeChat(chatId: Uuid): void {
     this.chats.update(prev => prev.filter(c => c.id() !== chatId));
     this._chatMap.delete(chatId)
-    this.notifiedChatIds.delete(chatId);
+    this.stopWatchingChatNotifications(chatId);
   }
 
   private watchChatNotifications(chat: Chat): void {
-    if (this.notifiedChatIds.has(chat.id())) {
-      return;
-    }
-
-    this.notifiedChatIds.add(chat.id());
-    chat.supporter.onMessageAdded.subscribe((message) => {
+    this.stopWatchingChatNotifications(chat.id());
+    const subscription = chat.supporter.onMessageAdded.subscribe((message) => {
       void this.notificationService.notifySupporterMessage(chat, message);
     });
+    this.notificationSubscriptions.set(chat.id(), subscription);
+  }
+
+  private stopWatchingChatNotifications(chatId: string): void {
+    this.notificationSubscriptions.get(chatId)?.unsubscribe();
+    this.notificationSubscriptions.delete(chatId);
   }
 
   async deleteAllChats(): Promise<void> {
@@ -116,12 +119,17 @@ export class ChatService {
       );
       if (providerChatIds.has(this.selectedChatId() ?? '')) this.setSelectedChatId(null);
       this.chats.update(chats => chats.filter(chat => !providerChatIds.has(chat.id())));
-      providerChatIds.forEach(chatId => this._chatMap.delete(chatId));
+      providerChatIds.forEach(chatId => {
+        this._chatMap.delete(chatId);
+        this.stopWatchingChatNotifications(chatId);
+      });
       return;
     }
 
     this.chats.set([]);
     this._chatMap.clear();
+    this.notificationSubscriptions.forEach((subscription) => subscription.unsubscribe());
+    this.notificationSubscriptions.clear();
     this.setSelectedChatId(null);
     this.loaded = false;
   }

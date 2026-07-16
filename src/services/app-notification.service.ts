@@ -4,12 +4,14 @@ import DOMPurify from 'dompurify';
 import { Chat } from '../classes/Chat';
 import { Message } from '../classes/Message';
 import { NotificationSettingsService, NotificationSound } from './notification-settings.service';
+import { ElectronService } from './electron.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AppNotificationService {
   private notificationSettingsService = inject(NotificationSettingsService);
+  private electronService = inject(ElectronService);
   private audioContext?: AudioContext;
 
   async notifySupporterMessage(chat: Chat, message: Message): Promise<void> {
@@ -19,7 +21,7 @@ export class AppNotificationService {
       return;
     }
 
-    if (settings.notifyMe === 'Only when minimized' && document.visibilityState === 'visible') {
+    if (settings.notifyMe === 'Only when minimized' && !(await this.isWindowMinimized())) {
       return;
     }
 
@@ -94,5 +96,18 @@ export class AppNotificationService {
 
     this.audioContext ??= new AudioContextConstructor();
     return this.audioContext;
+  }
+
+  private async isWindowMinimized(): Promise<boolean> {
+    if (!this.electronService.isElectronAvailable()) {
+      return document.visibilityState !== 'visible';
+    }
+
+    try {
+      return await this.electronService.invoke<boolean>('system:isWindowMinimized');
+    } catch (error) {
+      console.warn('Unable to determine the window state for notifications.', error);
+      return document.visibilityState !== 'visible';
+    }
   }
 }

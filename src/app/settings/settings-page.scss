@@ -7,8 +7,51 @@
 }
 
 .settings-empty-stage {
+  display: grid;
   min-height: 100%;
+  place-items: center;
   background: var(--app-surface);
+}
+
+.settings-empty-stage__card {
+  width: min(28rem, calc(100% - 2rem));
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--app-surface) 88%, transparent);
+  box-shadow: 0 1.25rem 2.5rem color-mix(in srgb, var(--app-text) 8%, transparent);
+  text-align: center;
+}
+
+.settings-empty-stage__icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  place-items: center;
+  border-radius: 1.2rem;
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark));
+  color: #fff;
+}
+
+.settings-empty-stage__icon svg {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.settings-empty-stage__card h2,
+.settings-empty-stage__card p {
+  margin: 0;
+}
+
+.settings-empty-stage__card h2 {
+  color: var(--app-text);
+  font-size: 1.35rem;
+}
+
+.settings-empty-stage__card p {
+  margin-top: 0.5rem;
+  color: var(--app-text-soft);
+  line-height: 1.5;
 }
 
 .settings-page__header {

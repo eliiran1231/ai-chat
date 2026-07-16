@@ -1,4 +1,6 @@
 @use '@angular/cdk';
+@use './styles/theme';
+@use './styles/theme.dark' as dark-theme;
 
 @include cdk.overlay();
 @include cdk.text-field-autosize();

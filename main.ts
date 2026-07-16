@@ -79,6 +79,7 @@ function registerSystemHandlers(): void {
   ipcMain.handle('system:getBasicInfo', async () => {
     return getBasicInfo();
   });
+  ipcMain.handle('system:isWindowMinimized', () => mainWindow?.isMinimized() ?? false);
 }
 
 function isExternalUrl(url: string): boolean {

@@ -21,6 +21,14 @@ export type SettingsIconKey =
 export type SettingsControlType = 'toggle' | 'select' | 'range' | 'button' | 'info';
 export type SettingsAction = 'resetGeneralSettings' | 'deleteAllChats' | 'resetDisplayPreferences';
 
+export interface SettingsConfirmation {
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
+  danger?: boolean;
+}
+
 export interface SettingsCategoryConfig {
   path: SettingsSectionKey;
   title: string;
@@ -46,6 +54,7 @@ export interface SettingsRow {
   displaySettingKey?: DisplaySettingKey;
   notificationSettingKey?: NotificationSettingKey;
   action?: SettingsAction;
+  confirmation?: SettingsConfirmation;
 }
 
 export interface SettingsSection {

@@ -1,13 +1,9 @@
-<section class="settings-page settings-overview" aria-label="Settings">
-  <div class="settings-list">
-    @for (category of categories(); track category.path) {
-      <a class="settings-overview__item" [routerLink]="['/settings', category.path]">
-        <svg [lucideIcon]="category.icon" class="settings-overview__icon" aria-hidden="true"></svg>
-        <span>
-          <strong>{{ category.title }}</strong>
-          <small>{{ category.description }}</small>
-        </span>
-      </a>
-    }
+<section class="settings-empty-stage" aria-label="Settings">
+  <div class="settings-empty-stage__card">
+    <div class="settings-empty-stage__icon" aria-hidden="true">
+      <svg [lucideIcon]="settingsIcon"></svg>
+    </div>
+    <h2>Select a setting</h2>
+    <p>Choose a settings category from the sidebar to view and update its options.</p>
   </div>
 </section>
