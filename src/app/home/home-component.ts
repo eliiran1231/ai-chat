@@ -57,7 +57,6 @@ export class HomeComponent implements OnInit {
   // whatsappLogoUrl: string | null = 'image.png';
   whatsappLogoUrl = signal<string | undefined>(undefined);
   chats = this.chatService.chats;
-  isMenuOpen = signal(false);
   isFullscreen = signal(false);
   selectedTab = signal<'chats' | 'profile' | 'providers'>('chats');
 

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, ViewChild, computed, input, output, signal } from '@angular/core';
+import { Component, ViewChild, computed, effect, input, output, signal } from '@angular/core';
 import { Answer } from '../../classes/Answer';
 import { Chat } from '../../classes/Chat';
 import { ChatInputComponent } from '../chat-input-component/chat-input-component';
@@ -37,6 +37,15 @@ import {
 export class ChatComponent {
   readonly shouldShowDateSeparator = shouldShowDateSeparator;
   readonly shouldShowMessageTail = shouldShowMessageTail;
+
+  constructor() {
+    effect(() => {
+      if (this.chat()) {
+        this.selectedMessage.set(undefined);
+        this.editingMessage.set(undefined);
+      }
+    });
+  }
 
   chat = input.required<Chat>();
   showBackButton = input(false);
