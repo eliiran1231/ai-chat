@@ -20,12 +20,14 @@ Each chat has:
 - a `Supporter` side that sends agent messages
 - an `Agent` instance that decides how the conversation should progress
 
-Out of the box, the codebase already includes two agent types:
+Out of the box, the codebase includes these agent types:
 
-- `MockAgent` in [src/agents/MockAgent.ts](src/agents/MockAgent.ts): a scripted flow that asks for greeting, name, and age with validation
-- `AiAgent` in [src/agents/AiAgent.ts](src/agents/AiAgent.ts): sends the latest user message to a local OpenAI-compatible endpoint and replies with the model output
+- `MockAgent`: a scripted flow that asks guided questions with validation
+- `FlowAgent`: an XState-backed conversation flow
+- `DeepAgent`: a streaming Deep Agents runtime hosted in Electron with local checkpoints
 
-At the moment, the home screen loads chats with `AiAgent` by default in [src/app/home/home-component.ts](src/app/home/home-component.ts).
+New chats use `DeepAgent` by default. Persisted chats that still reference the former
+`AiAgent` name are migrated when they are loaded.
 
 ## How it works
 
@@ -92,20 +94,31 @@ Notes:
 - chat and message data are stored in a SQLite database under Electron's user data directory
 - Electron TypeScript is compiled with `tsconfig.electron.json`; `package.json` points to the emitted `main.js`. TypeScript imports use `.js` extensions because `module` and `moduleResolution` are set to `NodeNext`.
 
-## Using the AI agent
+## Using the Deep Agent
 
-`AiAgent` is wired to a local OpenAI-compatible chat endpoint in [src/services/ai.service.ts](src/services/ai.service.ts):
+The Deep Agents runtime runs in Electron main and connects to an OpenAI-compatible endpoint.
+It defaults to LM Studio at:
 
 ```ts
-http://localhost:1234/v1/chat/completions
+http://127.0.0.1:1234/v1
 ```
 
-This is currently set up for tools like LM Studio or another local server exposing the same API shape.
+Override the defaults with environment variables:
 
-Before using `AiAgent`, make sure:
+```text
+DEEP_AGENT_BASE_URL=http://127.0.0.1:1234/v1
+DEEP_AGENT_MODEL=google/gemma-3-4b
+DEEP_AGENT_API_KEY=lm-studio
+```
 
-- a local model server is running on port `1234`
-- the selected model name in `AiService` exists in that server
+Before using `DeepAgent`, make sure:
+
+- the configured endpoint is reachable
+- the configured model exists and supports OpenAI-compatible tool calls
+
+Only completed assistant responses are stored in the chat database. Streaming tokens and tool
+activity remain transient. LangGraph execution state is stored separately in
+`deepagents-checkpoints.sqlite` under Electron's user-data directory and does not sync across devices.
 
 ## What agents are
 
@@ -171,7 +184,7 @@ After creating the class, declare it in [src/app/app-agents.module.ts](src/app/a
 ```ts
 @AgentsModule({
   agents: {
-    AiAgent,
+    DeepAgent,
     FlowAgent,
     MockAgent,
     WelcomeAgent
@@ -197,7 +210,7 @@ Current example:
 ```ts
 @AgentsModule({
   agents: {
-    AiAgent,
+    DeepAgent,
     FlowAgent,
     MockAgent,
   },
@@ -212,7 +225,7 @@ import { WelcomeAgent } from '../agents/WelcomeAgent';
 
 @AgentsModule({
   agents: {
-    AiAgent,
+    DeepAgent,
     FlowAgent,
     MockAgent,
     WelcomeAgent,
@@ -230,7 +243,7 @@ Current examples:
 
 To use your custom agent, replace `new MockAgent()` with your own class instance. replacing agents via the home component is only needed for the inital agent, for the following agents use `supporter.setAgent(new SomeAgent())` in the previous agent 
 
-If your agent needs Angular services, follow the `AiAgent` pattern and pass `Injector` into the constructor.
+If your agent needs Angular services, follow the `DeepAgent` pattern and pass `Injector` into the constructor.
 
 ## Validation and guided flows
 

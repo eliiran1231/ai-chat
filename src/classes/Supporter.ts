@@ -1,4 +1,4 @@
-import { Subject } from "rxjs";
+import { Subject, Subscribable } from "rxjs";
 import { Agent } from "./Agent";
 import { Answer } from "./Answer";
 import { Chat } from "./Chat";
@@ -7,7 +7,7 @@ import { Question } from "./Question";
 import { Uuid } from "../interfaces/db/Uuid";
 import { SyncedEntity } from "./SyncedEntity";
 import { MessageStatus } from "../enums/MessagesStatus";
-import { signal, Signal } from "@angular/core";
+import { signal, Signal, WritableSignal } from "@angular/core";
 import { syncedSignal, SyncedSignal } from "../signals/syncedSignal";
 
 export class Supporter extends SyncedEntity {
@@ -15,6 +15,7 @@ export class Supporter extends SyncedEntity {
     public readonly onMessageAdded = new Subject<Message>();
     public readonly onAgentSwitch = new Subject<Agent>();
     public readonly onContextChange = new Subject<any>();
+    public readonly actions: WritableSignal<string[]> = signal([]);
     public readonly expects: SyncedSignal<"message" | "question" | "answer">;
     public readonly name: SyncedSignal<string>;
     private _context: any; 
@@ -53,12 +54,33 @@ export class Supporter extends SyncedEntity {
         return this.appendMessage(msg);
     }
 
+    async stream(stream: Subscribable<string>, message: Message): Promise<void> {
+        await this.appendMessage(message, true);
+        return new Promise((resolve, reject) => {
+            stream.subscribe({
+                next: (value => message.value.set(value, true)),
+                error: () => {
+                    message.status.set(MessageStatus.Failed, true);
+                    reject();
+                },
+                complete: async () => {
+                    message.status.set(await this.chat['manager'].requestMessageSend(message));
+                    resolve();
+                }
+            })
+        });
+    }
+
     async respond(){
         if(!this.agent) {
             console.error("no agent was set! please set an agent to respond to the client"); 
             return;
         }
         await this.agent.respond();
+    }
+
+    async cancelResponse(): Promise<void> {
+        await this.agent?.cancelResponse();
     }
 
     async setAgent(agent: Agent, isNewChat = false){
@@ -78,17 +100,22 @@ export class Supporter extends SyncedEntity {
         this.chat = chat;
     }
 
-    private async appendMessage(message: Message){
+    private async appendMessage(message: Message, uiOnly = false): Promise<boolean> {
         message.from.set("supporter");
         message.setChat(this.chat);
         this.chat.messages.update((msgs: Message[]) => [...msgs, message]);
-        message.status.set(await this.chat['manager'].requestMessageSend(message));
-        if (message.status() === MessageStatus.Failed) {
-            return false;
+        if (uiOnly) message.status.set(MessageStatus.Pending, true);
+        else {
+            message.status.set(
+                await this.chat['manager'].requestMessageSend(message)
+            );
+            if (message.status() === MessageStatus.Failed) {
+                return false;
+            }
+            else message.status.set(MessageStatus.Read);
+            this.onMessageAdded.next(message);
         }
-        if(!this.chat.active()) this.chat.unreadCount.update((count) => count + 1);
-        else message.status.set(MessageStatus.Read);
-        this.onMessageAdded.next(message);
+        if(!this.chat.active()) this.chat.unreadCount.update((count) => count + 1, uiOnly);
         return true;
     }
 }

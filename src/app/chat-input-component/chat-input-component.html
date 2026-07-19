@@ -7,10 +7,10 @@
   (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
 >
   @if (allowAttachments()) {
-    <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" aria-label="Attach file">
+    <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" aria-label="Attach file" [disabled]="disabled()">
       <svg [lucideIcon]="attachIcon" aria-hidden="true"></svg>
     </button>
-    <button type="button" class="composer-action" aria-label="Emoji">:)</button>
+    <button type="button" class="composer-action" aria-label="Emoji" [disabled]="disabled()">:)</button>
   }
 
   <label class="composer-field" for="message-input">
@@ -30,16 +30,29 @@
       (input)="syncComposerOverflow(autosize, messageInput)"
       (keydown)="handleComposerKeydown($event)"
       [placeholder]="placeholder()"
+      [disabled]="disabled()"
       autocomplete="off"
     ></textarea>
   </label>
 
-  <button
-    type="submit"
-    class="send-button"
-    aria-label="Send message"
-    [disabled]="requiredContent() && !caption().trim()"
-  >
-    <svg [lucideIcon]="sendIcon" aria-hidden="true"></svg>
-  </button>
+  @if (running()) {
+    <button
+      type="button"
+      class="send-button send-button--stop"
+      aria-label="Stop response"
+      [disabled]="disabled() && !running()"
+      (click)="stopRequested.emit()"
+    >
+      <svg [lucideIcon]="stopIcon" aria-hidden="true"></svg>
+    </button>
+  } @else {
+    <button
+      type="submit"
+      class="send-button"
+      aria-label="Send message"
+      [disabled]="disabled() || (requiredContent() && !caption().trim())"
+    >
+      <svg [lucideIcon]="sendIcon" aria-hidden="true"></svg>
+    </button>
+  }
 </form>
