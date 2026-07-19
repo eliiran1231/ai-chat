@@ -19,6 +19,7 @@ import { Chat } from '../../classes/Chat';
 import { ProviderListComponent } from '../provider-list-component/provider-list-component';
 import { CHAT_PROVIDER } from '../../services/chat-providers.module';
 import { ChatProvider } from '../../interfaces/ChatProvider';
+import { BreakpointObserver } from '@angular/cdk/layout';
 import {
   AnimatedDialogComponent,
 } from '../animated-dialog-component/animated-dialog-component';
@@ -57,9 +58,15 @@ export class HomeComponent implements OnInit {
   // whatsappLogoUrl: string | null = 'image.png';
   whatsappLogoUrl = signal<string | undefined>(undefined);
   chats = this.chatService.chats;
-  isMenuOpen = signal(false);
   isFullscreen = signal(false);
   selectedTab = signal<'chats' | 'profile' | 'providers'>('chats');
+  breakpointObserver = inject(BreakpointObserver);
+  isMobileView = toSignal(
+    this.breakpointObserver
+      .observe('(max-width: 780px)')
+      .pipe(map(result => result.matches)),
+    { initialValue: window.innerWidth <= 780 }
+  );
 
   constructor(@Inject(CHAT_PROVIDER) readonly providers: ChatProvider[] = []){
     effect(()=>{
