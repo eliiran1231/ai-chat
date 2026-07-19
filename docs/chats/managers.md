@@ -11,7 +11,7 @@ The manager controls how these operations are executed:
 
 The base manager accepts every operation locally. A persistent manager overrides the protected hooks and delegates them to its provider.
 
-# Built-in managers
+## Built-in managers
 
 The repository includes two manager implementations:
 
@@ -20,7 +20,7 @@ The repository includes two manager implementations:
 | `DefaultManager` | Uses the base behavior, so operations succeed locally without provider-specific persistence. |
 | `SqliteManager` | Delegates message and chat operations to `SqliteProvider`, translates errors into failed statuses, and waits for a pending message create before deleting that message. |
 
-# Creating a chat manager
+## Creating a chat manager
 
 Extend `ChatManager`, accept Angular's `Injector` and the matching provider, and pass both to `super`:
 
@@ -59,7 +59,7 @@ const chat = new Chat(id, name, supporter, manager, options);
 
 The `Chat` constructor calls `manager.init(chat)` automatically.
 
-# Manager properties
+## Manager properties
 
 Subclasses can access these protected properties after initialization:
 
@@ -69,13 +69,13 @@ Subclasses can access these protected properties after initialization:
 | `chatProvider` | `ChatProvider` | The persistence provider associated with the chat. |
 | `chatService` | `ChatService` | Application-level service used to remove a successfully deleted chat. |
 
-# Request lifecycle
+## Request lifecycle
 
 Public `request...` methods are called by the domain objects. The message send, edit, and delete wrappers set a message to `Pending`, run the corresponding protected hook, and then apply the returned `MessageStatus`. Chat deletion and property-change requests use their own result types.
 
 Do not normally override these public wrappers. Override the protected hook that contains the provider-specific operation.
 
-## `onMessageSendRequested(message)`
+### `onMessageSendRequested(message)`
 
 Called after a client or supporter message has been appended to the chat. Return `Sent` or `Read` on success and `Failed` on failure.
 
@@ -94,7 +94,7 @@ protected override async onMessageSendRequested(
 
 A failed send remains in the chat with a failed status so it can be displayed and retried.
 
-## `onMessageEditRequested(message, oldMessage)`
+### `onMessageEditRequested(message, oldMessage)`
 
 Called with the edited message and a clone containing the previous state. The manager wrapper applies the proposed value and edit timestamp before invoking the hook.
 
@@ -115,7 +115,7 @@ protected override async onMessageEditRequested(
 
 The public `Message.edit()` emits the chat edit event only after the manager reports success.
 
-## `onMessageDeleteRequested(message)`
+### `onMessageDeleteRequested(message)`
 
 Called before a message is removed from `chat.messages`. The message stays visible when the hook returns `Failed`.
 
@@ -134,13 +134,13 @@ protected override async onMessageDeleteRequested(
 
 If sends and deletes can race, wait for the pending create operation before deleting. `SqliteManager` keeps pending message writes in a `WeakMap` for this reason.
 
-## `onMessagePropChangeRequested(target, prop, newValue)`
+### `onMessagePropChangeRequested(target, prop, newValue)`
 
 Provides a manager-level path for a synchronized property change. Override this hook when the backend needs a custom property-level update operation. The base implementation accepts the change and returns `Read`.
 
 Synced signals call the handler installed on their owning `SyncedEntity`; they do not call this manager hook automatically. A provider may wire that handler to `manager.requestPropChange(...)`, or it may install entity-level persistence directly with `setSaveChangesHandler(...)`. `SqliteProvider` currently uses direct chat-, supporter-, and message-level save handlers.
 
-## `onDeleteRequested()`
+### `onDeleteRequested()`
 
 Called when `chat.delete()` is requested. Return `true` only after the provider has deleted the persisted chat:
 
@@ -157,7 +157,7 @@ protected override async onDeleteRequested(): Promise<boolean> {
 
 The base `requestDelete()` removes the chat from `ChatService` only when this hook returns `true`.
 
-## `handleFile(file)`
+### `handleFile(file)`
 
 Override this function when attachments need to be uploaded, copied, encrypted, or converted before use:
 
@@ -169,7 +169,7 @@ override async handleFile(file: File): Promise<string> {
 
 The base implementation returns `URL.createObjectURL(file)`, which is appropriate only for local, temporary use.
 
-# Statuses and retries
+## Statuses and retries
 
 Manager hooks communicate results with `MessageStatus`. The request wrapper owns the `Pending` transition and applies the final status returned by the hook.
 

@@ -7,7 +7,7 @@ The repository has two test environments:
 
 Run both when changing a contract shared across renderer and main-process code.
 
-# Commands
+## Commands
 
 Run Angular tests once:
 
@@ -29,7 +29,7 @@ npm run build
 
 On Windows automation, invoke `npm.cmd` instead of `npm` when the shell does not resolve npm's PowerShell shim correctly.
 
-# Angular test environment
+## Angular test environment
 
 Angular's unit-test builder loads `src/test-setup.ts`. It currently installs an `IntersectionObserver` mock required by UI dependencies.
 
@@ -52,7 +52,7 @@ await TestBed.configureTestingModule({
 
 Provide the same framework services or tokens used by the component. For app-level tests, provide `REGISTERED_AGENTS` and the `CHAT_PROVIDER` multi token explicitly.
 
-# Creating chats in tests
+## Creating chats in tests
 
 Use the shared manager stub when persistence behavior is not under test:
 
@@ -76,7 +76,7 @@ fixture.detectChanges();
 await fixture.whenStable();
 ```
 
-# Testing agents
+## Testing agents
 
 An agent test should verify observable conversation behavior rather than private fields:
 
@@ -89,7 +89,7 @@ An agent test should verify observable conversation behavior rather than private
 
 When the client starts an agent response without awaiting its completion, use `vi.waitFor(...)` or await the agent operation through a controlled test seam before asserting the final supporter message.
 
-# Testing validators and questions
+## Testing validators and questions
 
 Validator tests can call the pure helpers directly:
 
@@ -106,7 +106,7 @@ Also test persistence normalization and malformed specs. The existing validator 
 
 Question tests should use `Question.isAnswerValid(new Answer(value))`, including multiple-selection behavior when relevant.
 
-# Testing message sources
+## Testing message sources
 
 Create a small source subclass whose `getMessages(start, end)` records offsets and returns deterministic chunks. Verify:
 
@@ -119,7 +119,7 @@ Create a small source subclass whose `getMessages(start, end)` records offsets a
 
 Connect hydrated messages to the test chat if edit or delete behavior is part of the assertion.
 
-# Testing managers and providers
+## Testing managers and providers
 
 For a manager, use a provider spy and assert status translation:
 
@@ -137,7 +137,7 @@ For a provider, verify the full hydration contract:
 - the initial chunk loads before agent initialization;
 - new and restored chats receive the correct `isNewChat` value.
 
-# Electron tests
+## Electron tests
 
 Electron tests run in a Node environment configured by `vitest.electron.config.ts`. They mock Electron and PowerSync dependencies before importing modules that create process-level singletons.
 
@@ -151,7 +151,7 @@ Existing suites cover:
 - production sync and backend contracts;
 - connector and server-authentication behavior.
 
-# Contract tests
+## Contract tests
 
 When documentation states a production invariant used by CI, add a contract test. `production-contracts.spec.ts` currently checks that the PowerSync configuration is user-scoped and that the backend contract documents atomicity, idempotency, ownership, cascade integrity, and rejection behavior.
 

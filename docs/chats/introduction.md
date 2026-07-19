@@ -11,7 +11,7 @@ A chat does not talk to a database or remote API directly. The responsibilities 
 - `MessageLoader` loads older history from one or more `MessageSource` instances.
 - `ChatService` keeps the application-wide chat collection and selected chat state.
 
-# Creating a chat
+## Creating a chat
 
 Application code should normally create chats through `ChatService`, not by calling the `Chat` constructor directly:
 
@@ -53,7 +53,7 @@ const chat = new Chat(chatId, 'New chat', supporter, manager, {
 
 The `Chat` constructor connects the supporter to the chat, initializes the manager, creates the client participant and message loader, and initializes signal synchronization. The provider must still configure persistence handlers, message sources, and the initial agent.
 
-# Chat properties
+## Chat properties
 
 Most chat properties are Angular signals. Read them by calling the property and update writable values with `set` or `update`.
 
@@ -80,7 +80,7 @@ Most chat properties are Angular signals. Read them by calling the property and 
 
 The constructor's `ChatOptions` object accepts `status`, `avatar`, `subtitle`, `timeLabel`, `unreadCount`, `highlightTime`, `avatarRing`, and `tipLabel`. Defaults are applied when a value is omitted.
 
-# Sending messages
+## Sending messages
 
 Use the participant APIs instead of modifying `chat.messages` directly:
 
@@ -97,7 +97,7 @@ These methods assign the sender, connect the message to its chat, append it, and
 
 Use `Message.edit()` and `Message.delete()` for existing messages. They go through the same manager boundary and emit `chat.onMessageEdited` or `chat.onMessageDeleted` only after the operation succeeds.
 
-# Chat lifecycle
+## Chat lifecycle
 
 `ChatService.loadChats()` asks every registered provider for its chats, combines successful results, and indexes each chat by ID. A provider failure is logged without discarding chats returned by other providers.
 

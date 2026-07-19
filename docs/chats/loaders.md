@@ -4,7 +4,7 @@
 
 The loader does not fetch or hydrate messages itself. It owns an ordered list of `MessageSource` instances and asks the active source for its next chunk. A source owns the pagination details for one backend or history segment.
 
-# What is a message source?
+## What is a message source?
 
 `MessageSource` is the abstract base class for a paginated history source. It tracks:
 
@@ -24,7 +24,7 @@ protected abstract getMessages(
 
 `start` is inclusive and `end` is exclusive. A source should return at most `end - start` messages.
 
-# Creating a message source
+## Creating a message source
 
 This in-memory source treats the end of the array as the newest history and returns every chunk in chronological display order:
 
@@ -58,7 +58,7 @@ The first call must load the newest available history chunk, the next call must 
 
 If hydrated messages can be edited, deleted, or synchronized, the source must also connect their persistence handlers before returning them. `SqliteMessagesSource` is the repository example: it reads records through `DbService`, restores `Message`, `Answer`, and `Question` subclasses, connects them to the chat, and installs the provider's save handler.
 
-# Configuring chunk size
+## Configuring chunk size
 
 Use `setChunkSize(...)` before loading:
 
@@ -70,7 +70,7 @@ chat.loader.addSource(source);
 
 The size must be greater than zero. A source becomes exhausted when a request returns fewer messages than its configured chunk size. If the final page contains exactly one full chunk, the source is marked exhausted by the following empty request.
 
-# Adding and chaining sources
+## Adding and chaining sources
 
 Sources are processed in the order they are added:
 
@@ -85,7 +85,7 @@ One call returns the first non-empty chunk produced by the active chain. When an
 
 Adding another source later is supported. If all previous sources are already exhausted, the next call continues from the newly appended source.
 
-# Loading the next chunk
+## Loading the next chunk
 
 Call the loader through the chat:
 
@@ -101,11 +101,11 @@ The returned array contains the messages loaded by that call. The source has alr
 
 `MessageLoader` deduplicates overlapping requests. If `loadNextChunk()` is called again while a load is in progress, both callers receive the same promise rather than advancing pagination twice. Errors are allowed to reject the promise, and the in-flight state is cleared in `finally` so a later call can retry.
 
-# Loading on scroll
+## Loading on scroll
 
 `ChatComponent` calls `chat.loader.loadNextChunk()` when the scrollbar reaches the top. It records the previous content height and scroll position, then offsets the scroll position by the height of the prepended messages. This keeps the same message in view instead of jumping the user to the beginning of the newly loaded chunk.
 
-# Provider integration
+## Provider integration
 
 A provider should add sources while hydrating a chat and usually load the first chunk before returning it:
 

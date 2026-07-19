@@ -13,7 +13,7 @@ The framework uses Angular signals for both local state and persistable domain s
 
 Do not use `syncedSignal` simply because a value is visible in the UI. Use it only when the provider must observe and persist changes.
 
-# Synced signals
+## Synced signals
 
 `SyncedSignal<T>` extends Angular's `WritableSignal<T>` and adds synchronization-aware `set`, `update`, and `sync` methods:
 
@@ -27,7 +27,7 @@ status.update(current => `${current}-archived`);
 
 Like all Angular signals, it is read by calling it as a function.
 
-## Debounced writes
+### Debounced writes
 
 Each change schedules its owning entity's save handler after 500 milliseconds. A second change to the same signal within that period replaces the pending task.
 
@@ -41,7 +41,7 @@ The handler receives:
 
 Providers may ignore the property arguments and persist a complete entity snapshot, which is what the current SQLite provider does.
 
-## UI-only writes
+### UI-only writes
 
 `set` and `update` accept a second `uiOnly` argument:
 
@@ -53,7 +53,7 @@ When `uiOnly` is `true`, the local signal changes without scheduling its save ha
 
 Use it narrowly. A UI-only write is not automatically persisted by a later unrelated operation unless that provider saves the complete entity at that point.
 
-# Synced entities
+## Synced entities
 
 Classes containing synced signals extend `SyncedEntity`:
 
@@ -73,7 +73,7 @@ export class Ticket extends SyncedEntity {
 
 If a subclass adds synced properties after a base constructor has already initialized synchronization, it must ensure those new properties are also initialized. Prefer declaring the full synced shape in one owner when possible.
 
-# Installing a save handler
+## Installing a save handler
 
 New entities start with a no-op handler. A provider installs persistence after constructing or hydrating the object:
 
@@ -87,7 +87,7 @@ The framework's `SqliteProvider` installs separate handlers for chats, supporter
 
 The handler is the persistence boundary. A synced signal does not know which database or API owns it.
 
-# Saving an entire entity
+## Saving an entire entity
 
 Call `saveChanges()` when state outside a synced property has changed but should use the same handler:
 
@@ -97,7 +97,7 @@ await supporter.setContext(nextContext);
 
 `Supporter.setContext(...)` replaces its private context value, calls `saveChanges()`, and then emits `onContextChange`. `saveChanges()` invokes the handler with the property marker `all`.
 
-# Hydration
+## Hydration
 
 Hydration should establish initial values without writing them back as new mutations:
 
@@ -110,7 +110,7 @@ Constructor assignments happen before a provider installs its save handler, so r
 
 For messages, hydration must also restore the concrete `Message`, `Question`, or `Answer` type and call `message.setChat(chat)`.
 
-# Updating values safely
+## Updating values safely
 
 Use `set` or `update`; mutating a nested object in place does not notify the signal:
 
@@ -124,7 +124,7 @@ chat.avatar().value = 'AI';
 
 Persistable values should also be serializable. Validators are stored as object specifications instead of raw `RegExp` instances for this reason.
 
-# Ephemeral state
+## Ephemeral state
 
 Keep operation progress, component selection, temporary streams, and other reconstructable state in ordinary signals:
 
@@ -134,7 +134,7 @@ readonly isLoading = signal(false);
 
 Persist only state needed to reconstruct the domain after reload. This keeps provider payloads stable and prevents transient UI behavior from leaking into chat or supporter records.
 
-# Manager property changes
+## Manager property changes
 
 `ChatManager.requestPropChange(...)` offers a manager-mediated property-change path, but synced signals do not call it automatically. A provider can install a save handler that delegates to that method, or install direct entity persistence as `SqliteProvider` does.
 

@@ -140,7 +140,7 @@ const chat = await chats.createChat(agent);
 ## Where to go next
 
 - Learn the complete lifecycle in [Agent functions](agents/functions.md).
-- Add typed choices with [Possible answers](agents/possible%20answers.md).
+- Add typed choices with [Possible answers](agents/possible-answers.md).
 - Constrain input with [Validators](agents/validators.md).
 - Understand persistence in [Signals and persistence](state/signals.md).
 - Add a backend using [Chat providers](chats/providers.md).

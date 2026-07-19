@@ -10,7 +10,7 @@ Messages are the units stored in `chat.messages`. The framework uses three concr
 
 Providers must preserve the concrete type during persistence and hydration. Restoring every record as `Message` would lose question controls and answer-specific flow behavior.
 
-# Creating messages
+## Creating messages
 
 Construct a normal message from a value and optional metadata:
 
@@ -39,7 +39,7 @@ const answer = new Answer('urgent', { tag: 'priority-answer' });
 
 Use `Client` or `Supporter` methods to send these objects. They set the sender, attach the chat, append the message, and route persistence through the chat manager.
 
-# Message options
+## Message options
 
 `MessageOptions` supports:
 
@@ -57,7 +57,7 @@ Use `Client` or `Supporter` methods to send these objects. They set the sender, 
 
 `QuestionOptions` extends these fields with `validator`, `validationErrorMessage`, `possibleAnswers`, and `answerSelectionMode`.
 
-# Message properties
+## Message properties
 
 Except for `id`, message properties are `SyncedSignal` values. Read them as functions:
 
@@ -70,7 +70,7 @@ message.attachment();
 
 Update them with `set(...)` or `update(...)` only when you intentionally want to change the model. User actions should prefer `edit()`, `delete()`, and participant APIs because those methods preserve manager and event behavior.
 
-# Tags
+## Tags
 
 Tags are stable application-defined labels. Agents commonly use them to identify which question was answered:
 
@@ -82,16 +82,16 @@ if (this.lastQuestion?.tag() === 'priority') {
 
 Tags are not required to be unique. If a flow uses them as state identifiers, establish and document a naming convention within that agent.
 
-# Markdown rendering
+## Markdown rendering
 
 The chat bubble renders message values with `ngx-markdown`. Both client and supporter messages support Markdown. The application sanitizes rendered Markdown through its configured `sanitizeMarkdown` function; do not bypass that pipeline when displaying provider or agent output.
 
-# Questions and answers
+## Questions and answers
 
 A `Question` can validate typed input and offer UI selections. These are separate concerns: possible answers control the UI, while the validator controls acceptance.
 
 See:
 
-- [Possible answers](../agents/possible%20answers.md)
+- [Possible answers](../agents/possible-answers.md)
 - [Validators](../agents/validators.md)
 - [Message lifecycle](lifecycle.md)

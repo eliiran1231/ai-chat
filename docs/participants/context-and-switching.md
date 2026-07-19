@@ -21,7 +21,7 @@ await this.supporter.setContext({
 
 Use JSON-serializable values. `SqliteProvider` serializes supporter context when it is committed and parses it while hydrating the chat. Invalid persisted JSON falls back to an empty object.
 
-# What belongs in context?
+## What belongs in context?
 
 Persist state that is necessary to resume the conversation:
 
@@ -37,7 +37,7 @@ Do not persist reconstructable UI or runtime state:
 - cancellable operation handles;
 - cached display-only actions.
 
-# Switching agents
+## Switching agents
 
 Switch through the supporter:
 
@@ -56,7 +56,7 @@ Providers can subscribe to `onAgentSwitch` to persist the registered agent name.
 
 Agent names are registration keys, so changing a key can make persisted chats impossible to restore unless a migration or alias is provided.
 
-# New and restored chats
+## New and restored chats
 
 The third `setAgent` argument declares creation intent:
 
@@ -80,7 +80,7 @@ override async init(
 }
 ```
 
-# Cleaning up agents
+## Cleaning up agents
 
 An agent that owns subscriptions, timers, streams, or actors must release them in `onDestroy()` and then call the base method:
 

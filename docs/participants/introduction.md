@@ -7,7 +7,7 @@ Every `Chat` owns two participant objects:
 
 Participants are the supported way to append messages. They assign sender ownership, attach the chat, request persistence through the manager, and emit events after success.
 
-# Client API
+## Client API
 
 The client can ask questions and submit answers using the chat interface
 if needed, the agent can also do it for him:
@@ -24,7 +24,7 @@ Strings are converted to the matching concrete message type.
 
 After a successful send, `Client` emits `onMessageAdded` and starts `chat.supporter.respond()`. The client send promise represents the message operation; the current implementation starts the agent response without waiting for the entire response flow to finish.
 
-# Supporter API
+## Supporter API
 
 The supporter exposes three message methods:
 
@@ -44,7 +44,7 @@ Each method accepts either a string or the corresponding model object.
 
 When an agent is active, `ask(...)` also updates `agent.lastQuestion`.
 
-## Unread behavior
+### Unread behavior
 
 After a successful supporter send:
 
@@ -53,7 +53,7 @@ After a successful supporter send:
 
 Calling `chat.markAsRead()` clears the unread count and marks every loaded supporter message read.
 
-## Supporter events
+### Supporter events
 
 The supporter publishes:
 
@@ -63,7 +63,7 @@ The supporter publishes:
 | `onAgentSwitch` | Newly initialized agent |
 | `onContextChange` | Newly persisted context value |
 
-# Expected input type
+## Expected input type
 
 `supporter.expects` tells the UI which client message class to create next. The built-in chat component currently maps:
 
@@ -72,13 +72,13 @@ The supporter publishes:
 
 Agent authors should change this value through `supporter.ask(...)` or `supporter.answer(...)` unless they intentionally expect something other then the defaults (answer after question and vice versa)
 
-# Failed sends
+## Failed sends
 
 Participants append messages before the manager operation completes with a pending icon. If the manager returns `Failed`, the failed message remains in `chat.messages`, but with a failed icon, `onMessageAdded` is not emitted and the client does not trigger an agent response.
 
 This allows the UI to show the failure and call `message.retry()`.
 
-# Related guides
+## Related guides
 
 - [Messages](../messages/introduction.md)
 - [Message lifecycle](../messages/lifecycle.md)

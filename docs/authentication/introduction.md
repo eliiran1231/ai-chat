@@ -2,7 +2,7 @@
 
 Every `ChatProvider` exposes an `AuthenticationProvider`. This keeps session behavior provider-scoped: connecting or disconnecting one backend affects only the chats owned by that backend.
 
-# Authentication provider interface
+## Authentication provider interface
 
 An implementation exposes four read-only signals:
 
@@ -24,7 +24,7 @@ getCurrentUser(): Promise<AuthUser | null>;
 
 Credentials currently contain `email` and `password`; registration may also include `displayName`.
 
-# Authentication states
+## Authentication states
 
 `AuthState` is a discriminated union:
 
@@ -37,7 +37,7 @@ Credentials currently contain `email` and `password`; registration may also incl
 
 Do not treat `checking` as unauthenticated. Wait for initialization to finish before showing a definitive login state.
 
-# Synchronization states
+## Synchronization states
 
 `SyncState.kind` can be:
 
@@ -54,7 +54,7 @@ The state also reports `connected`, an optional `lastSyncedAt`, an optional erro
 
 Authentication and synchronization are related but not identical. A user can have a persisted session while the device is offline, and local database operations can continue while synchronization is unavailable.
 
-# Logout policy
+## Logout policy
 
 Every authentication provider declares:
 
@@ -68,7 +68,7 @@ readonly options: AuthenticationProviderOptions = {
 
 `clearLocalData: false` disconnects without erasing the local database. Set it to `true` only when the product's security and offline-data requirements explicitly require local deletion.
 
-# Creating an authentication provider
+## Creating an authentication provider
 
 ```ts
 @Injectable()
@@ -112,7 +112,7 @@ export class MyAuthenticationProvider implements AuthenticationProvider {
 
 The example omits backend-specific services and the remaining interface methods.
 
-# Authentication component
+## Authentication component
 
 Provider metadata identifies the Angular component used by the connection dialog:
 
@@ -142,7 +142,7 @@ async connect(): Promise<void> {
 
 Return the authenticated user when connection succeeds. Closing without a user cancels the flow.
 
-# Provider-scoped lifecycle
+## Provider-scoped lifecycle
 
 The provider UI follows this lifecycle:
 
@@ -154,7 +154,7 @@ The provider UI follows this lifecycle:
 
 Provider metadata IDs and the manager-provider association are what make scoped cleanup possible.
 
-# PowerSync implementation
+## PowerSync implementation
 
 `PowerSyncAuthenticationService` sends authentication requests through Electron IPC and listens for main-process sync-state events. It starts with `checking` and `local-only`, updates authentication state after every session operation, and surfaces initialization errors rather than silently treating them as logout.
 

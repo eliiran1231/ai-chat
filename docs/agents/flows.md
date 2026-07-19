@@ -2,7 +2,7 @@
 
 State machines are useful when a conversation has explicit steps, branching, guards, and resumable state. The built-in `FlowAgent` demonstrates integrating XState with the base `Agent` lifecycle.
 
-# Conversation events
+## Conversation events
 
 `Agent.respond()` determines the latest client message. A state-machine agent can translate the message into an event:
 
@@ -20,7 +20,7 @@ override async respond(edited = false): Promise<void> {
 
 Define an event union that represents every input the machine accepts. Keep the translation at the agent boundary so the machine does not depend on Angular components.
 
-# Defining a machine
+## Defining a machine
 
 ```ts
 export const intakeMachine = createMachine({
@@ -54,7 +54,7 @@ export const intakeMachine = createMachine({
 
 Machine actions call supporter APIs through methods owned by the agent.
 
-# Connecting actions and guards
+## Connecting actions and guards
 
 Prefer an explicit catalog so only intended methods are exposed to XState:
 
@@ -75,7 +75,7 @@ private buildImplementations() {
 
 The current `FlowAgent.buildActions()` example discovers every public prototype method and supplies the same map as both actions and guards. That is compact for a demonstration, but explicit catalogs are easier to type, audit, and maintain in production.
 
-# Initializing the actor
+## Initializing the actor
 
 Initialize the base agent first, create the actor, persist snapshots, and then start it:
 
@@ -104,7 +104,7 @@ override async init(
 
 Validate persisted context before passing it to XState. Context may be absent, malformed, or written by an older machine version.
 
-# Persisting machine state
+## Persisting machine state
 
 Store the actor snapshot through `supporter.setContext(...)`. The provider persists supporter context independently of message history, allowing a restored agent to resume the machine.
 
@@ -117,7 +117,7 @@ await supporter.setContext({
 });
 ```
 
-# Validation
+## Validation
 
 The base `Agent.respond()` calls `onInvalidAnswer(...)` before the machine sees invalid input. The default handler sends the question's validation message and throws.
 
@@ -131,7 +131,7 @@ override onInvalidAnswer(_answer: Answer, _question: Question): void {
 
 Then use `lastQuestion.isAnswerValid(lastMessage)` from a guard. Make sure the machine always handles both valid and invalid paths.
 
-# Switching agents
+## Switching agents
 
 A terminal state can switch to another registered agent:
 
@@ -146,7 +146,7 @@ async finish(context: { name?: string }): Promise<void> {
 
 Resolve agents through `AgentsService` when possible so persisted names and registration remain consistent.
 
-# Cleanup
+## Cleanup
 
 Stop the actor before the base agent removes its subscriptions:
 
@@ -159,7 +159,7 @@ override async onDestroy(): Promise<void> {
 
 Without cleanup, a replaced agent may continue reacting to actor events or persisting snapshots.
 
-# Editing earlier answers
+## Editing earlier answers
 
 The base edit lifecycle deletes later messages and calls `respond(true)`. A state-machine flow may also need to restore or replay its machine snapshot to the edited point. Message history alone does not rewind the persisted actor automatically.
 

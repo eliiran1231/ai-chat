@@ -4,13 +4,13 @@ A `ChatProvider` connects the chat domain to one storage and synchronization bac
 
 Providers are explicit application integrations. Each provider owns the chats it creates, and its manager keeps that ownership attached to the chat throughout later mutations.
 
-# Built-in provider
+## Built-in provider
 
 `SqliteProvider` is the current built-in provider. Its public metadata identifies it as the PowerSync integration. It uses `DbService` for Electron database operations, `PowerSyncAuthenticationService` for authentication and sync state, `SqliteManager` for mutations, and `SqliteMessagesSource` for lazy history loading.
 
 When it hydrates messages, it restores their concrete `Message`, `Question`, or `Answer` type and reconnects question validators, validation messages, possible answers, and selection mode.
 
-# Provider metadata
+## Provider metadata
 
 Every provider exposes a `metadata` object:
 
@@ -24,7 +24,7 @@ Every provider exposes a `metadata` object:
 
 Do not derive persisted ownership from `displayName`. Use a stable `id` that will not change when UI copy changes.
 
-# Provider interface
+## Provider interface
 
 A provider implements these members:
 
@@ -40,7 +40,7 @@ A provider implements these members:
 
 Methods may be synchronous or asynchronous, although persistent integrations will normally return promises.
 
-# Creating a provider
+## Creating a provider
 
 The following skeleton shows the required surface. The storage-specific details are intentionally represented by a backend service:
 
@@ -105,7 +105,7 @@ export class MyChatProvider implements ChatProvider {
 
 `restoreAgent(...)` and `hydrateChat(...)` are provider-specific helpers, not members of the `ChatProvider` interface.
 
-# Hydrating chats
+## Hydrating chats
 
 Creating and restoring a chat should follow the same hydration sequence:
 
@@ -122,7 +122,7 @@ The `isNewChat` value must come from the create-versus-restore operation. Do not
 
 Loading history before setting the agent allows the base agent to recover `lastQuestion` from the restored conversation. Hydrated messages must be connected to the chat with `message.setChat(chat)` so edit, delete, and retry operations can reach the manager.
 
-# Authentication
+## Authentication
 
 The provider's `authentication` object implements `AuthenticationProvider`. It exposes signal-based state:
 
@@ -132,7 +132,7 @@ The provider's `authentication` object implements `AuthenticationProvider`. It e
 
 The provider list checks `getCurrentUser()` on initialization and uses `loggedIn()` to choose between connect and disconnect actions. After a successful connection, `ChatService.loadProviderChats(provider)` reloads only that provider's chats. On logout, `ChatService.clearChats(provider.metadata.id)` removes only chats belonging to that provider.
 
-# Registering a provider
+## Registering a provider
 
 Register implementations with the Angular multi-provider token in `AppChatProvidersModule`:
 
@@ -163,7 +163,7 @@ importProvidersFrom(AppChatProvidersModule)
 
 Consumers inject `CHAT_PROVIDER` as `ChatProvider[]`. `ChatService` uses the catalog to load chats, while the provider UI uses the same catalog to display connection options.
 
-# Persistence responsibilities
+## Persistence responsibilities
 
 A provider is responsible for preserving enough data to recreate the domain types accurately. For messages, that includes distinguishing `Message`, `Question`, and `Answer` and restoring question-specific fields such as validators, validation errors, possible answers, and selection mode.
 

@@ -13,7 +13,7 @@ Agents should use the supporter API to add messages:
 
 Do not push messages directly into `chat.messages`. The supporter methods assign the sender, persist the message, update its status, and notify the rest of the application.
 
-# Creating an agent
+## Creating an agent
 
 Create a class that extends `Agent`, inject Angular's `Injector`, and pass it to `super`:
 
@@ -56,7 +56,7 @@ export class AppAgentsModule {}
 
 The registration key is the persisted agent name. The application provides this catalog with `provideAgents(AppAgentsModule)`, and `AgentsService.getAgentByName('GreetingAgent')` creates an instance.
 
-# Agent properties
+## Agent properties
 
 The base `Agent` exposes these properties to subclasses:
 
@@ -70,7 +70,7 @@ The base `Agent` exposes these properties to subclasses:
 
 These properties are not ready before `super.init(...)` runs. Keep flow-specific state on the subclass, or use `supporter.setContext(...)` when that state must survive persistence and agent re-creation.
 
-# Simple agent implementation
+## Simple agent implementation
 
 This agent greets a new chat and responds only to a small set of basic greetings:
 
