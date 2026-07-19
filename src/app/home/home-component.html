@@ -70,7 +70,7 @@
     @if (chatService.selectedChat(); as chat) {
       <app-chat
         [chat]="chat"
-        [showBackButton]="true"
+        [showBackButton]="isMobileView()"
         (back)="closeChat()"
         (deleteChat)="deleteChat($event)"
       />
