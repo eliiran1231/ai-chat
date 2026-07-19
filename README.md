@@ -1,267 +1,162 @@
 # AI Chat
 
-AI Chat is a desktop chat prototype built with Angular and Electron. It mimics a messaging app UI and lets each chat be powered by an `Agent` class. An agent can be a simple scripted flow, a local AI-backed assistant, or any custom conversation engine you want to plug in.
+AI Chat is an Angular and Electron framework for building desktop conversations backed by scripted agents, state machines, or local AI models. Its chat domain is independent of persistence: agents own conversation decisions, while providers and managers own storage, authentication, and synchronization.
 
-The project is useful as a foundation for:
+The current application includes:
 
-- guided support or intake flows
-- chatbot experiments
-- local AI chat interfaces
-- form-like conversations where answers need validation
+- an Angular 22 messaging interface;
+- Electron IPC with a context-isolated preload bridge;
+- local PowerSync SQLite storage;
+- optional authenticated synchronization with a self-hosted PowerSync and PostgreSQL backend;
+- scripted, XState, and local-AI agent examples;
+- validation, possible answers, attachments, editing, deletion, retry, search, and lazy history loading.
 
-## What the project does
+## Documentation
 
-The app opens as an Electron desktop window and renders the UI with Angular. Chats are stored locally in SQLite, so messages and chat metadata survive app restarts.
+Start with the [documentation index](docs/README.md) or the [getting-started guide](docs/getting-started.md).
 
-Each chat has:
-
-- a `Chat` model with messages and UI metadata
-- a `Client` side that sends user messages
-- a `Supporter` side that sends agent messages
-- an `Agent` instance that decides how the conversation should progress
-
-Out of the box, the codebase already includes two agent types:
-
-- `MockAgent` in [src/agents/MockAgent.ts](src/agents/MockAgent.ts): a scripted flow that asks for greeting, name, and age with validation
-- `AiAgent` in [src/agents/AiAgent.ts](src/agents/AiAgent.ts): sends the latest user message to a local OpenAI-compatible endpoint and replies with the model output
-
-At the moment, the home screen loads chats with `AiAgent` by default in [src/app/home/home-component.ts](src/app/home/home-component.ts).
+| Area | Guide |
+| --- | --- |
+| System boundaries | [Architecture](docs/architecture.md) |
+| Creating agents | [Agent introduction](docs/agents/introduction.md) |
+| Agent overrides | [Agent lifecycle functions](docs/agents/functions.md) |
+| Guided XState flows | [State-machine agents](docs/agents/flows.md) |
+| Chats and participants | [Chat introduction](docs/chats/introduction.md) |
+| Messages and statuses | [Message documentation](docs/messages/introduction.md) |
+| Persistence behavior | [Signals and persistence](docs/state/signals.md) |
+| Storage integrations | [Chat providers](docs/chats/providers.md) |
+| Authentication and sync | [Authentication](docs/authentication/introduction.md) |
+| Test strategy | [Testing](docs/testing.md) |
+| Backend requirements | [PowerSync backend contract](docs/powersync-backend-contract.md) |
 
 ## How it works
 
-High-level flow:
+The renderer and main process have separate responsibilities:
 
-1. Electron starts from `main.js`, the compiled output generated from [main.ts](main.ts).
-2. The Angular app is loaded from `dist/ai-chat/browser/index.html`.
-3. SQLite tables for chats and messages are initialized in the Electron process.
-4. Angular loads chats through `ChatService`.
-5. Each chat is hydrated with an `Agent` and a `Supporter`.
-6. When the user sends a message, `Client` appends it and triggers `supporter.respond()`.
-7. The agent validates the last answer if needed, then decides the next question or reply.
+1. Angular renders chats and owns the in-memory domain objects.
+2. `Client` appends user questions or answers.
+3. `ChatManager` translates message operations into provider calls and statuses.
+4. `ChatProvider` persists chats, supporters, and messages.
+5. `Supporter` invokes the current `Agent` after a successful client message.
+6. The agent decides which supporter message, question, or answer comes next.
+7. Electron IPC connects the renderer provider to local database, authentication, and synchronization services.
 
-Important files:
+Older message history is loaded lazily. A `MessageLoader` exhausts each registered `MessageSource` before moving to the next source, allowing multiple history segments to be chained in a predictable order.
 
-- [main.ts](main.ts): Electron app bootstrapping and service/handler registration
-- [ipc/](ipc/): Electron IPC handlers compiled by `tsconfig.electron.json`
-- [preload.js](preload.js): exposes safe IPC bridge to the renderer
-- [src/services/db.service.ts](src/services/db.service.ts): Angular wrapper around Electron IPC database calls
-- [src/services/chat.service.ts](src/services/chat.service.ts): chat creation, hydration, persistence
-- [src/classes/Agent.ts](src/classes/Agent.ts): base class for all agents
-- [src/classes/Question.ts](src/classes/Question.ts): question model with validators and suggested answers
-- [src/classes/Supporter.ts](src/classes/Supporter.ts): helper used by agents to send messages
+## Built-in agents
 
-## Run the project
+The application explicitly registers three agents in `src/app/app-agents.module.ts`:
 
-### Prerequisites
+| Agent | Purpose |
+| --- | --- |
+| `AiAgent` | Sends the latest client message to a local OpenAI-compatible endpoint. |
+| `MockAgent` | Demonstrates a scripted support questionnaire with validators and possible answers. |
+| `FlowAgent` | Demonstrates an XState-driven, persistable conversation flow. |
+
+Agent registration keys are persisted names. Keep them stable or migrate stored chats when renaming an agent.
+
+## Chat provider
+
+`SqliteProvider` is currently registered through the Angular `CHAT_PROVIDER` multi token. Its public integration is presented as PowerSync and combines:
+
+- `PowerSyncAuthenticationService` for authentication and synchronization state;
+- `DbService` and Electron IPC for local database operations;
+- `SqliteManager` for message and chat mutations;
+- `SqliteMessagesSource` for paginated history hydration.
+
+The database supports local operations without an authenticated session. When a session exists, PowerSync connects and uploads queued local changes. Logging out follows the provider's explicit local-data policy.
+
+## Prerequisites
 
 - Node.js
 - npm
-- Windows desktop environment for Electron
+- Windows desktop environment for the current Electron setup
+- native build tooling supported by Electron when rebuilding `better-sqlite3`
 
-### Install dependencies
+Remote synchronization additionally requires the PowerSync and backend services described by the repository configuration and [backend contract](docs/powersync-backend-contract.md).
 
-```bash
+## Install
+
+```powershell
 npm install
 ```
 
-### Start the desktop app
+The post-install script rebuilds `better-sqlite3` for the installed Electron version.
 
-```bash
+## Run
+
+Build the Angular application and Electron process, then open the desktop app:
+
+```powershell
 npm start
 ```
 
-This script:
+For an Angular development build followed by Electron:
 
-- builds the Angular app
-- launches the Electron window
-
-### Development notes
-
-Useful commands:
-
-```bash
-npm run build
-npm run watch
-npm test
+```powershell
+npm run dev
 ```
 
-Notes:
+`npm run watch` watches the Angular renderer only; it does not restart Electron.
 
-- `npm start` is the main way to run the desktop app
-- `npm run watch` rebuilds Angular in watch mode, but does not restart Electron by itself
-- chat and message data are stored in a SQLite database under Electron's user data directory
-- Electron TypeScript is compiled with `tsconfig.electron.json`; `package.json` points to the emitted `main.js`. TypeScript imports use `.js` extensions because `module` and `moduleResolution` are set to `NodeNext`.
+## Local AI agent
 
-## Using the AI agent
+`AiAgent` currently calls the OpenAI-compatible endpoint configured in `src/services/ai.service.ts`:
 
-`AiAgent` is wired to a local OpenAI-compatible chat endpoint in [src/services/ai.service.ts](src/services/ai.service.ts):
-
-```ts
+```text
 http://localhost:1234/v1/chat/completions
 ```
 
-This is currently set up for tools like LM Studio or another local server exposing the same API shape.
+The configured model is:
 
-Before using `AiAgent`, make sure:
-
-- a local model server is running on port `1234`
-- the selected model name in `AiService` exists in that server
-
-## What agents are
-
-An agent is the conversation brain behind a chat. It decides:
-
-- what message to send first
-- how to react to the latest user message
-- whether the user answer is valid
-- what question or response comes next
-
-All agents extend the base `Agent` class:
-
-### Agent lifecycle
-
-- `init(chat, supporter)` runs when the agent is attached to a chat
-- use `init` to send the first message for an empty chat
-- `respond()` runs after the user sends a message
-- `lastQuestion` is used to validate answers to the previous prompt
-
-### Sending messages from an agent
-
-Use the `Supporter` helper inside the agent:
-
-- `supporter.ask(question)` to send a `Question`
-- `supporter.answer(answer)` to send an `Answer`
-- `supporter.sendMessage(message)` to send a regular message
-
-## How to create a new agent
-
-Create a file under `src/agents`, for example:
-
-`src/agents/WelcomeAgent.ts`
-
-Example:
-
-```ts
-export class WelcomeAgent extends Agent {
-  override init(chat: Chat, supporter: Supporter) {
-    super.init(chat, supporter);
-
-    if (chat.messages.length === 0) {
-      this.lastQuestion = new Question('What is your email?', {
-        validator: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        validationErrorMessage: 'Please enter a valid email address.',
-      });
-      this.lastQuestion.tag = 'email';
-      supporter.ask(this.lastQuestion);
-    }
-  }
-
-  override async respond(): Promise<void> {
-    super.respond();
-
-    if (this.lastQuestion?.tag === 'email') {
-      this.supporter.sendMessage('Thanks, we saved your email.');
-    }
-  }
-}
+```text
+google/gemma-3-4b
 ```
 
-After creating the class, declare it in [src/app/app-agents.module.ts](src/app/app-agents.module.ts). 
+Start LM Studio or another compatible local server with that model before using `AiAgent`. `MockAgent` and `FlowAgent` do not require an AI server.
 
-```ts
-@AgentsModule({
-  agents: {
-    AiAgent,
-    FlowAgent,
-    MockAgent,
-    WelcomeAgent
-  },
-})
-export class AppAgentsModule {}
+## Build and test
+
+```powershell
+npm run build
+npm test -- --watch=false
+npm run test:electron
 ```
 
-### Tips for building agents
+- `npm run build` builds Angular and compiles Electron TypeScript.
+- Angular tests cover domain helpers and standalone components.
+- Electron Vitest suites cover database behavior, authentication, synchronization, connector outcomes, and production contracts.
 
-- always call `super.init(...)` and `super.respond()`
-- use `Question` when you want built-in validation
-- store conversation state in `lastQuestion.tag` or by inspecting previous messages
-- use `chat.messages` if you need full conversation history
-- keep agent logic focused on conversation flow, not persistence
-
-### Register a new agent
-
-Agents must be declared in [src/app/app-agents.module.ts](src/app/app-agents.module.ts). This module is registered at app startup and is what `AgentsService` uses to know which agent classes exist.
-
-Current example:
-
-```ts
-@AgentsModule({
-  agents: {
-    AiAgent,
-    FlowAgent,
-    MockAgent,
-  },
-})
-export class AppAgentsModule {}
-```
-
-If you add `WelcomeAgent`, register it there too:
-
-```ts
-import { WelcomeAgent } from '../agents/WelcomeAgent';
-
-@AgentsModule({
-  agents: {
-    AiAgent,
-    FlowAgent,
-    MockAgent,
-    WelcomeAgent,
-  },
-})
-export class AppAgentsModule {}
-```
-
-After the agent is declared, it can be created and used when chats are loaded or created. The simplest place to start is [src/app/home/home-component.ts](src/app/home/home-component.ts).
-
-Current examples:
-
-- loading existing chats: `this.chatService.getChats()`
-- creating a new chat: `initialAgent: Agent = new MockAgent(this.injector)`
-
-To use your custom agent, replace `new MockAgent()` with your own class instance. replacing agents via the home component is only needed for the inital agent, for the following agents use `supporter.setAgent(new SomeAgent())` in the previous agent 
-
-If your agent needs Angular services, follow the `AiAgent` pattern and pass `Injector` into the constructor.
-
-## Validation and guided flows
-
-The `Question` class supports:
-
-- regex validation
-- structured validator specs
-- validation error messages
-- predefined possible answers
-
-That makes it a good fit for:
-
-- onboarding flows
-- support troubleshooting trees
-- lead capture
-- step-by-step forms in chat format
-
-`MockAgent` is the best reference in this repo for a guided flow with validation.
+On Windows automation, use `npm.cmd` if the shell does not resolve npm's PowerShell shim.
 
 ## Project structure
 
 ```text
 src/
-  agents/       Agent implementations
-  app/          Angular UI components
-  classes/      Core chat, message, question, client, supporter models
-  services/     AI, database, Electron, profile, and chat services
-main.ts         Electron main process and SQLite logic
-preload.js      Electron preload bridge
+  agents/              Conversation implementations
+  app/                 Angular UI and registration modules
+  authenticators/      Renderer-side authentication providers
+  chat-managers/       Mutation and status policies
+  chat-providers/      Chat persistence integrations
+  classes/             Chat, message, participant, and agent domain classes
+  message-sources/     Lazy history sources
+  services/            Angular services and Electron bridge wrappers
+  signals/             Persistence-aware signal helpers
+  testing/             Shared renderer test doubles
+
+ipc/                   Electron IPC handlers
+services/              Electron database, auth, sync, and upload services
+shared/                Contracts shared by renderer and main process
+tests/electron/         Node-based Electron and integration tests
+docs/                   Framework and backend documentation
+powersync/              PowerSync service and sync configuration
 ```
 
-## Summary
+## Adding an extension
 
-This project is a local desktop chat app where each conversation is powered by an agent. Angular handles the UI, Electron provides the desktop shell, SQLite stores the data, and agents define the conversation behavior. If you want to extend the app, the main entry point is usually creating a new `Agent` class and wiring it into chat creation.
+- Add conversation behavior by extending `Agent` and registering it in `AppAgentsModule`.
+- Add a backend by implementing `ChatProvider`, pairing it with a `ChatManager`, and registering it with `multi: true`.
+- Add older history by extending `MessageSource` and appending it to a chat's loader.
+- Add provider authentication by implementing `AuthenticationProvider` and supplying an authentication component in provider metadata.
+
+The [documentation index](docs/README.md) contains the complete contracts and examples for each extension point.
