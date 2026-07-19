@@ -1,13 +1,13 @@
 <header class="provider-auth__header">
   <div>
-    <h2 id="provider-connect-dialog-title">Connect {{ context.provider.metadata.displayName }}</h2>
+    <h2 id="provider-connect-dialog-title">{{ 'provider.connectProvider' | translate: { provider: context.provider.metadata.displayName } }}</h2>
     <p>{{ context.provider.metadata.description }}</p>
   </div>
 
   <button
     type="button"
     class="provider-auth__close"
-    aria-label="Close provider connection dialog"
+    [attr.aria-label]="'provider.closeConnectionDialog' | translate"
     (click)="close()"
     [disabled]="busy()"
   >
@@ -17,7 +17,7 @@
 
 <form class="provider-auth__form" (ngSubmit)="connect()">
   <label>
-    Email
+    {{ 'provider.email' | translate }}
     <input
       type="email"
       autocomplete="email"
@@ -29,26 +29,26 @@
   </label>
 
   <label>
-    Password
+    {{ 'provider.password' | translate }}
     <input
       type="password"
       autocomplete="current-password"
       [ngModel]="password()"
       (ngModelChange)="password.set($event); error.set(undefined)"
       name="provider-password"
-      placeholder="Password"
+      [placeholder]="'provider.password' | translate"
     />
   </label>
 
   <label>
-    Display name
+    {{ 'settings.profile.displayName' | translate }}
     <input
       type="text"
       autocomplete="name"
       [ngModel]="displayName()"
       (ngModelChange)="displayName.set($event); error.set(undefined)"
       name="provider-displayName"
-      placeholder="Optional for sign up"
+      [placeholder]="'provider.optionalForSignup' | translate"
     />
   </label>
 
@@ -58,10 +58,10 @@
 
   <div class="provider-auth__actions">
     <button type="submit" [disabled]="busy()">
-      {{ busy() ? 'Connecting...' : 'Connect' }}
+      {{ busy() ? ('provider.connecting' | translate) : ('provider.connect' | translate) }}
     </button>
     <button type="button" class="provider-auth__secondary" (click)="createAccount()" [disabled]="busy()">
-      Create account
+      {{ 'provider.createAccount' | translate }}
     </button>
   </div>
 </form>

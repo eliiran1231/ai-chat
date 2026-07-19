@@ -11,8 +11,10 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--md-sys-color-secondary);
-  color: var(--md-sys-color-on-secondary);
+  // Keep letter avatars visually distinct from the green chat header.
+  // These paired tokens adapt together in both light and dark themes.
+  background: var(--md-sys-color-tertiary-container);
+  color: var(--md-sys-color-on-tertiary-container);
   font-size: var(--chat-avatar-font-size, calc(var(--chat-avatar-size, 2.8rem) * 0.38));
   font-weight: 700;
   line-height: 1;

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 
 import { ANIMATED_DIALOG_CONTEXT } from '../../animated-dialog-component/animated-dialog-context.token';
 import { AnimatedDialogData } from '../../animated-dialog-component/animated-dialog-component';
+import { TranslatePipe } from '../translate.pipe';
 
 export interface ConfirmationDialogData extends AnimatedDialogData {
   title: string;
@@ -14,6 +15,7 @@ export interface ConfirmationDialogData extends AnimatedDialogData {
 
 @Component({
   selector: 'app-confirmation-dialog',
+  imports: [TranslatePipe],
   templateUrl: './confirmation-dialog.html',
   styleUrl: './confirmation-dialog.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

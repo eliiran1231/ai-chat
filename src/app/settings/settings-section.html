@@ -9,7 +9,7 @@
       <button
         type="button"
         class="settings-profile-edit"
-        aria-label="Edit profile photo"
+        [attr.aria-label]="'settings.profile.editPhoto' | translate"
         (click)="profilePhotoInput.click()"
       >
         <svg [lucideIcon]="editIcon" aria-hidden="true"></svg>
@@ -24,6 +24,20 @@
     </div>
   }
 
+  @if (sectionKey() === 'languages') {
+    <div class="settings-list">
+      @if (languageService.isLoading()) {
+        <p class="settings-language-status">{{ 'settings.loadingLanguages' | translate }}</p>
+      } @else {
+        @for (language of languageService.availableLanguages(); track language.code) {
+          <button type="button" class="settings-language-option" [class.settings-language-option--active]="language.code === languageService.activeLanguageCode()" (click)="selectLanguage(language.code)">
+            <span [dir]="language.direction">{{ language.name }}</span>
+            @if (language.code === languageService.activeLanguageCode()) { <span>{{ 'settings.currentLanguage' | translate }}</span> }
+          </button>
+        }
+      }
+    </div>
+  } @else {
   <div class="settings-list">
     @for (row of section().rows; track row.label) {
       <app-settings-row
@@ -41,4 +55,5 @@
       ></app-settings-row>
     }
   </div>
+  }
 </section>

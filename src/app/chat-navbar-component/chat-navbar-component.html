@@ -1,14 +1,14 @@
 <header class="chat-navbar">
   @if (messageOptionsMode()) {
-    <div class="message-options-mode" aria-label="Message options">
+    <div class="message-options-mode" [attr.aria-label]="'chat.messageOptions' | translate">
       <button
         type="button"
         class="back-button"
-        aria-label="Back to conversation"
-        title="Back"
+        [attr.aria-label]="'chat.backToConversation' | translate"
+        [title]="'common.back' | translate"
         (click)="messageOptionsClosed.emit()"
       >
-        <svg [lucideIcon]="backIcon" aria-hidden="true"></svg>
+        <svg [lucideIcon]="backIcon" class="directional-icon" aria-hidden="true"></svg>
       </button>
 
       <div class="message-options-spacer"></div>
@@ -18,8 +18,8 @@
           <button
             type="button"
             class="icon-button"
-            aria-label="Edit message"
-            title="Edit"
+            [attr.aria-label]="'chat.editMessage' | translate"
+            [title]="'common.edit' | translate"
             [disabled]="!canEditSelectedMessage()"
             (click)="canEditSelectedMessage() && selectedMessage() && editMessage.emit(selectedMessage()!)"
           >
@@ -31,8 +31,8 @@
             <button
               type="button"
               class="icon-button"
-              aria-label="Retry sending message"
-              title="Retry"
+              [attr.aria-label]="'chat.retryMessage' | translate"
+              [title]="'common.retry' | translate"
               (click)="retryMessage.emit(selectedMessage()!)"
             >
               <svg [lucideIcon]="retryIcon" aria-hidden="true"></svg>
@@ -42,8 +42,8 @@
         <button
           type="button"
           class="icon-button icon-button--danger"
-          aria-label="Delete message"
-          title="Delete"
+          [attr.aria-label]="'chat.deleteMessage' | translate"
+          [title]="'common.delete' | translate"
           [disabled]="!selectedMessage()?.deletable()"
           (click)="selectedMessage() && deleteMessage.emit(selectedMessage()!)"
         >
@@ -56,13 +56,13 @@
       <div class="search-result-count" [class.search-result-count--empty]="!hasResults()">
         {{ currentResultLabel() }}
       </div>
-      <div class="search-navigation" aria-label="Search navigation">
+      <div class="search-navigation" [attr.aria-label]="'chat.searchNavigation' | translate">
         <button
           type="button"
           class="search-nav-button"
           [disabled]="!hasResults()"
           (click)="previousMatch.emit()"
-          aria-label="Previous match"
+          [attr.aria-label]="'chat.previousMatch' | translate"
         >
           <svg [lucideIcon]="previousMatchIcon" aria-hidden="true"></svg>
         </button>
@@ -71,7 +71,7 @@
           class="search-nav-button"
           [disabled]="!hasResults()"
           (click)="nextMatch.emit()"
-          aria-label="Next match"
+          [attr.aria-label]="'chat.nextMatch' | translate"
         >
           <svg [lucideIcon]="nextMatchIcon" aria-hidden="true"></svg>
         </button>
@@ -83,15 +83,15 @@
           (input)="updateSearch($any($event.target).value)"
           (keydown)="onSearchKeydown($event)"
           type="text"
-          placeholder="Search in chat"
-          aria-label="Search in chat"
+          [placeholder]="'chat.searchInChat' | translate"
+          [attr.aria-label]="'chat.searchInChat' | translate"
         />
       </div>
       <button
         type="button"
         class="search-close-button"
         (click)="closeSearch()"
-        aria-label="Close search"
+        [attr.aria-label]="'chat.closeSearch' | translate"
       >
         <svg [lucideIcon]="closeSearchIcon" aria-hidden="true"></svg>
       </button>
@@ -102,10 +102,10 @@
         <button
           type="button"
           class="back-button"
-          aria-label="Back to chat list"
+          [attr.aria-label]="'chat.backToList' | translate"
           (click)="back.emit()"
         >
-          <svg [lucideIcon]="backIcon" aria-hidden="true"></svg>
+          <svg [lucideIcon]="backIcon" class="directional-icon" aria-hidden="true"></svg>
         </button>
       }
 
@@ -120,19 +120,19 @@
       </div>
     </div>
 
-    <div class="navbar-actions" aria-label="Chat actions">
+    <div class="navbar-actions" [attr.aria-label]="'chat.actions' | translate">
       <button
         type="button"
         class="icon-button"
         (click)="openSearch()"
-        aria-label="Search conversation"
+        [attr.aria-label]="'chat.searchConversation' | translate"
       >
         <svg [lucideIcon]="searchIcon" class="search-icon" aria-hidden="true"></svg>
       </button>
       <app-menu
         class ="chat-menu"
         [menuIcon]="menuIcon"
-        [items]="menuItems"
+        [items]="menuItems()"
         (itemSelected)="onMenuItemSelected($event)"
       ></app-menu>
     </div>

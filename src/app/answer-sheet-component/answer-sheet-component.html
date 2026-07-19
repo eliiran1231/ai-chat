@@ -11,7 +11,7 @@
     >
       <div class="answer-sheet__handle" aria-hidden="true"></div>
       <header class="answer-sheet__header">
-        <button type="button" class="answer-sheet__close" (click)="close()" aria-label="Close">
+        <button type="button" class="answer-sheet__close" (click)="close()" [attr.aria-label]="'common.close' | translate">
           <svg [lucideIcon]="closeIcon" aria-hidden="true"></svg>
         </button>
     
@@ -23,7 +23,7 @@
               name="answerSearchTerm"
               [ngModel]="answerSearchTerm()"
               (ngModelChange)="answerSearchTerm.set($event)"
-              placeholder="Search"
+              [placeholder]="'common.search' | translate"
             />
           </label>
         } @else {
@@ -33,7 +33,7 @@
               type="button"
               class="answer-sheet__search-toggle"
               (click)="openSearch()"
-              aria-label="Search answers"
+              [attr.aria-label]="'answers.searchAnswers' | translate"
             >
               <svg [lucideIcon]="searchIcon" aria-hidden="true"></svg>
             </button>
@@ -84,7 +84,7 @@
       @if (isMultipleSelection) {
         <footer class="answer-sheet__footer">
           <button type="submit" class="answer-sheet__confirm" [disabled]="!selectedAnswerIndexes().size">
-            Confirm
+            {{ 'common.confirm' | translate }}
           </button>
         </footer>
       }

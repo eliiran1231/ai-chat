@@ -4,16 +4,16 @@
       <button
         type="button"
         class="settings-icon-button"
-        aria-label="Close settings"
-        title="Back"
+        [attr.aria-label]="'settings.close' | translate"
+        [title]="'common.back' | translate"
         (click)="closeSettings()"
       >
-        <svg [lucideIcon]="backIcon" aria-hidden="true"></svg>
+        <svg [lucideIcon]="backIcon" class="directional-icon" aria-hidden="true"></svg>
       </button>
-      <h1>Settings</h1>
+      <h1>{{ 'settings.title' | translate }}</h1>
     </header>
 
-    <nav class="settings-nav" aria-label="Settings sections">
+    <nav class="settings-nav" [attr.aria-label]="'settings.sections' | translate">
       @for (category of categories(); track category.path) {
         <a
           class="settings-nav__item"
@@ -41,10 +41,10 @@
         <button
           type="button"
           class="settings-mobile-back"
-          aria-label="Back to settings list"
+          [attr.aria-label]="'settings.backToList' | translate"
           (click)="backToSettingsList()"
         >
-          <svg [lucideIcon]="backIcon" aria-hidden="true"></svg>
+          <svg [lucideIcon]="backIcon" class="directional-icon" aria-hidden="true"></svg>
         </button>
 
         <h2>{{ pageTitle() }}</h2>

@@ -11,11 +11,13 @@
           <label class="settings-switch">
             <input
               type="checkbox"
+              role="switch"
               [checked]="checked()"
               [disabled]="disabled()"
+              [attr.aria-label]="row().label"
               (change)="onToggleChange($event)"
             />
-            <span></span>
+            <span aria-hidden="true"></span>
           </label>
         }
         @case ('select') {
@@ -25,8 +27,8 @@
             [attr.aria-label]="row().label"
             (change)="onSelectChange($event)"
           >
-            @for (option of row().options; track option) {
-              <option [value]="option">{{ option }}</option>
+            @for (option of row().options; track option; let optionIndex = $index) {
+              <option [value]="option">{{ row().optionLabels?.[optionIndex] ?? option }}</option>
             }
           </select>
         }
@@ -43,7 +45,7 @@
                 [attr.aria-label]="row().label"
                 (input)="onRangeInput($event)"
               />
-              <button type="button" class="settings-action" (click)="rangeApply.emit()">Apply</button>
+              <button type="button" class="settings-action" (click)="rangeApply.emit()">{{ 'common.apply' | translate }}</button>
             </div>
           </div>
         }

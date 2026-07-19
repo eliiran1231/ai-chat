@@ -4,7 +4,7 @@
 
   <footer>
     <button type="button" class="confirmation-dialog__cancel" (click)="cancel()">
-      {{ data.cancelText ?? 'Cancel' }}
+      {{ data.cancelText ?? ('common.cancel' | translate) }}
     </button>
     <button
       type="button"
@@ -12,7 +12,7 @@
       [class.confirmation-dialog__confirm--danger]="data.danger"
       (click)="confirm()"
     >
-      {{ data.confirmText ?? 'Confirm' }}
+      {{ data.confirmText ?? ('common.confirm' | translate) }}
     </button>
   </footer>
 </section>

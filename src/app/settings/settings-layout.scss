@@ -21,7 +21,7 @@
 .settings-sidebar {
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--md-sys-color-outline-variant);
+  border-inline-end: 1px solid var(--md-sys-color-outline-variant);
   background: var(--md-sys-color-surface);
 }
 
@@ -70,6 +70,10 @@
 .settings-mobile-back svg {
   width: 1.15rem;
   height: 1.15rem;
+}
+
+:host-context(html[dir='rtl']) .directional-icon {
+  transform: scaleX(-1);
 }
 
 .settings-nav {

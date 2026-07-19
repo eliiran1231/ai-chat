@@ -99,6 +99,8 @@
   transform: none;
 }
 
+:host-context(html[dir='rtl']) .send-button svg { transform: scaleX(-1); }
+
 .chat-composer--compact {
   grid-template-columns: 1fr auto;
 }

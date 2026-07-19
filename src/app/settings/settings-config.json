@@ -31,6 +31,12 @@
       "icon": "palette"
     },
     {
+      "path": "languages",
+      "title": "Languages",
+      "description": "Choose the language used by the application.",
+      "icon": "languages"
+    },
+    {
       "path": "about",
       "title": "About",
       "description": "App information and version details.",
@@ -213,6 +219,11 @@
           }
         }
       ]
+    },
+    "languages": {
+      "title": "Languages",
+      "description": "Choose the language used by the application.",
+      "rows": []
     },
     "about": {
       "title": "About",

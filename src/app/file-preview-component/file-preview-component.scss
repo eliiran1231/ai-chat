@@ -19,7 +19,7 @@
 .close-button {
   position: fixed;
   top: 1rem;
-  right: 1rem;
+  inset-inline-end: 1rem;
   width: 4.5rem;
   height: 4.5rem;
   border: 0;
@@ -78,12 +78,12 @@
 
 .preview-card::before {
   content: '"';
-  left: 1.45rem;
+  inset-inline-start: 1.45rem;
 }
 
 .preview-card::after {
   content: '"';
-  right: 1.45rem;
+  inset-inline-end: 1.45rem;
 }
 
 .preview-card__frame {
@@ -105,8 +105,7 @@
 
 .preview-card__overlay {
   position: absolute;
-  left: 2.25rem;
-  right: 2.25rem;
+  inset-inline: 2.25rem;
   bottom: 2rem;
   padding: 1.25rem 1.4rem;
   border-radius: 1.5rem;
@@ -218,8 +217,7 @@
   }
 
   .preview-card__overlay {
-    left: 1.2rem;
-    right: 1.2rem;
+    inset-inline: 1.2rem;
     bottom: 1.2rem;
   }
 

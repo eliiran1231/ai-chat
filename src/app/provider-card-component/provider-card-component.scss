@@ -17,9 +17,9 @@
 .provider-card::after {
   content: '';
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   bottom: 0;
-  left: 5.4rem;
+  inset-inline-start: 5.4rem;
   height: 1px;
   background: color-mix(in srgb, var(--md-sys-color-outline-variant) 38%, var(--md-sys-color-surface));
 }

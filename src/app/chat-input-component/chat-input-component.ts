@@ -4,10 +4,11 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { LucideDynamicIcon, LucidePaperclip, LucideSendHorizontal } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
 import { ChatSettingsService } from '../../services/chat-settings.service';
+import { TranslatePipe } from '../shared/translate.pipe';
 
 @Component({
   selector: 'app-chat-input-component',
-  imports: [FormsModule, TextFieldModule, LucideDynamicIcon],
+  imports: [FormsModule, TextFieldModule, LucideDynamicIcon, TranslatePipe],
   templateUrl: './chat-input-component.html',
   styleUrl: './chat-input-component.scss',
 })
@@ -20,7 +21,7 @@ export class ChatInputComponent {
   theme = input<'light' | 'dark'>('light');
   chat = input<Chat | undefined>(undefined);
   requiredContent = input(true);
-  placeholder = input('Type a message');
+  placeholder = input('chat.messagePlaceholder');
   allowAttachments = input(true);
   messageSubmit = output<string>();
   fileSubmit = output<File>();

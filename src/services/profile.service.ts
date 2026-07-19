@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { BasicInfo } from '../interfaces/BasicInfo';
 import { ElectronService } from './electron.service';
+import { LanguageService } from './language.service';
 
 const PROFILE_PHOTO_STORAGE_KEY = 'ai-chat-profile-photo';
 const EMPTY_BASIC_INFO: BasicInfo = {
@@ -23,6 +24,7 @@ export interface ProfileRow {
 })
 export class ProfileService {
   private electronService: ElectronService = inject(ElectronService);
+  private languageService = inject(LanguageService);
 
   readonly basicInfo = signal<BasicInfo>({ ...EMPTY_BASIC_INFO });
   readonly profilePhotoUrl = signal<string | null>(this.loadStoredProfilePhoto());
@@ -33,17 +35,17 @@ export class ProfileService {
     return [
       {
         id: 'username',
-        label: 'user name',
+        label: this.languageService.translate('settings.profile.username'),
         value: basicInfo.username,
       },
       {
         id: 'computerName',
-        label: 'computer name',
+        label: this.languageService.translate('settings.profile.computerName'),
         value: basicInfo.computerName,
       },
       {
         id: 'ip',
-        label: 'ip address',
+        label: this.languageService.translate('settings.profile.ipAddress'),
         value: basicInfo.ip,
       },
     ];
@@ -51,7 +53,7 @@ export class ProfileService {
   readonly profileSettingsRows = computed<ProfileRow[]>(() => [
     {
       id: 'displayName',
-      label: 'Display name',
+      label: this.languageService.translate('settings.profile.displayName'),
       value: this.displayName(),
     },
     ...this.profileRows(),

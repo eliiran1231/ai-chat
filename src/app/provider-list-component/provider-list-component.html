@@ -1,27 +1,25 @@
-<section class="provider-list" aria-label="Chat providers">
+<section class="provider-list" [attr.aria-label]="'provider.chatProviders' | translate">
   <app-sidebar-search
     [searchTerm]="searchTerm()"
-    placeholder="Search providers"
-    ariaLabel="Search providers"
+    [placeholder]="'provider.searchProviders' | translate"
+    [ariaLabel]="'provider.searchProviders' | translate"
     (searchTermChange)="searchTerm.set($event)"
   />
 
   @if (providers.length === 0) {
-    <p class="provider-list__empty">No chat providers are registered yet.</p>
+    <p class="provider-list__empty">{{ 'provider.noneRegistered' | translate }}</p>
   } @else {
       @for (provider of filteredProviders(); track provider.metadata.id) {
         <app-provider-card
           [metadata]="provider.metadata"
-          [secondaryText]="provider.authentication.currentUser()?.email
-            ? 'Signed in as ' + provider.authentication.currentUser()?.email
-            : provider.metadata.description"
+          [secondaryText]="secondaryText(provider)"
           [buttonText]="actionText(provider)"
           [disabled]="isBusy(provider)"
           [error]="errorFor(provider)"
           (action)="handleAction(provider)"
         />
       } @empty {
-        <p class="provider-list__empty">No providers match your search</p>
+        <p class="provider-list__empty">{{ 'provider.noSearchResults' | translate }}</p>
       }
   }
 </section>

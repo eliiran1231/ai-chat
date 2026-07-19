@@ -139,7 +139,7 @@
 
 .settings-profile-edit {
   position: absolute;
-  right: 0.2rem;
+  inset-inline-end: 0.2rem;
   bottom: 0.2rem;
   width: 2.7rem;
   height: 2.7rem;
@@ -171,6 +171,14 @@
   opacity: 0;
   pointer-events: none;
 }
+
+.settings-language-option {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 4.5rem;
+  padding: 1rem; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 0.5rem;
+  background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface); cursor: pointer; font: inherit;
+}
+.settings-language-option--active, .settings-language-option:hover, .settings-language-option:focus-visible { border-color: var(--md-sys-color-primary); outline: none; }
+.settings-language-option span:last-child, .settings-language-status { color: var(--md-sys-color-primary); }
 
 @media (max-width: 780px) {
   .settings-page {

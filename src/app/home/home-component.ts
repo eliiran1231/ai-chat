@@ -31,6 +31,8 @@ import {
   ProviderSelectionDialogComponent,
   ProviderSelectionDialogData,
 } from '../provider-selection-dialog-component/provider-selection-dialog-component';
+import { TranslatePipe } from '../shared/translate.pipe';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-home',
@@ -42,6 +44,7 @@ import {
     ProviderListComponent,
     CommonModule,
     DialogModule,
+    TranslatePipe,
   ],
   templateUrl: './home-component.html',
   styleUrl: './home-component.scss',
@@ -54,6 +57,7 @@ export class HomeComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private dialog = inject(Dialog);
+  private languageService = inject(LanguageService);
   private routeId = toSignal(this.route.paramMap.pipe(map((params) => params.get('id'))));
   chatService = inject(ChatService);
   searchTerm = signal('');
@@ -129,7 +133,7 @@ export class HomeComponent implements OnInit {
           width: '90vw',
           animation: this.providers.length == 1 ? 'none' : 'pop',
         },
-        ariaLabel: 'Choose a chat provider',
+        ariaLabel: this.languageService.translate('provider.chooseProvider'),
         backdropClass: 'popup-dialog-backdrop',
         disableClose: true,
       },

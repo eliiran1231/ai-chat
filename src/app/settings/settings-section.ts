@@ -21,10 +21,12 @@ import {
 import { NotificationSettingsService } from '../../services/notification-settings.service';
 import { ProfileService } from '../../services/profile.service';
 import { SettingsService } from '../../services/settings.service';
+import { LanguageService } from '../../services/language.service';
+import { TranslatePipe } from '../shared/translate.pipe';
 
 @Component({
   selector: 'app-settings-section',
-  imports: [ProfileAvatarComponent, SettingsRowComponent, LucideDynamicIcon],
+  imports: [ProfileAvatarComponent, SettingsRowComponent, LucideDynamicIcon, TranslatePipe],
   templateUrl: './settings-section.html',
   styleUrl: './settings-page.scss',
 })
@@ -38,6 +40,7 @@ export class SettingsSectionComponent {
   private notificationSettingsService = inject(NotificationSettingsService);
   private profileService = inject(ProfileService);
   private settingsService = inject(SettingsService);
+  readonly languageService = inject(LanguageService);
 
   readonly editIcon = LucidePenLine;
   readonly chatSettings = this.chatSettingsService.settings;
@@ -61,8 +64,8 @@ export class SettingsSectionComponent {
   rowDescription(row: SettingsRow): string {
     if (this.sectionKey() === 'chats' && row.chatSettingKey === 'enterSendsMessage') {
       return this.chatSettings().enterSendsMessage
-        ? 'Use Shift + Enter for a new line'
-        : 'Use Ctrl + Enter to send';
+        ? this.languageService.translate('settings.chats.enterSendsMessage.shiftDescription')
+        : this.languageService.translate('settings.chats.enterSendsMessage.ctrlDescription');
     }
 
     return row.description;
@@ -193,6 +196,10 @@ export class SettingsSectionComponent {
 
     void this.profileService.setProfilePhoto(file);
     input.value = '';
+  }
+
+  selectLanguage(code: string): void {
+    void this.languageService.selectLanguage(code);
   }
 
   private updateDisplaySetting(key: Exclude<DisplaySettingKey, 'fontSize'>, value: string): void {

@@ -1,8 +1,8 @@
 <div class="chat-list-shell">
   <app-sidebar-search
     [searchTerm]="searchTerm()"
-    placeholder="Search or start a new chat"
-    ariaLabel="Search chats"
+    [placeholder]="'chat.search' | translate"
+    [ariaLabel]="'chat.searchChats' | translate"
     (searchTermChange)="onSearchTermChange($event)"
   />
 
@@ -34,7 +34,7 @@
         <div class="chat-list-item__bottom">
           <p>
             @if (chat.draftMessage().trim()) {
-            <span class="chat-list-item__draft-label">Draft:</span>
+            <span class="chat-list-item__draft-label">{{ 'chat.draft' | translate }}</span>
             <span> {{ chat.draftMessage().trim() }}</span>
             }
             @else {
@@ -49,11 +49,11 @@
     </button>
     } @empty {
     <div class="chat-list-empty">
-      <p>No chats match your search</p>
+      <p>{{ 'chat.noSearchResults' | translate }}</p>
     </div>
     }
   </div>
 </div>
-<button type="button" class="floating-compose" aria-label="New chat" (click)="onCreateChat()">
+<button type="button" class="floating-compose" [attr.aria-label]="'chat.new' | translate" (click)="onCreateChat()">
   <svg [lucideIcon]="composeIcon" aria-hidden="true"></svg>
 </button>

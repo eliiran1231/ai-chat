@@ -27,7 +27,7 @@ app-chat-list-component {
   display: flex;
   flex-direction: column;
   background: var(--md-sys-color-surface);
-  border-right: 1px solid var(--md-sys-color-outline-variant);
+  border-inline-end: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .mobile-appbar {
@@ -134,8 +134,7 @@ app-chat-list-component {
 .top-tab--active::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
+  inset-inline: 0;
   bottom: 0;
   height: 0.22rem;
   background: var(--md-sys-color-surface);
@@ -170,7 +169,7 @@ app-chat-list-component {
 }
 
 .footer-lock {
-  margin-right: 0.35rem;
+  margin-inline-end: 0.35rem;
   text-transform: lowercase;
 }
 

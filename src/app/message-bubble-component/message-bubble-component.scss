@@ -19,8 +19,7 @@
 .message-row {
   display: flex;
   scroll-margin-block: 5.5rem;
-  padding-left: .75rem;
-  padding-right: .75rem;
+  padding-inline: .75rem;
   padding-top: calc(0.225rem * var(--app-density));
   padding-bottom: calc(0.225rem * var(--app-density));
 }
@@ -32,6 +31,13 @@
 .message-row--user {
   justify-content: flex-end;
 }
+
+:host-context(html[dir='rtl']) .message-row--supporter { justify-content: flex-end; }
+:host-context(html[dir='rtl']) .message-row--user { justify-content: flex-start; }
+:host-context(html[dir='rtl']) .message-bubble--supporter { border-top-left-radius: var(--message-bubble-radius); border-top-right-radius: min(0.2rem, var(--message-bubble-radius)); }
+:host-context(html[dir='rtl']) .message-bubble--user { border-top-right-radius: var(--message-bubble-radius); border-top-left-radius: min(0.2rem, var(--message-bubble-radius)); }
+:host-context(html[dir='rtl']) .message-bubble--supporter.message-bubble--with-tail::after { right: -0.42rem; left: auto; }
+:host-context(html[dir='rtl']) .message-bubble--user.message-bubble--with-tail::after { right: auto; left: -0.42rem; }
 
 .message-row--search-active {
   position: relative;
@@ -62,7 +68,7 @@
 .message-options-button {
   position: absolute;
   top: .18rem;
-  right: .18rem;
+  inset-inline-end: .18rem;
   z-index: 3;
   display: grid;
   place-items: center;
@@ -132,8 +138,7 @@
 .message-metadata-container,
 .message-text,
 .message-markdown {
-  margin-left: 0.3rem;
-  margin-right: 0.3rem;
+  margin-inline: 0.3rem;
 }
 
 .message-markdown {

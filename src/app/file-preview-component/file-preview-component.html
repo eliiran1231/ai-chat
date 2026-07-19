@@ -2,7 +2,7 @@
   <button
     type="button"
     class="close-button"
-    aria-label="Close file preview"
+    [attr.aria-label]="'file.closePreview' | translate"
     (click)="closePreview()"
   >
     x
@@ -17,14 +17,14 @@
         @if (fileInfo(); as info) {
         <div class="file-details">
           <h3 class="file-name">{{ info.name }}</h3>
-          <p class="file-size">size: {{ info.size | filesize }}</p>
-          <p class="file-extension">type: {{ info.extension }}</p>
+          <p class="file-size">{{ 'file.size' | translate }}: {{ info.size | filesize }}</p>
+          <p class="file-extension">{{ 'file.type' | translate }}: {{ info.extension }}</p>
         </div>
         }
       }
     }
     @else {
-      <div id="loading-preview">loading...</div>
+      <div id="loading-preview">{{ 'common.loading' | translate }}</div>
     }
   </div>
 

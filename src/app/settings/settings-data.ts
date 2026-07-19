@@ -47,6 +47,7 @@ export interface SettingsRow {
   value?: string;
   checked?: boolean;
   options?: string[];
+  optionLabels?: string[];
   danger?: boolean;
   profileField?: keyof BasicInfo;
   settingKey?: GeneralSettingKey;

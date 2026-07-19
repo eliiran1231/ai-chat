@@ -5,6 +5,7 @@ import { Chat } from '../classes/Chat';
 import { Message } from '../classes/Message';
 import { NotificationSettingsService, NotificationSound } from './notification-settings.service';
 import { ElectronService } from './electron.service';
+import { LanguageService } from './language.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,7 @@ import { ElectronService } from './electron.service';
 export class AppNotificationService {
   private notificationSettingsService = inject(NotificationSettingsService);
   private electronService = inject(ElectronService);
+  private languageService = inject(LanguageService);
   private audioContext?: AudioContext;
 
   async notifySupporterMessage(chat: Chat, message: Message): Promise<void> {
@@ -40,8 +42,10 @@ export class AppNotificationService {
       return;
     }
 
-    new Notification(chat.name() || 'New message', {
-      body: settings.showPreview ? this.notificationBody(message) : 'New message',
+    new Notification(chat.name() || this.languageService.translate('notification.newMessage'), {
+      body: settings.showPreview
+        ? this.notificationBody(message)
+        : this.languageService.translate('notification.newMessage'),
       tag: chat.id(),
       silent: true,
     });
@@ -49,9 +53,9 @@ export class AppNotificationService {
 
   private notificationBody(message: Message): string {
     return (
-      DOMPurify.sanitize(message.value() || message.attachment()?.name || 'New message', {
+      DOMPurify.sanitize(message.value() || message.attachment()?.name || this.languageService.translate('notification.newMessage'), {
         ALLOWED_TAGS: [],
-      }) || 'New message'
+      }) || this.languageService.translate('notification.newMessage')
     );
   }
 

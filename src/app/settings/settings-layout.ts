@@ -13,10 +13,11 @@ import { filter, map, startWith } from 'rxjs';
 import { LucideChevronLeft, LucideDynamicIcon } from '@lucide/angular';
 
 import { SettingsService } from '../../services/settings.service';
+import { TranslatePipe } from '../shared/translate.pipe';
 
 @Component({
   selector: 'app-settings-layout',
-  imports: [RouterLink, RouterLinkActive, RouterOutlet, LucideDynamicIcon],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet, LucideDynamicIcon, TranslatePipe],
   templateUrl: './settings-layout.html',
   styleUrl: './settings-layout.scss',
 })

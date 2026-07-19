@@ -1,9 +1,11 @@
 import { Component, input, output } from '@angular/core';
 
 import { SettingsRow } from './settings-data';
+import { TranslatePipe } from '../shared/translate.pipe';
 
 @Component({
   selector: 'app-settings-row',
+  imports: [TranslatePipe],
   templateUrl: './settings-row.html',
   styleUrl: './settings-row.scss',
 })

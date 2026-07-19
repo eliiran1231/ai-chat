@@ -85,7 +85,7 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  padding-right: 0.15rem;
+  padding-inline-end: 0.15rem;
 }
 
 .search-nav-button,
@@ -173,6 +173,10 @@
   width: 1rem;
   height: 1rem;
   stroke-width: 2.2;
+}
+
+:host-context(html[dir='rtl']) .directional-icon {
+  transform: scaleX(-1);
 }
 
 .back-button:hover,

@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, effect, input, output, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { AppMenu, AppMenuItem } from "../shared/app-menu/app-menu";
@@ -16,14 +16,17 @@ import {
 } from '@lucide/angular';
 import { MessageStatus } from '../../enums/MessagesStatus';
 import { ChatAvatarComponent } from '../shared/chat-avatar/chat-avatar';
+import { TranslatePipe } from '../shared/translate.pipe';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-chat-navbar-component',
-  imports: [AppMenu, ChatAvatarComponent, LucideDynamicIcon],
+  imports: [AppMenu, ChatAvatarComponent, LucideDynamicIcon, TranslatePipe],
   templateUrl: './chat-navbar-component.html',
   styleUrl: './chat-navbar-component.scss',
 })
 export class ChatNavbarComponent {
+  private languageService = inject(LanguageService);
   chat = input.required<Chat>();
   showBackButton = input(false);
   resultCount = input(0);
@@ -58,14 +61,14 @@ export class ChatNavbarComponent {
   readonly deleteIcon = LucideTrash2;
   readonly retryIcon = LucideRotateCcw;
   readonly messageStatus = MessageStatus;
-  readonly menuItems: AppMenuItem[] = [
+  readonly menuItems = computed<AppMenuItem[]>(() => [
     {
       id: 'delete-chat',
-      label: 'Delete chat',
+      label: this.languageService.translate('chat.deleteChat'),
       icon: this.deleteIcon,
       tone: 'danger',
     },
-  ];
+  ]);
 
   searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
 

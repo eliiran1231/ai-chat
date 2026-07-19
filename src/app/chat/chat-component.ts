@@ -17,6 +17,7 @@ import {
   shouldShowDateSeparator,
   shouldShowMessageTail,
 } from '../../utils/chat-message-date-separator';
+import { TranslatePipe } from '../shared/translate.pipe';
 
 @Component({
   selector: 'app-chat',
@@ -29,7 +30,8 @@ import {
     NgScrollReachDrop,
     DatePipe,
     ChatMessageDatePipe,
-    LucideDynamicIcon
+    LucideDynamicIcon,
+    TranslatePipe
   ],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
