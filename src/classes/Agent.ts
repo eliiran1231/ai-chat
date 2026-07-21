@@ -50,7 +50,7 @@ export class Agent {
         this.onMessageEditedHandler = chat.onMessageEdited.subscribe(this.onMessageEdited.bind(this));
     }
 
-    respond(edited = false) : void | Promise<void> {
+    respond() : void | Promise<void> {
         this.lastMessage = this.chat.messages().at(-1);
         if (!this.lastMessage) {
             throw new Error("respond was called but there is nothing to respond to");
@@ -96,13 +96,7 @@ export class Agent {
     }
 
     async onMessageEdited(message: Message) {
-        for (let i = this.chat.messages().length - 1; i >= 0; i--) {
-            const msg = this.chat.messages()[i];
-            if (msg.id() === message.id()) break;
-            await msg.delete();
-        }
-        this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
-        this.respond(true);
+
     }
 
     onMessageDeleted(message: Message) {
