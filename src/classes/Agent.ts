@@ -96,7 +96,7 @@ export class Agent {
     }
 
     async onMessageEdited(message: Message) {
-
+        //override to handle message edits
     }
 
     onMessageDeleted(message: Message) {
