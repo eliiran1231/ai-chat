@@ -1,25 +1,32 @@
 import { Component, inject } from '@angular/core';
 import { LucideDynamicIcon, LucideGlobe, LucideMonitor, LucideUserRound } from '@lucide/angular';
-import { ProfileService } from '../../services/profile.service';
+import { ProfileRowId, ProfileService } from '../../services/profile.service';
+import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
+
 @Component({
   selector: 'app-profile-component',
-  imports: [LucideDynamicIcon],
+  imports: [LucideDynamicIcon, ProfileAvatarComponent],
   templateUrl: './profile-component.html',
   styleUrl: './profile-component.scss',
 })
 export class ProfileComponent {
   private profileService: ProfileService = inject(ProfileService);
-  private readonly basicInfo = this.profileService.basicInfo;
-  readonly usernameIcon = LucideUserRound;
-  readonly computerNameIcon = LucideMonitor;
-  readonly ipIcon = LucideGlobe;
-  readonly profile = {
-    displayName: this.basicInfo.displayName,
-    usernameLabel: 'user name',
-    usernameValue: this.basicInfo.username,
-    computerNameLabel: 'computer name',
-    computerNameValue: this.basicInfo.computerName,
-    ipLabel: 'ip address',
-    ipValue: this.basicInfo.ip
+  readonly displayName = this.profileService.displayName;
+  readonly profileRows = this.profileService.profileRows;
+  readonly rowIcons = {
+    computerName: LucideMonitor,
+    displayName: LucideUserRound,
+    ip: LucideGlobe,
+    username: LucideUserRound,
   };
+
+  constructor() {
+    void this.profileService.loadBasicInfo();
+  }
+
+  iconClass(rowId: ProfileRowId): string {
+    return rowId === 'computerName'
+      ? 'profile-card__icon profile-card__icon--info'
+      : 'profile-card__icon';
+  }
 }

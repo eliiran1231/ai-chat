@@ -4,7 +4,7 @@
       <div class="brand-row">
         <div class="brand-title">
           @if (whatsappLogoUrl()) {
-            <img class="brand-title__logo" [src]="whatsappLogoUrl()" alt="WhatsApp logo" />
+            <img class="brand-title__logo" [src]="whatsappLogoUrl()" [alt]="'home.logoAlt' | translate" />
           }
           <h1>WhatsApp</h1>
         </div>
@@ -14,17 +14,18 @@
           [enterFullscreenIcon]="enterFullscreenIcon"
           [exitFullscreenIcon]="exitFullscreenIcon"
           (fullscreenToggled)="toggleFullscreen()"
+          (settingsOpened)="openSettings()"
         ></app-sidebar-menu>
       </div>
 
-      <nav class="top-tabs" aria-label="Primary sections">
+      <nav class="top-tabs" [attr.aria-label]="'home.primarySections' | translate">
         <button
           type="button"
           class="top-tab"
           [class.top-tab--active]="selectedTab() === 'profile'"
           (click)="selectedTab.set('profile')"
         >
-          profile
+          {{ 'nav.profile' | translate }}
         </button>
         <button
           type="button"
@@ -32,7 +33,7 @@
           [class.top-tab--active]="selectedTab() === 'chats'"
           (click)="selectedTab.set('chats')"
         >
-          Chats
+          {{ 'nav.chats' | translate }}
           @if (unreadChatsCount() > 0) {
             <span class="top-tab__badge">{{ unreadChatsCount() }}</span>
           }
@@ -43,12 +44,12 @@
           [class.top-tab--active]="selectedTab() === 'providers'"
           (click)="selectedTab.set('providers')"
         >
-          providers
+          {{ 'nav.providers' | translate }}
         </button>
       </nav>
     </header>
 
-    @if(selectedTab() === 'chats') {
+    @if (selectedTab() === 'chats') {
       <app-chat-list-component
         [chats]="chats()"
         [searchTerm]="searchTerm()"
@@ -57,8 +58,7 @@
         (openChat)="openChat($event)"
         (createChat)="createChat()"
       ></app-chat-list-component>
-    }
-    @else if (selectedTab() === 'profile') {
+    } @else if (selectedTab() === 'profile') {
       <app-profile-component></app-profile-component>
     }
     @else if (selectedTab() === 'providers') {
@@ -67,20 +67,19 @@
   </aside>
 
   <section class="chat-stage">
-    @if(chatService.selectedChat(); as chat){
+    @if (chatService.selectedChat(); as chat) {
       <app-chat
-       [chat]="chat" 
-       [showBackButton]="isMobileView()" 
-       (back)="closeChat()" 
-       (deleteChat)="deleteChat($event)" 
+        [chat]="chat"
+        [showBackButton]="isMobileView()"
+        (back)="closeChat()"
+        (deleteChat)="deleteChat($event)"
       />
-    }
-    @else {
+    } @else {
       <section class="chat-placeholder">
         <div class="chat-placeholder__card">
           <div class="chat-placeholder__icon">WA</div>
-          <h2>Select a chat</h2>
-          <p>Pick an existing conversation or create a new one from the sidebar.</p>
+          <h2>{{ 'home.selectChat' | translate }}</h2>
+          <p>{{ 'home.selectChatDescription' | translate }}</p>
         </div>
       </section>
     }

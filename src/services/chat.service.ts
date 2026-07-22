@@ -7,6 +7,9 @@ import { Agent } from '../classes/Agent';
 import { AiAgent } from '../agents/AiAgent/AiAgent';
 import { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { Uuid } from '../interfaces/db/Uuid';
+import { AppNotificationService } from './app-notification.service';
+import { Subscription } from 'rxjs';
+import { LanguageService } from './language.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +22,9 @@ export class ChatService {
   private defaultProvider = inject(SqliteProvider);
   private isCreatingChat = signal(false); 
   private pendingCreateChat = signal<Promise<Chat> | null>(null);
+  private notificationSubscriptions = new Map<string, Subscription>();
+  private notificationService = inject(AppNotificationService);
+  private languageService = inject(LanguageService);
   selectedChat = computed(() => this.getChatById(this.selectedChatId()));
   injector = inject(Injector);
 
@@ -50,7 +56,7 @@ export class ChatService {
       .filter(fulfilledFilter)
       .flatMap(r => r.value)
     this.chats.set(chats);
-    chats.forEach(chat=> this._chatMap.set(chat.id(), chat));
+    chats.forEach(chat => this.addChatToMap(chat));
     this.loaded = true;
   }
 
@@ -58,7 +64,7 @@ export class ChatService {
     const chats = await provider.getChats();
     this.clearChats(provider.metadata.id);
     this.chats.update(current => [...current, ...chats]);
-    chats.forEach(chat => this._chatMap.set(chat.id(), chat));
+    chats.forEach(chat => this.addChatToMap(chat));
   }
 
   getChatById(id: string | null | undefined): Chat | undefined {
@@ -68,12 +74,42 @@ export class ChatService {
 
   addChat(chat: Chat): void {
     this.chats.update(prev => [...prev, chat]);
+    this.addChatToMap(chat);
+  }
+
+  private addChatToMap(chat: Chat): void {
     this._chatMap.set(chat.id(), chat);
+    this.watchChatNotifications(chat);
   }
 
   removeChat(chatId: Uuid): void {
     this.chats.update(prev => prev.filter(c => c.id() !== chatId));
     this._chatMap.delete(chatId)
+    this.stopWatchingChatNotifications(chatId);
+  }
+
+  private watchChatNotifications(chat: Chat): void {
+    this.stopWatchingChatNotifications(chat.id());
+    const subscription = chat.supporter.onMessageAdded.subscribe((message) => {
+      void this.notificationService.notifySupporterMessage(chat, message);
+    });
+    this.notificationSubscriptions.set(chat.id(), subscription);
+  }
+
+  private stopWatchingChatNotifications(chatId: string): void {
+    this.notificationSubscriptions.get(chatId)?.unsubscribe();
+    this.notificationSubscriptions.delete(chatId);
+  }
+
+  async deleteAllChats(): Promise<void> {
+    const chats = [...this.chats()];
+    const selectedChatId = this.selectedChatId();
+
+    await Promise.all(chats.map((chat) => chat.delete()));
+
+    if (selectedChatId && !this._chatMap.has(selectedChatId)) {
+      this.setSelectedChatId(undefined);
+    }
   }
 
   clearChats(providerId?: string): void {
@@ -85,12 +121,17 @@ export class ChatService {
       );
       if (providerChatIds.has(this.selectedChatId() ?? '')) this.setSelectedChatId(null);
       this.chats.update(chats => chats.filter(chat => !providerChatIds.has(chat.id())));
-      providerChatIds.forEach(chatId => this._chatMap.delete(chatId));
+      providerChatIds.forEach(chatId => {
+        this._chatMap.delete(chatId);
+        this.stopWatchingChatNotifications(chatId);
+      });
       return;
     }
 
     this.chats.set([]);
     this._chatMap.clear();
+    this.notificationSubscriptions.forEach((subscription) => subscription.unsubscribe());
+    this.notificationSubscriptions.clear();
     this.setSelectedChatId(null);
     this.loaded = false;
   }
@@ -107,11 +148,11 @@ export class ChatService {
     const chatNumber = this.chats().length + 1;
     const pending = (async () => {
       const chat = await provider.createChat(
-        `New chat ${chatNumber}`,
+        this.languageService.translate('chat.defaultName', { number: chatNumber }),
         initialAgent,
         {
-          subtitle: 'Tap to start chatting',
-          timeLabel: 'now',
+          subtitle: this.languageService.translate('chat.tapToStart'),
+          timeLabel: this.languageService.translate('time.now'),
         }
       );
       this.addChat(chat);

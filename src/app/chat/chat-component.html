@@ -66,7 +66,7 @@
         ></app-message-bubble>
       } @empty {
         <div class="empty-state">
-          <p>No messages yet</p>
+          <p>{{ 'chat.empty' | translate }}</p>
         </div>
       }
     </ng-scrollbar>
@@ -75,7 +75,7 @@
       <button
         type="button"
         class="scroll-bottom-button"
-        aria-label="Scroll to bottom"
+        [attr.aria-label]="'chat.scrollBottom' | translate"
         (click)="scrollToBottom()"
       >
         <svg [lucideIcon]="scrollDownIcon" aria-hidden="true"></svg>
@@ -86,7 +86,7 @@
       theme="light"
       [chat]="chat()"
       [(caption)]="chat().draftMessage"
-      [placeholder]="editingMessage() ? 'Edit message' : 'Type a message'"
+      [placeholder]="editingMessage() ? 'chat.editPlaceholder' : 'chat.messagePlaceholder'"
       [allowAttachments]="!editingMessage()"
       (messageSubmit)="sendMessage($event)"
       (fileSubmit)="openPreviewPage($event)"

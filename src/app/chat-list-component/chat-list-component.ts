@@ -1,16 +1,20 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { LucideDynamicIcon, LucideSquarePen } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
+import { ChatAvatarComponent } from '../shared/chat-avatar/chat-avatar';
 import { SidebarSearchComponent } from '../shared/sidebar-search/sidebar-search-component';
+import { TranslatePipe } from '../shared/translate.pipe';
+import { LanguageService } from '../../services/language.service';
 @Component({
   selector: 'app-chat-list-component',
-  imports: [LucideDynamicIcon, DatePipe, SidebarSearchComponent],
+  imports: [LucideDynamicIcon, DatePipe, ChatAvatarComponent, SidebarSearchComponent, TranslatePipe],
   templateUrl: './chat-list-component.html',
   styleUrl: './chat-list-component.scss',
 })
 export class ChatListComponent {
+  private readonly languageService = inject(LanguageService);
   readonly composeIcon = LucideSquarePen;
   chats = input<Chat[]>([]);
   searchTerm = input<string>('');
@@ -42,7 +46,7 @@ export class ChatListComponent {
   lastMessageText(chat: Chat): string {
     const lastMessage = chat.messages().at(-1);
     if (!lastMessage) {
-      return chat.subtitle() || 'start the conversation';
+      return this.languageService.translate(chat.subtitle() || 'chat.startConversation');
     }
 
     return DOMPurify.sanitize(lastMessage.value() || lastMessage.attachment()?.name || '', {

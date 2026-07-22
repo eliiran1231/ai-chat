@@ -1,16 +1,19 @@
 import { CdkTextareaAutosize, TextFieldModule } from '@angular/cdk/text-field';
-import { Component, input, model, output, signal } from '@angular/core';
+import { Component, inject, input, model, output, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { LucideDynamicIcon, LucidePaperclip, LucideSendHorizontal } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
+import { ChatSettingsService } from '../../services/chat-settings.service';
+import { TranslatePipe } from '../shared/translate.pipe';
 
 @Component({
   selector: 'app-chat-input-component',
-  imports: [FormsModule, TextFieldModule, LucideDynamicIcon],
+  imports: [FormsModule, TextFieldModule, LucideDynamicIcon, TranslatePipe],
   templateUrl: './chat-input-component.html',
   styleUrl: './chat-input-component.scss',
 })
 export class ChatInputComponent {
+  private chatSettingsService = inject(ChatSettingsService);
   readonly composerMaxRows = 5;
   readonly attachIcon = LucidePaperclip;
   readonly sendIcon = LucideSendHorizontal;
@@ -18,7 +21,7 @@ export class ChatInputComponent {
   theme = input<'light' | 'dark'>('light');
   chat = input<Chat | undefined>(undefined);
   requiredContent = input(true);
-  placeholder = input('Type a message');
+  placeholder = input('chat.messagePlaceholder');
   allowAttachments = input(true);
   messageSubmit = output<string>();
   fileSubmit = output<File>();
@@ -48,7 +51,16 @@ export class ChatInputComponent {
 
 
   handleComposerKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
+    if (event.key !== 'Enter' || event.isComposing) {
+      return;
+    }
+
+    const enterSendsMessage = this.chatSettingsService.settings().enterSendsMessage;
+    const shouldSend =
+      (enterSendsMessage && !event.shiftKey) ||
+      (!enterSendsMessage && event.ctrlKey);
+
+    if (shouldSend) {
       event.preventDefault();
       (event.target as HTMLTextAreaElement).form?.requestSubmit();
     }

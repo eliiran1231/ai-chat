@@ -1,5 +1,5 @@
 <div class="app-menu">
-  <button type="button" class="app-menu__trigger" aria-label="Menu" [cdkMenuTriggerFor]="menu">
+  <button type="button" class="app-menu__trigger" [attr.aria-label]="'app.menu' | translate" [cdkMenuTriggerFor]="menu">
     <svg [lucideIcon]="menuIcon()" class="app-menu__trigger-icon"></svg>
   </button>
 

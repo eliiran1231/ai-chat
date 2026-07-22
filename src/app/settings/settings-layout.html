@@ -1,0 +1,56 @@
+<section class="settings-layout" [class.settings-layout--section-open]="sectionOpen()">
+  <aside class="settings-sidebar">
+    <header class="settings-sidebar__header">
+      <button
+        type="button"
+        class="settings-icon-button"
+        [attr.aria-label]="'settings.close' | translate"
+        [title]="'common.back' | translate"
+        (click)="closeSettings()"
+      >
+        <svg [lucideIcon]="backIcon" class="directional-icon" aria-hidden="true"></svg>
+      </button>
+      <h1>{{ 'settings.title' | translate }}</h1>
+    </header>
+
+    <nav class="settings-nav" [attr.aria-label]="'settings.sections' | translate">
+      @for (category of categories(); track category.path) {
+        <a
+          class="settings-nav__item"
+          [routerLink]="['/settings', category.path]"
+          [replaceUrl]="true"
+          routerLinkActive="settings-nav__item--active"
+        >
+          <svg
+            [lucideIcon]="category.icon"
+            class="settings-nav__item-icon"
+            aria-hidden="true"
+          ></svg>
+          <span>
+            <strong>{{ category.title }}</strong>
+            <small>{{ category.description }}</small>
+          </span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="settings-stage">
+    @if (sectionOpen()) {
+      <header class="settings-stage__header">
+        <button
+          type="button"
+          class="settings-mobile-back"
+          [attr.aria-label]="'settings.backToList' | translate"
+          (click)="backToSettingsList()"
+        >
+          <svg [lucideIcon]="backIcon" class="directional-icon" aria-hidden="true"></svg>
+        </button>
+
+        <h2>{{ pageTitle() }}</h2>
+      </header>
+    }
+
+    <router-outlet></router-outlet>
+  </main>
+</section>

@@ -14,6 +14,7 @@ import {
   LucideX,
 } from '@lucide/angular';
 import { Answer } from '../../classes/Answer';
+import { TranslatePipe } from '../shared/translate.pipe';
 
 const MIN_NUMBER_TO_SHOW_SEARCH = 15;
 
@@ -30,7 +31,7 @@ export type SheetAnswerInputs = {
 
 @Component({
   selector: 'app-answer-sheet',
-  imports: [FormsModule, LucideDynamicIcon],
+  imports: [FormsModule, LucideDynamicIcon, TranslatePipe],
   templateUrl: './answer-sheet-component.html',
   styleUrl: './answer-sheet-component.scss',
   encapsulation: ViewEncapsulation.None,

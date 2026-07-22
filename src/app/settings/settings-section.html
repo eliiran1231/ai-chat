@@ -1,0 +1,59 @@
+<section class="settings-page">
+  <header class="settings-page__header">
+    <span>{{ section().description }}</span>
+  </header>
+
+  @if (isProfileSection()) {
+    <div class="settings-profile-hero">
+      <app-profile-avatar></app-profile-avatar>
+      <button
+        type="button"
+        class="settings-profile-edit"
+        [attr.aria-label]="'settings.profile.editPhoto' | translate"
+        (click)="profilePhotoInput.click()"
+      >
+        <svg [lucideIcon]="editIcon" aria-hidden="true"></svg>
+      </button>
+      <input
+        #profilePhotoInput
+        class="settings-profile-file"
+        type="file"
+        accept="image/*"
+        (change)="onProfilePhotoSelected($event)"
+      />
+    </div>
+  }
+
+  @if (sectionKey() === 'languages') {
+    <div class="settings-list">
+      @if (languageService.isLoading()) {
+        <p class="settings-language-status">{{ 'settings.loadingLanguages' | translate }}</p>
+      } @else {
+        @for (language of languageService.availableLanguages(); track language.code) {
+          <button type="button" class="settings-language-option" [class.settings-language-option--active]="language.code === languageService.activeLanguageCode()" (click)="selectLanguage(language.code)">
+            <span [dir]="language.direction">{{ language.name }}</span>
+            @if (language.code === languageService.activeLanguageCode()) { <span>{{ 'settings.currentLanguage' | translate }}</span> }
+          </button>
+        }
+      }
+    </div>
+  } @else {
+  <div class="settings-list">
+    @for (row of section().rows; track row.label) {
+      <app-settings-row
+        [row]="row"
+        [description]="rowDescription(row)"
+        [checked]="isToggleChecked(row)"
+        [disabled]="isControlDisabled(row)"
+        [rangeValue]="rangeValue(row)"
+        [selectValue]="selectValue(row)"
+        (action)="onButtonClick(row)"
+        (rangeApply)="applyRange(row)"
+        (rangeInput)="onRangeInput(row, $event)"
+        (selectChange)="onSelectChange(row, $event)"
+        (toggleChange)="onToggleChange(row, $event)"
+      ></app-settings-row>
+    }
+  </div>
+  }
+</section>

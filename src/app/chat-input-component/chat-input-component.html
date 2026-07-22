@@ -7,10 +7,10 @@
   (ngSubmit)="submitMessage(chatForm); syncComposerOverflow(autosize, messageInput)"
 >
   @if (allowAttachments()) {
-    <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" aria-label="Attach file">
+    <button (click)="pickFile()" type="button" class="composer-action composer-action--icon" [attr.aria-label]="'chat.attach' | translate">
       <svg [lucideIcon]="attachIcon" aria-hidden="true"></svg>
     </button>
-    <button type="button" class="composer-action" aria-label="Emoji">:)</button>
+    <button type="button" class="composer-action" [attr.aria-label]="'chat.emoji' | translate">:)</button>
   }
 
   <label class="composer-field" for="message-input">
@@ -29,7 +29,7 @@
       (ngModelChange)="caption.set($event)"
       (input)="syncComposerOverflow(autosize, messageInput)"
       (keydown)="handleComposerKeydown($event)"
-      [placeholder]="placeholder()"
+      [placeholder]="placeholder() | translate"
       autocomplete="off"
     ></textarea>
   </label>
@@ -37,7 +37,7 @@
   <button
     type="submit"
     class="send-button"
-    aria-label="Send message"
+    [attr.aria-label]="'chat.send' | translate"
     [disabled]="requiredContent() && !caption().trim()"
   >
     <svg [lucideIcon]="sendIcon" aria-hidden="true"></svg>

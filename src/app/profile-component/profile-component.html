@@ -1,41 +1,20 @@
 <section class="profile-page">
   <div class="profile-hero">
-    <div class="profile-avatar" aria-hidden="true">
-      <div class="profile-avatar__head"></div>
-      <div class="profile-avatar__body"></div>
-    </div>
-    <h1>{{ profile.displayName }}</h1>
+    <app-profile-avatar></app-profile-avatar>
+    <h1>{{ displayName() }}</h1>
   </div>
 
   <div class="profile-sections">
-    <article class="profile-card">
-      <div class="profile-card__icon profile-card__icon--person" aria-hidden="true">
-        <svg [lucideIcon]="usernameIcon"></svg>
-      </div>
-      <div class="profile-card__content">
-        <h2>{{ profile.usernameLabel }}</h2>
-        <p>{{ profile.usernameValue }}</p>
-      </div>
-    </article>
-
-    <article class="profile-card">
-      <div class="profile-card__icon profile-card__icon--info" aria-hidden="true">
-        <svg [lucideIcon]="computerNameIcon"></svg>
-      </div>
-      <div class="profile-card__content">
-        <h2>{{ profile.computerNameLabel }}</h2>
-        <p>{{ profile.computerNameValue }}</p>
-      </div>
-    </article>
-
-    <article class="profile-card">
-      <div class="profile-card__icon profile-card__icon--phone" aria-hidden="true">
-        <svg [lucideIcon]="ipIcon"></svg>
-      </div>
-      <div class="profile-card__content">
-        <h2>{{ profile.ipLabel }}</h2>
-        <p>{{ profile.ipValue }}</p>
-      </div>
-    </article>
+    @for (row of profileRows(); track row.id) {
+      <article class="profile-card">
+        <div [class]="iconClass(row.id)" aria-hidden="true">
+          <svg [lucideIcon]="rowIcons[row.id]"></svg>
+        </div>
+        <div class="profile-card__content">
+          <h2>{{ row.label }}</h2>
+          <p>{{ row.value }}</p>
+        </div>
+      </article>
+    }
   </div>
 </section>
