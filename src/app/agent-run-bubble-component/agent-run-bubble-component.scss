@@ -18,13 +18,10 @@
 
 .agent-run-status {
   margin: 0;
+  color: var(--wa-text-soft);
   font-size: 0.95rem;
   line-height: 1.4;
   word-break: break-word;
-}
-
-.agent-run-status {
-  color: var(--wa-text-soft);
 }
 
 @media (max-width: 780px) {

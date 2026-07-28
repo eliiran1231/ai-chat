@@ -40,7 +40,6 @@
       type="button"
       class="send-button send-button--stop"
       aria-label="Stop response"
-      [disabled]="disabled() && !running()"
       (click)="stopRequested.emit()"
     >
       <svg [lucideIcon]="stopIcon" aria-hidden="true"></svg>

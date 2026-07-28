@@ -58,16 +58,16 @@ export class Supporter extends SyncedEntity {
         await this.appendMessage(message, true);
         return new Promise((resolve, reject) => {
             stream.subscribe({
-                next: (value => message.value.set(value, true)),
-                error: () => {
+                next: value => message.value.set(value, true),
+                error: error => {
                     message.status.set(MessageStatus.Failed, true);
-                    reject();
+                    reject(error);
                 },
                 complete: async () => {
                     message.status.set(await this.chat['manager'].requestMessageSend(message));
                     resolve();
                 }
-            })
+            });
         });
     }
 
@@ -104,15 +104,14 @@ export class Supporter extends SyncedEntity {
         message.from.set("supporter");
         message.setChat(this.chat);
         this.chat.messages.update((msgs: Message[]) => [...msgs, message]);
-        if (uiOnly) message.status.set(MessageStatus.Pending, true);
-        else {
-            message.status.set(
-                await this.chat['manager'].requestMessageSend(message)
-            );
+        if (uiOnly) {
+            message.status.set(MessageStatus.Pending, true);
+        } else {
+            message.status.set(await this.chat['manager'].requestMessageSend(message));
             if (message.status() === MessageStatus.Failed) {
                 return false;
             }
-            else message.status.set(MessageStatus.Read);
+            message.status.set(MessageStatus.Read);
             this.onMessageAdded.next(message);
         }
         if(!this.chat.active()) this.chat.unreadCount.update((count) => count + 1, uiOnly);
