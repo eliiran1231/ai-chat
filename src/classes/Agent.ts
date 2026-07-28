@@ -103,6 +103,10 @@ export class Agent {
         //override to handle message deletions
     }
 
+    cancelResponse(): void | Promise<void> {
+        //override to cancel active responses
+    }
+
     onDestroy(): void | Promise<void> {
         this.onMessageDeletedHandler?.unsubscribe();
         this.onMessageEditedHandler?.unsubscribe();

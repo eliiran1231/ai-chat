@@ -103,6 +103,30 @@ describe('ChatComponent', () => {
     });
   });
 
+  it('renders supporter activity and exposes Stop without adding a response message', async () => {
+    const chat = await renderChat();
+    const cancelResponse = vi
+      .spyOn(chat.supporter, 'cancelResponse')
+      .mockResolvedValue(undefined);
+    chat.supporter.actions.set(['Using get_sync_status...']);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const textarea = fixture.nativeElement.querySelector('#message-input') as HTMLTextAreaElement;
+    const stop = fixture.nativeElement.querySelector('[aria-label="Stop response"]') as HTMLButtonElement;
+
+    await vi.waitFor(() => {
+      const activity = fixture.nativeElement.querySelector('.agent-run-status') as HTMLElement;
+      expect(activity.textContent?.trim()).toBe('Using get_sync_status...');
+    });
+    expect(textarea.disabled).toBe(true);
+    expect(chat.messages()).toHaveLength(0);
+
+    stop.click();
+    expect(cancelResponse).toHaveBeenCalledOnce();
+  });
+
   it('renders user messages through the message bubble markdown view', async () => {
     const message = new Message('**bold**');
     message.from.set('client');
