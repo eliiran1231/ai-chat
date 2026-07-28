@@ -32,8 +32,8 @@ export class DeepAgent extends Agent {
     }
   }
 
-  override async respond(edited = false): Promise<void> {
-    super.respond(edited);
+  override async respond(): Promise<void> {
+    super.respond();
     if (!this.lastMessage || this.lastMessage.from() !== 'client') return;
 
     const previousState = this.client.stateFor(this.chat.id());
@@ -43,7 +43,7 @@ export class DeepAgent extends Agent {
         latestMessage: this.serializeMessage(this.lastMessage),
         history: this.chat.messages()
           .map((message) => this.serializeMessage(message)),
-        resetThread: edited || previousState.requiresReset,
+        resetThread: !!this.lastMessage.editedAt || previousState.requiresReset,
       });
       await this.supporter.stream(response, new Message(''));
     } catch (error) {
