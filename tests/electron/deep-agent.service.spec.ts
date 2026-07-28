@@ -1,9 +1,13 @@
 import { AIMessageChunk, ToolMessage } from 'langchain';
+import { Command } from '@langchain/langgraph';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('electron', () => ({ app: { getPath: () => 'test-user-data' } }));
 
-import { DeepAgentService } from '../../services/deep-agent.service.ts';
+import {
+  DEEP_AGENT_SYSTEM_PROMPT,
+  DeepAgentService,
+} from '../../services/deep-agent.service.ts';
 import type {
   DeepAgentRunEvent,
   StartDeepAgentRunRequest,
@@ -81,6 +85,12 @@ describe('DeepAgentService', () => {
     return service;
   }
 
+  it('instructs the model to request native permission for absolute Windows paths', () => {
+    expect(DEEP_AGENT_SYSTEM_PROMPT).toContain('request permission to read files');
+    expect(DEEP_AGENT_SYSTEM_PROMPT).toContain('C:\\Users\\name');
+    expect(DEEP_AGENT_SYSTEM_PROMPT).toContain('Do not ask the user to rewrite');
+  });
+
   it('bootstraps the first thread from visible history and emits ordered events', async () => {
     graph.stream.mockResolvedValue(
       streamOf(
@@ -122,7 +132,7 @@ describe('DeepAgentService', () => {
       { messages: [{ role: 'assistant', content: 'Earlier answer' }, { role: 'user', content: 'Hello' }] },
       expect.objectContaining({
         configurable: { thread_id: 'deep-agent:user-1:chat-1' },
-        streamMode: 'messages',
+        streamMode: ['messages', 'updates'],
       }),
     );
     expect(events.map((event) => event.type)).toEqual([
@@ -240,5 +250,72 @@ describe('DeepAgentService', () => {
     await service.deleteThread('chat-1');
 
     expect(checkpointer.deleteThread).toHaveBeenCalledWith('deep-agent:user-1:chat-1');
+  });
+
+  it('pauses for permission and resumes the same checkpoint with a Command', async () => {
+    const interrupted = Object.assign(streamOf(), {
+      interrupts: [{ value: { actionRequests: [{ name: 'read_file', args: { file_path: 'a' } }] } }],
+    });
+    graph.stream
+      .mockResolvedValueOnce(interrupted)
+      .mockResolvedValueOnce(streamOf(aiChunk('Approved')));
+    const permissionGate = {
+      review: vi.fn().mockImplementation(async (_interrupts, _signal, onWaiting) => {
+        onWaiting();
+        return { decisions: [{ type: 'approve' }] };
+      }),
+      dismiss: vi.fn(),
+    };
+    const service = new DeepAgentService(authentication, database as never, {
+      graph,
+      checkpointer,
+      permissionGate,
+    });
+    service.initialize();
+    const events: DeepAgentRunEvent[] = [];
+
+    service.start(request({ runId: 'run-permission' }), 1, (event) => events.push(event));
+
+    await vi.waitFor(() => expect(events.at(-1)?.type).toBe('completed'));
+    expect(events.map((event) => event.type)).toEqual([
+      'permission-requested',
+      'permission-resolved',
+      'token',
+      'completed',
+    ]);
+    expect(graph.stream.mock.calls[1][0]).toBeInstanceOf(Command);
+    expect(checkpointer.deleteThread).not.toHaveBeenCalled();
+  });
+
+  it('detects a permission interrupt emitted through the updates stream', async () => {
+    graph.stream
+      .mockResolvedValueOnce(
+        streamOf([
+          [],
+          'updates',
+          { __interrupt__: [{ value: { actionRequests: [{ name: 'read_file', args: { file_path: 'a' } }] } }] },
+        ]),
+      )
+      .mockResolvedValueOnce(streamOf(aiChunk('Approved')));
+    const permissionGate = {
+      review: vi.fn().mockImplementation(async (_interrupts, _signal, onWaiting) => {
+        onWaiting();
+        return { decisions: [{ type: 'approve' }] };
+      }),
+      dismiss: vi.fn(),
+    };
+    const service = new DeepAgentService(authentication, database as never, {
+      graph,
+      checkpointer,
+      permissionGate,
+    });
+    service.initialize();
+    const events: DeepAgentRunEvent[] = [];
+
+    service.start(request({ runId: 'run-updates-permission' }), 1, (event) => events.push(event));
+
+    await vi.waitFor(() => expect(events.at(-1)?.type).toBe('completed'));
+    expect(permissionGate.review).toHaveBeenCalledOnce();
+    expect(events.map((event) => event.type)).toContain('permission-requested');
   });
 });

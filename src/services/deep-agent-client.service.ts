@@ -13,6 +13,7 @@ import {
 export type DeepAgentRunStatus =
   | 'idle'
   | 'running'
+  | 'waiting-permission'
   | 'cancelling'
   | 'failed'
   | 'cancelled';
@@ -57,7 +58,7 @@ export class DeepAgentClientService implements OnDestroy {
 
   isActive(chatId: string): boolean {
     const status = this.stateFor(chatId).status;
-    return status === 'running' || status === 'cancelling';
+    return status === 'running' || status === 'waiting-permission' || status === 'cancelling';
   }
 
   startRun(request: Omit<StartDeepAgentRunRequest, 'runId'>): Observable<string> {
@@ -100,7 +101,7 @@ export class DeepAgentClientService implements OnDestroy {
 
   async cancel(chatId: string): Promise<boolean> {
     const state = this.stateFor(chatId);
-    if (!state.runId || state.status !== 'running') return false;
+    if (!state.runId || (state.status !== 'running' && state.status !== 'waiting-permission')) return false;
     this.setState(chatId, { ...state, status: 'cancelling' });
     return this.electron.invoke<boolean>(DEEP_AGENT_CHANNELS.cancel, {
       runId: state.runId,
@@ -160,6 +161,26 @@ export class DeepAgentClientService implements OnDestroy {
       this.setState(event.chatId, {
         ...state,
         activity: event.success ? `Finished ${event.toolName}` : `${event.toolName} failed`,
+        sequence: event.sequence,
+      });
+      return;
+    }
+
+    if (event.type === 'permission-requested') {
+      this.setState(event.chatId, {
+        ...state,
+        status: 'waiting-permission',
+        activity: 'Waiting for permission...',
+        sequence: event.sequence,
+      });
+      return;
+    }
+
+    if (event.type === 'permission-resolved') {
+      this.setState(event.chatId, {
+        ...state,
+        status: 'running',
+        activity: 'Resuming...',
         sequence: event.sequence,
       });
       return;

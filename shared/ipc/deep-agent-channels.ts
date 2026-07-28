@@ -58,6 +58,14 @@ export interface DeepAgentToolFinishedEvent extends DeepAgentEventBase {
   success: boolean;
 }
 
+export interface DeepAgentPermissionRequestedEvent extends DeepAgentEventBase {
+  type: 'permission-requested';
+}
+
+export interface DeepAgentPermissionResolvedEvent extends DeepAgentEventBase {
+  type: 'permission-resolved';
+}
+
 export interface DeepAgentCompletedEvent extends DeepAgentEventBase {
   type: 'completed';
   content: string;
@@ -79,6 +87,8 @@ export type DeepAgentRunEvent =
   | DeepAgentTokenEvent
   | DeepAgentToolStartedEvent
   | DeepAgentToolFinishedEvent
+  | DeepAgentPermissionRequestedEvent
+  | DeepAgentPermissionResolvedEvent
   | DeepAgentCompletedEvent
   | DeepAgentFailedEvent
   | DeepAgentCancelledEvent;

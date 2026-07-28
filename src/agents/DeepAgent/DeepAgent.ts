@@ -68,6 +68,7 @@ export class DeepAgent extends Agent {
 
   private actionsForState(state: DeepAgentRunState): string[] {
     if (state.status === 'running') return [state.activity ?? 'Thinking...'];
+    if (state.status === 'waiting-permission') return ['Waiting for permission...'];
     if (state.status === 'cancelling') return ['Stopping...'];
     return [];
   }
