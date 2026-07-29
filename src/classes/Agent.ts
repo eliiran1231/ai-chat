@@ -106,7 +106,8 @@ export class Agent {
     }
 
     onMessageDeleted(message: Message) {
-        //override to handle message deletions
+        if(!(message instanceof Question)) return;
+        this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
     }
 
     onDestroy(): void | Promise<void> {

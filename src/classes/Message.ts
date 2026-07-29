@@ -59,7 +59,7 @@ export class Message extends SyncedEntity {
         this.initSync()
     }
 
-    async edit(newValue: string): Promise<boolean> {
+    async edit(newValue: string, isSilent = false): Promise<boolean> {
         this.lastAction = () => this._chat['manager'].requestMessageEdit(this, newValue);
         if (
             !this.editable() ||
@@ -70,7 +70,7 @@ export class Message extends SyncedEntity {
         ) return false;            
         this.value.set(newValue);
         this.editedAt.set(new Date());
-        this._chat.onMessageEdited.next(this);
+        isSilent || this._chat.onMessageEdited.next(this);
         return true;
     }
 
@@ -78,14 +78,14 @@ export class Message extends SyncedEntity {
         this.attachment.set(attachment);
     }
 
-    async delete(): Promise<boolean> {
+    async delete(isSilent = false): Promise<boolean> {
         this.lastAction = this.delete.bind(this)
         if (
             !this.deletable() ||
             !this._chat ||
             await this._chat['manager'].requestMessageDelete(this) === MessageStatus.Failed
         ) return false;
-        this._chat.onMessageDeleted.next(this);
+        isSilent || this._chat.onMessageDeleted.next(this);
         this._chat.messages.update(msgs => msgs.filter(msg => msg !== this));
         return true;
     }
