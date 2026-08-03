@@ -24,6 +24,7 @@ Start with the [documentation index](docs/README.md) or the [getting-started gui
 | Chats and participants | [Chat introduction](docs/chats/introduction.md) |
 | Messages and statuses | [Message documentation](docs/messages/introduction.md) |
 | Persistence behavior | [Signals and persistence](docs/state/signals.md) |
+| Languages and RTL | [Localization](docs/localization.md) |
 | Storage integrations | [Chat providers](docs/chats/providers.md) |
 | Authentication and sync | [Authentication](docs/authentication/introduction.md) |
 | Test strategy | [Testing](docs/testing.md) |
