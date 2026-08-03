@@ -46,6 +46,7 @@ Provider implementations construct the domain object after creating or loading t
 const supporter = new Supporter(supporterId, 'Supporter');
 const manager = new MyChatManager(injector, this);
 const chat = new Chat(chatId, 'chat.defaultName', supporter, manager, {
+  avatar: { type: 'text', value: '' },
   subtitle: 'chat.tapToStart',
   timeLabel: 'time.now',
 });
@@ -54,6 +55,8 @@ const chat = new Chat(chatId, 'chat.defaultName', supporter, manager, {
 The `Chat` constructor connects the supporter to the chat, initializes the manager, creates the client participant and message loader, and initializes signal synchronization. The provider must still configure persistence handlers, message sources, and the initial agent.
 
 User-facing text on a chat is stored as a translation key rather than a literal string, so a chat renders in whichever language is active. See [Localization](../localization.md).
+
+Pass `avatar` explicitly when the name is a translation key. The default avatar is derived from the first two characters of `name`, which would otherwise produce initials taken from the key itself rather than from anything the user sees.
 
 ## Chat properties
 
@@ -64,7 +67,7 @@ Most chat properties are Angular signals. Read them by calling the property and 
 | `id` | `Signal<Uuid>` | Stable identifier assigned by the provider. |
 | `name` | `SyncedSignal<string>` | Display name of the conversation, as a translation key. |
 | `status` | `SyncedSignal<string>` | Provider-defined chat status label. |
-| `avatar` | `SyncedSignal<Avatar>` | Text or image avatar shown for the chat. |
+| `avatar` | `SyncedSignal<Avatar>` | Text or image avatar shown for the chat. Defaults to the first two characters of `name`. |
 | `subtitle` | `SyncedSignal<string>` | Secondary text shown in chat lists and headers, as a translation key. |
 | `timeLabel` | `SyncedSignal<string>` | Display label for the chat time, as a translation key. |
 | `unreadCount` | `SyncedSignal<number>` | Number of unread supporter messages. |

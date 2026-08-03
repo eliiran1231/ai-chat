@@ -1,6 +1,8 @@
 # Localization
 
-Every user-facing string is stored as a translation key and resolved at render time. Adding a language is a data change: drop a JSON file into `public/languages/` and it appears in the language picker without touching component code.
+Every string rendered by the application shell is stored as a translation key and resolved at render time. Adding a language is a data change: drop a JSON file into `public/languages/` and it appears in the language picker without touching component code.
+
+Chat providers are the exception. `ChatProvider` metadata such as `displayName` and `description` is supplied as literal text by the provider and is rendered untranslated.
 
 ## Language files
 
@@ -95,7 +97,7 @@ readonly activeLanguage = computed(() => [this.languageService.activeLanguageCod
 
 Switching languages rebuilds the routed view exactly once, which re-evaluates every pipe in it. Router state and the URL survive the rebuild; per-component view state such as scroll position does not.
 
-Removing this `@for`, or marking the pipe `pure: false`, breaks language switching. `src/app/app-language.spec.ts` guards the behavior.
+Removing this `@for` breaks language switching: the pipe keeps returning the previously translated text. Marking the pipe `pure: false` is the alternative that also works, but it was rejected because an impure pipe re-runs on every change detection cycle. `src/app/app-language.spec.ts` guards the current behavior.
 
 ## Selecting a language
 
