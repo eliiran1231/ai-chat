@@ -29,10 +29,7 @@ export class AppSettingsService {
   async updateGeneralSetting(key: GeneralSettingKey, value: boolean): Promise<void> {
     const previousSettings = this.generalSettings();
 
-    this.generalSettings.set({
-      ...previousSettings,
-      [key]: value,
-    });
+    this.generalSettings.update((currentSettings) => ({ ...currentSettings, [key]: value }));
 
     if (!this.electronService.isElectronAvailable()) {
       return;
@@ -42,10 +39,12 @@ export class AppSettingsService {
       const settings = await this.electronService.invoke<GeneralSettings>('settings:updateGeneral', {
         [key]: value,
       });
-      this.generalSettings.set(settings);
+      this.generalSettings.update((currentSettings) => ({ ...currentSettings, [key]: settings[key] }));
     } catch (error) {
       console.warn('Failed to update app settings.', error);
-      this.generalSettings.set(previousSettings);
+      this.generalSettings.update((currentSettings) =>
+        currentSettings[key] === value ? { ...currentSettings, [key]: previousSettings[key] } : currentSettings,
+      );
     }
   }
 

@@ -26,7 +26,8 @@ import { LanguageService } from '../../services/language.service';
   styleUrl: './chat-navbar-component.scss',
 })
 export class ChatNavbarComponent {
-  private languageService = inject(LanguageService);
+  private readonly languageService = inject(LanguageService);
+
   chat = input.required<Chat>();
   showBackButton = input(false);
   resultCount = input(0);
@@ -71,6 +72,10 @@ export class ChatNavbarComponent {
   ]);
 
   searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');
+
+  chatName(): string {
+    return this.languageService.translate(this.chat().name());
+  }
 
   openSearch(): void {
     this.messageOptionsClosed.emit();

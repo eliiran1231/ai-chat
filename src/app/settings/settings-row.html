@@ -22,13 +22,14 @@
         }
         @case ('select') {
           <select
-            [value]="selectValue()"
             [disabled]="disabled()"
             [attr.aria-label]="row().label"
             (change)="onSelectChange($event)"
           >
             @for (option of row().options; track option; let optionIndex = $index) {
-              <option [value]="option">{{ row().optionLabels?.[optionIndex] ?? option }}</option>
+              <option [value]="option" [selected]="option === selectValue()">
+                {{ row().optionLabels?.[optionIndex] ?? option }}
+              </option>
             }
           </select>
         }

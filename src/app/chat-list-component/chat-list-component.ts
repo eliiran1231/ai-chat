@@ -31,7 +31,7 @@ export class ChatListComponent {
       : this.chats().filter((chat) => {
         const lastMessage = this.lastMessageText(chat).toLowerCase();
         return (
-          chat.name().toLowerCase().includes(query) ||
+          this.chatName(chat).toLowerCase().includes(query) ||
           chat.status().toLowerCase().includes(query) ||
           lastMessage.includes(query)
         );
@@ -52,6 +52,14 @@ export class ChatListComponent {
     return DOMPurify.sanitize(lastMessage.value() || lastMessage.attachment()?.name || '', {
       ALLOWED_TAGS: [],
     });
+  }
+
+  chatName(chat: Chat): string {
+    return this.languageService.translate(chat.name());
+  }
+
+  chatTimeLabel(chat: Chat): string {
+    return this.languageService.translate(chat.timeLabel());
   }
 
   lastMessageTime(chat: Chat): Date | undefined {

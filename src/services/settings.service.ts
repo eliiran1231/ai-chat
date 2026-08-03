@@ -13,9 +13,9 @@ import {
 import settingsConfig from '../app/settings/settings-config.json';
 import {
   SettingsCategory,
-  SettingsCategoryConfig,
   SettingsConfig,
   SettingsIconKey,
+  SettingsRow,
   SettingsSection,
   SettingsSectionKey,
 } from '../app/settings/settings-data';
@@ -45,7 +45,9 @@ export class SettingsService {
 
   readonly categories = computed<SettingsCategory[]>(() =>
     this.config.categories.map((category) => ({
-      ...this.translateCategory(category),
+      ...category,
+      title: this.translate(category.title),
+      description: this.translate(category.description),
       icon: SETTINGS_ICON_MAP[category.icon],
     })),
   );
@@ -55,34 +57,12 @@ export class SettingsService {
   }
 
   getSection(category: string | null): SettingsSection {
-    const sectionKey = this.toSectionKey(category);
-    const section = this.translateSection(this.config.sections[sectionKey]);
-
-    if (sectionKey !== 'profile') {
-      if (sectionKey !== 'about') {
-        return section;
-      }
-
-      return {
-        ...section,
-        rows: section.rows.map((row, index) =>
-          this.config.sections.about.rows[index]?.label === 'Version'
-            ? { ...row, description: this.appInfoService.version() }
-            : row,
-        ),
-      };
-    }
-
-    const basicInfo = this.profileInfo();
+    const section = this.config.sections[this.toSectionKey(category)];
 
     return {
-      ...section,
-      rows: section.rows.map((row) => ({
-        ...row,
-        description: row.profileField
-          ? basicInfo[row.profileField] || this.languageService.translate('common.notAvailable')
-          : row.description,
-      })),
+      title: this.translate(section.title),
+      description: this.translate(section.description),
+      rows: section.rows.map((row) => this.translateRow(row)),
     };
   }
 
@@ -112,30 +92,36 @@ export class SettingsService {
     return Boolean(category && category in this.config.sections);
   }
 
-  private translateCategory(category: SettingsConfig['categories'][number]): SettingsCategoryConfig {
-    return { ...category, title: this.languageService.translate(category.title), description: this.languageService.translate(category.description) };
+  private translate(key: string | undefined): string {
+    return key ? this.languageService.translate(key) : '';
   }
 
-  private translateSection(section: SettingsSection): SettingsSection {
+  private translateRow(row: SettingsRow): SettingsRow {
     return {
-      ...section,
-      title: this.languageService.translate(section.title),
-      description: this.languageService.translate(section.description),
-      rows: section.rows.map((row) => ({
-        ...row,
-        label: this.languageService.translate(row.label),
-        description: this.languageService.translate(row.description),
-        value: row.control === 'button' && row.value ? this.languageService.translate(row.value) : row.value,
-        options: row.options,
-        optionLabels: row.options?.map((option) => this.languageService.translate(option)),
-        confirmation: row.confirmation && {
-          ...row.confirmation,
-          title: this.languageService.translate(row.confirmation.title),
-          message: this.languageService.translate(row.confirmation.message),
-          confirmText: row.confirmation.confirmText && this.languageService.translate(row.confirmation.confirmText),
-          cancelText: row.confirmation.cancelText && this.languageService.translate(row.confirmation.cancelText),
-        },
-      })),
+      ...row,
+      label: this.translate(row.label),
+      description: this.rowDescription(row),
+      value: row.control === 'button' ? this.translate(row.value) : row.value,
+      optionLabels: row.optionLabels?.map((label) => this.translate(label)),
+      confirmation: row.confirmation && {
+        ...row.confirmation,
+        title: this.translate(row.confirmation.title),
+        message: this.translate(row.confirmation.message),
+        confirmText: row.confirmation.confirmText && this.translate(row.confirmation.confirmText),
+        cancelText: row.confirmation.cancelText && this.translate(row.confirmation.cancelText),
+      },
     };
+  }
+
+  private rowDescription(row: SettingsRow): string {
+    if (row.profileField) {
+      return this.profileInfo()[row.profileField] || this.translate('common.notAvailable');
+    }
+
+    if (row.appInfoField === 'version') {
+      return this.appInfoService.version();
+    }
+
+    return this.translate(row.description);
   }
 }

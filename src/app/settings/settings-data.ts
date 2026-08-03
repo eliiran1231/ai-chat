@@ -50,6 +50,7 @@ export interface SettingsRow {
   optionLabels?: string[];
   danger?: boolean;
   profileField?: keyof BasicInfo;
+  appInfoField?: 'version';
   settingKey?: GeneralSettingKey;
   chatSettingKey?: ChatSettingKey;
   displaySettingKey?: DisplaySettingKey;

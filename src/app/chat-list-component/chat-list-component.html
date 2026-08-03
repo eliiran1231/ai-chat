@@ -14,19 +14,19 @@
         <app-chat-avatar
           class="chat-list-item__avatar"
           [avatar]="chat.avatar()"
-          [label]="chat.name()"
+          [label]="chatName(chat)"
           alt="avatar"
         />
       </div>
       <div class="chat-list-item__content">
         <div class="chat-list-item__top">
-          <strong>{{ chat.name() }}</strong>
+          <strong>{{ chatName(chat) }}</strong>
           <div class="chat-list-item__actions">
             <time [class.chat-list-item__time--accent]="chat.highlightTime">
               @if (lastMessageTime(chat); as time) {
               {{ time | date: 'HH:mm' }}
               } @else {
-              {{ chat.timeLabel || '' }}
+              {{ chatTimeLabel(chat) }}
               }
             </time>
           </div>

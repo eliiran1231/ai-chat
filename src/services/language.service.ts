@@ -13,16 +13,18 @@ interface Language extends LanguageSummary { strings: Record<string, string>; }
 @Injectable({ providedIn: 'root' })
 export class LanguageService {
   private readonly electron = inject(ElectronService);
-  private readonly languages: Language[] = [english as Language];
-  readonly availableLanguages = signal<LanguageSummary[]>(this.languages);
+  private readonly languages = signal<Language[]>([english as Language]);
+  readonly availableLanguages = computed<LanguageSummary[]>(() =>
+    this.languages().map(({ code, name, direction }) => ({ code, name, direction })),
+  );
   readonly isLoading = signal(true);
-  private readonly activeLanguage = signal<Language>(this.languages[0]);
+  private readonly activeLanguage = signal<Language>(this.languages()[0]);
   readonly activeLanguageCode = computed(() => this.activeLanguage().code);
 
   constructor() { void this.load(); }
 
   async selectLanguage(code: string): Promise<void> {
-    const language = this.languages.find((item) => item.code === code);
+    const language = this.languages().find((item) => item.code === code);
     if (!language) return;
     this.activeLanguage.set(language);
     document.documentElement.lang = language.code;
@@ -46,8 +48,7 @@ export class LanguageService {
   private async load(): Promise<void> {
     try {
       if (this.electron.isElectronAvailable()) {
-        this.languages.splice(0, this.languages.length, ...(await this.electron.invoke<Language[]>('languages:getAll')));
-        this.availableLanguages.set(this.languages);
+        this.languages.set(await this.electron.invoke<Language[]>('languages:getAll'));
       }
       await this.selectLanguage(localStorage.getItem('ai-chat-language') ?? 'en');
     } catch (error) {

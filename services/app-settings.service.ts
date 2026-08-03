@@ -35,6 +35,7 @@ function normalizeGeneralSettings(value: unknown): GeneralSettings {
 
 export class AppSettingsService {
   private generalSettings: GeneralSettings = { ...DEFAULT_GENERAL_SETTINGS };
+  private pendingWrite: Promise<void> = Promise.resolve();
 
   async initialize(): Promise<void> {
     await this.load();
@@ -53,22 +54,17 @@ export class AppSettingsService {
   }
 
   async updateGeneralSettings(settings: Partial<GeneralSettings>): Promise<GeneralSettings> {
-    this.generalSettings = normalizeGeneralSettings({
-      ...this.generalSettings,
-      ...settings,
+    return this.queueUpdate(() => {
+      this.generalSettings = normalizeGeneralSettings({ ...this.generalSettings, ...settings });
+      this.applyStartAtLogin();
     });
-    this.applyStartAtLogin();
-    await this.save();
-
-    return this.getGeneralSettings();
   }
 
   async resetGeneralSettings(): Promise<GeneralSettings> {
-    this.generalSettings = { ...DEFAULT_GENERAL_SETTINGS };
-    this.applyStartAtLogin();
-    await this.save();
-
-    return this.getGeneralSettings();
+    return this.queueUpdate(() => {
+      this.generalSettings = { ...DEFAULT_GENERAL_SETTINGS };
+      this.applyStartAtLogin();
+    });
   }
 
   private async load(): Promise<void> {
@@ -89,6 +85,20 @@ export class AppSettingsService {
   private async save(): Promise<void> {
     await fs.mkdir(path.dirname(this.settingsPath), { recursive: true });
     await fs.writeFile(this.settingsPath, JSON.stringify(this.generalSettings, null, 2), 'utf8');
+  }
+
+  private queueUpdate(update: () => void): Promise<GeneralSettings> {
+    const result = this.pendingWrite.then(async () => {
+      update();
+      await this.save();
+      return this.getGeneralSettings();
+    });
+
+    this.pendingWrite = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
   }
 
   private applyStartAtLogin(): void {

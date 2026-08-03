@@ -112,10 +112,10 @@
       <app-chat-avatar
         class="contact-avatar"
         [avatar]="chat().avatar()"
-        [label]="chat().name()"
+        [label]="chatName()"
       />
       <div class="contact-meta">
-        <h1>{{ chat().name() }}</h1>
+        <h1>{{ chatName() }}</h1>
         <p>{{ chat().status() }}</p>
       </div>
     </div>

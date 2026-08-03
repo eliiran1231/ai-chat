@@ -13,6 +13,7 @@ import { filter, map, startWith } from 'rxjs';
 import { LucideChevronLeft, LucideDynamicIcon } from '@lucide/angular';
 
 import { SettingsService } from '../../services/settings.service';
+import { LanguageService } from '../../services/language.service';
 import { TranslatePipe } from '../shared/translate.pipe';
 
 @Component({
@@ -26,6 +27,7 @@ export class SettingsLayoutComponent {
   private router = inject(Router);
   private location = inject(Location);
   private settingsService = inject(SettingsService);
+  private languageService = inject(LanguageService);
 
   readonly backIcon = LucideChevronLeft;
   readonly categories = this.settingsService.categories;
@@ -43,7 +45,7 @@ export class SettingsLayoutComponent {
   readonly pageTitle = computed(() => {
     const category = this.settingsService.getCategory(this.categoryPath());
 
-    return category?.title ?? 'Settings';
+    return category?.title ?? this.languageService.translate('settings.title');
   });
 
   closeSettings(): Promise<boolean> | void {

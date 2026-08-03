@@ -23,7 +23,7 @@ export class AppNotificationService {
       return;
     }
 
-    if (settings.notifyMe === 'Only when minimized' && !(await this.isWindowMinimized())) {
+    if (settings.notifyMe === 'Only when minimized' && !(await this.shouldShowNotifications())) {
       return;
     }
 
@@ -42,13 +42,16 @@ export class AppNotificationService {
       return;
     }
 
-    new Notification(chat.name() || this.languageService.translate('notification.newMessage'), {
-      body: settings.showPreview
-        ? this.notificationBody(message)
-        : this.languageService.translate('notification.newMessage'),
-      tag: chat.id(),
-      silent: true,
-    });
+    new Notification(
+      this.languageService.translate(chat.name() || 'notification.newMessage'),
+      {
+        body: settings.showPreview
+          ? this.notificationBody(message)
+          : this.languageService.translate('notification.newMessage'),
+        tag: chat.id(),
+        silent: true,
+      },
+    );
   }
 
   private notificationBody(message: Message): string {
@@ -102,13 +105,13 @@ export class AppNotificationService {
     return this.audioContext;
   }
 
-  private async isWindowMinimized(): Promise<boolean> {
+  private async shouldShowNotifications(): Promise<boolean> {
     if (!this.electronService.isElectronAvailable()) {
       return document.visibilityState !== 'visible';
     }
 
     try {
-      return await this.electronService.invoke<boolean>('system:isWindowMinimized');
+      return await this.electronService.invoke<boolean>('system:shouldShowNotifications');
     } catch (error) {
       console.warn('Unable to determine the window state for notifications.', error);
       return document.visibilityState !== 'visible';

@@ -1,1 +1,3 @@
-<router-outlet />
+@for (languageCode of activeLanguage(); track languageCode) {
+  <router-outlet />
+}

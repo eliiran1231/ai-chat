@@ -145,14 +145,14 @@ export class ChatService {
       if (pendingChat) return pendingChat;
     }
     this.isCreatingChat.set(true);
-    const chatNumber = this.chats().length + 1;
     const pending = (async () => {
       const chat = await provider.createChat(
-        this.languageService.translate('chat.defaultName', { number: chatNumber }),
+        'chat.defaultName',
         initialAgent,
         {
-          subtitle: this.languageService.translate('chat.tapToStart'),
-          timeLabel: this.languageService.translate('time.now'),
+          avatar: { type: 'text', value: '' },
+          subtitle: 'chat.tapToStart',
+          timeLabel: 'time.now',
         }
       );
       this.addChat(chat);
