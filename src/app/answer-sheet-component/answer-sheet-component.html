@@ -6,7 +6,7 @@
       [class.answer-sheet--tall]="isTall()"
       role="dialog"
       aria-modal="true"
-      [attr.aria-label]="title"
+      [attr.aria-label]="title | translate"
       (ngSubmit)="confirmAnswers(answerSheetForm)"
     >
       <div class="answer-sheet__handle" aria-hidden="true"></div>
@@ -27,7 +27,7 @@
             />
           </label>
         } @else {
-          <h2>{{ title }}</h2>
+          <h2>{{ title | translate }}</h2>
           @if (shouldShowSearch()) {
             <button
               type="button"

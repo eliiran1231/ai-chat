@@ -9,7 +9,6 @@ import { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { Uuid } from '../interfaces/db/Uuid';
 import { AppNotificationService } from './app-notification.service';
 import { Subscription } from 'rxjs';
-import { LanguageService } from './language.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +23,6 @@ export class ChatService {
   private pendingCreateChat = signal<Promise<Chat> | null>(null);
   private notificationSubscriptions = new Map<string, Subscription>();
   private notificationService = inject(AppNotificationService);
-  private languageService = inject(LanguageService);
   selectedChat = computed(() => this.getChatById(this.selectedChatId()));
   injector = inject(Injector);
 

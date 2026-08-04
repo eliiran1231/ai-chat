@@ -21,7 +21,6 @@ import { SidebarSearchComponent } from '../shared/sidebar-search/sidebar-search-
 import { ChatService } from '../../services/chat.service';
 import { ProviderCardComponent } from '../provider-card-component/provider-card-component';
 import { TranslatePipe } from '../shared/translate.pipe';
-import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-provider-list-component',
@@ -44,7 +43,6 @@ export class ProviderListComponent implements OnInit {
   });
   private readonly dialog = inject(Dialog);
   private readonly chatService = inject(ChatService);
-  private readonly languageService = inject(LanguageService);
 
   constructor(@Inject(CHAT_PROVIDER) readonly providers: ChatProvider[] = []) {}
 
@@ -70,9 +68,6 @@ export class ProviderListComponent implements OnInit {
       AnimatedDialogComponent,
       {
         data: { component: ProviderConnectDialogComponent, provider },
-        ariaLabel: this.languageService.translate('provider.connectProvider', {
-          provider: provider.metadata.displayName,
-        }),
         backdropClass: 'popup-dialog-backdrop',
         disableClose: true,
       },
@@ -105,24 +100,16 @@ export class ProviderListComponent implements OnInit {
     return this.providerErrors()[provider.metadata.id];
   }
 
-  actionText(provider: ChatProvider): string {
+  actionLabelKey(provider: ChatProvider): string {
     if (this.isBusy(provider)) {
-      return provider.authentication.loggedIn()
-        ? this.languageService.translate('provider.disconnecting')
-        : this.languageService.translate('provider.checking');
+      return provider.authentication.loggedIn() ? 'provider.disconnecting' : 'provider.checking';
     }
 
-    return provider.authentication.loggedIn()
-      ? this.languageService.translate('provider.disconnect')
-      : this.languageService.translate('provider.connect');
+    return provider.authentication.loggedIn() ? 'provider.disconnect' : 'provider.connect';
   }
 
-  secondaryText(provider: ChatProvider): string {
-    const email = provider.authentication.currentUser()?.email;
-
-    return email
-      ? this.languageService.translate('provider.signedInAs', { email })
-      : provider.metadata.description;
+  signedInEmail(provider: ChatProvider): string | undefined {
+    return provider.authentication.currentUser()?.email;
   }
 
   handleAction(provider: ChatProvider): void {

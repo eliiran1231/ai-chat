@@ -2,10 +2,11 @@ import { Component, inject } from '@angular/core';
 import { LucideDynamicIcon, LucideGlobe, LucideMonitor, LucideUserRound } from '@lucide/angular';
 import { ProfileRowId, ProfileService } from '../../services/profile.service';
 import { ProfileAvatarComponent } from '../shared/profile-avatar/profile-avatar';
+import { TranslatePipe } from '../shared/translate.pipe';
 
 @Component({
   selector: 'app-profile-component',
-  imports: [LucideDynamicIcon, ProfileAvatarComponent],
+  imports: [LucideDynamicIcon, ProfileAvatarComponent, TranslatePipe],
   templateUrl: './profile-component.html',
   styleUrl: './profile-component.scss',
 })

@@ -1,7 +1,7 @@
 <article class="settings-row">
   <div class="settings-row__copy">
-    <h3>{{ row().label }}</h3>
-    <p>{{ description() }}</p>
+    <h3>{{ row().label | translate }}</h3>
+    <p>{{ description() | translate }}</p>
   </div>
 
   @if (row().control !== 'info') {
@@ -14,7 +14,7 @@
               role="switch"
               [checked]="checked()"
               [disabled]="disabled()"
-              [attr.aria-label]="row().label"
+              [attr.aria-label]="row().label | translate"
               (change)="onToggleChange($event)"
             />
             <span aria-hidden="true"></span>
@@ -23,12 +23,12 @@
         @case ('select') {
           <select
             [disabled]="disabled()"
-            [attr.aria-label]="row().label"
+            [attr.aria-label]="row().label | translate"
             (change)="onSelectChange($event)"
           >
             @for (option of row().options; track option; let optionIndex = $index) {
               <option [value]="option" [selected]="option === selectValue()">
-                {{ row().optionLabels?.[optionIndex] ?? option }}
+                {{ (row().optionLabels?.[optionIndex] ?? option) | translate }}
               </option>
             }
           </select>
@@ -43,7 +43,7 @@
                 min="12"
                 max="22"
                 [value]="rangeValue()"
-                [attr.aria-label]="row().label"
+                [attr.aria-label]="row().label | translate"
                 (input)="onRangeInput($event)"
               />
               <button type="button" class="settings-action" (click)="rangeApply.emit()">{{ 'common.apply' | translate }}</button>
@@ -58,7 +58,7 @@
             [disabled]="disabled()"
             (click)="action.emit()"
           >
-            {{ row().value }}
+            {{ (row().value ?? '') | translate }}
           </button>
         }
       }

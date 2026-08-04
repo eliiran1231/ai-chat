@@ -1,10 +1,10 @@
 <section class="confirmation-dialog" role="dialog" aria-labelledby="confirmation-dialog-title">
-  <h2 id="confirmation-dialog-title">{{ data.title }}</h2>
-  <p>{{ data.message }}</p>
+  <h2 id="confirmation-dialog-title">{{ data.title | translate }}</h2>
+  <p>{{ data.message | translate }}</p>
 
   <footer>
     <button type="button" class="confirmation-dialog__cancel" (click)="cancel()">
-      {{ data.cancelText ?? ('common.cancel' | translate) }}
+      {{ (data.cancelText ?? 'common.cancel') | translate }}
     </button>
     <button
       type="button"
@@ -12,7 +12,7 @@
       [class.confirmation-dialog__confirm--danger]="data.danger"
       (click)="confirm()"
     >
-      {{ data.confirmText ?? ('common.confirm' | translate) }}
+      {{ (data.confirmText ?? 'common.confirm') | translate }}
     </button>
   </footer>
 </section>

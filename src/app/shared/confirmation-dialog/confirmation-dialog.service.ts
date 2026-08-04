@@ -22,7 +22,6 @@ export class ConfirmationDialogService {
           component: ConfirmationDialogComponent,
           width: options.width ?? 'min(calc(100vw - 2rem), 24rem)',
         },
-        ariaLabel: options.title,
         backdropClass: 'popup-dialog-backdrop',
         disableClose: true,
       },

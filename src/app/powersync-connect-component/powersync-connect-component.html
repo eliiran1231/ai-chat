@@ -53,7 +53,7 @@
   </label>
 
   @if (error()) {
-    <p class="provider-auth__error">{{ error() }}</p>
+    <p class="provider-auth__error">{{ (error() ?? '') | translate }}</p>
   }
 
   <div class="provider-auth__actions">
