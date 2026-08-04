@@ -38,7 +38,7 @@ export class Message extends SyncedEntity {
     readonly editable: SyncedSignal<boolean>;
     readonly deletable: SyncedSignal<boolean>;
     private _chat!: Chat;
-    private lastAction = () => this._chat['manager']?.requestMessageSend(this);
+    private lastAction: () => Promise<any> = () => this._chat['manager']?.requestMessageSend(this);
 
     setChat(chat: Chat) {
         this._chat = chat;
@@ -79,7 +79,7 @@ export class Message extends SyncedEntity {
     }
 
     async delete(): Promise<boolean> {
-        this.lastAction = () => this._chat['manager'].requestMessageDelete(this);
+        this.lastAction = this.delete.bind(this)
         if (
             !this.deletable() ||
             !this._chat ||
