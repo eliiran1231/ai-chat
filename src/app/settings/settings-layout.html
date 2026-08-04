@@ -27,8 +27,8 @@
             aria-hidden="true"
           ></svg>
           <span>
-            <strong>{{ category.title }}</strong>
-            <small>{{ category.description }}</small>
+            <strong>{{ category.title | translate }}</strong>
+            <small>{{ category.description | translate }}</small>
           </span>
         </a>
       }
@@ -47,7 +47,7 @@
           <svg [lucideIcon]="backIcon" class="directional-icon" aria-hidden="true"></svg>
         </button>
 
-        <h2>{{ pageTitle() }}</h2>
+        <h2>{{ pageTitle() | translate }}</h2>
       </header>
     }
 

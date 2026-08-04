@@ -2,7 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PROVIDER_AUTHENTICATION_DIALOG_CONTEXT } from '../animated-dialog-component/animated-dialog-context.token';
 import { TranslatePipe } from '../shared/translate.pipe';
-import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-powersync-connect',
@@ -12,7 +11,6 @@ import { LanguageService } from '../../services/language.service';
 })
 export class PowerSyncConnectComponent {
   readonly context = inject(PROVIDER_AUTHENTICATION_DIALOG_CONTEXT);
-  private readonly languageService = inject(LanguageService);
   readonly email = signal('');
   readonly password = signal('');
   readonly displayName = signal('');
@@ -60,7 +58,7 @@ export class PowerSyncConnectComponent {
 
   private hasCredentials(): boolean {
     if (this.email() && this.password()) return true;
-    this.error.set(this.languageService.translate('provider.credentialsRequired'));
+    this.error.set('provider.credentialsRequired');
     return false;
   }
 

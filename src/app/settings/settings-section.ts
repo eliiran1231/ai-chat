@@ -64,8 +64,8 @@ export class SettingsSectionComponent {
   rowDescription(row: SettingsRow): string {
     if (this.sectionKey() === 'chats' && row.chatSettingKey === 'enterSendsMessage') {
       return this.chatSettings().enterSendsMessage
-        ? this.languageService.translate('settings.chats.enterSendsMessage.shiftDescription')
-        : this.languageService.translate('settings.chats.enterSendsMessage.ctrlDescription');
+        ? 'settings.chats.enterSendsMessage.shiftDescription'
+        : 'settings.chats.enterSendsMessage.ctrlDescription';
     }
 
     return row.description;

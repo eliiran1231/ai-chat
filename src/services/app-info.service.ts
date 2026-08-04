@@ -1,7 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { ElectronService } from './electron.service';
-import { LanguageService } from './language.service';
 
 const FALLBACK_VERSION = '';
 
@@ -10,10 +9,9 @@ const FALLBACK_VERSION = '';
 })
 export class AppInfoService {
   private readonly electronService = inject(ElectronService);
-  private readonly languageService = inject(LanguageService);
 
   private readonly loadedVersion = signal(FALLBACK_VERSION);
-  readonly version = computed(() => this.loadedVersion() || this.languageService.translate('common.unavailable'));
+  readonly version = computed(() => this.loadedVersion() || 'common.unavailable');
 
   constructor() {
     void this.loadVersion();

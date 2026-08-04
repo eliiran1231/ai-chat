@@ -1,8 +1,7 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { LucideIconInput, LucideSettings } from '@lucide/angular';
 
 import { AppMenu, AppMenuItem } from '../app-menu/app-menu';
-import { LanguageService } from '../../../services/language.service';
 
 @Component({
   selector: 'app-sidebar-menu',
@@ -12,7 +11,6 @@ import { LanguageService } from '../../../services/language.service';
   styleUrl: './sidebar-menu.scss',
 })
 export class SidebarMenuComponent {
-  private languageService = inject(LanguageService);
   menuIcon = input.required<LucideIconInput>();
   isFullscreen = input.required<boolean>();
   enterFullscreenIcon = input.required<LucideIconInput>();
@@ -24,14 +22,12 @@ export class SidebarMenuComponent {
   menuItems = computed<AppMenuItem[]>(() => [
     {
       id: 'settings',
-      label: this.languageService.translate('settings.title'),
+      label: 'settings.title',
       icon: LucideSettings,
     },
     {
       id: 'fullscreen',
-      label: this.isFullscreen()
-        ? this.languageService.translate('app.exitFullscreen')
-        : this.languageService.translate('app.enterFullscreen'),
+      label: this.isFullscreen() ? 'app.exitFullscreen' : 'app.enterFullscreen',
       icon: this.isFullscreen() ? this.exitFullscreenIcon() : this.enterFullscreenIcon(),
     },
   ]);

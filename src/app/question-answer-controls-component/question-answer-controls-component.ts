@@ -6,7 +6,6 @@ import { Answer } from '../../classes/Answer';
 import { Question } from '../../classes/Question';
 import { AnswerSheetComponent, SheetAnswerInputs } from '../answer-sheet-component/answer-sheet-component';
 import { TranslatePipe } from '../shared/translate.pipe';
-import { LanguageService } from '../../services/language.service';
 
 const MIN_ANSWERS_TO_SHOW_IN_SHEET = 10;
 
@@ -25,7 +24,6 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
   answerSheetOpenChange = output<boolean>();
 
   readonly listIcon = LucideList;
-  private readonly languageService = inject(LanguageService);
   readonly answerSheetTitleKey = 'answers.chooseOption';
   private readonly dialog = inject(Dialog);
   private readonly overlay = inject(Overlay);
@@ -54,7 +52,7 @@ export class QuestionAnswerControlsComponent implements OnDestroy {
       data: {
         answers: this.question().possibleAnswers(),
         isMultipleSelection: this.isMultipleSelection(),
-        title: this.languageService.translate(this.answerSheetTitleKey),
+        title: this.answerSheetTitleKey,
       },
     });
 

@@ -14,19 +14,19 @@
         <app-chat-avatar
           class="chat-list-item__avatar"
           [avatar]="chat.avatar()"
-          [label]="chatName(chat)"
+          [label]="chat.name() | translate"
           alt="avatar"
         />
       </div>
       <div class="chat-list-item__content">
         <div class="chat-list-item__top">
-          <strong>{{ chatName(chat) }}</strong>
+          <strong>{{ chat.name() | translate }}</strong>
           <div class="chat-list-item__actions">
             <time [class.chat-list-item__time--accent]="chat.highlightTime">
               @if (lastMessageTime(chat); as time) {
               {{ time | date: 'HH:mm' }}
               } @else {
-              {{ chatTimeLabel(chat) }}
+              {{ chat.timeLabel() | translate }}
               }
             </time>
           </div>
@@ -38,7 +38,7 @@
             <span> {{ chat.draftMessage().trim() }}</span>
             }
             @else {
-            {{ lastMessageText(chat) }}
+            {{ lastMessageText(chat) | translate }}
             }
           </p>
           @if (chat.unreadCount()) {

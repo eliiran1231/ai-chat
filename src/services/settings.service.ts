@@ -21,7 +21,6 @@ import {
 } from '../app/settings/settings-data';
 import { ProfileService } from './profile.service';
 import { AppInfoService } from './app-info.service';
-import { LanguageService } from './language.service';
 
 const SETTINGS_ICON_MAP: Record<SettingsIconKey, LucideIconInput> = {
   settings: LucideSettings,
@@ -41,13 +40,10 @@ export class SettingsService {
   private readonly profileService = inject(ProfileService);
   private readonly appInfoService = inject(AppInfoService);
   private readonly profileInfo = this.profileService.basicInfo;
-  private readonly languageService = inject(LanguageService);
 
   readonly categories = computed<SettingsCategory[]>(() =>
     this.config.categories.map((category) => ({
       ...category,
-      title: this.translate(category.title),
-      description: this.translate(category.description),
       icon: SETTINGS_ICON_MAP[category.icon],
     })),
   );
@@ -60,9 +56,9 @@ export class SettingsService {
     const section = this.config.sections[this.toSectionKey(category)];
 
     return {
-      title: this.translate(section.title),
-      description: this.translate(section.description),
-      rows: section.rows.map((row) => this.translateRow(row)),
+      title: section.title,
+      description: section.description,
+      rows: section.rows.map((row) => this.resolveRow(row)),
     };
   }
 
@@ -92,36 +88,22 @@ export class SettingsService {
     return Boolean(category && category in this.config.sections);
   }
 
-  private translate(key: string | undefined): string {
-    return key ? this.languageService.translate(key) : '';
-  }
-
-  private translateRow(row: SettingsRow): SettingsRow {
+  private resolveRow(row: SettingsRow): SettingsRow {
     return {
       ...row,
-      label: this.translate(row.label),
       description: this.rowDescription(row),
-      value: row.control === 'button' ? this.translate(row.value) : row.value,
-      optionLabels: row.optionLabels?.map((label) => this.translate(label)),
-      confirmation: row.confirmation && {
-        ...row.confirmation,
-        title: this.translate(row.confirmation.title),
-        message: this.translate(row.confirmation.message),
-        confirmText: row.confirmation.confirmText && this.translate(row.confirmation.confirmText),
-        cancelText: row.confirmation.cancelText && this.translate(row.confirmation.cancelText),
-      },
     };
   }
 
   private rowDescription(row: SettingsRow): string {
     if (row.profileField) {
-      return this.profileInfo()[row.profileField] || this.translate('common.notAvailable');
+      return this.profileInfo()[row.profileField] || 'common.notAvailable';
     }
 
     if (row.appInfoField === 'version') {
       return this.appInfoService.version();
     }
 
-    return this.translate(row.description);
+    return row.description;
   }
 }

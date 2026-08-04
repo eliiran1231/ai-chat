@@ -11,7 +11,7 @@
           <svg [lucideIcon]="rowIcons[row.id]"></svg>
         </div>
         <div class="profile-card__content">
-          <h2>{{ row.label }}</h2>
+          <h2>{{ row.label | translate }}</h2>
           <p>{{ row.value }}</p>
         </div>
       </article>

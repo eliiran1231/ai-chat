@@ -12,8 +12,12 @@
       @for (provider of filteredProviders(); track provider.metadata.id) {
         <app-provider-card
           [metadata]="provider.metadata"
-          [secondaryText]="secondaryText(provider)"
-          [buttonText]="actionText(provider)"
+          [secondaryText]="
+            signedInEmail(provider)
+              ? ('provider.signedInAs' | translate: { email: signedInEmail(provider)! })
+              : provider.metadata.description
+          "
+          [buttonText]="actionLabelKey(provider) | translate"
           [disabled]="isBusy(provider)"
           [error]="errorFor(provider)"
           (action)="handleAction(provider)"
