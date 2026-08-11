@@ -1,22 +1,14 @@
 <div class="chat-list-shell">
-  <app-sidebar-search
-    [searchTerm]="searchTerm()"
-    [placeholder]="'chat.search' | translate"
-    [ariaLabel]="'chat.searchChats' | translate"
-    (searchTermChange)="onSearchTermChange($event)"
-  />
+  <app-sidebar-search [searchTerm]="searchTerm()" [placeholder]="'chat.search' | translate"
+    [ariaLabel]="'chat.searchChats' | translate" (searchTermChange)="onSearchTermChange($event)" />
 
   <div class="chat-list">
     @for (chat of filteredChats(); track chat.id()) {
     <button type="button" class="chat-list-item" [class.chat-list-item--active]="selectedChat()?.id() === chat.id()"
       (click)="onOpenChat(chat)">
       <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing()">
-        <app-chat-avatar
-          class="chat-list-item__avatar"
-          [avatar]="chat.avatar()"
-          [label]="chat.name() | translate"
-          alt="avatar"
-        />
+        <app-chat-avatar class="chat-list-item__avatar" [avatar]="chat.avatar()" [label]="chat.name() | translate"
+          alt="avatar" />
       </div>
       <div class="chat-list-item__content">
         <div class="chat-list-item__top">
@@ -37,8 +29,10 @@
             <span class="chat-list-item__draft-label">{{ 'chat.draft' | translate }}</span>
             <span> {{ chat.draftMessage().trim() }}</span>
             }
-            @else {
-            {{ lastMessageText(chat) | translate }}
+            @else if (lastMessageText(chat); as lastMessage) {
+            {{ lastMessage }}
+            } @else {
+            {{ (chat.subtitle() || 'chat.startConversation') | translate }}
             }
           </p>
           @if (chat.unreadCount()) {

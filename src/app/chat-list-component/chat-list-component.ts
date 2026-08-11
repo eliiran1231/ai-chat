@@ -27,11 +27,11 @@ export class ChatListComponent {
     const chatsArray = !query
       ? [...this.chats()]
       : this.chats().filter((chat) => {
-        const lastMessage = this.lastMessageText(chat).toLowerCase();
+        const lastMessage = this.lastMessageText(chat)?.toLowerCase();
         return (
           chat.name().toLowerCase().includes(query) ||
           chat.status().toLowerCase().includes(query) ||
-          lastMessage.includes(query)
+          lastMessage?.includes(query)
         );
       });
 
@@ -41,10 +41,10 @@ export class ChatListComponent {
     );
   });
 
-  lastMessageText(chat: Chat): string {
+  lastMessageText(chat: Chat): string | null {
     const lastMessage = chat.messages().at(-1);
     if (!lastMessage) {
-      return chat.subtitle() || 'chat.startConversation';
+      return null;
     }
 
     return DOMPurify.sanitize(lastMessage.value() || lastMessage.attachment()?.name || '', {
