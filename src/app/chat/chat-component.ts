@@ -17,6 +17,7 @@ import {
   shouldShowDateSeparator,
   shouldShowMessageTail,
 } from '../../utils/chat-message-date-separator';
+import { AgentRunBubbleComponent } from '../agent-run-bubble-component/agent-run-bubble-component';
 
 @Component({
   selector: 'app-chat',
@@ -29,7 +30,8 @@ import {
     NgScrollReachDrop,
     DatePipe,
     ChatMessageDatePipe,
-    LucideDynamicIcon
+    LucideDynamicIcon,
+    AgentRunBubbleComponent,
   ],
   templateUrl: './chat-component.html',
   styleUrl: './chat-component.scss',
@@ -48,6 +50,8 @@ export class ChatComponent {
   }
 
   chat = input.required<Chat>();
+  supporterActions = computed(() => this.chat().supporter.actions());
+  supporterActive = computed(() => this.supporterActions().length > 0);
   showBackButton = input(false);
   back = output<void>();
   readonly SCROLLBAR_OFFSET = 40;
@@ -133,6 +137,10 @@ export class ChatComponent {
 
   setAnswerSheetOpen(isOpen: boolean): void {
     this.isAnswerSheetOpen.set(isOpen);
+  }
+
+  stopAgentResponse(): void {
+    void this.chat().supporter.cancelResponse();
   }
 
   closePreviewPage(): void {

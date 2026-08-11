@@ -11,6 +11,8 @@ import { registerSupporterHandlers } from './ipc/supporter.handler.js';
 import { registerAuthenticationHandlers } from './ipc/authentication.handler.js';
 import { authenticationService } from './services/server-authentication.service.js';
 import { registerSyncHandlers } from './ipc/sync.handler.js';
+import { registerDeepAgentHandlers } from './ipc/deep-agent.handler.js';
+import { deepAgentService } from './services/deep-agent.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -110,11 +112,13 @@ function createWindow(): void {
 app.whenReady().then(async () => {
   authenticationService.initialize();
   await dbService.initialize();
+  deepAgentService.initialize();
   registerChatHandlers();
   registerMessageHandlers();
   registerSupporterHandlers();
   registerAuthenticationHandlers();
   registerSyncHandlers();
+  registerDeepAgentHandlers();
   registerSystemHandlers();
   //Menu.setApplicationMenu(null);
   createWindow();
@@ -129,6 +133,7 @@ app.whenReady().then(async () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     void dbService.close();
+    deepAgentService.close();
     app.quit();
   }
 });

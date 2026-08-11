@@ -104,6 +104,10 @@ export class Agent {
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
     }
 
+    cancelResponse(): void | Promise<void> {
+        //override to cancel active responses
+    }
+
     onDestroy(): void | Promise<void> {
         this.onMessageDeletedHandler?.unsubscribe();
         this.onMessageEditedHandler?.unsubscribe();

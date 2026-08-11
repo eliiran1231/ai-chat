@@ -101,22 +101,7 @@ npm run dev
 
 ## Local AI agent
 
-`AiAgent` currently calls the OpenAI-compatible endpoint configured in `src/services/ai.service.ts`:
-
-```text
-http://localhost:1234/v1/chat/completions
-```
-
-The configured model is:
-
-```text
-google/gemma-3-4b
-```
-
-Start LM Studio or another compatible local server with that model before using `AiAgent`. `MockAgent` and `FlowAgent` do not require an AI server.
-
 ## Build and test
-
 ```powershell
 npm run build
 npm test -- --watch=false

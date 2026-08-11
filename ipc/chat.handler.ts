@@ -6,6 +6,7 @@ import {
   type CommitChatPayload,
 } from '../services/chat.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
+import { deepAgentService } from '../services/deep-agent.service.js';
 
 type Uuid = string;
 
@@ -28,8 +29,10 @@ export function registerChatHandlers(): void {
   );
   ipcMain.handle(
     'db:deleteChat',
-    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: Uuid) =>
-      chatService.deleteChat(chatId),
-    ),
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, chatId: Uuid) => {
+      const deleted = await chatService.deleteChat(chatId);
+      if (deleted) await deepAgentService.deleteThread(chatId);
+      return deleted;
+    }),
   );
 }

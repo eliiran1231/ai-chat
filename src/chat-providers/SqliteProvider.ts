@@ -20,6 +20,10 @@ import { PowerSyncAuthenticationService } from '../authenticators/powersync.auth
 import { PowerSyncConnectComponent } from '../app/powersync-connect-component/powersync-connect-component';
 import { SqliteMessagesSource } from '../message-sources/SqliteMessagesSource';
 
+export function normalizePersistedAgentName(agentName: string): string {
+  return agentName === 'AiAgent' ? 'DeepAgent' : agentName;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -142,8 +146,9 @@ export class SqliteProvider implements ChatProvider {
         const persistedSupporterRecord = await this.dbService.getChatSupporter(record.id);
         if (!persistedSupporterRecord?.agentName)
           throw new Error("couldn't retrieve agent from SQL");
-        const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
-        initialAgent.name = persistedSupporterRecord.agentName;
+        const agentName = normalizePersistedAgentName(persistedSupporterRecord.agentName);
+        const initialAgent = this.agentsService.getAgentByName(agentName);
+        initialAgent.name = agentName;
         const supporterRecord =
           persistedSupporterRecord ??
           (await this.dbService.createSupporter({
