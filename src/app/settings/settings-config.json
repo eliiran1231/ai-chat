@@ -1,0 +1,269 @@
+{
+  "categories": [
+    {
+      "path": "general",
+      "title": "settings.general.title",
+      "description": "settings.general.description",
+      "icon": "settings"
+    },
+    {
+      "path": "profile",
+      "title": "settings.profile.title",
+      "description": "settings.profile.description",
+      "icon": "user"
+    },
+    {
+      "path": "notifications",
+      "title": "settings.notifications.title",
+      "description": "settings.notifications.description",
+      "icon": "bell"
+    },
+    {
+      "path": "chats",
+      "title": "settings.chats.title",
+      "description": "settings.chats.description",
+      "icon": "message-square"
+    },
+    {
+      "path": "appearance",
+      "title": "settings.appearance.title",
+      "description": "settings.appearance.description",
+      "icon": "palette"
+    },
+    {
+      "path": "languages",
+      "title": "settings.languages.title",
+      "description": "settings.languages.description",
+      "icon": "languages"
+    },
+    {
+      "path": "about",
+      "title": "settings.about.title",
+      "description": "settings.about.description",
+      "icon": "info"
+    }
+  ],
+  "sections": {
+    "general": {
+      "title": "settings.general.title",
+      "description": "settings.general.intro",
+      "rows": [
+        {
+          "label": "settings.general.startAtLogin.label",
+          "description": "settings.general.startAtLogin.description",
+          "control": "toggle",
+          "settingKey": "startAtLogin"
+        },
+        {
+          "label": "settings.general.runInBackground.label",
+          "description": "settings.general.runInBackground.description",
+          "control": "toggle",
+          "settingKey": "runInBackground"
+        },
+        {
+          "label": "settings.general.reset.label",
+          "description": "settings.general.reset.description",
+          "control": "button",
+          "value": "common.reset",
+          "danger": true,
+          "action": "resetGeneralSettings",
+          "confirmation": {
+            "title": "settings.general.reset.confirmTitle",
+            "message": "settings.general.reset.confirmMessage",
+            "confirmText": "common.reset",
+            "danger": true
+          }
+        }
+      ]
+    },
+    "profile": {
+      "title": "settings.profile.title",
+      "description": "settings.profile.intro",
+      "rows": [
+        {
+          "label": "settings.profile.displayName",
+          "description": "",
+          "control": "info",
+          "profileField": "displayName"
+        },
+        {
+          "label": "settings.profile.username",
+          "description": "",
+          "control": "info",
+          "profileField": "username"
+        },
+        {
+          "label": "settings.profile.computerName",
+          "description": "",
+          "control": "info",
+          "profileField": "computerName"
+        },
+        {
+          "label": "settings.profile.ipAddress",
+          "description": "",
+          "control": "info",
+          "profileField": "ip"
+        }
+      ]
+    },
+    "notifications": {
+      "title": "settings.notifications.title",
+      "description": "settings.notifications.intro",
+      "rows": [
+        {
+          "label": "settings.notifications.enable.label",
+          "description": "settings.notifications.enable.description",
+          "control": "toggle",
+          "notificationSettingKey": "enableNotifications"
+        },
+        {
+          "label": "settings.notifications.notifyMe.label",
+          "description": "settings.notifications.notifyMe.description",
+          "control": "select",
+          "value": "Always",
+          "options": ["Always", "Only when minimized", "Never"],
+          "optionLabels": [
+            "settings.notifications.notifyMe.always",
+            "settings.notifications.notifyMe.minimized",
+            "settings.notifications.notifyMe.never"
+          ],
+          "notificationSettingKey": "notifyMe"
+        },
+        {
+          "label": "settings.notifications.showPreview.label",
+          "description": "settings.notifications.showPreview.description",
+          "control": "toggle",
+          "notificationSettingKey": "showPreview"
+        },
+        {
+          "label": "settings.notifications.sound.label",
+          "description": "settings.notifications.sound.description",
+          "control": "select",
+          "value": "Default",
+          "options": ["Default", "Soft", "Bright", "None"],
+          "optionLabels": [
+            "settings.notifications.sound.default",
+            "settings.notifications.sound.soft",
+            "settings.notifications.sound.bright",
+            "settings.notifications.sound.none"
+          ],
+          "notificationSettingKey": "notificationSound"
+        }
+      ]
+    },
+    "chats": {
+      "title": "settings.chats.title",
+      "description": "settings.chats.intro",
+      "rows": [
+        {
+          "label": "settings.chats.enterSendsMessage.label",
+          "description": "settings.chats.enterSendsMessage.shiftDescription",
+          "control": "toggle",
+          "chatSettingKey": "enterSendsMessage"
+        },
+        {
+          "label": "settings.chats.deleteAll.label",
+          "description": "settings.chats.deleteAll.description",
+          "control": "button",
+          "value": "common.delete",
+          "danger": true,
+          "action": "deleteAllChats",
+          "confirmation": {
+            "title": "settings.chats.deleteAll.confirmTitle",
+            "message": "settings.chats.deleteAll.confirmMessage",
+            "confirmText": "common.delete",
+            "danger": true
+          }
+        }
+      ]
+    },
+    "appearance": {
+      "title": "settings.appearance.title",
+      "description": "settings.appearance.intro",
+      "rows": [
+        {
+          "label": "settings.appearance.fontSize.label",
+          "description": "settings.appearance.fontSize.description",
+          "control": "range",
+          "value": "16",
+          "displaySettingKey": "fontSize"
+        },
+        {
+          "label": "settings.appearance.theme.label",
+          "description": "settings.appearance.theme.description",
+          "control": "select",
+          "value": "System",
+          "options": ["System", "Light", "Dark"],
+          "optionLabels": [
+            "settings.appearance.theme.system",
+            "settings.appearance.theme.light",
+            "settings.appearance.theme.dark"
+          ],
+          "displaySettingKey": "theme"
+        },
+        {
+          "label": "settings.appearance.density.label",
+          "description": "settings.appearance.density.description",
+          "control": "select",
+          "value": "Comfortable",
+          "options": ["Comfortable", "Compact", "Spacious"],
+          "optionLabels": [
+            "settings.appearance.density.comfortable",
+            "settings.appearance.density.compact",
+            "settings.appearance.density.spacious"
+          ],
+          "displaySettingKey": "displayDensity"
+        },
+        {
+          "label": "settings.appearance.bubbleStyle.label",
+          "description": "settings.appearance.bubbleStyle.description",
+          "control": "select",
+          "value": "Default",
+          "options": ["Default", "Rounded", "Minimal"],
+          "optionLabels": [
+            "settings.appearance.bubbleStyle.default",
+            "settings.appearance.bubbleStyle.rounded",
+            "settings.appearance.bubbleStyle.minimal"
+          ],
+          "displaySettingKey": "messageBubbleStyle"
+        },
+        {
+          "label": "settings.appearance.reset.label",
+          "description": "settings.appearance.reset.description",
+          "control": "button",
+          "value": "common.reset",
+          "danger": true,
+          "action": "resetDisplayPreferences",
+          "confirmation": {
+            "title": "settings.appearance.reset.confirmTitle",
+            "message": "settings.appearance.reset.confirmMessage",
+            "confirmText": "common.reset",
+            "danger": true
+          }
+        }
+      ]
+    },
+    "languages": {
+      "title": "settings.languages.title",
+      "description": "settings.languages.intro",
+      "rows": []
+    },
+    "about": {
+      "title": "settings.about.title",
+      "description": "settings.about.intro",
+      "rows": [
+        {
+          "label": "settings.about.application.label",
+          "description": "settings.about.application.description",
+          "control": "info"
+        },
+        {
+          "label": "settings.about.version.label",
+          "description": "",
+          "control": "info",
+          "appInfoField": "version"
+        }
+      ]
+    }
+  }
+}

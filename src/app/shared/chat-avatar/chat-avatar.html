@@ -1,0 +1,7 @@
+<div class="chat-avatar" aria-hidden="true">
+  @if (imageSrc(); as image) {
+    <img [src]="image" [alt]="alt()" class="chat-avatar__image" />
+  } @else {
+    <span>{{ text() }}</span>
+  }
+</div>

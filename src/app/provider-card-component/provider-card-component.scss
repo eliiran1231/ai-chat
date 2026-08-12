@@ -17,11 +17,11 @@
 .provider-card::after {
   content: '';
   position: absolute;
-  right: 0;
+  inset-inline-end: 0;
   bottom: 0;
-  left: 5.4rem;
+  inset-inline-start: 5.4rem;
   height: 1px;
-  background: #eff1f2;
+  background: color-mix(in srgb, var(--md-sys-color-outline-variant) 38%, var(--md-sys-color-surface));
 }
 
 .provider-card__summary {
@@ -47,7 +47,7 @@
   p {
     margin: 0.25rem 0 0;
     overflow: hidden;
-    color: #667781;
+    color: var(--md-sys-color-on-surface-variant);
     font-size: 0.85rem;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -59,7 +59,7 @@
   height: 3.6rem;
   overflow: hidden;
   border-radius: 50%;
-  background: #f1f3f4;
+  background: var(--md-sys-color-surface-container);
 
   img {
     display: block;
@@ -73,8 +73,8 @@ button {
   border: 0;
   border-radius: 999px;
   padding: 0.6rem 0.9rem;
-  background: #00a884;
-  color: #fff;
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
   cursor: pointer;
   font-weight: 600;
 
@@ -86,6 +86,6 @@ button {
 
 .provider-card__error {
   margin: 0;
-  color: #d92d20;
+  color: var(--md-sys-color-error);
   font-size: 0.85rem;
 }

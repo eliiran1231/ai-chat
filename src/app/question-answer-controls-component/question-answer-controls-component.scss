@@ -19,10 +19,10 @@
   width: 100%;
   min-height: 2.35rem;
   border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--wa-text-soft) 22%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--md-sys-color-on-surface-variant) 22%, transparent);
   padding: 0.48rem 0.62rem;
   background: transparent;
-  color: var(--wa-green);
+  color: var(--md-sys-color-primary);
   font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.2;
@@ -34,7 +34,7 @@
   min-width: min-content;
   border-bottom: 0;
   border-radius: 0.25rem;
-  background: color-mix(in srgb, var(--wa-panel) 72%, transparent);
+  background: color-mix(in srgb, var(--md-sys-color-surface-container) 72%, transparent);
 }
 
 .possible-answer:last-child {
@@ -47,9 +47,9 @@
 }
 
 .possible-answer:hover {
-  background: color-mix(in srgb, var(--wa-green) 8%, transparent);
+  background: color-mix(in srgb, var(--md-sys-color-primary) 8%, transparent);
 }
 
 .possible-answer:active {
-  background: color-mix(in srgb, var(--wa-green) 14%, transparent);
+  background: color-mix(in srgb, var(--md-sys-color-primary) 14%, transparent);
 }

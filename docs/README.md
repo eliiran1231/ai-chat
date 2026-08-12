@@ -34,6 +34,7 @@ This documentation explains how to build conversation agents, add chat backends,
 ## State and integrations
 
 - [Signals and persistence](state/signals.md)
+- [Localization and right-to-left layout](localization.md)
 - [Authentication and synchronization](authentication/introduction.md)
 - [PowerSync backend contract](powersync-backend-contract.md)
 
@@ -50,5 +51,6 @@ Use the guide that matches the behavior you want to add:
 | Load older history | `MessageSource` | [Message loaders and sources](chats/loaders.md) |
 | Add backend authentication | `AuthenticationProvider` | [Authentication](authentication/introduction.md) |
 | Persist signal-backed model changes | `SyncedEntity` | [Signals and persistence](state/signals.md) |
+| Add a language or translate new UI text | `public/languages/*.json` | [Localization](localization.md) |
 
 Classes marked `@internal` are collaboration seams used by the framework itself. Application extensions should prefer the public methods documented here instead of accessing internal properties with bracket notation.

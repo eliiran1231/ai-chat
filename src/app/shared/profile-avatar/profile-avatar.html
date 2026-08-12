@@ -1,0 +1,8 @@
+<div class="profile-avatar">
+  @if (profilePhotoUrl(); as photoUrl) {
+    <img [src]="photoUrl" [alt]="'settings.profile.photoAlt' | translate" />
+  } @else {
+    <div class="profile-avatar__head" aria-hidden="true"></div>
+    <div class="profile-avatar__body" aria-hidden="true"></div>
+  }
+</div>

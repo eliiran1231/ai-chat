@@ -1,33 +1,24 @@
 <div class="chat-list-shell">
-  <app-sidebar-search
-    [searchTerm]="searchTerm()"
-    placeholder="Search or start a new chat"
-    ariaLabel="Search chats"
-    (searchTermChange)="onSearchTermChange($event)"
-  />
+  <app-sidebar-search [searchTerm]="searchTerm()" [placeholder]="'chat.search' | translate"
+    [ariaLabel]="'chat.searchChats' | translate" (searchTermChange)="onSearchTermChange($event)" />
 
   <div class="chat-list">
     @for (chat of filteredChats(); track chat.id()) {
     <button type="button" class="chat-list-item" [class.chat-list-item--active]="selectedChat()?.id() === chat.id()"
       (click)="onOpenChat(chat)">
       <div class="chat-list-item__avatar-wrap" [class.chat-list-item__avatar-wrap--ring]="chat.avatarRing()">
-        <div class="chat-list-item__avatar">
-          @if (chat.avatar().type === 'image') {
-          <img [src]="chat.avatar().value" alt="avatar" class="chat-list-item__avatar-img" />
-          } @else {
-          {{ chat.avatar().value }}
-          }
-        </div>
+        <app-chat-avatar class="chat-list-item__avatar" [avatar]="chat.avatar()" [label]="chat.name() | translate"
+          alt="avatar" />
       </div>
       <div class="chat-list-item__content">
         <div class="chat-list-item__top">
-          <strong>{{ chat.name() }}</strong>
+          <strong>{{ chat.name() | translate }}</strong>
           <div class="chat-list-item__actions">
             <time [class.chat-list-item__time--accent]="chat.highlightTime">
               @if (lastMessageTime(chat); as time) {
               {{ time | date: 'HH:mm' }}
               } @else {
-              {{ chat.timeLabel || '' }}
+              {{ chat.timeLabel() | translate }}
               }
             </time>
           </div>
@@ -35,11 +26,13 @@
         <div class="chat-list-item__bottom">
           <p>
             @if (chat.draftMessage().trim()) {
-            <span class="chat-list-item__draft-label">Draft:</span>
+            <span class="chat-list-item__draft-label">{{ 'chat.draft' | translate }}</span>
             <span> {{ chat.draftMessage().trim() }}</span>
             }
-            @else {
-            {{ lastMessageText(chat) }}
+            @else if (lastMessageText(chat); as lastMessage) {
+            {{ lastMessage }}
+            } @else {
+            {{ (chat.subtitle() || 'chat.startConversation') | translate }}
             }
           </p>
           @if (chat.unreadCount()) {
@@ -50,11 +43,11 @@
     </button>
     } @empty {
     <div class="chat-list-empty">
-      <p>No chats match your search</p>
+      <p>{{ 'chat.noSearchResults' | translate }}</p>
     </div>
     }
   </div>
 </div>
-<button type="button" class="floating-compose" aria-label="New chat" (click)="onCreateChat()">
+<button type="button" class="floating-compose" [attr.aria-label]="'chat.new' | translate" (click)="onCreateChat()">
   <svg [lucideIcon]="composeIcon" aria-hidden="true"></svg>
 </button>

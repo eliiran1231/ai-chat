@@ -2,7 +2,7 @@
   display: block;
   height: 100%;
   min-height: 0;
-  color: #111b21;
+  color: var(--md-sys-color-on-surface);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -15,20 +15,9 @@ ng-scrollbar,
 
 ng-scrollbar {
   --scrollbar-track-color: transparent;
-  --scrollbar-thumb-color: rgba(0, 0, 0, 0);
-  --scrollbar-thumb-hover-color: rgba(0, 0, 0, 0);
-  --scrollbar-thumb-active-color: rgba(0, 0, 0, 0);
-
-  --scrollbar-thumb-transition: background-color 0.5s ease 0.5s;
-}
-
-ng-scrollbar.is-scrolling {
-  --scrollbar-thumb-color: rgba(0, 0, 0, 0.42);
-  --scrollbar-thumb-hover-color: rgba(0, 0, 0, 0.56);
-  --scrollbar-thumb-active-color: rgba(0, 0, 0, 0.62);
-
-  --scrollbar-thumb-transition: background-color 0s;
-
+  --scrollbar-thumb-color: color-mix(in srgb, var(--md-sys-color-outline) 46%, transparent);
+  --scrollbar-thumb-hover-color: color-mix(in srgb, var(--md-sys-color-outline) 68%, transparent);
+  --scrollbar-thumb-active-color: var(--md-sys-color-outline);
 }
 
 app-file-preview-component {
@@ -37,24 +26,13 @@ app-file-preview-component {
 }
 
 .chat-shell {
-  --wa-green: #075e54;
-  --wa-green-dark: #054c44;
-  --wa-accent: #25d366;
-  --wa-thread: #e5ddd5;
-  --wa-thread-pattern: rgba(255, 255, 255, 0.38);
-  --wa-user-bubble: #d9fdd3;
-  --wa-supporter-bubble: #ffffff;
-  --wa-panel: #f0f2f5;
-  --wa-border: #d1d7db;
-  --wa-text-soft: #667781;
-
   position: relative;
   display: flex;
   flex-direction: column;
   background:
-    radial-gradient(circle at 25px 25px, var(--wa-thread-pattern) 2px, transparent 0) 0 0 / 50px 50px,
-    radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.2) 2px, transparent 0) 15px 15px / 50px 50px,
-    var(--wa-thread);
+    radial-gradient(circle at 25px 25px, color-mix(in srgb, var(--md-sys-color-surface) 34%, transparent) 2px, transparent 0) 0 0 / 50px 50px,
+    radial-gradient(circle at 0 0, color-mix(in srgb, var(--md-sys-color-on-secondary) 20%, transparent) 2px, transparent 0) 15px 15px / 50px 50px,
+    var(--md-sys-color-background);
 }
 
 .message-text,
@@ -67,8 +45,8 @@ app-file-preview-component {
   position: relative;
   flex: 1;
   overflow-y: auto;
-  padding-top: 1.2rem;
-  padding-bottom: 1.2rem;
+  padding-top: calc(1.2rem * var(--app-density));
+  padding-bottom: calc(1.2rem * var(--app-density));
 }
 
 .date-separator {
@@ -84,9 +62,9 @@ app-file-preview-component {
   max-width: min(100%, 18rem);
   padding: 0.22rem 0.58rem;
   border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.88);
-  color: var(--wa-text-soft);
-  box-shadow: 0 1px 0.5px rgba(17, 27, 33, 0.13);
+  background: color-mix(in srgb, var(--md-sys-color-surface) 88%, transparent);
+  color: var(--md-sys-color-on-surface-variant);
+  box-shadow: 0 1px 0.5px color-mix(in srgb, var(--md-sys-color-on-surface) 13%, transparent);
   font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.2;
@@ -99,7 +77,7 @@ app-file-preview-component {
   inset: 0;
   min-height: 100%;
   z-index: 2;
-  background: rgba(17, 27, 33, 0.56);
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 56%, transparent);
   pointer-events: none;
 }
 
@@ -124,7 +102,7 @@ app-file-preview-component {
 
 .scroll-bottom-button {
   position: absolute;
-  right: 1.25rem;
+  inset-inline-end: 1.25rem;
   bottom: 5.5rem;
   width: 2.6rem;
   height: 2.6rem;
@@ -132,9 +110,9 @@ app-file-preview-component {
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.96);
-  color: var(--wa-green);
-  box-shadow: 0 8px 24px rgba(17, 27, 33, 0.16);
+  background: color-mix(in srgb, var(--md-sys-color-surface) 96%, transparent);
+  color: var(--md-sys-color-primary);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--md-sys-color-on-surface) 16%, transparent);
   cursor: pointer;
   transition:
     transform 0.18s ease,
@@ -145,8 +123,8 @@ app-file-preview-component {
 
 .scroll-bottom-button:hover {
   transform: translateY(-1px);
-  background: #ffffff;
-  box-shadow: 0 10px 28px rgba(17, 27, 33, 0.2);
+  background: var(--md-sys-color-surface);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--md-sys-color-on-surface) 20%, transparent);
 }
 
 .scroll-bottom-button:active {
@@ -163,5 +141,5 @@ app-file-preview-component {
   height: 100%;
   display: grid;
   place-items: center;
-  color: var(--wa-text-soft);
+  color: var(--md-sys-color-on-surface-variant);
 }

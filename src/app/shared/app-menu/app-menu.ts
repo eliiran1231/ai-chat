@@ -1,6 +1,7 @@
 import { CdkMenuModule } from '@angular/cdk/menu';
 import { Component, input, output } from '@angular/core';
 import { LucideDynamicIcon, LucideIconInput } from '@lucide/angular';
+import { TranslatePipe } from '../translate.pipe';
 
 export interface AppMenuItem {
   label: string;
@@ -12,7 +13,7 @@ export interface AppMenuItem {
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CdkMenuModule, LucideDynamicIcon],
+  imports: [CdkMenuModule, LucideDynamicIcon, TranslatePipe],
   templateUrl: './app-menu.html',
   styleUrl: './app-menu.scss',
 })

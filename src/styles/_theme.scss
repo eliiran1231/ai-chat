@@ -1,0 +1,76 @@
+:root {
+  --app-font-size: 16px;
+  --app-density: 1;
+  --message-bubble-radius: 0.55rem;
+
+  --md-sys-color-primary: #1daa61;
+  --md-sys-color-surface-tint: var(--md-sys-color-primary);
+  --md-sys-color-on-primary: #ffffff;
+  --md-sys-color-primary-container: #d9fdd3;
+  --md-sys-color-on-primary-container: #111b21;
+  --md-sys-color-secondary: #075e54;
+  --md-sys-color-on-secondary: #ffffff;
+  --md-sys-color-secondary-container: color-mix(in srgb, var(--md-sys-color-secondary) 12%, #ffffff);
+  --md-sys-color-on-secondary-container: #111b21;
+  --md-sys-color-tertiary: #53bdeb;
+  --md-sys-color-on-tertiary: #111b21;
+  --md-sys-color-tertiary-container: color-mix(in srgb, var(--md-sys-color-tertiary) 18%, #ffffff);
+  --md-sys-color-on-tertiary-container: #111b21;
+  --md-sys-color-error: #b42318;
+  --md-sys-color-on-error: #ffffff;
+  --md-sys-color-error-container: color-mix(in srgb, var(--md-sys-color-error) 8%, #ffffff);
+  --md-sys-color-on-error-container: var(--md-sys-color-error);
+  --md-sys-color-background: #e5ddd5;
+  --md-sys-color-on-background: #111b21;
+  --md-sys-color-surface: #ffffff;
+  --md-sys-color-on-surface: #111b21;
+  --md-sys-color-surface-variant: #f0f2f5;
+  --md-sys-color-on-surface-variant: #667781;
+  --md-sys-color-outline: #667781;
+  --md-sys-color-outline-variant: #d1d7db;
+  --md-sys-color-shadow: #000000;
+  --md-sys-color-scrim: #000000;
+  --md-sys-color-inverse-surface: #111b21;
+  --md-sys-color-inverse-on-surface: #f5f7f8;
+  --md-sys-color-inverse-primary: var(--md-sys-color-primary);
+  --md-sys-color-primary-fixed: var(--md-sys-color-primary-container);
+  --md-sys-color-on-primary-fixed: var(--md-sys-color-on-primary-container);
+  --md-sys-color-primary-fixed-dim: color-mix(in srgb, var(--md-sys-color-primary) 68%, #ffffff);
+  --md-sys-color-on-primary-fixed-variant: var(--md-sys-color-on-primary-container);
+  --md-sys-color-secondary-fixed: var(--md-sys-color-secondary-container);
+  --md-sys-color-on-secondary-fixed: var(--md-sys-color-on-secondary-container);
+  --md-sys-color-secondary-fixed-dim: color-mix(in srgb, var(--md-sys-color-secondary) 28%, #ffffff);
+  --md-sys-color-on-secondary-fixed-variant: var(--md-sys-color-secondary);
+  --md-sys-color-tertiary-fixed: var(--md-sys-color-tertiary-container);
+  --md-sys-color-on-tertiary-fixed: var(--md-sys-color-on-tertiary-container);
+  --md-sys-color-tertiary-fixed-dim: color-mix(in srgb, var(--md-sys-color-tertiary) 32%, #ffffff);
+  --md-sys-color-on-tertiary-fixed-variant: #0b4f65;
+  --md-sys-color-surface-dim: #e9edef;
+  --md-sys-color-surface-bright: #ffffff;
+  --md-sys-color-surface-container-lowest: #ffffff;
+  --md-sys-color-surface-container-low: #f5f7f8;
+  --md-sys-color-surface-container: #f0f2f5;
+  --md-sys-color-surface-container-high: #e9edef;
+  --md-sys-color-surface-container-highest: #d1d7db;
+
+}
+
+html[data-app-density='Compact'] {
+  --app-density: 0.82;
+}
+
+html[data-app-density='Spacious'] {
+  --app-density: 1.18;
+}
+
+html[data-message-bubble-style='Rounded'] {
+  --message-bubble-radius: 1.1rem;
+}
+
+html[data-message-bubble-style='Minimal'] {
+  --message-bubble-radius: 0.25rem;
+}
+
+html[data-app-theme='Light'] {
+  color-scheme: light;
+}

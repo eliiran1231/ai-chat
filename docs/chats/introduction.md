@@ -45,13 +45,18 @@ Provider implementations construct the domain object after creating or loading t
 ```ts
 const supporter = new Supporter(supporterId, 'Supporter');
 const manager = new MyChatManager(injector, this);
-const chat = new Chat(chatId, 'New chat', supporter, manager, {
-  subtitle: 'Tap to start chatting',
-  timeLabel: 'now',
+const chat = new Chat(chatId, 'chat.defaultName', supporter, manager, {
+  avatar: { type: 'text', value: '' },
+  subtitle: 'chat.tapToStart',
+  timeLabel: 'time.now',
 });
 ```
 
 The `Chat` constructor connects the supporter to the chat, initializes the manager, creates the client participant and message loader, and initializes signal synchronization. The provider must still configure persistence handlers, message sources, and the initial agent.
+
+User-facing text on a chat is stored as a translation key rather than a literal string, so a chat renders in whichever language is active. See [Localization](../localization.md).
+
+Pass `avatar` explicitly when the name is a translation key. The default avatar is derived from the first two characters of `name`, which would otherwise produce initials taken from the key itself rather than from anything the user sees.
 
 ## Chat properties
 
@@ -60,11 +65,11 @@ Most chat properties are Angular signals. Read them by calling the property and 
 | Property | Type | Meaning |
 | --- | --- | --- |
 | `id` | `Signal<Uuid>` | Stable identifier assigned by the provider. |
-| `name` | `SyncedSignal<string>` | Display name of the conversation. |
+| `name` | `SyncedSignal<string>` | Display name of the conversation, as a translation key. |
 | `status` | `SyncedSignal<string>` | Provider-defined chat status label. |
-| `avatar` | `SyncedSignal<Avatar>` | Text or image avatar shown for the chat. |
-| `subtitle` | `SyncedSignal<string>` | Secondary text shown in chat lists and headers. |
-| `timeLabel` | `SyncedSignal<string>` | Display label for the chat time. |
+| `avatar` | `SyncedSignal<Avatar>` | Text or image avatar shown for the chat. Defaults to the first two characters of `name`. |
+| `subtitle` | `SyncedSignal<string>` | Secondary text shown in chat lists and headers, as a translation key. |
+| `timeLabel` | `SyncedSignal<string>` | Display label for the chat time, as a translation key. |
 | `unreadCount` | `SyncedSignal<number>` | Number of unread supporter messages. |
 | `highlightTime` | `SyncedSignal<boolean>` | Whether the time label should be emphasized. |
 | `avatarRing` | `SyncedSignal<boolean>` | Whether the avatar uses its highlighted ring style. |
@@ -78,7 +83,7 @@ Most chat properties are Angular signals. Read them by calling the property and 
 | `loader` | `MessageLoader` | Coordinator used to load older history. |
 | `manager` | `ChatManager` | Internal mutation boundary used by collaborating chat-domain classes. |
 
-The constructor's `ChatOptions` object accepts `status`, `avatar`, `subtitle`, `timeLabel`, `unreadCount`, `highlightTime`, `avatarRing`, and `tipLabel`. Defaults are applied when a value is omitted.
+The constructor's `ChatOptions` object accepts `status`, `avatar`, `subtitle`, `timeLabel`, `unreadCount`, `highlightTime`, `avatarRing`, and `tipLabel`. Defaults are applied when a value is omitted: `subtitle` falls back to `chat.tapToStart` and `timeLabel` to `time.now`.
 
 ## Sending messages
 
