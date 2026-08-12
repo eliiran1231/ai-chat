@@ -18,8 +18,8 @@
         type="button"
         class="message-options-button"
         (click)="openMessageOptions($event)"
-        aria-label="Open message options"
-        title="Message options"
+        [attr.aria-label]="'chat.openMessageOptions' | translate"
+        [title]="'chat.messageOptions' | translate"
       >
         <svg [lucideIcon]="optionsIcon" aria-hidden="true"></svg>
       </button>
@@ -36,7 +36,7 @@
             [attr.download]="message().attachment()!.name + '.' + message().attachment()!.extension"
             target="_blank"
             rel="noopener noreferrer"
-            [attr.aria-label]="'Open attachment ' + message().attachment()!.name"
+            [attr.aria-label]="'file.openAttachment' | translate: { name: message().attachment()!.name }"
           >
             <div class="message-file-card__content">
               <p class="message-file-card__name">
@@ -69,7 +69,7 @@
     <div class="message-metadata-container">
       <time>
         @if (message().editedAt()) {
-          <span class="message-edited-mark">(edited)</span>
+          <span class="message-edited-mark">({{ 'chat.edited' | translate }})</span>
         }
         {{ (message().editedAt() ?? message().time()) | date: 'HH:mm' }}
       </time>

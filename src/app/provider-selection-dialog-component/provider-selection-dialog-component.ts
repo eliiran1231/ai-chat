@@ -4,6 +4,7 @@ import { ChatProvider } from '../../interfaces/ChatProvider';
 import { ANIMATED_DIALOG_CONTEXT } from '../animated-dialog-component/animated-dialog-context.token';
 import { AnimatedDialogData } from '../animated-dialog-component/animated-dialog-component';
 import { ProviderCardComponent } from '../provider-card-component/provider-card-component';
+import { TranslatePipe } from '../shared/translate.pipe';
 
 export interface ProviderSelectionDialogData extends AnimatedDialogData {
   providers: ChatProvider[];
@@ -11,7 +12,7 @@ export interface ProviderSelectionDialogData extends AnimatedDialogData {
 
 @Component({
   selector: 'app-provider-selection-dialog',
-  imports: [ProviderCardComponent],
+  imports: [ProviderCardComponent, TranslatePipe],
   templateUrl: './provider-selection-dialog-component.html',
   styleUrl: './provider-selection-dialog-component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,0 +1,188 @@
+.settings-page {
+  width: 100%;
+  min-height: calc(100% - 4.25rem);
+  margin: 0;
+  padding: calc(2rem * var(--app-density));
+  background: var(--app-surface);
+}
+
+.settings-empty-stage {
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  background: var(--app-surface);
+}
+
+.settings-empty-stage__card {
+  width: min(28rem, calc(100% - 2rem));
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--app-surface) 88%, transparent);
+  box-shadow: 0 1.25rem 2.5rem color-mix(in srgb, var(--app-text) 8%, transparent);
+  text-align: center;
+}
+
+.settings-empty-stage__icon {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  place-items: center;
+  border-radius: 1.2rem;
+  background: linear-gradient(135deg, var(--app-accent), var(--app-accent-dark));
+  color: #fff;
+}
+
+.settings-empty-stage__icon svg {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.settings-empty-stage__card h2,
+.settings-empty-stage__card p {
+  margin: 0;
+}
+
+.settings-empty-stage__card h2 {
+  color: var(--app-text);
+  font-size: 1.35rem;
+}
+
+.settings-empty-stage__card p {
+  margin-top: 0.5rem;
+  color: var(--app-text-soft);
+  line-height: 1.5;
+}
+
+.settings-page__header {
+  margin-bottom: 1.5rem;
+}
+
+.settings-page__header span {
+  display: block;
+  margin: 0;
+  color: var(--app-text-soft);
+  line-height: 1.45;
+}
+
+.settings-list {
+  display: grid;
+  gap: calc(0.75rem * var(--app-density));
+}
+
+.settings-overview {
+  display: flex;
+  align-items: flex-start;
+}
+
+.settings-overview .settings-list {
+  width: min(100%, 42rem);
+}
+
+.settings-overview__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.85rem;
+  min-height: 4.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid #ebedef;
+  border-radius: 0.5rem;
+  background: #f5f7f8;
+  color: #111b21;
+  text-decoration: none;
+}
+
+.settings-overview__item:hover,
+.settings-overview__item:focus-visible {
+  background: #edf1f3;
+  outline: none;
+}
+
+.settings-overview__icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #0b8b72;
+}
+
+.settings-overview__item span {
+  min-width: 0;
+}
+
+.settings-overview__item strong,
+.settings-overview__item small {
+  display: block;
+}
+
+.settings-overview__item strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.settings-overview__item small {
+  margin-top: 0.25rem;
+  color: #667781;
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.settings-profile-hero {
+  position: relative;
+  width: min(58vw, 11rem);
+  display: flex;
+  justify-content: center;
+  margin: 0 auto 1.75rem;
+}
+
+.settings-profile-edit {
+  position: absolute;
+  inset-inline-end: 0.2rem;
+  bottom: 0.2rem;
+  width: 2.7rem;
+  height: 2.7rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--app-accent);
+  color: #fff;
+  box-shadow: 0 0.9rem 1.6rem color-mix(in srgb, var(--app-accent) 32%, transparent);
+  cursor: pointer;
+}
+
+.settings-profile-edit:hover,
+.settings-profile-edit:focus-visible {
+  background: var(--app-accent-dark);
+  outline: none;
+}
+
+.settings-profile-edit svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.settings-profile-file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.settings-language-option {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 4.5rem;
+  padding: 1rem; border: 1px solid var(--md-sys-color-outline-variant); border-radius: 0.5rem;
+  background: var(--md-sys-color-surface-container); color: var(--md-sys-color-on-surface); cursor: pointer; font: inherit;
+}
+.settings-language-option--active, .settings-language-option:hover, .settings-language-option:focus-visible { border-color: var(--md-sys-color-primary); outline: none; }
+.settings-language-option span:last-child, .settings-language-status { color: var(--md-sys-color-primary); }
+
+@media (max-width: 780px) {
+  .settings-page {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+}

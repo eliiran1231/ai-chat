@@ -1,17 +1,36 @@
 @use '@angular/cdk';
+@use './styles/theme' as *;
+@use './styles/theme.dark' as *;
 
 @include cdk.overlay();
 @include cdk.text-field-autosize();
 
-.provider-dialog-backdrop {
-  background: rgb(0 0 0 / 0.55);
+.popup-dialog-backdrop {
+  background: color-mix(in srgb, var(--md-sys-color-scrim) 55%, transparent);
+}
+
+.cdk-dialog-container {
+  color: inherit;
+}
+
+:root {
+  --app-bg: var(--md-sys-color-background);
+  --app-surface: var(--md-sys-color-surface);
+  --app-panel: var(--md-sys-color-surface-container);
+  --app-border: var(--md-sys-color-outline-variant);
+  --app-text: var(--md-sys-color-on-surface);
+  --app-text-soft: var(--md-sys-color-on-surface-variant);
+  --app-accent: var(--md-sys-color-primary);
+  --app-accent-dark: var(--md-sys-color-inverse-primary);
 }
 
 html,
 body {
   margin: 0;
   height: 100%;
-  background: #e5ddd5;
+  background: var(--md-sys-color-background);
+  font-size: var(--app-font-size, 16px);
+  color: var(--md-sys-color-on-surface);
   overflow: hidden;
 }
 
@@ -21,11 +40,11 @@ body {
   box-sizing: border-box;
 }
 
-.message-markdown> :first-child {
+.message-markdown > :first-child {
   margin-top: 0;
 }
 
-.message-markdown> :last-child {
+.message-markdown > :last-child {
   margin-bottom: 0;
 }
 
@@ -42,18 +61,18 @@ body {
   padding-inline-start: 1.3rem;
 }
 
-.message-markdown li+li {
+.message-markdown li + li {
   margin-top: 0.18rem;
 }
 
 .message-markdown a {
-  color: #0b66c3;
+  color: var(--md-sys-color-tertiary);
 }
 
 .message-markdown code {
   padding: 0.08rem 0.32rem;
   border-radius: 0.35rem;
-  background: rgba(17, 27, 33, 0.08);
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 8%, transparent);
   font-family: 'Cascadia Code', 'Consolas', monospace;
   font-size: 0.88em;
 }
@@ -62,8 +81,8 @@ body {
   overflow-x: auto;
   padding: 0.75rem 0.85rem;
   border-radius: 0.8rem;
-  background: rgba(17, 27, 33, 0.94);
-  color: #f5f7fa;
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 94%, transparent);
+  color: var(--md-sys-color-surface-container-low);
 }
 
 .message-markdown pre code {
@@ -75,6 +94,6 @@ body {
 
 .message-markdown blockquote {
   padding-inline-start: 0.75rem;
-  border-inline-start: 0.22rem solid rgba(17, 27, 33, 0.2);
-  color: #41525d;
+  border-inline-start: 0.22rem solid color-mix(in srgb, var(--md-sys-color-on-surface) 20%, transparent);
+  color: color-mix(in srgb, var(--md-sys-color-on-surface) 82%, var(--md-sys-color-on-surface-variant));
 }

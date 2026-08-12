@@ -3,10 +3,12 @@ import { Component, computed, input, output } from '@angular/core';
 import { LucideDynamicIcon, LucideSquarePen } from '@lucide/angular';
 import { Chat } from '../../classes/Chat';
 import DOMPurify from 'dompurify';
+import { ChatAvatarComponent } from '../shared/chat-avatar/chat-avatar';
 import { SidebarSearchComponent } from '../shared/sidebar-search/sidebar-search-component';
+import { TranslatePipe } from '../shared/translate.pipe';
 @Component({
   selector: 'app-chat-list-component',
-  imports: [LucideDynamicIcon, DatePipe, SidebarSearchComponent],
+  imports: [LucideDynamicIcon, DatePipe, ChatAvatarComponent, SidebarSearchComponent, TranslatePipe],
   templateUrl: './chat-list-component.html',
   styleUrl: './chat-list-component.scss',
 })
@@ -25,11 +27,11 @@ export class ChatListComponent {
     const chatsArray = !query
       ? [...this.chats()]
       : this.chats().filter((chat) => {
-        const lastMessage = this.lastMessageText(chat).toLowerCase();
+        const lastMessage = this.lastMessageText(chat)?.toLowerCase();
         return (
           chat.name().toLowerCase().includes(query) ||
           chat.status().toLowerCase().includes(query) ||
-          lastMessage.includes(query)
+          lastMessage?.includes(query)
         );
       });
 
@@ -39,10 +41,10 @@ export class ChatListComponent {
     );
   });
 
-  lastMessageText(chat: Chat): string {
+  lastMessageText(chat: Chat): string | null {
     const lastMessage = chat.messages().at(-1);
     if (!lastMessage) {
-      return chat.subtitle() || 'start the conversation';
+      return null;
     }
 
     return DOMPurify.sanitize(lastMessage.value() || lastMessage.attachment()?.name || '', {

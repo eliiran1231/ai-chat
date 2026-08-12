@@ -16,9 +16,10 @@ import { HighlightPipe } from '../../pipes/highlight.pipe';
 import { MessageStatus } from '../../enums/MessagesStatus';
 import { FilesizePipe } from '../../pipes/filesize.pipe';
 import { QuestionAnswerControlsComponent } from '../question-answer-controls-component/question-answer-controls-component';
+import { TranslatePipe } from '../shared/translate.pipe';
 @Component({
   selector: 'app-message-bubble',
-  imports: [DatePipe, MarkdownComponent, FilesizePipe, HighlightPipe, LucideDynamicIcon, QuestionAnswerControlsComponent],
+  imports: [DatePipe, MarkdownComponent, FilesizePipe, HighlightPipe, LucideDynamicIcon, QuestionAnswerControlsComponent, TranslatePipe],
   templateUrl: './message-bubble-component.html',
   styleUrl: './message-bubble-component.scss',
 })

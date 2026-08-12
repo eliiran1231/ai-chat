@@ -2,7 +2,7 @@
   display: block;
   min-height: 0;
   height: 100%;
-  background: #fff;
+  background: var(--md-sys-color-surface);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -10,9 +10,9 @@
   height: 100%;
   padding: 1.25rem 1rem 2rem;
   background:
-    radial-gradient(circle at top, rgba(11, 139, 114, 0.08), transparent 30%),
-    #fff;
-  color: #101820;
+    radial-gradient(circle at top, color-mix(in srgb, var(--md-sys-color-primary) 10%, transparent), transparent 30%),
+    var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
   overflow-y: auto;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .profile-back {
-  color: #0b8b72;
+  color: var(--md-sys-color-primary);
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 600;
@@ -36,39 +36,12 @@
 }
 
 .profile-avatar {
-  width: min(58vw, 11rem);
-  aspect-ratio: 1;
-  position: relative;
-  border-radius: 50%;
-  background: #cfd8df;
-  box-shadow: inset 0 -0.2rem 0 #c0cbd4;
-}
-
-.profile-avatar__head,
-.profile-avatar__body {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fff;
-}
-
-.profile-avatar__head {
-  top: 23%;
-  width: 30%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-}
-
-.profile-avatar__body {
-  bottom: 13%;
-  width: 63%;
-  height: 31%;
-  border-radius: 50% 50% 15% 15% / 70% 70% 15% 15%;
+  --chat-avatar-size: min(58vw, 11rem);
 }
 
 .profile-hero h1 {
   margin: 1rem 0 0;
-  color: #2b8f73;
+  color: var(--md-sys-color-primary);
   font-size: clamp(1.25rem, 4vw, 1.8rem);
   font-weight: 500;
 }
@@ -98,7 +71,7 @@
   width: 2.5rem;
   height: 2.5rem;
   position: relative;
-  color: #66717a;
+  color: var(--md-sys-color-on-surface-variant);
   display: grid;
   place-items: center;
 }
@@ -115,14 +88,14 @@
 
 .profile-card__content p {
   margin-top: 0.35rem;
-  color: #68737b;
+  color: var(--md-sys-color-on-surface-variant);
   font-size: clamp(0.98rem, 3.3vw, 1.35rem);
   line-height: 1.25;
   word-break: break-word;
 }
 
 .profile-card__link {
-  color: #26b070 !important;
+  color: var(--md-sys-color-tertiary) !important;
 }
 
 .profile-card__icon::before,
@@ -138,7 +111,6 @@
   stroke-width: 2;
 }
 
-
 .profile-card__icon--info {
   border: 0.2rem solid currentColor;
   border-radius: 50%;
@@ -148,7 +120,7 @@
   width: 1.2rem;
   height: 1.2rem;
   margin: 0;
-  accent-color: #2b8f73;
+  accent-color: var(--md-sys-color-primary);
 }
 
 @media (max-width: 640px) {
