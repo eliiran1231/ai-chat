@@ -18,6 +18,7 @@
         type="button"
         class="message-options-button"
         (click)="openMessageOptions($event)"
+        [attr.aria-pressed]="isSelected()"
         [attr.aria-label]="'chat.openMessageOptions' | translate"
         [title]="'chat.messageOptions' | translate"
       >

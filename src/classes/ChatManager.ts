@@ -42,6 +42,35 @@ export class ChatManager {
         return this.request(()=>this.onMessageDeleteRequested(message), message);
     }
 
+    async requestBatchDelete(messages: readonly Message[]): Promise<ReadonlyMap<Message, boolean>> {
+        const results = await this.requestBatch(messages, (message) => message.delete(true));
+        const deleted = [...results].filter(([, succeeded]) => succeeded).map(([message]) => message);
+        if (deleted.length) this.chat.onBatchDeleted.next(deleted);
+        return results;
+    }
+
+    async requestBatchEdit(messages: readonly Message[], newValue: string): Promise<ReadonlyMap<Message, boolean>> {
+        const results = await this.requestBatch(messages, (message) => message.edit(newValue, true));
+        const edited = [...results].filter(([, succeeded]) => succeeded).map(([message]) => message);
+        if (edited.length) this.chat.onBatchEdited.next(edited);
+        return results;
+    }
+
+    private async requestBatch(
+        messages: readonly Message[],
+        action: (message: Message) => Promise<boolean>,
+    ): Promise<ReadonlyMap<Message, boolean>> {
+        const uniqueMessages = [...new Set(messages)];
+        const results = await Promise.allSettled(uniqueMessages.map(async (message) => {
+            if (!this.chat.messages().includes(message)) return false;
+            return action(message);
+        }));
+        return new Map(uniqueMessages.map((message, index) => {
+            const result = results[index];
+            return [message, result.status === 'fulfilled' && result.value];
+        }));
+    }
+
     async requestDelete(): Promise<void> {
         const isDeleted = await this.onDeleteRequested()
         isDeleted && this.chatService.removeChat(this.chat.id());

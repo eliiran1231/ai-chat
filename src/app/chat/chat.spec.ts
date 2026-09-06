@@ -72,6 +72,50 @@ describe('ChatComponent', () => {
     expect(textarea.style.getPropertyValue('--composer-max-rows')).toBe('5');
   });
 
+  it('toggles multiple message selections and preserves the draft when closing options', async () => {
+    const messages = [new Message('First', { from: 'client' }), new Message('Second', { from: 'client' })];
+    const chat = await renderChat(messages);
+    chat.draftMessage.set('Unsent draft');
+    const buttons = fixture.nativeElement.querySelectorAll('.message-options-button');
+    buttons[0].click();
+    buttons[1].click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.message-row--selected')).toHaveLength(2);
+    expect(fixture.nativeElement.textContent).toContain('2 selected');
+    buttons[0].click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelectorAll('.message-row--selected')).toHaveLength(1);
+    fixture.componentInstance.closeMessageOptions();
+    expect(chat.draftMessage()).toBe('Unsent draft');
+    expect(fixture.componentInstance.selectedMessages().size()).toBe(0);
+  });
+
+  it('keeps selection while messages arrive and resets selection when switching chats', async () => {
+    const message = new Message('Selected', { from: 'client' });
+    const chat = await renderChat([message]);
+    fixture.componentInstance.openMessageOptions(message);
+    chat.messages.update((messages) => [...messages, new Message('Incoming')]);
+    fixture.detectChanges();
+    expect(fixture.componentInstance.selectedMessages().singleMessage()).toBe(message);
+    await renderChat();
+    expect(fixture.componentInstance.selectedMessages().size()).toBe(0);
+  });
+
+  it('deletes all selected messages from the navbar', async () => {
+    const messages = [new Message('First', { from: 'client' }), new Message('Second', { from: 'client' })];
+    const chat = await renderChat(messages);
+    messages.forEach((message) => message.setChat(chat));
+    const buttons = fixture.nativeElement.querySelectorAll('.message-options-button');
+    buttons[0].click();
+    buttons[1].click();
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('[aria-label="Delete selected messages"]').click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(chat.messages()).toHaveLength(0);
+    expect(fixture.componentInstance.selectedMessages().size()).toBe(0);
+  });
+
   it('sends the message on Enter', async () => {
     const chat = await renderChat('Hello from Enter');
     const textarea = fixture.nativeElement.querySelector('#message-input') as HTMLTextAreaElement;

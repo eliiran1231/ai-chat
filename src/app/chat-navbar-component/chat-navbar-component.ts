@@ -1,6 +1,7 @@
 import { Component, ElementRef, computed, effect, input, output, signal, viewChild } from '@angular/core';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
+import type { MessageCollection } from '../../classes/MessageCollection';
 import { AppMenu, AppMenuItem } from "../shared/app-menu/app-menu";
 import {
   LucideChevronDown,
@@ -30,7 +31,8 @@ export class ChatNavbarComponent {
   resultCount = input(0);
   currentResultIndex = input(-1);
   editMode = input(false);
-  selectedMessage = input<Message | undefined>(undefined);
+  selectedMessages = input<MessageCollection>();
+  readonly selectedMessage = computed(() => this.selectedMessages()?.singleMessage());
   back = output<void>();
   searchChange = output<string>();
   nextMatch = output<void>();
@@ -38,13 +40,13 @@ export class ChatNavbarComponent {
   searchClosed = output<void>();
   messageOptionsClosed = output<void>();
   editMessage = output<Message>();
-  deleteMessage = output<Message>();
+  deleteMessages = output<void>();
   retryMessage = output<Message>();
   searchMode = signal(false);
   searchQuery = signal('');
   protected readonly closeSearchWhenMessageSelected = effect(() => {
-    if (this.selectedMessage()) {
-      this.searchMode.set(false);
+    if (this.selectedMessages()?.size() && this.searchMode()) {
+      this.closeSearch();
     }
   });
   deleteChat = output<Chat>();
@@ -121,7 +123,7 @@ export class ChatNavbarComponent {
     return `${this.currentResultIndex() + 1}/${this.resultCount()}`;
   });
 
-  messageOptionsMode = computed(() => !!this.selectedMessage() && !this.searchMode());
+  messageOptionsMode = computed(() => !!this.selectedMessages()?.size() && !this.searchMode());
 
   canEditSelectedMessage = computed(() => this.selectedMessage()?.from() === 'client' && !!this.selectedMessage()?.editable());
 }

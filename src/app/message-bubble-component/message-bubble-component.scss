@@ -53,6 +53,19 @@
   animation: flashOverlay 1s ease forwards;
 }
 
+.message-row--selected {
+  position: relative;
+}
+
+.message-row--selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(#8bd1e58c, 0.55);
+  pointer-events: none;
+  z-index: 3;
+}
+
 .message-bubble {
   position: relative;
   max-width: min(78%, 34rem);
