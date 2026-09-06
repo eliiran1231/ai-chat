@@ -7,6 +7,7 @@ import {
   getPersistableValidationErrorMessage,
   Question,
 } from '../classes/Question';
+import type { MessageSenderRecord } from '../../shared/messages/MessageSenderRecord.js';
 import { Message } from '../classes/Message';
 import { Answer } from '../classes/Answer';
 import { Supporter } from '../classes/Supporter';
@@ -52,7 +53,7 @@ export class SqliteProvider implements ChatProvider {
     const record = await this.dbService.createMessage({
       id: message.id(),
       chatId: chatId,
-      from: message.from(),
+      from: this.serializeSender(message),
       messageType,
       value: message.value(),
       tag: message.tag(),
@@ -83,12 +84,21 @@ export class SqliteProvider implements ChatProvider {
     message.setSaveChangesHandler((target) => void this.commitMessageChanges(target));
   }
 
+  private serializeSender(message: Message): MessageSenderRecord | undefined {
+    const sender = message.from();
+    if (!sender) return undefined;
+    return sender.type === 'client'
+      ? { type: 'client' }
+      : { type: 'supporter', agentName: sender.senderClass
+          ? this.agentsService.getAgentClassName(sender.senderClass) : undefined };
+  }
+
   async commitMessageChanges(message: Message): Promise<boolean> {
     const messageType =
       message instanceof Answer ? 'answer' : message instanceof Question ? 'question' : 'message';
     return this.dbService.commitMessage({
       id: message.id(),
-      from: message.from(),
+      from: this.serializeSender(message),
       messageType,
       value: message.value(),
       tag: message.tag(),
@@ -213,7 +223,7 @@ export class SqliteProvider implements ChatProvider {
       tipLabel: record.tipLabel,
     });
     chat.setSaveChangesHandler((target) => void this.commitChatChanges(target));
-    chat.loader.addSource(new SqliteMessagesSource(chat, this.dbService, this.commitMessageChanges.bind(this)));
+    chat.loader.addSource(new SqliteMessagesSource(chat, this.dbService, this.commitMessageChanges.bind(this), this.agentsService));
     await chat.loader.loadNextChunk();
     supporter.setSaveChangesHandler(this.commitSupporterChanges.bind(this));
     supporter.onAgentSwitch.subscribe((agent) =>

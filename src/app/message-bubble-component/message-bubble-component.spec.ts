@@ -51,7 +51,7 @@ describe('MessageBubbleComponent', () => {
 
   it('highlights the search term in the message body', async () => {
     const message = new Message('hello world');
-    message.from.set('supporter');
+    message.from.set({ type: 'supporter' });
 
     await renderMessage(message, 'world');
 
@@ -68,7 +68,7 @@ describe('MessageBubbleComponent', () => {
     const question = new Question('Pick one', {
       possibleAnswers: ['One', 'Two'],
     });
-    question.from.set('supporter');
+    question.from.set({ type: 'supporter' });
 
     await renderMessage(question);
 

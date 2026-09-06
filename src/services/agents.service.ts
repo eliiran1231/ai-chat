@@ -7,7 +7,7 @@ import { REGISTERED_AGENTS } from './agents.module';
 })
 export class AgentsService {
   private entries: [string, Type<Agent>][];
-  private cache = new Map<string, string>();
+  private cache = new Map<Type<Agent>, string>();
   private agents: Record<string, Type<Agent>>;
   
   constructor(
@@ -19,22 +19,27 @@ export class AgentsService {
   }
 
   getAgentByName(name: string): Agent {
+    const AgentClass = this.getAgentClassByName(name);
+    return new AgentClass(this.injector);
+  }
+
+  getAgentClassByName(name: string): Type<Agent> {
     const AgentClass = this.agents[name];
-    if (!AgentClass) {
-      throw new Error(`Agent "${name}" is not registered.`);
-    }
-    this.cache.set(AgentClass.constructor.name, name)
-    return new AgentClass(this.injector, name);
+    if (!AgentClass) throw new Error(`Agent "${name}" is not registered.`);
+    this.cache.set(AgentClass, name);
+    return AgentClass;
   }
 
   getAgentName(agent: Agent): string {
-    const agentMinifiedName = agent.constructor.name; 
-    if (this.cache.has(agentMinifiedName)) {
-      return this.cache.get(agentMinifiedName)!;
-    }
-    const entry = this.entries.find(([, AgentClass]) => agent instanceof AgentClass);
-    if (!entry?.[0]) throw new Error(`Agent is not registered in AgentsService`);
-    this.cache.set(agentMinifiedName, entry[0]);
+    return this.getAgentClassName(agent.constructor as Type<Agent>);
+  }
+
+  getAgentClassName(agentClass: Type<Agent>): string {
+    const cached = this.cache.get(agentClass);
+    if (cached) return cached;
+    const entry = this.entries.find(([, registeredClass]) => registeredClass === agentClass);
+    if (!entry) throw new Error('Agent is not registered in AgentsService');
+    this.cache.set(agentClass, entry[0]);
     return entry[0];
   }
 

@@ -1,3 +1,4 @@
+import type { MessageSenderRecord } from '../../../shared/messages/MessageSenderRecord.js';
 import type { Attachment, MessageType } from '../../classes/Message';
 import type { AnswerSelectionMode } from '../../classes/Question';
 import type { Uuid } from './Uuid';
@@ -6,7 +7,7 @@ import { MessageStatus } from '../../enums/MessagesStatus';
 
 export interface CommitMessageInput {
   id: Uuid;
-  from?: 'client' | 'supporter';
+  from?: MessageSenderRecord;
   messageType?: MessageType;
   value: string;
   tag?: string;

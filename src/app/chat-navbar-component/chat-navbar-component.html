@@ -14,7 +14,7 @@
       <div class="message-options-spacer"></div>
 
       @if (!editMode()) {
-        @if (selectedMessage()?.from() === 'client') {
+        @if (selectedMessage()?.from()?.type === 'client') {
           <button
             type="button"
             class="icon-button"

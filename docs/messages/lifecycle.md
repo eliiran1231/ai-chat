@@ -116,3 +116,5 @@ Subscriptions owned by an agent are installed by `Agent.init(...)` and removed b
 A provider must persist the status, sender, timestamps, editability, deletability, attachment, and concrete message type. Hydration must call `message.setChat(chat)` and install a save handler if later synced-signal changes should be persisted.
 
 See [Signals and persistence](../state/signals.md) for the save-handler contract.
+
+Sender identity is stored as JSON in the existing `sender` text column. Supporter messages store the registered `agentName`, which is resolved to `senderClass` on hydration; constructors never cross IPC. Legacy role-only rows remain readable with no agent class. Client messages have no agent class.

@@ -51,7 +51,7 @@ Use `Client` or `Supporter` methods to send these objects. They set the sender, 
 | `editable` | `boolean` | `true` | Whether the UI may request an edit. |
 | `deletable` | `boolean` | `true` | Whether deletion is permitted. |
 | `time` | `Date` | Current time | Original creation time. |
-| `from` | `client \| supporter` | `undefined` | Sender; participant APIs normally assign it. |
+| `from` | `MessageSender` | `undefined` | `{ type: 'client' }` or `{ type: 'supporter', senderClass }`; participant APIs assign it. |
 | `status` | `MessageStatus` | `Failed` | Current delivery state; the manager changes it when sending. |
 | `editedAt` | `Date` | `undefined` | Time of the latest successful edit. |
 

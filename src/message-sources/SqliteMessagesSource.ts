@@ -4,7 +4,7 @@ import { Message, MessageOptions } from '../classes/Message';
 import { coerceValidatorSpec } from '../classes/MessageValidator';
 import { MessageSource } from '../classes/MessageSource';
 import { Question, QuestionOptions } from '../classes/Question';
-import type { SqliteProvider } from '../chat-providers/SqliteProvider';
+import { AgentsService } from '../services/agents.service';
 import { DbService } from '../services/db.service';
 import { MessageRecord } from '../interfaces/db/MessageRecord';
 
@@ -13,6 +13,7 @@ export class SqliteMessagesSource extends MessageSource {
     chat: Chat,
     private readonly dbService: DbService,
     private readonly commitMessageChanges: (message: Message) => Promise<any>,
+    private readonly agentsService: AgentsService,
   ) {
     super(chat);
   }
@@ -25,6 +26,10 @@ export class SqliteMessagesSource extends MessageSource {
   private hydrateMessage(record: MessageRecord): Message {
     const options: MessageOptions = {
       ...record,
+      from: record.from?.type === 'supporter'
+        ? { type: 'supporter', senderClass: record.from.agentName
+            ? this.agentsService.getAgentClassByName(record.from.agentName) : undefined }
+        : record.from,
       time: new Date(record.time),
       editedAt: record.editedAt ? new Date(record.editedAt) : undefined,
     };
