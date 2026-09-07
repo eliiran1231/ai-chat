@@ -1,3 +1,4 @@
+import type { MessageSenderRecord } from '../shared/messages/MessageSenderRecord.js';
 import { dbService, type DbService } from './db.service.js';
 import { randomUUID } from 'crypto';
 import { and, desc, eq } from 'drizzle-orm';
@@ -17,7 +18,7 @@ interface AttachmentPayload {
 export interface MessagePayload {
   id?: Uuid;
   chatId: Uuid;
-  from: string;
+  from?: MessageSenderRecord;
   messageType?: string;
   value: string;
   tag?: string | null;
@@ -42,7 +43,7 @@ export enum MessageStatus {
 
 export interface CommitMessagePayload {
   id: Uuid;
-  from?: string;
+  from?: MessageSenderRecord;
   messageType?: string;
   value: string;
   tag?: string | null;
@@ -95,7 +96,7 @@ export class MessageService {
       .values({
         id: messageId,
         chatId: message.chatId,
-        sender: message.from ?? 'client',
+        sender: JSON.stringify(message.from ?? { type: 'client' }),
         messageType: message.messageType ?? 'message',
         value: message.value,
         tag: message.tag ?? null,
@@ -125,7 +126,7 @@ export class MessageService {
     const rows = await this.db.orm
       .update(messages)
       .set({
-        ...(message.from === undefined ? {} : { sender: message.from }),
+        ...(message.from === undefined ? {} : { sender: JSON.stringify(message.from) }),
         ...(message.messageType === undefined ? {} : { messageType: message.messageType }),
         value: message.value,
         tag: message.tag ?? null,
@@ -161,7 +162,7 @@ export class MessageService {
     return {
       id: row.id,
       chatId: row.chatId,
-      from: row.sender,
+      from: this.parseSender(row.sender, row.id),
       messageType: row.messageType ?? 'message',
       value: row.value,
       tag: row.tag ?? undefined,
@@ -180,6 +181,21 @@ export class MessageService {
       validatorSpec: this.db.parseJsonColumn(row.validatorSpec, 'validator_spec', row.id),
       validationErrorMessage: row.validationErrorMessage ?? undefined,
     };
+  }
+
+  private parseSender(value: string, rowId: Uuid): MessageSenderRecord | undefined {
+    // Older rows stored only the participant role.
+    if (value === 'client' || value === 'supporter') return { type: value };
+    const sender: unknown = this.db.parseJsonColumn(value, 'sender', rowId);
+    if (isJsonObject(sender)) {
+      if (sender['type'] === 'client') return { type: 'client' };
+      if (sender['type'] === 'supporter' &&
+          (sender['agentName'] === undefined || typeof sender['agentName'] === 'string')) {
+        return { type: 'supporter', agentName: sender['agentName'] as string | undefined };
+      }
+    }
+    console.warn(`Unexpected sender payload for message ${rowId}.`);
+    return undefined;
   }
 
   private parseAnswerSelectionMode(

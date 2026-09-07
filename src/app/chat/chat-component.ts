@@ -170,7 +170,7 @@ export class ChatComponent {
   }
 
   editMessage(message: Message): void {
-    if (message.from() === 'supporter' || !message.editable()) {
+    if (message.from()?.type === 'supporter' || !message.editable()) {
       return;
     }
     this.selectedMessage.set(message);

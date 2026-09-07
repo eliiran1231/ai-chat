@@ -52,7 +52,7 @@ export class Chat extends SyncedEntity {
   markAsRead() {
     this.unreadCount.set(0);
     for (let message of this.messages()) {
-      if(message.from() == "supporter") message.status.set(MessageStatus.Read);
+      if(message.from()?.type == "supporter") message.status.set(MessageStatus.Read);
     }
   }
 

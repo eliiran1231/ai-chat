@@ -42,7 +42,7 @@ export class MessageBubbleComponent {
   readonly optionsIcon = LucideChevronDown;
 
   isSupporterMessage(message: Message): boolean {
-    return message.from() === 'supporter';
+    return message.from()?.type === 'supporter';
   }
 
   asQuestion(message: Message): Question | undefined {

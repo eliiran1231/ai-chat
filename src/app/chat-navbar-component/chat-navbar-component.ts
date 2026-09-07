@@ -123,5 +123,5 @@ export class ChatNavbarComponent {
 
   messageOptionsMode = computed(() => !!this.selectedMessage() && !this.searchMode());
 
-  canEditSelectedMessage = computed(() => this.selectedMessage()?.from() === 'client' && !!this.selectedMessage()?.editable());
+  canEditSelectedMessage = computed(() => this.selectedMessage()?.from()?.type === 'client' && !!this.selectedMessage()?.editable());
 }
