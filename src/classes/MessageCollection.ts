@@ -1,37 +1,38 @@
 import { computed, signal } from '@angular/core';
-import type { Message } from './Message';
-import type { Chat } from './Chat';
+import { Message } from './Message';
+import { MessageStatus } from '../enums/MessagesStatus';
+import { BatchActionStatus } from '../enums/BatchActionStatus';
+import { BatchNegotiationMediator } from './BatchNegotiationMediator';
+import { BatchNegotiator } from '../interfaces/BatchNegotiator';
+import { Chat } from './Chat';
+
+
+const approveAllBatches: BatchNegotiator = {
+  negotiateBatchEdit: () => ({ type: BatchActionStatus.Approved }),
+  negotiateBatchDelete: () => ({ type: BatchActionStatus.Approved }),
+};
 
 export class MessageCollection {
+
+  constructor(private chat: Chat, public negotiator: BatchNegotiator = approveAllBatches){}
+
   private readonly _messages = signal<ReadonlySet<Message>>(new Set());
-  private readonly _isBusy = signal(false);
-  readonly isBusy = this._isBusy.asReadonly();
-  readonly messages = computed<ReadonlySet<Message>>(() => {
-    const available = new Set(this.chat.messages());
-    return new Set([...this._messages()].filter((message) => available.has(message)));
-  });
-  readonly size = computed(() => this.messages().size);
-  readonly singleMessage = computed(() =>
-    this.size() === 1 ? this.messages().values().next().value : undefined,
-  );
+  readonly messages = this._messages.asReadonly();
   readonly canDelete = computed(() =>
-    this.size() > 0 && [...this.messages()].every((message) => message.deletable()),
+    this._messages().size > 0 && [...this.messages()].every((message) => message.deletable()),
   );
   readonly canEdit = computed(() =>
-    this.size() > 0 && [...this.messages()].every((message) =>
+    this._messages().size > 0 && [...this.messages()].every((message) =>
       message.from() === 'client' && message.editable()),
   );
-
-  constructor(private readonly chat: Chat) {}
+  negotiationMediator = new BatchNegotiationMediator(new Set(this._messages()));
 
   addMessage(message: Message): void {
-    if (!this.isBusy() && this.chat.messages().includes(message)) {
-      this._messages.update((messages) => new Set([...messages, message]));
-    }
+    message.setChat(this.chat);
+    this._messages.update((messages) => new Set([...messages, message]));
   }
 
   removeMessage(message: Message): void {
-    if (this.isBusy()) return;
     this._messages.update((messages) => {
       const next = new Set(messages);
       next.delete(message);
@@ -43,27 +44,24 @@ export class MessageCollection {
     this._messages.set(new Set());
   }
 
-  async delete(): Promise<ReadonlyMap<Message, boolean>> {
-    if (this.isBusy() || !this.canDelete()) return new Map();
-    this._isBusy.set(true);
-    try {
-      const results = await this.chat.manager.requestBatchDelete([...this.messages()]);
-      this._messages.update((messages) => new Set(
-        [...messages].filter((message) => !results.get(message)),
-      ));
-      return results;
-    } finally {
-      this._isBusy.set(false);
-    }
+  selectMessages(messages: Iterable<Message>): void {
+    const chatMessages = new Set(this.chat.messages());
+    this._messages.set(new Set([...messages].filter((message) => chatMessages.has(message))));
   }
 
-  async edit(newValue: string): Promise<ReadonlyMap<Message, boolean>> {
-    if (this.isBusy() || !this.canEdit()) return new Map();
-    this._isBusy.set(true);
-    try {
-      return await this.chat.manager.requestBatchEdit([...this.messages()], newValue);
-    } finally {
-      this._isBusy.set(false);
-    }
+  async delete(): Promise<Message[]> {
+    this.negotiationMediator = new BatchNegotiationMediator(new Set(this._messages()));
+    const messages = await this.chat.manager.requestBatchDelete(this);
+    const deleted = new Set(messages.filter((message) =>
+      message.status() === MessageStatus.Sent || message.status() === MessageStatus.Read));
+    this._messages.update((messages) => new Set(
+      [...messages].filter((message) => !deleted.has(message)),
+    ));
+    return messages;
+  }
+
+  async edit(newValues: string[]): Promise<Message[]> {
+    this.negotiationMediator = new BatchNegotiationMediator(new Set(this._messages()));
+    return this.chat.manager.requestBatchEdit(this, newValues);
   }
 }

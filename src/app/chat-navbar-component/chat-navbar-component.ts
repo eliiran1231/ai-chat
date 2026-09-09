@@ -32,7 +32,11 @@ export class ChatNavbarComponent {
   currentResultIndex = input(-1);
   editMode = input(false);
   selectedMessages = input<MessageCollection>();
-  readonly selectedMessage = computed(() => this.selectedMessages()?.singleMessage());
+  readonly selectedMessage = computed(() => {
+    let selectedMessages = this.selectedMessages()
+    if(!selectedMessages) return;
+    return [...selectedMessages.messages()].at(-1)
+  });
   back = output<void>();
   searchChange = output<string>();
   nextMatch = output<void>();
@@ -45,7 +49,7 @@ export class ChatNavbarComponent {
   searchMode = signal(false);
   searchQuery = signal('');
   protected readonly closeSearchWhenMessageSelected = effect(() => {
-    if (this.selectedMessages()?.size() && this.searchMode()) {
+    if (this.selectedMessages()?.messages().size && this.searchMode()) {
       this.closeSearch();
     }
   });
@@ -123,7 +127,7 @@ export class ChatNavbarComponent {
     return `${this.currentResultIndex() + 1}/${this.resultCount()}`;
   });
 
-  messageOptionsMode = computed(() => !!this.selectedMessages()?.size() && !this.searchMode());
+  messageOptionsMode = computed(() => !!this.selectedMessages()?.messages()?.size && !this.searchMode());
 
   canEditSelectedMessage = computed(() => this.selectedMessage()?.from() === 'client' && !!this.selectedMessage()?.editable());
 }

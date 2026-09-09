@@ -19,6 +19,7 @@ import {
 } from '../../utils/chat-message-date-separator';
 import { TranslatePipe } from '../shared/translate.pipe';
 import { MessageCollection } from '../../classes/MessageCollection';
+import { UserBatchNegotiator } from './UserBatchNegotiator';
 
 @Component({
   selector: 'app-chat',
@@ -40,7 +41,11 @@ import { MessageCollection } from '../../classes/MessageCollection';
 export class ChatComponent {
   readonly shouldShowDateSeparator = shouldShowDateSeparator;
   readonly shouldShowMessageTail = shouldShowMessageTail;
-  readonly selectedMessages = computed(() => new MessageCollection(this.chat()));
+  readonly selectedMessages = computed(() => {
+    const selection = new MessageCollection(this.chat());
+    selection.negotiator = new UserBatchNegotiator(selection);
+    return selection;
+  });
 
   constructor() {
     effect(() => {
@@ -176,7 +181,6 @@ export class ChatComponent {
     if (message.from() === 'supporter' || !message.editable()) {
       return;
     }
-    if (this.selectedMessages().isBusy()) return;
     this.selectedMessages().clearMessages();
     this.selectedMessages().addMessage(message);
     this.editingMessage.set(message);
@@ -184,7 +188,17 @@ export class ChatComponent {
   }
 
   async deleteSelectedMessages(): Promise<void> {
-    await this.selectedMessages().delete();
+    const selection = this.selectedMessages();
+    const messages = [...selection.messages()];
+    if (messages.length === 1) {
+      const [message] = messages;
+      if (await message.delete()) {
+        selection.removeMessage(message);
+      }
+      return;
+    }
+
+    await selection.delete();
   }
 
   async retryMessage(message: Message) {

@@ -12,7 +12,7 @@
       </button>
 
       <div class="message-options-spacer" aria-live="polite">
-        {{ 'chat.selectedMessages' | translate: { count: selectedMessages()?.size() ?? 0 } }}
+        {{ 'chat.selectedMessages' | translate: { count: selectedMessages()?.messages()?.size ?? 0} }}
       </div>
 
       @if (!editMode()) {
@@ -22,7 +22,7 @@
             class="icon-button"
             [attr.aria-label]="'chat.editMessage' | translate"
             [title]="'common.edit' | translate"
-            [disabled]="!canEditSelectedMessage() || selectedMessages()?.isBusy()"
+            [disabled]="!canEditSelectedMessage()"
             (click)="canEditSelectedMessage() && selectedMessage() && editMessage.emit(selectedMessage()!)"
           >
             <svg [lucideIcon]="editIcon" aria-hidden="true"></svg>
@@ -35,7 +35,6 @@
               class="icon-button"
               [attr.aria-label]="'chat.retryMessage' | translate"
               [title]="'common.retry' | translate"
-              [disabled]="selectedMessages()?.isBusy()"
               (click)="retryMessage.emit(selectedMessage()!)"
             >
               <svg [lucideIcon]="retryIcon" aria-hidden="true"></svg>
@@ -45,9 +44,9 @@
         <button
           type="button"
           class="icon-button icon-button--danger"
-          [attr.aria-label]="(selectedMessages()?.size() === 1 ? 'chat.deleteMessage' : 'chat.deleteMessages') | translate"
+          [attr.aria-label]="(selectedMessages()?.messages()?.size === 1 ? 'chat.deleteMessage' : 'chat.deleteMessages') | translate"
           [title]="'common.delete' | translate"
-          [disabled]="!selectedMessages()?.canDelete() || selectedMessages()?.isBusy()"
+          [disabled]="!selectedMessages()?.canDelete()"
           (click)="deleteMessages.emit()"
         >
           <svg [lucideIcon]="deleteIcon" aria-hidden="true"></svg>

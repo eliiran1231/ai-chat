@@ -94,6 +94,11 @@ export class Message extends SyncedEntity {
         return this.lastAction();
     }
 
+    /** @internal Keeps retries attached to the manager's batch request path. */
+    setRetryAction(action: () => Promise<boolean>): void {
+        this.lastAction = action;
+    }
+
     clone(): Message {
         const options: any = { ...this };
         delete options._chat;
