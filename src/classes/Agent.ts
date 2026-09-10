@@ -15,6 +15,8 @@ export class Agent {
     lastMessage?: Message;
     private onMessageDeletedHandler?: Subscription;
     private onMessageEditedHandler?: Subscription;
+    private onBatchDeletedHandler?: Subscription;
+    private onBatchEditedHandler?: Subscription;
     private onAnswerSelectedHandler?: Subscription;
     private _name?: string;
     private agentService: AgentsService;
@@ -48,6 +50,8 @@ export class Agent {
         this.onAnswerSelectedHandler = chat.user.onAnswerSelected.subscribe(({answer, associatedQuestion, associatedQuestionIndex }) => this.onAnswerSelected(answer, associatedQuestion, associatedQuestionIndex as number));
         this.onMessageDeletedHandler = chat.onMessageDeleted.subscribe(this.onMessageDeleted.bind(this));
         this.onMessageEditedHandler = chat.onMessageEdited.subscribe(this.onMessageEdited.bind(this));
+        this.onBatchDeletedHandler = chat.onBatchDeleted.subscribe(this.onBatchDeleted.bind(this));
+        this.onBatchEditedHandler = chat.onBatchEdited.subscribe(this.onBatchEdited.bind(this));
     }
 
     respond() : void | Promise<void> {
@@ -105,9 +109,23 @@ export class Agent {
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
     }
 
+    /** Called once after a batch completes, with only successfully deleted messages. */
+    onBatchDeleted(messages: readonly Message[]): void | Promise<void> {
+        if (messages.some((message) => message instanceof Question)) {
+            this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
+        }
+    }
+
+    /** Called once after a batch completes, with only successfully edited messages. */
+    onBatchEdited(messages: readonly Message[]): void | Promise<void> {
+        // Override to handle the completed batch of edits.
+    }
+
     onDestroy(): void | Promise<void> {
         this.onMessageDeletedHandler?.unsubscribe();
         this.onMessageEditedHandler?.unsubscribe();
+        this.onBatchDeletedHandler?.unsubscribe();
+        this.onBatchEditedHandler?.unsubscribe();
         this.onAnswerSelectedHandler?.unsubscribe();
     }
 }

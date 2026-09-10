@@ -52,6 +52,8 @@
     "chat.editMessage": "Edit message",
     "chat.retryMessage": "Retry sending message",
     "chat.deleteMessage": "Delete message",
+    "chat.deleteMessages": "Delete selected messages",
+    "chat.selectedMessages": "{count} selected",
     "chat.deleteChat": "Delete chat",
     "chat.openMessageOptions": "Open message options",
     "chat.edited": "edited",

@@ -12,7 +12,7 @@
       [showBackButton]="showBackButton()"
       [resultCount]="matchingMessageIds().length"
       [currentResultIndex]="activeSearchResultIndex()"
-      [selectedMessage]="selectedMessage()"
+      [selectedMessages]="selectedMessages()"
       [editMode]="!!editingMessage()"
       (back)="back.emit()"
       (searchChange)="updateSearch($event)"
@@ -21,7 +21,7 @@
       (searchClosed)="clearSearch()"
       (messageOptionsClosed)="closeMessageOptions()"
       (editMessage)="editMessage($event)"
-      (deleteMessage)="deleteMessage($event)"
+      (deleteMessages)="deleteSelectedMessages()"
       (deleteChat)="deleteChat.emit($event)"
       (retryMessage)="retryMessage($event)"
     ></app-chat-navbar-component>
@@ -56,7 +56,7 @@
         }
         <app-message-bubble
           [message]="message"
-          [isSelected]="message === selectedMessage()"
+          [isSelected]="selectedMessages().messages().has(message)"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id())"
           [showTail]="shouldShowMessageTail(chat().messages(), $index)"
           [searchTerm]="searchQuery()"

@@ -48,6 +48,8 @@ export class Chat extends SyncedEntity {
   readonly loader = new MessageLoader();
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
+  public readonly onBatchDeleted = new Subject<readonly Message[]>();
+  public readonly onBatchEdited = new Subject<readonly Message[]>();
 
   markAsRead() {
     this.unreadCount.set(0);

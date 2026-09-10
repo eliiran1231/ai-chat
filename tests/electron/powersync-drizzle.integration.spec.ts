@@ -39,6 +39,12 @@ describe('Drizzle with PowerSync in Electron', () => {
           },
           cascadeRows: { chats: 0, messages: 0, supporters: 0 },
           pages: [['message-b', 'message-c'], ['message-a']],
+          batch: {
+            editedIds: ['batch-edit-a', 'batch-edit-b'],
+            values: ['batch-edit-a-updated', 'batch-edit-b-updated'],
+            deletedIds: ['batch-edit-a', 'batch-edit-b'],
+            remainingRows: 0,
+          },
         });
       } finally {
         await rm(resultPath, { force: true });

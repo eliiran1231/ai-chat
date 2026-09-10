@@ -123,6 +123,38 @@ async function run() {
     const firstPage = await messageService.getChatMessages('pagination-chat', 0, 2);
     const secondPage = await messageService.getChatMessages('pagination-chat', 2, 2);
 
+    for (const id of ['batch-edit-a', 'batch-edit-b']) {
+      await messageService.createMessage({
+        id,
+        chatId: 'batch-chat',
+        value: id,
+        time: '2026-01-01T00:00:00.000Z',
+      });
+    }
+    await reportProgress('editing-batch');
+    const editedIds = await messageService.editBatch(
+      ['batch-edit-a', 'batch-edit-b'].map((id) => ({
+        id,
+        value: `${id}-updated`,
+        time: '2026-01-01T00:00:00.000Z',
+        editedAt: '2026-01-02T00:00:00.000Z',
+        status: 1,
+        editable: true,
+        deletable: true,
+      })),
+    );
+    const editedRows = await orm
+      .select()
+      .from(messages)
+      .where(eq(messages.chatId, 'batch-chat'))
+      .orderBy(messages.id);
+    await reportProgress('deleting-batch');
+    const deletedIds = await messageService.deleteBatch(['batch-edit-a', 'batch-edit-b']);
+    const remainingBatchRows = await orm
+      .select()
+      .from(messages)
+      .where(eq(messages.chatId, 'batch-chat'));
+
     await writeFile(
       resultPath,
       JSON.stringify({
@@ -133,10 +165,16 @@ async function run() {
           messageRows: persistedMessages.length,
         },
         cascadeRows,
-        pages: [
+          pages: [
           firstPage.map(({ id }) => id),
           secondPage.map(({ id }) => id),
         ],
+        batch: {
+          editedIds,
+          values: editedRows.map(({ value }) => value),
+          deletedIds: deletedIds.sort(),
+          remainingRows: remainingBatchRows.length,
+        },
       }),
       'utf8',
     );

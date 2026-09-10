@@ -36,4 +36,16 @@ export function registerMessageHandlers(): void {
       messageService.deleteMessage(messageId),
     ),
   );
+  ipcMain.handle(
+    'db:deleteBatch',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, messageIds: Uuid[]) =>
+      messageService.deleteBatch(messageIds),
+    ),
+  );
+  ipcMain.handle(
+    'db:editBatch',
+    withIpcErrorHandling(async (_event: IpcMainInvokeEvent, messages: CommitMessagePayload[]) =>
+      messageService.editBatch(messages),
+    ),
+  );
 }

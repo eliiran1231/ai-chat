@@ -1,7 +1,7 @@
 import type { MessageSenderRecord } from '../shared/messages/MessageSenderRecord.js';
 import { dbService, type DbService } from './db.service.js';
 import { randomUUID } from 'crypto';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import { messages, type MessageRow } from './drizzle-schema.js';
 
 type Uuid = string;
@@ -156,6 +156,51 @@ export class MessageService {
       .returning({ id: messages.id });
 
     return rows.length > 0;
+  }
+
+  async deleteBatch(messageIds: Uuid[]): Promise<Uuid[]> {
+    if (!messageIds.length) return [];
+
+    const rows = await this.db.orm
+      .delete(messages)
+      .where(and(inArray(messages.id, messageIds), eq(messages.deletable, 1)))
+      .returning({ id: messages.id });
+
+    return rows.map((row) => row.id);
+  }
+
+  async editBatch(batch: CommitMessagePayload[]): Promise<Uuid[]> {
+    if (!batch.length) return [];
+
+    return this.db.orm.transaction(async (transaction) => {
+      const updated: Uuid[] = [];
+      for (const message of batch) {
+        const rows = await transaction
+          .update(messages)
+          .set({
+            ...(message.from === undefined ? {} : { sender: message.from }),
+            ...(message.messageType === undefined ? {} : { messageType: message.messageType }),
+            value: message.value,
+            tag: message.tag ?? null,
+            time: message.time,
+            editedAt: message.editedAt ?? null,
+            attachment: message.attachment ? JSON.stringify(message.attachment) : null,
+            possibleAnswers: message.possibleAnswers?.length
+              ? JSON.stringify(message.possibleAnswers)
+              : null,
+            answerSelectionMode: message.answerSelectionMode ?? null,
+            validatorSpec: message.validatorSpec ? JSON.stringify(message.validatorSpec) : null,
+            validationErrorMessage: message.validationErrorMessage ?? null,
+            status: message.status,
+            editable: message.editable ? 1 : 0,
+            deletable: message.deletable ? 1 : 0,
+          })
+          .where(and(eq(messages.id, message.id), eq(messages.editable, 1)))
+          .returning({ id: messages.id });
+        if (rows[0]) updated.push(rows[0].id);
+      }
+      return updated;
+    });
   }
 
   private mapMessageRow(row: MessageRow) {
