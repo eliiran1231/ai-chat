@@ -82,7 +82,7 @@
   position: absolute;
   top: .18rem;
   inset-inline-end: .18rem;
-  z-index: 3;
+  z-index: 4;
   display: grid;
   place-items: center;
   width: 1.7rem;
@@ -100,6 +100,12 @@
 .message-options-button:focus-visible,
 .message-row--selected .message-options-button {
   opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .message-options-button {
+    opacity: 1;
+  }
 }
 
 .message-bubble--with-tail::after {
