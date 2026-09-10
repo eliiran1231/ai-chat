@@ -1,8 +1,9 @@
 import { MessageCollection } from '../../classes/MessageCollection';
 import type { BatchNegotiationAnswer, BatchNegotiator } from '../../interfaces/BatchNegotiator';
 import type { ReadonlySignals } from '../types/ReadonlySignals';
-import type { Message } from '../../classes/Message';
+import { Message } from '../../classes/Message';
 import { BatchActionStatus } from '../../enums/BatchActionStatus';
+import { Proposal } from '../../classes/Proposal';
 
 export class UserBatchNegotiator implements BatchNegotiator {
   constructor(
@@ -10,24 +11,25 @@ export class UserBatchNegotiator implements BatchNegotiator {
     private readonly confirmProposal: (message: string) => boolean = window.confirm.bind(window),
   ) {}
 
-  negotiateBatchEdit(proposal: Set<ReadonlySignals<Message>>): BatchNegotiationAnswer {
+  negotiateBatchEdit(proposal: Proposal): BatchNegotiationAnswer {
     return this.negotiate(proposal, 'Accept the proposed edits to the selected messages?');
   }
 
-  negotiateBatchDelete(proposal: Set<ReadonlySignals<Message>>): BatchNegotiationAnswer {
+  negotiateBatchDelete(proposal: Proposal): BatchNegotiationAnswer {
     return this.negotiate(proposal, 'Accept the proposed deletion of the selected messages?');
   }
 
   private negotiate(
-    proposal: Set<ReadonlySignals<Message>>,
+    proposal: Proposal,
     promptMessage: string,
   ): BatchNegotiationAnswer {
-    this.selection.selectMessages(proposal as unknown as Set<Message>);
+    this.selection.clearMessages();
+    this.selection; //need to select the messages from the proposal
     if (this.confirmProposal(promptMessage)) {
-      return { type: BatchActionStatus.Approved };
+      return true;
     }
 
     this.selection.clearMessages();
-    return { type: BatchActionStatus.Rejected };
+    return false;
   }
 }

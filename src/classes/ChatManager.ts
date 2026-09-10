@@ -5,11 +5,10 @@ import { MessageStatus } from "../enums/MessagesStatus";
 import { SyncedEntity } from "./SyncedEntity";
 import { ChatProvider } from "../interfaces/ChatProvider";
 import { ChatService } from "../services/chat.service";
-import { BatchActionStatus } from "../enums/BatchActionStatus";
 import { BatchNegotiationMediator } from "./BatchNegotiationMediator";
 import { BatchNegotiationAnswer, BatchNegotiator } from "../interfaces/BatchNegotiator";
 import { MessageCollection } from "./MessageCollection";
-import { ReadonlySignals } from "../app/types/ReadonlySignals";
+import { Proposal } from "./Proposal";
 export class ChatManager {
     protected chat!: Chat;
     protected chatProvider: ChatProvider;
@@ -56,8 +55,8 @@ export class ChatManager {
         );
     }
 
-    isAllowedToBatchEdit(proposal: Set<ReadonlySignals<Message>>): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
-        return { type: BatchActionStatus.Approved }; 
+    isAllowedToBatchEdit(proposal: Proposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
+        return true; 
     }
 
     isAllowedToEdit(message: Message): boolean | Promise<boolean> {
@@ -75,8 +74,8 @@ export class ChatManager {
         );
     }
 
-    isAllowedToBatchDelete(proposal: Set<ReadonlySignals<Message>>): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
-        return { type: BatchActionStatus.Approved }; 
+    isAllowedToBatchDelete(proposal: Proposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
+        return true;
     }
 
     isAllowedToDelete(message: Message): boolean | Promise<boolean> {
@@ -91,11 +90,10 @@ export class ChatManager {
         );
     }
 
-    async requestBatchDelete(messageCollection: MessageCollection): Promise<Message[]> {
+    async requestBatchDelete(proposal: Proposal, negotiator: BatchNegotiator): Promise<Message[]> {
         const messages = await this.requestAllowedBatch(
-            'delete',
-            messageCollection.negotiationMediator,
-            messageCollection.negotiator,
+            proposal,
+            negotiator,
             (batch) => this.onBatchDeleteRequested(batch),
         );
         const deleted = messages.filter((message) =>
@@ -106,8 +104,8 @@ export class ChatManager {
         return messages;
     }
 
-    async requestBatchEdit(messageCollection: MessageCollection, newValues: string[]) {
-        const updateUi = (messages: Message[])=>{
+    async requestBatchEdit(proposal: Proposal, negotiator: BatchNegotiator, newValues: string[]) {
+        const updateUi = (messages: Message[]) => {
             messages.forEach((message, i) => {
                 const newValue = newValues[i];
                 if(newValue === undefined) return;
@@ -116,9 +114,8 @@ export class ChatManager {
             })
         }    
         return this.requestAllowedBatch(
-            'edit',
-            messageCollection.negotiationMediator,
-            messageCollection.negotiator,
+            proposal,
+            negotiator,
             (messages)=>{
                 updateUi(messages)
                 return this.onBatchEditRequested(messages)
@@ -127,18 +124,18 @@ export class ChatManager {
     }
 
     private async requestAllowedBatch(
-        actionType: 'edit' | 'delete',
-        mediator: BatchNegotiationMediator,
+        proposal: Proposal,
         requesterNegotiator: BatchNegotiator,
         action: (messages: Message[]) => MessageStatus[] | Promise<MessageStatus[]>,
     ){
-        const negotiationResult = await mediator.mediateBatchActionNegotiation(
-            actionType,
+        const mediator = new BatchNegotiationMediator();
+        const negotiationResult = await mediator.negotiate(
+            proposal,
             this.negotiator,
             requesterNegotiator
         );
         if(!negotiationResult) return [];
-        const messages = [...negotiationResult];
+        const messages = [...negotiationResult.contents];
         messages.forEach((message, i) => message.status.set(MessageStatus.Pending));
         const statuses = await action(messages);
         messages.forEach((message, i) => message.status.set(statuses[i] ?? MessageStatus.Failed));

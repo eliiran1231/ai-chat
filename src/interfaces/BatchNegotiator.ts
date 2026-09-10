@@ -1,15 +1,7 @@
-import { ReadonlySignals } from "../app/types/ReadonlySignals.js";
-import { BatchActionStatus } from "../enums/BatchActionStatus.js";
-import { Message } from "../classes/Message.js";
+import { Proposal } from "../classes/Proposal.js";
 
-export type BatchNegotiationAnswer = {
-  type: BatchActionStatus.Approved | BatchActionStatus.Rejected
-} | {
-  type: BatchActionStatus.CounterOffered
-  counterOffer: Set<Message>
-}
-
+export type BatchNegotiationAnswer = boolean | Proposal;
 export interface BatchNegotiator {
-    negotiateBatchEdit(proposal: Set<ReadonlySignals<Message>>): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer>
-    negotiateBatchDelete(proposal: Set<ReadonlySignals<Message>>): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer>
+    negotiateBatchEdit(proposal: Proposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer>
+    negotiateBatchDelete(proposal: Proposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer>
 }

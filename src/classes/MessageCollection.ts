@@ -5,11 +5,12 @@ import { BatchActionStatus } from '../enums/BatchActionStatus';
 import { BatchNegotiationMediator } from './BatchNegotiationMediator';
 import { BatchNegotiator } from '../interfaces/BatchNegotiator';
 import { Chat } from './Chat';
+import { Proposal } from './Proposal';
 
 
 const approveAllBatches: BatchNegotiator = {
-  negotiateBatchEdit: () => ({ type: BatchActionStatus.Approved }),
-  negotiateBatchDelete: () => ({ type: BatchActionStatus.Approved }),
+  negotiateBatchEdit: () => true,
+  negotiateBatchDelete: () => true,
 };
 
 export class MessageCollection {
@@ -25,7 +26,6 @@ export class MessageCollection {
     this._messages().size > 0 && [...this.messages()].every((message) =>
       message.from() === 'client' && message.editable()),
   );
-  negotiationMediator = new BatchNegotiationMediator(new Set(this._messages()));
 
   addMessage(message: Message): void {
     message.setChat(this.chat);
@@ -44,14 +44,9 @@ export class MessageCollection {
     this._messages.set(new Set());
   }
 
-  selectMessages(messages: Iterable<Message>): void {
-    const chatMessages = new Set(this.chat.messages());
-    this._messages.set(new Set([...messages].filter((message) => chatMessages.has(message))));
-  }
-
   async delete(): Promise<Message[]> {
-    this.negotiationMediator = new BatchNegotiationMediator(new Set(this._messages()));
-    const messages = await this.chat.manager.requestBatchDelete(this);
+    const proposal = new Proposal(new Set(this._messages()), 'delete');
+    const messages = await this.chat['manager'].requestBatchDelete(proposal, this.negotiator);
     const deleted = new Set(messages.filter((message) =>
       message.status() === MessageStatus.Sent || message.status() === MessageStatus.Read));
     this._messages.update((messages) => new Set(
@@ -61,7 +56,7 @@ export class MessageCollection {
   }
 
   async edit(newValues: string[]): Promise<Message[]> {
-    this.negotiationMediator = new BatchNegotiationMediator(new Set(this._messages()));
-    return this.chat.manager.requestBatchEdit(this, newValues);
+    const proposal = new Proposal(new Set(this._messages()), 'edit');
+    return this.chat['manager'].requestBatchEdit(proposal, this.negotiator, newValues);
   }
 }
