@@ -27,6 +27,7 @@ export class MessageBubbleComponent {
   message = input.required<Message>();
   isActiveSearchMatch = input(false);
   isSelected = input(false);
+  proposalType = input<'edit' | 'delete' | undefined>();
   showTail = input(false);
   searchTerm = input('');
   answerSelected = output<{ answer: Answer | Answer[]; associatedQuestion: Question }>();
