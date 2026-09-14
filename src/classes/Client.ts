@@ -4,6 +4,7 @@ import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Question } from "./Question";
 import { MessageStatus } from "../enums/MessagesStatus";
+import { ClientNegotiator } from "./ClientNegotiator";
 
 export type AnswerSelectedEvent = {
     answer: Answer | Answer[];
@@ -15,6 +16,7 @@ export class Client {
     private chat: Chat;
     public readonly onMessageAdded = new Subject<Message>();
     public readonly onAnswerSelected = new Subject<AnswerSelectedEvent>();
+    public readonly negotiator = new ClientNegotiator();
     constructor(chat: Chat){
         this.chat = chat;
     }

@@ -7,7 +7,7 @@ import { ChatProvider } from "../interfaces/ChatProvider";
 import { ChatService } from "../services/chat.service";
 import { BatchNegotiationMediator } from "./BatchNegotiationMediator";
 import { BatchNegotiationAnswer, BatchNegotiator } from "../interfaces/BatchNegotiator";
-import { Proposal } from "./Proposal";
+import { AcceptedEditCandidate, AcceptedProposal, DeleteProposal, EditProposal, Proposal } from "./Proposals";
 export class ChatManager {
     protected chat!: Chat;
     protected chatProvider: ChatProvider;
@@ -54,99 +54,56 @@ export class ChatManager {
         );
     }
 
-    isAllowedToBatchEdit(proposal: Proposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
+    isAllowedToBatchEdit(proposal: EditProposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
         return true; 
     }
 
-    isAllowedToEdit(message: Message): boolean | Promise<boolean> {
+    isAllowedToBatchDelete(proposal: DeleteProposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
         return true;
     }
 
-    requestMessageEdit(message: Message, newValue: string) {
-        let oldMessage = message.clone();
-        message.value.set(newValue, true);
-        message.editedAt.set(new Date(), true);
-        return this.request(
-            this.isAllowedToEdit.bind(this),
-            (message)=>this.onMessageEditRequested(message, oldMessage),
-            message
-        );
-    }
-
-    isAllowedToBatchDelete(proposal: Proposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
-        return true;
-    }
-
-    isAllowedToDelete(message: Message): boolean | Promise<boolean> {
-        return true;
-    }
-
-    requestMessageDelete(message: Message) {
-        return this.request(
-            this.isAllowedToDelete.bind(this),
-            this.onMessageDeleteRequested.bind(this),
-            message
-        );
-    }
-
-    async requestBatchDelete(proposal: Proposal, negotiator: BatchNegotiator): Promise<Message[]> {
-        const messages = await this.requestAllowedBatch(
+    async requestBatchDelete(proposal: DeleteProposal, negotiator: BatchNegotiator): Promise<MessageStatus> {
+        const negotiationResult = await new BatchNegotiationMediator(this.chat.user.negotiator)
+        .negotiate(
             proposal,
             negotiator,
-            (batch) => this.onBatchDeleteRequested(batch),
+            this.negotiator
         );
-        const deleted = messages.filter((message) =>
-            message.status() === MessageStatus.Sent || message.status() === MessageStatus.Read);
+        if(!negotiationResult) return MessageStatus.Failed;
+
+        const messages = [...negotiationResult.contents];
+        messages.forEach((message, i) => message.status.set(MessageStatus.Pending));
+        const status = await this.onBatchDeleteRequested(messages);
+        messages.forEach((message, i) => message.status.set(status ?? MessageStatus.Failed));
+        
+        const deleted = messages.filter((message) => message.status() === status);
         const deletedSet = new Set(deleted);
         this.chat.messages.update((current) => current.filter((message) => !deletedSet.has(message)));
         if (deleted.length) this.chat.onBatchDeleted.next(deleted);
-        return messages;
+        return status;
     }
 
-    async requestBatchEdit(proposal: Proposal, negotiator: BatchNegotiator, newValues: string[]) {
-        const updateUi = (messages: Message[]) => {
-            messages.forEach((message, i) => {
-                const newValue = newValues[i];
-                if(newValue === undefined) return;
-                message.value.set(newValue, true);
-                message.editedAt.set(new Date(), true);
-            })
-        }    
-        return this.requestAllowedBatch(
+    async requestBatchEdit(proposal: EditProposal, negotiator: BatchNegotiator) {
+        const negotiationResult = await new BatchNegotiationMediator(this.chat.user.negotiator)
+        .negotiate<EditProposal>(
             proposal,
             negotiator,
-            (messages)=>{
-                updateUi(messages)
-                return this.onBatchEditRequested(messages)
-            }
-        );
-    }
-
-    private async requestAllowedBatch(
-        proposal: Proposal,
-        requesterNegotiator: BatchNegotiator,
-        action: (messages: Message[]) => MessageStatus[] | Promise<MessageStatus[]>,
-    ){
-        const mediator = new BatchNegotiationMediator();
-        const negotiationResult = await mediator.negotiate(
-            proposal,
-            requesterNegotiator,
             this.negotiator
-        );
-        if(!negotiationResult) return [];
+        )
+        if(!negotiationResult) return MessageStatus.Failed;
         const messages = [...negotiationResult.contents];
-        messages.forEach((message, i) => message.status.set(MessageStatus.Pending));
-        const statuses = await action(messages);
-        messages.forEach((message, i) => message.status.set(statuses[i] ?? MessageStatus.Failed));
-        return messages;
+        messages.forEach(({newMessage}) => newMessage.status.set(MessageStatus.Pending))
+        const status = await this.onBatchEditRequested(messages);
+        messages.forEach(({newMessage})=>newMessage.status.set(status));
+        return status;
     }
 
-    protected onBatchDeleteRequested(messages: Message[]): MessageStatus[] | Promise<MessageStatus[]> {
-        return messages.map(message=>MessageStatus.Read);
+    protected onBatchDeleteRequested(messages: Message[]): MessageStatus | Promise<MessageStatus> {
+        return MessageStatus.Read;
     }
 
-    protected onBatchEditRequested(messages: Message[]): MessageStatus[] | Promise<MessageStatus[]> {
-        return messages.map(message=>MessageStatus.Read);
+    protected onBatchEditRequested(messages: AcceptedEditCandidate[]): MessageStatus | Promise<MessageStatus> {
+        return MessageStatus.Read;
     }
 
     async requestDelete(): Promise<void> {

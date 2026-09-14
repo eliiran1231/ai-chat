@@ -3,8 +3,7 @@ import { Message } from './Message';
 import { MessageStatus } from '../enums/MessagesStatus';
 import { BatchNegotiator } from '../interfaces/BatchNegotiator';
 import { Chat } from './Chat';
-import { Proposal } from './Proposal';
-
+import { DeleteProposal, EditCandidate, EditProposal } from './Proposals';
 
 const approveAllBatches: BatchNegotiator = {
   negotiateBatchEdit: () => true,
@@ -42,19 +41,24 @@ export class MessageCollection {
     this._messages.set(new Set());
   }
 
-  async delete(): Promise<Message[]> {
-    const proposal = new Proposal(new Set(this._messages()), 'delete');
-    const messages = await this.chat['manager'].requestBatchDelete(proposal, this.negotiator);
-    const deleted = new Set(messages.filter((message) =>
-      message.status() === MessageStatus.Sent || message.status() === MessageStatus.Read));
-    this._messages.update((messages) => new Set(
-      [...messages].filter((message) => !deleted.has(message)),
-    ));
-    return messages;
+  async delete(): Promise<MessageStatus> {
+    const proposal = new DeleteProposal(new Set(this._messages()));
+    const status = await this.chat['manager'].requestBatchDelete(proposal, this.negotiator);
+    if(status != MessageStatus.Failed) this.clearMessages(); 
+    return status;
   }
 
-  async edit(newValues: string[]): Promise<Message[]> {
-    const proposal = new Proposal(new Set(this._messages()), 'edit');
-    return this.chat['manager'].requestBatchEdit(proposal, this.negotiator, newValues);
+  async edit(newValues: string[]): Promise<MessageStatus> {
+    const messages = [...this._messages()];
+    const editCandidates = new Set<EditCandidate>();
+    newValues.forEach((newValue, i)=> {
+      const newMessage = messages[i];
+      const oldMessage = newMessage;
+      newMessage.value.set(newValue);
+      newMessage.time.set(new Date());
+      editCandidates.add({ oldMessage, newMessage });
+    });
+    const proposal = new EditProposal(editCandidates);
+    return this.chat['manager'].requestBatchEdit(proposal, this.negotiator);
   }
 }

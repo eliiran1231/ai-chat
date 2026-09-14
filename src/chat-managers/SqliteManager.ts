@@ -5,6 +5,7 @@ import { MessageStatus } from "../enums/MessagesStatus";
 import { DbService } from "../services/db.service";
 import { Chat } from "../classes/Chat";
 import { SqliteProvider } from "../chat-providers/SqliteProvider";
+import { AcceptedEditCandidate } from "../classes/Proposals";
 
 export class SqliteManager extends ChatManager {
   dbService: DbService;
@@ -56,28 +57,29 @@ export class SqliteManager extends ChatManager {
     }
   }
 
-  protected override async onBatchEditRequested(messages: Message[]): Promise<MessageStatus[]> {
+  protected override async onBatchEditRequested(acceptedCandidates: AcceptedEditCandidate[]): Promise<MessageStatus> {
     try {
+      const messages = acceptedCandidates.map(c=>c.newMessage);
       const editedIds = new Set(await this.chatProvider.editBatch(messages));
-      return messages.map((message) =>
-        editedIds.has(message.id()) ? MessageStatus.Sent : MessageStatus.Failed,
-      );
+      return messages.every((message) => editedIds.has(message.id())) ?
+       MessageStatus.Sent :
+       MessageStatus.Failed;
     } catch (error) {
       console.error(error);
-      return messages.map(() => MessageStatus.Failed);
+      return MessageStatus.Failed;
     }
   }
 
-  protected override async onBatchDeleteRequested(messages: Message[]): Promise<MessageStatus[]> {
+  protected override async onBatchDeleteRequested(messages: Message[]): Promise<MessageStatus> {
     try {
       await Promise.all(messages.map((message) => this.pendingMessagePersists.get(message)));
       const deletedIds = new Set(await this.chatProvider.deleteBatch(messages.map((message) => message.id())));
-      return messages.map((message) =>
-        deletedIds.has(message.id()) ? MessageStatus.Sent : MessageStatus.Failed,
-      );
+      return messages.every((message) =>deletedIds.has(message.id())) ? 
+       MessageStatus.Sent : 
+       MessageStatus.Failed
     } catch (error) {
       console.error(error);
-      return messages.map(() => MessageStatus.Failed);
+      return MessageStatus.Failed;
     }
   }
 

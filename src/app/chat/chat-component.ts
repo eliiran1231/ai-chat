@@ -19,8 +19,7 @@ import {
 } from '../../utils/chat-message-date-separator';
 import { TranslatePipe } from '../shared/translate.pipe';
 import { MessageCollection } from '../../classes/MessageCollection';
-import { UserBatchNegotiator } from './UserBatchNegotiator';
-import { Proposal } from '../../classes/Proposal';
+import { EditProposal } from '../../classes/Proposals';
 
 @Component({
   selector: 'app-chat',
@@ -42,12 +41,7 @@ import { Proposal } from '../../classes/Proposal';
 export class ChatComponent {
   readonly shouldShowDateSeparator = shouldShowDateSeparator;
   readonly shouldShowMessageTail = shouldShowMessageTail;
-  readonly activeProposal = signal<Proposal | undefined>(undefined);
-  readonly selectedMessages = computed(() => {
-    const selection = new MessageCollection(this.chat());
-    selection.negotiator = new UserBatchNegotiator(selection, this.activeProposal);
-    return selection;
-  });
+  readonly selectedMessages = computed(() => new MessageCollection(this.chat()));
 
   constructor() {
     effect(() => {
@@ -223,9 +217,13 @@ export class ChatComponent {
     return !!messageId && this.matchingMessageIds()[this.activeSearchResultIndex()] === messageId;
   }
 
-  proposalTypeFor(message: Message): Proposal['type'] | undefined {
-    const proposal = this.activeProposal();
-    return proposal?.contents.has(message) ? proposal.type : undefined;
+  proposalTypeFor(message: Message): 'edit' | 'delete' | undefined {
+    const proposal = this.chat().user.negotiator.activeProposal();
+    if (!proposal) return undefined;
+    if (proposal instanceof EditProposal) {
+      return [...proposal.contents].some(({ newMessage }) => newMessage === message) ? 'edit' : undefined;
+    }
+    return [...proposal.contents].includes(message) ? 'delete' : undefined;
   }
 
   private scrollToActiveSearchResult(): void {

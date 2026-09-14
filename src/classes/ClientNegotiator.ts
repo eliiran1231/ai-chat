@@ -1,7 +1,6 @@
-import type { WritableSignal } from '@angular/core';
-import { MessageCollection } from '../../classes/MessageCollection';
-import type { BatchNegotiationAnswer, BatchNegotiator } from '../../interfaces/BatchNegotiator';
-import { Proposal } from '../../classes/Proposal';
+import { signal, WritableSignal } from '@angular/core';
+import type { BatchNegotiationAnswer, BatchNegotiator } from '../interfaces/BatchNegotiator';
+import { DeleteProposal, EditProposal, Proposal } from './Proposals';
 
 /**
  * Resolves once the browser has painted at least one frame since it was called.
@@ -17,42 +16,36 @@ function nextPaint(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 }
 
-export class UserBatchNegotiator implements BatchNegotiator {
+/**
+ * Asks the client — the end user — to confirm a proposed edit/delete before it happens.
+ * Owned by `Client` (`chat.user.negotiator`), so it's consulted the same way whether the
+ * request came from a single `Message.delete()`/`.edit()` or a `MessageCollection` batch.
+ * A lone message is common and low-risk enough that it's exempted from the prompt below.
+ */
+export class ClientNegotiator implements BatchNegotiator {
+  /** The proposal currently awaiting confirmation, if any — read this to highlight it in the UI. */
+  readonly activeProposal: WritableSignal<Proposal | undefined> = signal(undefined);
+
   constructor(
-    private readonly selection: MessageCollection,
-    private readonly activeProposal: WritableSignal<Proposal | undefined>,
     private readonly confirmProposal: (message: string) => boolean = window.confirm.bind(window),
   ) {}
 
-  negotiateBatchEdit(proposal: Proposal): Promise<BatchNegotiationAnswer> {
+  negotiateBatchEdit(proposal: EditProposal): Promise<BatchNegotiationAnswer> {
     return this.negotiate(proposal, 'Accept the proposed edits to the selected messages?');
   }
 
-  negotiateBatchDelete(proposal: Proposal): Promise<BatchNegotiationAnswer> {
+  negotiateBatchDelete(proposal: DeleteProposal): Promise<BatchNegotiationAnswer> {
     return this.negotiate(proposal, 'Accept the proposed deletion of the selected messages?');
   }
 
   private async negotiate(proposal: Proposal, promptMessage: string): Promise<BatchNegotiationAnswer> {
-    this.showProposal(proposal);
+    //if ([...proposal.contents].length <= 1) return true;
+    this.activeProposal.set(proposal);
     try {
       await nextPaint();
-      return this.confirmProposal(promptMessage) || this.rejectSelection();
+      return this.confirmProposal(promptMessage);
     } finally {
-      this.hideProposal();
+      this.activeProposal.set(undefined);
     }
-  }
-
-  private showProposal(proposal: Proposal): void {
-    this.activeProposal.set(proposal);
-  }
-
-  private hideProposal(): void {
-    this.activeProposal.set(undefined);
-  }
-
-  /** The user declined the whole batch: drop the selection instead of leaving it stranded. */
-  private rejectSelection(): false {
-    this.selection.clearMessages();
-    return false;
   }
 }
