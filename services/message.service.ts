@@ -169,7 +169,10 @@ export class MessageService {
   }
 
   async editBatch(batch: CommitMessagePayload[]): Promise<Uuid[]> {
-    if (!batch.length) return [];
+    if (
+      !batch.length ||
+      batch.some(message=>!message.editable)
+    ) return [];
 
     return this.db.orm.transaction(async (transaction) => {
       const updated: Uuid[] = [];

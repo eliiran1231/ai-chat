@@ -1,18 +1,14 @@
 import { computed, signal } from '@angular/core';
 import { Message } from './Message';
 import { MessageStatus } from '../enums/MessagesStatus';
-import { BatchNegotiator } from '../interfaces/BatchNegotiator';
+import { OperationsNegotiator } from '../interfaces/OperationsNegotiator';
 import { Chat } from './Chat';
 import { DeleteProposal, EditCandidate, EditProposal } from './Proposals';
-
-const approveAllBatches: BatchNegotiator = {
-  negotiateBatchEdit: () => true,
-  negotiateBatchDelete: () => true,
-};
+import { defaultNegotiator } from './DefaultNegotiator';
 
 export class MessageCollection {
 
-  constructor(private chat: Chat, public negotiator: BatchNegotiator = approveAllBatches){}
+  constructor(private chat: Chat, public negotiator: OperationsNegotiator = defaultNegotiator){}
 
   private readonly _messages = signal<ReadonlySet<Message>>(new Set());
   readonly messages = this._messages.asReadonly();
@@ -43,7 +39,7 @@ export class MessageCollection {
 
   async delete(): Promise<MessageStatus> {
     const proposal = new DeleteProposal(new Set(this._messages()));
-    const status = await this.chat['manager'].requestBatchDelete(proposal, this.negotiator);
+    const status = await this.chat['manager'].requestMessagesDelete(proposal, this.negotiator);
     if(status != MessageStatus.Failed) this.clearMessages(); 
     return status;
   }
@@ -52,13 +48,13 @@ export class MessageCollection {
     const messages = [...this._messages()];
     const editCandidates = new Set<EditCandidate>();
     newValues.forEach((newValue, i)=> {
-      const newMessage = messages[i];
-      const oldMessage = newMessage;
-      newMessage.value.set(newValue);
-      newMessage.time.set(new Date());
+      const oldMessage = messages[i]
+      const newMessage = oldMessage.clone();
+      newMessage.value.set(newValue, true);
+      newMessage.time.set(new Date(), true);
       editCandidates.add({ oldMessage, newMessage });
     });
     const proposal = new EditProposal(editCandidates);
-    return this.chat['manager'].requestBatchEdit(proposal, this.negotiator);
+    return this.chat['manager'].requestMessagesEdit(proposal, this.negotiator);
   }
 }

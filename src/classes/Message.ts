@@ -5,7 +5,8 @@ import { MessageStatus } from "../enums/MessagesStatus";
 import { isSignal, signal, Signal } from '@angular/core';
 import { syncedSignal, SyncedSignal } from '../signals/syncedSignal';
 import { DeleteProposal, EditProposal } from "./Proposals";
-import { BatchNegotiator } from "../interfaces/BatchNegotiator";
+import { OperationsNegotiator } from "../interfaces/OperationsNegotiator";
+import { defaultNegotiator } from "./DefaultNegotiator";
 
 export type MessageSender = 'client' | 'supporter';
 export type MessageType = 'message' | 'question' | 'answer';
@@ -29,8 +30,7 @@ export type MessageOptions = {
 }
 
 export type OperationOptions = {
-    isSilent?: boolean;
-    negotiator?: BatchNegotiator
+    negotiator?: OperationsNegotiator
 }
 
 export class Message extends SyncedEntity {
@@ -67,12 +67,13 @@ export class Message extends SyncedEntity {
     }
 
     async edit(newValue: string, options?: OperationOptions): Promise<boolean> {
+        const [newMessage, oldMessage] = [this.clone(), this]
         const proposal = new EditProposal(new Set([{
-            newMessage: this,
-            oldMessage: this.clone()
+            newMessage,
+            oldMessage
         }]));
-        const { isSilent, negotiator } = this.parseOperationsOptions(options);       
-        this.lastAction = () => this._chat['manager'].requestBatchEdit(proposal, negotiator!);
+        const { negotiator } = this.parseOperationsOptions(options);       
+        this.lastAction = () => this._chat['manager'].requestMessagesEdit(proposal, negotiator!);
         if (
             !this.editable() ||
             this.from() === 'supporter' ||
@@ -80,9 +81,8 @@ export class Message extends SyncedEntity {
             this.value() === newValue ||
             await this.lastAction() == MessageStatus.Failed
         ) return false;
-        this.value.set(newValue);
-        this.editedAt.set(new Date());
-        isSilent || this._chat.onMessageEdited.next(this);
+        newMessage.value.set(newValue, true)
+        newMessage.editedAt.set(new Date(), true)
         return true;
     }
 
@@ -92,15 +92,13 @@ export class Message extends SyncedEntity {
 
     async delete(options?: OperationOptions): Promise<boolean> {
         const proposal = new DeleteProposal(new Set([this]));
-        const { isSilent, negotiator } = this.parseOperationsOptions(options);
+        const { negotiator } = this.parseOperationsOptions(options);
         this.lastAction = this.delete.bind(this)
         if (
             !this.deletable() ||
             !this._chat ||
-            await this._chat['manager'].requestBatchDelete(proposal, negotiator!) === MessageStatus.Failed
+            await this._chat['manager'].requestMessagesDelete(proposal, negotiator!) === MessageStatus.Failed
         ) return false;
-        isSilent || this._chat.onMessageDeleted.next(this);
-        this._chat.messages.update(msgs => msgs.filter(msg => msg !== this));
         return true;
     }
 
@@ -122,11 +120,7 @@ export class Message extends SyncedEntity {
 
     private parseOperationsOptions(options?: OperationOptions){
         if(!options) options = {};
-        options.isSilent ??= false;
-        options.negotiator ??= {
-            negotiateBatchEdit: ()=>true,
-            negotiateBatchDelete: ()=>true,
-        }
+        options.negotiator ??= defaultNegotiator
         return options;
     }
 }

@@ -43,13 +43,10 @@ export class Chat extends SyncedEntity {
   readonly supporter: Supporter;
   readonly active: WritableSignal<boolean> = signal(false);
   readonly user: Client;
-  /** @internal Used by collaborating chat-domain classes. */
-  readonly manager: ChatManager;
+  private readonly manager: ChatManager;
   readonly loader = new MessageLoader();
-  public readonly onMessageEdited = new Subject<Message>();
-  public readonly onMessageDeleted = new Subject<Message>();
-  public readonly onBatchDeleted = new Subject<readonly Message[]>();
-  public readonly onBatchEdited = new Subject<readonly Message[]>();
+  public readonly onMessagesDeleted = new Subject<readonly Message[] | Message>();
+  public readonly onMessagesEdited = new Subject<readonly Message[] | Message>();
 
   markAsRead() {
     this.unreadCount.set(0);

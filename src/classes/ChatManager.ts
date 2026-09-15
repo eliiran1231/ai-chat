@@ -5,16 +5,16 @@ import { MessageStatus } from "../enums/MessagesStatus";
 import { SyncedEntity } from "./SyncedEntity";
 import { ChatProvider } from "../interfaces/ChatProvider";
 import { ChatService } from "../services/chat.service";
-import { BatchNegotiationMediator } from "./BatchNegotiationMediator";
-import { BatchNegotiationAnswer, BatchNegotiator } from "../interfaces/BatchNegotiator";
+import { OperationsNegotiationMediator } from "./OperationsNegotiationMediator";
+import { OperationsNegotiationAnswer, OperationsNegotiator } from "../interfaces/OperationsNegotiator";
 import { AcceptedEditCandidate, AcceptedProposal, DeleteProposal, EditProposal, Proposal } from "./Proposals";
 export class ChatManager {
     protected chat!: Chat;
     protected chatProvider: ChatProvider;
     protected chatService: ChatService;
-    private negotiator: BatchNegotiator = {
-        negotiateBatchEdit: (proposal) => this.isAllowedToBatchEdit(proposal),
-        negotiateBatchDelete: (proposal) => this.isAllowedToBatchDelete(proposal),
+    private negotiator: OperationsNegotiator = {
+        negotiateBatchEdit: (proposal) => this.isAllowedToEditMessages(proposal),
+        negotiateBatchDelete: (proposal) => this.isAllowedToDeleteMessages(proposal),
     };
 
     constructor(injector: Injector, chatProvider: ChatProvider) {
@@ -42,28 +42,28 @@ export class ChatManager {
         return status;
     }
 
-    isAllowedToSend(message: Message): boolean | Promise<boolean> {
+    isAllowedToSendMessages(message: Message): boolean | Promise<boolean> {
         return true;
     }
 
     requestMessageSend(message: Message) {
         return this.request(
-            (message)=>this.isAllowedToSend(message),
+            (message)=>this.isAllowedToSendMessages(message),
             (message)=>this.onMessageSendRequested(message),
             message
         );
     }
 
-    isAllowedToBatchEdit(proposal: EditProposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
+    isAllowedToEditMessages(proposal: EditProposal): OperationsNegotiationAnswer | Promise<OperationsNegotiationAnswer> {
         return true; 
     }
 
-    isAllowedToBatchDelete(proposal: DeleteProposal): BatchNegotiationAnswer | Promise<BatchNegotiationAnswer> {
+    isAllowedToDeleteMessages(proposal: DeleteProposal): OperationsNegotiationAnswer | Promise<OperationsNegotiationAnswer> {
         return true;
     }
 
-    async requestBatchDelete(proposal: DeleteProposal, negotiator: BatchNegotiator): Promise<MessageStatus> {
-        const negotiationResult = await new BatchNegotiationMediator(this.chat.user.negotiator)
+    async requestMessagesDelete(proposal: DeleteProposal, negotiator: OperationsNegotiator): Promise<MessageStatus> {
+        const negotiationResult = await new OperationsNegotiationMediator(this.chat.user.negotiator)
         .negotiate(
             proposal,
             negotiator,
@@ -72,37 +72,48 @@ export class ChatManager {
         if(!negotiationResult) return MessageStatus.Failed;
 
         const messages = [...negotiationResult.contents];
-        messages.forEach((message, i) => message.status.set(MessageStatus.Pending));
-        const status = await this.onBatchDeleteRequested(messages);
+        messages.forEach((message, i) => message.status.set(MessageStatus.Pending, true));
+        const status = await this.onMessagesDeleteRequested(messages);
         messages.forEach((message, i) => message.status.set(status ?? MessageStatus.Failed));
         
         const deleted = messages.filter((message) => message.status() === status);
         const deletedSet = new Set(deleted);
         this.chat.messages.update((current) => current.filter((message) => !deletedSet.has(message)));
-        if (deleted.length) this.chat.onBatchDeleted.next(deleted);
+        this.chat.onMessagesDeleted.next(messages.length >= 1 ? messages : messages[0]);
         return status;
     }
 
-    async requestBatchEdit(proposal: EditProposal, negotiator: BatchNegotiator) {
-        const negotiationResult = await new BatchNegotiationMediator(this.chat.user.negotiator)
+    async requestMessagesEdit(proposal: EditProposal, negotiator: OperationsNegotiator) {
+        const negotiationResult = await new OperationsNegotiationMediator(this.chat.user.negotiator)
         .negotiate<EditProposal>(
             proposal,
             negotiator,
             this.negotiator
         )
         if(!negotiationResult) return MessageStatus.Failed;
-        const messages = [...negotiationResult.contents];
-        messages.forEach(({newMessage}) => newMessage.status.set(MessageStatus.Pending))
-        const status = await this.onBatchEditRequested(messages);
-        messages.forEach(({newMessage})=>newMessage.status.set(status));
+        const acceptedCandidates = [...negotiationResult.contents];
+        acceptedCandidates.forEach(({newMessage, oldMessage}) => {
+            oldMessage.status.set(MessageStatus.Pending, true);
+            oldMessage.value.set(newMessage.value(), true);
+            oldMessage.editedAt.set(newMessage.editedAt(), true);
+        })
+        const status = await this.onMessagesEditRequested(acceptedCandidates);
+        acceptedCandidates.forEach(({newMessage, oldMessage})=>{
+            oldMessage.status.set(status)
+            if(status == MessageStatus.Failed) return;
+            oldMessage.value.set(newMessage.value());
+            oldMessage.editedAt.set(newMessage.editedAt());
+        });
+        const messages = acceptedCandidates.map(({oldMessage})=>oldMessage)
+        this.chat.onMessagesEdited.next(messages.length >= 1 ? messages : messages[0])
         return status;
     }
 
-    protected onBatchDeleteRequested(messages: Message[]): MessageStatus | Promise<MessageStatus> {
+    protected onMessagesDeleteRequested(messages: Message[]): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 
-    protected onBatchEditRequested(messages: AcceptedEditCandidate[]): MessageStatus | Promise<MessageStatus> {
+    protected onMessagesEditRequested(messages: AcceptedEditCandidate[]): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 
@@ -119,15 +130,7 @@ export class ChatManager {
         return MessageStatus.Read;
     }
 
-    protected onMessageEditRequested(message: Message, oldMessage: Message): MessageStatus | Promise<MessageStatus> {
-        return MessageStatus.Read;
-    }
-
     protected onMessagePropChangeRequested(target: SyncedEntity, prop: string | Symbol | undefined, newValue: any){
-        return MessageStatus.Read;
-    }
-
-    protected onMessageDeleteRequested(message: Message): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 
