@@ -16,7 +16,6 @@ export abstract class MessageSource {
     const messages = await this.getMessages(this.start, this.start + this.chunkSize);
     this.exhausted = messages.length < this.chunkSize;
     this.start += messages.length;
-    this.chat.messages.update(current => [...messages, ...current]);
     return messages;
   }
 
