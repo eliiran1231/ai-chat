@@ -7,7 +7,7 @@ import { Question } from "./Question";
 import { Uuid } from "../interfaces/db/Uuid";
 import { SyncedEntity } from "./SyncedEntity";
 import { MessageStatus } from "../enums/MessagesStatus";
-import { signal, Signal } from "@angular/core";
+import { signal, Signal, type Type } from "@angular/core";
 import { syncedSignal, SyncedSignal } from "../signals/syncedSignal";
 
 export class Supporter extends SyncedEntity {
@@ -79,7 +79,7 @@ export class Supporter extends SyncedEntity {
     }
 
     private async appendMessage(message: Message){
-        message.from.set("supporter");
+        message.from.set({ type: 'supporter', senderClass: this.agent?.constructor as Type<Agent> | undefined });
         message.setChat(this.chat);
         this.chat.messages.update((msgs: Message[]) => [...msgs, message]);
         message.status.set(await this.chat['manager'].requestMessageSend(message));

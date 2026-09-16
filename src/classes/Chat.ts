@@ -44,14 +44,14 @@ export class Chat extends SyncedEntity {
   readonly active: WritableSignal<boolean> = signal(false);
   readonly user: Client;
   private readonly manager: ChatManager;
-  readonly loader = new MessageLoader();
+  readonly loader = new MessageLoader(this);
   public readonly onMessagesDeleted = new Subject<readonly Message[]>();
   public readonly onMessagesEdited = new Subject<readonly Message[]>();
 
   markAsRead() {
     this.unreadCount.set(0);
     for (let message of this.messages()) {
-      if(message.from() == "supporter") message.status.set(MessageStatus.Read);
+      if(message.from()?.type == "supporter") message.status.set(MessageStatus.Read);
     }
   }
 

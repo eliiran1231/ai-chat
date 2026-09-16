@@ -2,13 +2,16 @@ import { Chat } from "./Chat";
 import { Uuid } from "../interfaces/db/Uuid";
 import { SyncedEntity } from "./SyncedEntity";
 import { MessageStatus } from "../enums/MessagesStatus";
-import { isSignal, signal, Signal } from '@angular/core';
+import { isSignal, signal, Signal, type Type } from '@angular/core';
 import { syncedSignal, SyncedSignal } from '../signals/syncedSignal';
 import { DeleteProposal, EditProposal } from "./Proposals";
 import { OperationsNegotiator } from "../interfaces/OperationsNegotiator";
 import { defaultNegotiator } from "./DefaultNegotiator";
+import type { Agent } from "./Agent";
 
-export type MessageSender = 'client' | 'supporter';
+export type MessageSender =
+    | { type: 'client'; senderClass?: never }
+    | { type: 'supporter'; senderClass?: Type<Agent> };
 export type MessageType = 'message' | 'question' | 'answer';
 export type Attachment = {
     type: string,
@@ -76,7 +79,7 @@ export class Message extends SyncedEntity {
         this.lastAction = () => this._chat['manager'].requestMessagesEdit(proposal, negotiator!);
         if (
             !this.editable() ||
-            this.from() === 'supporter' ||
+            this.from()?.type === 'supporter' ||
             !this._chat ||
             this.value() === newValue ||
             await this.lastAction() == MessageStatus.Failed

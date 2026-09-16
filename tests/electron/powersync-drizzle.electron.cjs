@@ -1,3 +1,4 @@
+const assert = require('node:assert/strict');
 const { app } = require('electron');
 const { mkdtemp, rm, writeFile } = require('node:fs/promises');
 const { tmpdir } = require('node:os');
@@ -58,7 +59,7 @@ async function run() {
     const message = await messageService.createMessage({
       id: 'message-returning',
       chatId: chat.id,
-      from: 'client',
+      from: { type: 'client' },
       value: 'Persisted through PowerSync',
       time: '2026-01-01T00:00:00.000Z',
     });
@@ -68,6 +69,18 @@ async function run() {
       .select()
       .from(messages)
       .where(eq(messages.id, message.id));
+
+    assert.deepEqual(message.from, { type: 'client' });
+    assert.deepEqual(JSON.parse(persistedMessages[0].sender), { type: 'client' });
+    await messageService.commitMessage({ ...message, from: { type: 'supporter', agentName: 'registered-agent' } });
+    let [reloaded] = await messageService.getChatMessages(chat.id, 0, 20);
+    assert.deepEqual(reloaded.from, { type: 'supporter', agentName: 'registered-agent' });
+    await messageService.commitMessage({ ...reloaded, from: { type: 'client' } });
+    [reloaded] = await messageService.getChatMessages(chat.id, 0, 20);
+    assert.deepEqual(reloaded.from, { type: 'client' });
+    await orm.update(messages).set({ sender: 'supporter' }).where(eq(messages.id, message.id));
+    [reloaded] = await messageService.getChatMessages(chat.id, 0, 20);
+    assert.deepEqual(reloaded.from, { type: 'supporter' });
 
     const cascadeChat = await chatService.createChat({
       name: 'Cascade chat',

@@ -60,7 +60,7 @@ describe('ChatComponent', () => {
   }
 
   function createMessage(id: string, value: string, time: Date, from: 'client' | 'supporter' = 'client'): Message {
-    return new Message(value, { id: id as Uuid, time, from });
+    return new Message(value, { id: id as Uuid, time, from: { type: from } });
   }
 
   it('renders a textarea composer with a max of 5 rows', async () => {
@@ -92,7 +92,7 @@ describe('ChatComponent', () => {
 
   it('renders AI messages as markdown', async () => {
     const message = new Message('**bold** and *italic*');
-    message.from.set('supporter');
+    message.from.set({ type: 'supporter' });
     await renderChat([message]);
 
     await vi.waitFor(() => {
@@ -105,7 +105,7 @@ describe('ChatComponent', () => {
 
   it('renders user messages through the message bubble markdown view', async () => {
     const message = new Message('**bold**');
-    message.from.set('client');
+    message.from.set({ type: 'client' });
     await renderChat([message]);
 
     await vi.waitFor(() => {
@@ -119,7 +119,7 @@ describe('ChatComponent', () => {
     const message = new Message(
       '![A mushroom-head robot drinking bubble tea](https://upload.wikimedia.org/wikipedia/commons/9/91/Pizza-3007395.jpg)',
     );
-    message.from.set('supporter');
+    message.from.set({ type: 'supporter' });
     await renderChat([
       message,
     ]);

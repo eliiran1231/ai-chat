@@ -6,7 +6,8 @@ export function shouldShowMessageTail(messages: Message[], index: number): boole
 
   return (
     index === 0 ||
-    previousMessage?.from() !== message.from() ||
+    previousMessage?.from()?.type !== message.from()?.type ||
+    previousMessage?.from()?.senderClass !== message.from()?.senderClass ||
     !isSameLocalDate(previousMessage.time(), message.time())
   );
 }

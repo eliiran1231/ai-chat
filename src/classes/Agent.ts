@@ -36,7 +36,7 @@ export class Agent {
     private findLastSupporterQuestion(messages: Message[]): Question | undefined {
         for (let i = messages.length - 1; i >= 0; i--) {
             const message = messages[i];
-            if (message instanceof Question && message.from() === 'supporter') {
+            if (message instanceof Question && message.from()?.type === 'supporter') {
                 return message;
             }
         }
@@ -57,7 +57,7 @@ export class Agent {
         if (!this.lastMessage) {
             throw new Error("respond was called but there is nothing to respond to");
         }
-        else if (this.lastMessage.from() == "supporter") {
+        else if (this.lastMessage.from()?.type == "supporter") {
             throw new Error("respond was called but there is nothing to respond to. the last message is from the agent");
         }
         this.lastMessage.status.set(MessageStatus.Read);
@@ -89,7 +89,7 @@ export class Agent {
         let responseToEdit: Message | undefined;
         for (let i = associatedQuestionIndex + 1; i < this.chat.messages().length; i++) {
             const candidate = this.chat.messages()[i];
-            if (candidate instanceof Answer && candidate.from() === "client") {
+            if (candidate instanceof Answer && candidate.from()?.type === "client") {
                 responseToEdit = candidate;
                 break;
             }
@@ -98,12 +98,12 @@ export class Agent {
     }
 
     /** Called once after a batch completes, with only successfully deleted messages. */
-    onMessagesDeleted(messages:  Message | readonly Message[]): void | Promise<void> {
+    onMessagesDeleted(messages: readonly Message[]): void | Promise<void> {
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
         this.lastMessage = this.chat.messages().at(-1);
     }
 
-    onMessagesEdited(messages: Message | readonly Message[]): void | Promise<void> {
+    onMessagesEdited(messages: readonly Message[]): void | Promise<void> {
         // Override to handle the completed batch of edits.
     }
 
