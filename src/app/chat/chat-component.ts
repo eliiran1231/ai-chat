@@ -41,6 +41,7 @@ import { EditProposal } from '../../classes/Proposals';
 export class ChatComponent {
   readonly shouldShowDateSeparator = shouldShowDateSeparator;
   readonly shouldShowMessageTail = shouldShowMessageTail;
+  readonly chat = input.required<Chat>();
   readonly selectedMessages = computed(() => new MessageCollection(this.chat()));
 
   constructor() {
@@ -50,8 +51,6 @@ export class ChatComponent {
       }
     });
   }
-
-  chat = input.required<Chat>();
   showBackButton = input(false);
   back = output<void>();
   readonly SCROLLBAR_OFFSET = 40;
