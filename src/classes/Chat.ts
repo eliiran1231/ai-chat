@@ -45,7 +45,7 @@ export class Chat extends SyncedEntity {
   readonly user: Client;
   /** @internal Used by collaborating chat-domain classes. */
   readonly manager: ChatManager;
-  readonly loader = new MessageLoader();
+  readonly loader = new MessageLoader(this);
   public readonly onMessageEdited = new Subject<Message>();
   public readonly onMessageDeleted = new Subject<Message>();
 
