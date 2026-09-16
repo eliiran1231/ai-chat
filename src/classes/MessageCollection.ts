@@ -44,13 +44,13 @@ export class MessageCollection {
     return status;
   }
 
-  async edit(newValues: string[]): Promise<MessageStatus> {
+  async edit(updater:(message:Message, i: number)=>string): Promise<MessageStatus> {
     const messages = [...this._messages()];
     const editCandidates = new Set<EditCandidate>();
-    newValues.forEach((newValue, i)=> {
-      const oldMessage = messages[i]
+    messages.forEach((message, i)=> {
+      const oldMessage = message
       const newMessage = oldMessage.clone();
-      newMessage.value.set(newValue, true);
+      newMessage.value.set(updater(message, i), true);
       newMessage.editedAt.set(new Date(), true);
       editCandidates.add({ oldMessage, newMessage });
     });
