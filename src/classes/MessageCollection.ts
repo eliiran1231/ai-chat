@@ -17,7 +17,7 @@ export class MessageCollection {
   );
   readonly canEdit = computed(() =>
     this._messages().size > 0 && [...this.messages()].every((message) =>
-      message.from() === 'client' && message.editable()),
+      message.from()?.type === 'client' && message.editable()),
   );
 
   addMessage(message: Message): void {
@@ -51,7 +51,7 @@ export class MessageCollection {
       const oldMessage = messages[i]
       const newMessage = oldMessage.clone();
       newMessage.value.set(newValue, true);
-      newMessage.time.set(new Date(), true);
+      newMessage.editedAt.set(new Date(), true);
       editCandidates.add({ oldMessage, newMessage });
     });
     const proposal = new EditProposal(editCandidates);

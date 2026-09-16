@@ -133,7 +133,7 @@ export class ChatNavbarComponent {
 
   canEditSelectedMessage = computed(() =>
     this.isSingleMessageSelected() &&
-    this.selectedMessage()?.from() === 'client' &&
+    this.selectedMessage()?.from()?.type === 'client' &&
     !!this.selectedMessage()?.editable(),
   );
 }

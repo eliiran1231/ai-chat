@@ -33,7 +33,7 @@ export class Client {
         return this.appendMessage(answer);
     }
     private async appendMessage(message: Message){
-        message.from.set("client");
+        message.from.set({ type: 'client' });
         message.setChat(this.chat);
         this.chat.messages.update(msgs => [...msgs, message]);
         message.status.set(await this.chat['manager'].requestMessageSend(message));

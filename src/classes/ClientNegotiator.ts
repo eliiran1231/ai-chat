@@ -24,7 +24,7 @@ function nextPaint(): Promise<void> {
  */
 export class ClientNegotiator implements OperationsNegotiator {
   /** The proposal currently awaiting confirmation, if any — read this to highlight it in the UI. */
-  readonly activeProposal: WritableSignal<Proposal | undefined> = signal(undefined);
+  readonly activeProposal: WritableSignal<Proposal<any> | undefined> = signal(undefined);
 
   constructor(
     private readonly confirmProposal: (message: string) => boolean = window.confirm.bind(window),
@@ -38,7 +38,7 @@ export class ClientNegotiator implements OperationsNegotiator {
     return this.negotiate(proposal, 'Accept the proposed deletion of the selected messages?');
   }
 
-  private async negotiate(proposal: Proposal, promptMessage: string): Promise<OperationsNegotiationAnswer> {
+  private async negotiate(proposal: Proposal<any>, promptMessage: string): Promise<OperationsNegotiationAnswer> {
     //if ([...proposal.contents].length <= 1) return true;
     this.activeProposal.set(proposal);
     try {

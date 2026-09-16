@@ -1,3 +1,4 @@
+import { Agent } from '../classes/Agent';
 import { Message } from '../classes/Message';
 import { Uuid } from '../interfaces/db/Uuid';
 import { shouldShowDateSeparator, shouldShowMessageTail } from './chat-message-date-separator';
@@ -8,8 +9,18 @@ describe('ChatMessageDateSeparator', () => {
     time: Date,
     from: 'client' | 'supporter' = 'client',
   ): Message {
-    return new Message(id, { id: id as Uuid, time, from });
+    return new Message(id, { id: id as Uuid, time, from: { type: from } });
   }
+
+  it('groups separate sender objects by agent class and splits on agent switches', () => {
+    class FirstAgent extends Agent {}
+    class SecondAgent extends Agent {}
+    const time = new Date(2026, 5, 15, 9);
+    const messages = [FirstAgent, FirstAgent, SecondAgent].map(senderClass =>
+      new Message('reply', { time, from: { type: 'supporter', senderClass } }));
+    expect(shouldShowMessageTail(messages, 1)).toBe(false);
+    expect(shouldShowMessageTail(messages, 2)).toBe(true);
+  });
 
   it('shows one date separator at the start of each message day', () => {
     const messages = [

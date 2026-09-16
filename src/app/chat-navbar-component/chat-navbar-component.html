@@ -16,7 +16,7 @@
       </div>
 
       @if (!editMode()) {
-        @if (isSingleMessageSelected() && selectedMessage()?.from() === 'client') {
+        @if (isSingleMessageSelected() && selectedMessage()?.from()?.type === 'client') {
           <button
             type="button"
             class="icon-button"

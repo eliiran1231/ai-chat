@@ -30,10 +30,10 @@ export class OperationsNegotiationMediator {
       return null
     }
 
-    async askClient(proposal: Proposal){
+    async askClient(proposal: EditProposal | DeleteProposal){
       const answer = proposal instanceof EditProposal
           ? await this.clientNegotiator.negotiateBatchEdit(proposal)
-          : await this.clientNegotiator.negotiateBatchDelete(proposal as DeleteProposal);
+          : await this.clientNegotiator.negotiateBatchDelete(proposal);
       return !!answer;
     }
 }
