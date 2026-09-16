@@ -15,11 +15,6 @@
     [class.message-bubble--with-tail]="showTail()"
     [class.message-bubble--answer-controls]="hasAnswerControls()"
   >
-    @if (proposalType(); as type) {
-      <span class="message-proposal-indicator" aria-live="polite">
-        Proposed {{ type }}
-      </span>
-    }
     @if (hasMessageOptions()) {
       <button
         type="button"

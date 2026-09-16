@@ -71,6 +71,8 @@ export class Message extends SyncedEntity {
 
     async edit(newValue: string, options?: OperationOptions): Promise<boolean> {
         const [newMessage, oldMessage] = [this.clone(), this]
+        newMessage.value.set(newValue, true)
+        newMessage.editedAt.set(new Date(), true)
         const proposal = new EditProposal(new Set([{
             newMessage,
             oldMessage
@@ -84,8 +86,6 @@ export class Message extends SyncedEntity {
             this.value() === newValue ||
             await this.lastAction() == MessageStatus.Failed
         ) return false;
-        newMessage.value.set(newValue, true)
-        newMessage.editedAt.set(new Date(), true)
         return true;
     }
 

@@ -220,7 +220,7 @@ export class ChatComponent {
     const proposal = this.chat().user.negotiator.activeProposal();
     if (!proposal) return undefined;
     if (proposal instanceof EditProposal) {
-      return [...proposal.contents].some(({ newMessage }) => newMessage === message) ? 'edit' : undefined;
+      return [...proposal.contents].some(({ oldMessage }) => oldMessage === message) ? 'edit' : undefined;
     }
     return [...proposal.contents].includes(message) ? 'delete' : undefined;
   }

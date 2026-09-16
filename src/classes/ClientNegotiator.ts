@@ -39,7 +39,7 @@ export class ClientNegotiator implements OperationsNegotiator {
   }
 
   private async negotiate(proposal: Proposal<any>, promptMessage: string): Promise<OperationsNegotiationAnswer> {
-    //if ([...proposal.contents].length <= 1) return true;
+    if ([...proposal.contents].length <= 1) return true;
     this.activeProposal.set(proposal);
     try {
       await nextPaint();
