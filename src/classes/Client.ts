@@ -16,9 +16,10 @@ export class Client {
     private chat: Chat;
     public readonly onMessageAdded = new Subject<Message>();
     public readonly onAnswerSelected = new Subject<AnswerSelectedEvent>();
-    public readonly negotiator = new ClientNegotiator();
-    constructor(chat: Chat){
+    public readonly negotiator: ClientNegotiator;
+    constructor(chat: Chat, negotiator: ClientNegotiator){
         this.chat = chat;
+        this.negotiator = negotiator;
     }
     ask(question : Question | string){
         question = question instanceof Question ?

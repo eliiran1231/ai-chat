@@ -8,6 +8,8 @@ import { Supporter } from './Supporter';
 import { MessageStatus } from '../enums/MessagesStatus';
 import type { ChatProvider } from '../interfaces/ChatProvider';
 import { ChatService } from '../services/chat.service';
+import { AlertService } from '../services/alert.service';
+import { LanguageService } from '../services/language.service';
 
 class RecordingChatManager extends ChatManager {
   edited: AcceptedEditCandidate[] = [];
@@ -28,7 +30,11 @@ class RecordingChatManager extends ChatManager {
 
 function createChat(): { chat: Chat; manager: RecordingChatManager } {
   const injector = Injector.create({
-    providers: [{ provide: ChatService, useValue: { removeChat: vi.fn() } }],
+    providers: [
+      { provide: ChatService, useValue: { removeChat: vi.fn() } },
+      { provide: AlertService, useValue: { confirm: vi.fn().mockResolvedValue(true) } },
+      { provide: LanguageService, useValue: { translate: (key: string) => key } },
+    ],
   });
   const provider = {} as ChatProvider;
   const manager = new RecordingChatManager(injector, provider);
@@ -37,14 +43,6 @@ function createChat(): { chat: Chat; manager: RecordingChatManager } {
 }
 
 describe('message batch operations', () => {
-  beforeEach(() => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('submits the requested single-message edit and updates the original only after it succeeds', async () => {
     const { chat, manager } = createChat();
     const message = new Message('before', { from: { type: 'client' } });

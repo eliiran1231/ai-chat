@@ -72,7 +72,7 @@ export class Chat extends SyncedEntity {
     this.supporter.setChat(this);
     this.manager = manager;
     this.manager.init(this);
-    this.user = new Client(this);
+    this.user = new Client(this, this.manager.createClientNegotiator());
     this.draftMessage = signal('');
     this.subtitle = syncedSignal(options.subtitle ?? 'chat.tapToStart');
     this.timeLabel = syncedSignal(options.timeLabel ?? 'time.now');

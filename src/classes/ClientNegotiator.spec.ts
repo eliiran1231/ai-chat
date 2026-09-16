@@ -2,68 +2,62 @@ import { ClientNegotiator } from './ClientNegotiator';
 import { DeleteProposal, EditProposal } from './Proposals';
 import { Message } from './Message';
 
-// requestAnimationFrame isn't driven by anything in this environment; resolve it
-// synchronously so we can assert on the proposal being visible *before* it fires.
-beforeEach(() => {
-  vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
-    callback(0);
-    return 0;
-  });
-});
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-});
-
 describe('ClientNegotiator', () => {
-  it('approves a single message without ever prompting', async () => {
-    const confirmProposal = vi.fn();
-    const negotiator = new ClientNegotiator(confirmProposal);
+  const language = { translate: vi.fn((key: string) => `translated:${key}`) };
+
+  it('uses the alert for a single message and clears its proposal after confirmation', async () => {
+    const alerts = { confirm: vi.fn().mockResolvedValue(true) };
+    const negotiator = new ClientNegotiator(alerts, language);
     const proposal = new DeleteProposal(new Set([new Message('Only')]));
 
-    const answer = await negotiator.negotiateBatchDelete(proposal);
+    await expect(negotiator.negotiateBatchDelete(proposal)).resolves.toBe(true);
 
-    expect(answer).toBe(true);
-    expect(confirmProposal).not.toHaveBeenCalled();
+    expect(alerts.confirm).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'translated:chat.confirmDeletionTitle',
+      message: 'translated:chat.confirmDeletion',
+    }));
     expect(negotiator.activeProposal()).toBeUndefined();
   });
 
-  it('shows the proposal before asking for confirmation, then hides it on approval', async () => {
+  it('uses AlertService while keeping the proposal visible until confirmation resolves', async () => {
     const messages = [new Message('First'), new Message('Second')];
-    let proposalWasVisibleDuringConfirm = false;
-    const confirmProposal = vi.fn(() => {
-      proposalWasVisibleDuringConfirm = negotiator.activeProposal() === proposal;
-      return true;
-    });
-    const negotiator = new ClientNegotiator(confirmProposal);
+    let resolveConfirmation!: (answer: boolean) => void;
+    const alerts = {
+      confirm: vi.fn(() => new Promise<boolean>((resolve) => { resolveConfirmation = resolve; })),
+    };
+    const negotiator = new ClientNegotiator(alerts, language);
     const proposal = new DeleteProposal(new Set(messages));
 
-    const answer = await negotiator.negotiateBatchDelete(proposal);
+    const answer = negotiator.negotiateBatchDelete(proposal);
 
-    expect(proposalWasVisibleDuringConfirm).toBe(true);
-    expect(answer).toBe(true);
+    expect(negotiator.activeProposal()).toBe(proposal);
+    expect(alerts.confirm).toHaveBeenCalledWith(expect.objectContaining({
+      title: 'translated:chat.confirmDeletionTitle',
+      message: 'translated:chat.confirmDeletion',
+    }));
+    resolveConfirmation(true);
+    await expect(answer).resolves.toBe(true);
     expect(negotiator.activeProposal()).toBeUndefined();
   });
 
-  it('reports the decline and still hides the proposal', async () => {
+  it('reports a declined alert and clears the edit proposal', async () => {
+    const alerts = { confirm: vi.fn().mockResolvedValue(false) };
+    const negotiator = new ClientNegotiator(alerts, language);
     const messages = [new Message('First'), new Message('Second')];
-    const confirmProposal = vi.fn().mockReturnValue(false);
-    const negotiator = new ClientNegotiator(confirmProposal);
-    const proposal = new EditProposal(new Set(messages.map((newMessage) => ({ newMessage, oldMessage: newMessage.clone() }))));
+    const proposal = new EditProposal(new Set(messages.map((newMessage) => ({
+      newMessage,
+      oldMessage: newMessage.clone(),
+    }))));
 
-    const answer = await negotiator.negotiateBatchEdit(proposal);
-
-    expect(answer).toBe(false);
+    await expect(negotiator.negotiateBatchEdit(proposal)).resolves.toBe(false);
+    expect(alerts.confirm).toHaveBeenCalledWith(expect.objectContaining({ title: 'translated:chat.confirmEditsTitle' }));
     expect(negotiator.activeProposal()).toBeUndefined();
   });
 
-  it('still hides the proposal if confirmation throws', async () => {
-    const messages = [new Message('First'), new Message('Second')];
-    const confirmProposal = vi.fn(() => {
-      throw new Error('dialog unavailable');
-    });
-    const negotiator = new ClientNegotiator(confirmProposal);
-    const proposal = new DeleteProposal(new Set(messages));
+  it('clears the proposal if the alert service rejects', async () => {
+    const alerts = { confirm: vi.fn().mockRejectedValue(new Error('dialog unavailable')) };
+    const negotiator = new ClientNegotiator(alerts, language);
+    const proposal = new DeleteProposal(new Set([new Message('First'), new Message('Second')]));
 
     await expect(negotiator.negotiateBatchDelete(proposal)).rejects.toThrow('dialog unavailable');
     expect(negotiator.activeProposal()).toBeUndefined();

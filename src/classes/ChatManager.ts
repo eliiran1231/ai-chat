@@ -5,6 +5,9 @@ import { MessageStatus } from "../enums/MessagesStatus";
 import { SyncedEntity } from "./SyncedEntity";
 import { ChatProvider } from "../interfaces/ChatProvider";
 import { ChatService } from "../services/chat.service";
+import { AlertService } from '../services/alert.service';
+import { ClientNegotiator } from './ClientNegotiator';
+import { LanguageService } from '../services/language.service';
 import { OperationsNegotiationMediator } from "./OperationsNegotiationMediator";
 import { OperationsNegotiationAnswer, OperationsNegotiator } from "../interfaces/OperationsNegotiator";
 import { AcceptedEditCandidate, AcceptedProposal, DeleteProposal, EditProposal, Proposal } from "./Proposals";
@@ -12,6 +15,8 @@ export class ChatManager {
     protected chat!: Chat;
     protected chatProvider: ChatProvider;
     protected chatService: ChatService;
+    private readonly alertService: AlertService;
+    private readonly languageService: LanguageService;
     private negotiator: OperationsNegotiator = {
         negotiateBatchEdit: (proposal) => this.isAllowedToEditMessages(proposal),
         negotiateBatchDelete: (proposal) => this.isAllowedToDeleteMessages(proposal),
@@ -20,10 +25,16 @@ export class ChatManager {
     constructor(injector: Injector, chatProvider: ChatProvider) {
         this.chatProvider = chatProvider;
         this.chatService = injector.get(ChatService);
+        this.alertService = injector.get(AlertService);
+        this.languageService = injector.get(LanguageService);
     }
 
     init(chat: Chat): void | Promise<void>{
         this.chat = chat;
+    }
+
+    createClientNegotiator(): ClientNegotiator {
+        return new ClientNegotiator(this.alertService, this.languageService);
     }
 
     private async request(
