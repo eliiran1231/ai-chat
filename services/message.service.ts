@@ -169,7 +169,10 @@ export class MessageService {
   }
 
   async editBatch(batch: CommitMessagePayload[]): Promise<Uuid[]> {
-    if (!batch.length) return [];
+    if (
+      !batch.length ||
+      batch.some(message=>!message.editable)
+    ) return [];
 
     return this.db.orm.transaction(async (transaction) => {
       const updated: Uuid[] = [];
@@ -196,7 +199,8 @@ export class MessageService {
           })
           .where(and(eq(messages.id, message.id), eq(messages.editable, 1)))
           .returning({ id: messages.id });
-        if (rows[0]) updated.push(rows[0].id);
+        if (!rows[0]) throw new Error(`Message ${message.id} could not be edited`); 
+        updated.push(rows[0].id);
       }
       return updated;
     });

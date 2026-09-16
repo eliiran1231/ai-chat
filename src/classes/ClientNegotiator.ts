@@ -1,5 +1,5 @@
 import { signal, WritableSignal } from '@angular/core';
-import type { BatchNegotiationAnswer, BatchNegotiator } from '../interfaces/BatchNegotiator';
+import type { OperationsNegotiationAnswer, OperationsNegotiator } from '../interfaces/OperationsNegotiator';
 import { DeleteProposal, EditProposal, Proposal } from './Proposals';
 
 /**
@@ -22,7 +22,7 @@ function nextPaint(): Promise<void> {
  * request came from a single `Message.delete()`/`.edit()` or a `MessageCollection` batch.
  * A lone message is common and low-risk enough that it's exempted from the prompt below.
  */
-export class ClientNegotiator implements BatchNegotiator {
+export class ClientNegotiator implements OperationsNegotiator {
   /** The proposal currently awaiting confirmation, if any — read this to highlight it in the UI. */
   readonly activeProposal: WritableSignal<Proposal | undefined> = signal(undefined);
 
@@ -30,15 +30,15 @@ export class ClientNegotiator implements BatchNegotiator {
     private readonly confirmProposal: (message: string) => boolean = window.confirm.bind(window),
   ) {}
 
-  negotiateBatchEdit(proposal: EditProposal): Promise<BatchNegotiationAnswer> {
+  negotiateBatchEdit(proposal: EditProposal): Promise<OperationsNegotiationAnswer> {
     return this.negotiate(proposal, 'Accept the proposed edits to the selected messages?');
   }
 
-  negotiateBatchDelete(proposal: DeleteProposal): Promise<BatchNegotiationAnswer> {
+  negotiateBatchDelete(proposal: DeleteProposal): Promise<OperationsNegotiationAnswer> {
     return this.negotiate(proposal, 'Accept the proposed deletion of the selected messages?');
   }
 
-  private async negotiate(proposal: Proposal, promptMessage: string): Promise<BatchNegotiationAnswer> {
+  private async negotiate(proposal: Proposal, promptMessage: string): Promise<OperationsNegotiationAnswer> {
     //if ([...proposal.contents].length <= 1) return true;
     this.activeProposal.set(proposal);
     try {

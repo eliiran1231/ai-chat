@@ -5,7 +5,7 @@ import { MessageStatus } from "../enums/MessagesStatus";
 import { DbService } from "../services/db.service";
 import { Chat } from "../classes/Chat";
 import { SqliteProvider } from "../chat-providers/SqliteProvider";
-import { AcceptedEditCandidate } from "../classes/Proposals";
+import { AcceptedEditCandidate, EditProposal } from "../classes/Proposals";
 
 export class SqliteManager extends ChatManager {
   dbService: DbService;
@@ -34,30 +34,7 @@ export class SqliteManager extends ChatManager {
     }
   }
 
-  override async onMessageEditRequested(message: Message, oldMessage: Message): Promise<MessageStatus> {
-    super.onMessageEditRequested(message, oldMessage);
-    try {
-      await this.chatProvider.editMessage(message);
-      return MessageStatus.Sent;
-    } catch (error) {
-      console.error(error);
-      return MessageStatus.Failed;
-    }
-  }
-
-  override async onMessageDeleteRequested(message: Message): Promise<MessageStatus> {
-    super.onMessageDeleteRequested(message);
-    try {
-      await this.pendingMessagePersists.get(message);
-      await this.chatProvider.deleteMessage(message.id());
-      return MessageStatus.Sent;
-    } catch (error) {
-      console.error(error);
-      return MessageStatus.Failed;
-    }
-  }
-
-  protected override async onBatchEditRequested(acceptedCandidates: AcceptedEditCandidate[]): Promise<MessageStatus> {
+  protected override async onMessagesEditRequested(acceptedCandidates: AcceptedEditCandidate[]): Promise<MessageStatus> {
     try {
       const messages = acceptedCandidates.map(c=>c.newMessage);
       const editedIds = new Set(await this.chatProvider.editBatch(messages));
@@ -70,7 +47,7 @@ export class SqliteManager extends ChatManager {
     }
   }
 
-  protected override async onBatchDeleteRequested(messages: Message[]): Promise<MessageStatus> {
+  protected override async onMessagesDeleteRequested(messages: Message[]): Promise<MessageStatus> {
     try {
       await Promise.all(messages.map((message) => this.pendingMessagePersists.get(message)));
       const deletedIds = new Set(await this.chatProvider.deleteBatch(messages.map((message) => message.id())));

@@ -1,15 +1,15 @@
-import { BatchNegotiationAnswer, BatchNegotiator } from "../interfaces/BatchNegotiator";
+import { OperationsNegotiator } from "../interfaces/OperationsNegotiator";
 import { ClientNegotiator } from "./ClientNegotiator";
 import { AcceptedProposal, DeleteProposal, EditProposal, Proposal } from "./Proposals";
-export class BatchNegotiationMediator {
+export class OperationsNegotiationMediator {
     private maxRounds = 10;
     constructor(
       private clientNegotiator: ClientNegotiator
     ){}
     async negotiate<T>(
         initialOffer: DeleteProposal | EditProposal,
-        offerGiver: BatchNegotiator,
-        offerReceiver: BatchNegotiator,
+        offerGiver: OperationsNegotiator,
+        offerReceiver: OperationsNegotiator,
     ): Promise<AcceptedProposal<T> | null> {
       let lastProposal = initialOffer;
       for(let i = 0; i < this.maxRounds; i++){

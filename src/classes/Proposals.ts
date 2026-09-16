@@ -1,11 +1,11 @@
 import { ReadonlySignals } from "../app/types/ReadonlySignals";
 import { Message } from "./Message";
 
-export interface Proposal {
-    readonly contents: Iterable<any>,
+export interface Proposal<T> {
+    readonly contents: Iterable<T>,
 }
 
-export class DeleteProposal implements Proposal{
+export class DeleteProposal implements Proposal<ReadonlySignals<Message>>{
     readonly contents: Set<ReadonlySignals<Message>>;
     constructor(contents?: Set<Message>){
         this.contents = contents ?? new Set();
@@ -13,7 +13,7 @@ export class DeleteProposal implements Proposal{
 }
 
 export type EditCandidate = {
-    newMessage: ReadonlySignals<Message>,
+    newMessage: Message,
     oldMessage: ReadonlySignals<Message>
 }
 
@@ -22,7 +22,7 @@ export type AcceptedEditCandidate = {
     oldMessage: Message
 }
 
-export class EditProposal implements Proposal{
+export class EditProposal implements Proposal<EditCandidate>{
     readonly contents: ReadonlySet<EditCandidate>
     constructor(contents?: Set<EditCandidate>){
         this.contents = contents ?? new Set();
