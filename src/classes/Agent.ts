@@ -15,6 +15,8 @@ export class Agent {
     lastMessage?: Message;
     private onMessageDeletedHandler?: Subscription;
     private onMessageEditedHandler?: Subscription;
+    private onBatchDeletedHandler?: Subscription;
+    private onBatchEditedHandler?: Subscription;
     private onAnswerSelectedHandler?: Subscription;
     private _name?: string;
     private agentService: AgentsService;
@@ -46,8 +48,8 @@ export class Agent {
         this.supporter = supporter;
         this.lastQuestion = this.findLastSupporterQuestion(chat.messages());
         this.onAnswerSelectedHandler = chat.user.onAnswerSelected.subscribe(({answer, associatedQuestion, associatedQuestionIndex }) => this.onAnswerSelected(answer, associatedQuestion, associatedQuestionIndex as number));
-        this.onMessageDeletedHandler = chat.onMessageDeleted.subscribe(this.onMessageDeleted.bind(this));
-        this.onMessageEditedHandler = chat.onMessageEdited.subscribe(this.onMessageEdited.bind(this));
+        this.onBatchDeletedHandler = chat.onMessagesDeleted.subscribe(this.onMessagesDeleted.bind(this));
+        this.onBatchEditedHandler = chat.onMessagesEdited.subscribe(this.onMessagesEdited.bind(this));
     }
 
     respond() : void | Promise<void> {
@@ -69,8 +71,8 @@ export class Agent {
         throw new Error("validation didnt pass");
     }
 
-    private joinedAnswer(answer: Answer | Answer[]): Answer {
-        if (!Array.isArray(answer)) {
+    private joinedAnswer(answer: Answer | readonly Answer[]): Answer {
+        if (answer instanceof Answer) {
             return answer.clone();
         }
         return new Answer(answer.map(a => a.value()).join(', '));
@@ -95,19 +97,21 @@ export class Agent {
         responseToEdit?.edit(joinedAnswer.value()); 
     }
 
-    async onMessageEdited(message: Message) {
-        //override to handle message edits
+    /** Called once after a batch completes, with only successfully deleted messages. */
+    onMessagesDeleted(messages: readonly Message[]): void | Promise<void> {
+        this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
+        this.lastMessage = this.chat.messages().at(-1);
     }
 
-    onMessageDeleted(message: Message) {
-        this.lastMessage = this.chat.messages().at(-1);
-        if(!(message instanceof Question)) return;
-        this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
+    onMessagesEdited(messages: readonly Message[]): void | Promise<void> {
+        // Override to handle the completed batch of edits.
     }
 
     onDestroy(): void | Promise<void> {
         this.onMessageDeletedHandler?.unsubscribe();
         this.onMessageEditedHandler?.unsubscribe();
+        this.onBatchDeletedHandler?.unsubscribe();
+        this.onBatchEditedHandler?.unsubscribe();
         this.onAnswerSelectedHandler?.unsubscribe();
     }
 }

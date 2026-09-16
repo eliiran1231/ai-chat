@@ -18,6 +18,8 @@ import {
   shouldShowMessageTail,
 } from '../../utils/chat-message-date-separator';
 import { TranslatePipe } from '../shared/translate.pipe';
+import { MessageCollection } from '../../classes/MessageCollection';
+import { EditProposal } from '../../classes/Proposals';
 
 @Component({
   selector: 'app-chat',
@@ -39,11 +41,11 @@ import { TranslatePipe } from '../shared/translate.pipe';
 export class ChatComponent {
   readonly shouldShowDateSeparator = shouldShowDateSeparator;
   readonly shouldShowMessageTail = shouldShowMessageTail;
+  readonly selectedMessages = computed(() => new MessageCollection(this.chat()));
 
   constructor() {
     effect(() => {
       if (this.chat()) {
-        this.selectedMessage.set(undefined);
         this.editingMessage.set(undefined);
       }
     });
@@ -68,7 +70,6 @@ export class ChatComponent {
       .map((message) => message.id());
   });
   activeSearchResultIndex = signal(-1);
-  selectedMessage = signal<Message | undefined>(undefined);
   editingMessage = signal<Message | undefined>(undefined);
   awayFromBottom = signal(false);
   isScrolling = signal(false);
@@ -160,27 +161,40 @@ export class ChatComponent {
     if (this.editingMessage()) {
       return;
     }
-    this.selectedMessage.set(message);
+    const selection = this.selectedMessages();
+    selection.messages().has(message)
+      ? selection.removeMessage(message)
+      : selection.addMessage(message);
   }
 
   closeMessageOptions(): void {
-    this.selectedMessage.set(undefined);
+    this.selectedMessages().clearMessages();
+    if (this.editingMessage()) this.chat().draftMessage.set('');
     this.editingMessage.set(undefined);
-    this.chat().draftMessage.set('');
   }
 
   editMessage(message: Message): void {
     if (message.from()?.type === 'supporter' || !message.editable()) {
       return;
     }
-    this.selectedMessage.set(message);
+    this.selectedMessages().clearMessages();
+    this.selectedMessages().addMessage(message);
     this.editingMessage.set(message);
     this.chat().draftMessage.set(message.value());
   }
 
-  async deleteMessage(message: Message) {
-    this.closeMessageOptions();
-    await message.delete();
+  async deleteSelectedMessages(): Promise<void> {
+    const selection = this.selectedMessages();
+    const messages = [...selection.messages()];
+    if (messages.length === 1) {
+      const [message] = messages;
+      if (await message.delete()) {
+        selection.removeMessage(message);
+      }
+      return;
+    }
+
+    await selection.delete();
   }
 
   async retryMessage(message: Message) {
@@ -201,6 +215,15 @@ export class ChatComponent {
 
   isActiveSearchMatch(messageId: Uuid): boolean {
     return !!messageId && this.matchingMessageIds()[this.activeSearchResultIndex()] === messageId;
+  }
+
+  proposalTypeFor(message: Message): 'edit' | 'delete' | undefined {
+    const proposal = this.chat().user.negotiator.activeProposal();
+    if (!proposal) return undefined;
+    if (proposal instanceof EditProposal) {
+      return [...proposal.contents].some(({ newMessage }) => newMessage === message) ? 'edit' : undefined;
+    }
+    return [...proposal.contents].includes(message) ? 'delete' : undefined;
   }
 
   private scrollToActiveSearchResult(): void {

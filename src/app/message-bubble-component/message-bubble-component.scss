@@ -53,6 +53,19 @@
   animation: flashOverlay 1s ease forwards;
 }
 
+.message-row--selected {
+  position: relative;
+}
+
+.message-row--selected::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(#8bd1e58c, 0.55);
+  pointer-events: none;
+  z-index: 3;
+}
+
 .message-bubble {
   position: relative;
   max-width: min(78%, 34rem);
@@ -69,7 +82,7 @@
   position: absolute;
   top: .18rem;
   inset-inline-end: .18rem;
-  z-index: 3;
+  z-index: 4;
   display: grid;
   place-items: center;
   width: 1.7rem;
@@ -87,6 +100,34 @@
 .message-options-button:focus-visible,
 .message-row--selected .message-options-button {
   opacity: 1;
+}
+
+.message-row--proposed-edit,
+.message-row--proposed-delete {
+  position: relative;
+}
+
+.message-row--proposed-edit::after,
+.message-row--proposed-delete::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.message-row--proposed-edit::after {
+  background-color: rgba(#f4ca77, 0.42);
+}
+
+.message-row--proposed-delete::after {
+  background-color: rgba(#ef9a9a, 0.42);
+}
+
+@media (hover: none), (pointer: coarse) {
+  .message-options-button {
+    opacity: 1;
+  }
 }
 
 .message-bubble--with-tail::after {
@@ -217,9 +258,22 @@
 }
 
 @media (max-width: 780px) {
-  .message-bubble {
+.message-bubble {
     max-width: 86%;
   }
+}
+
+.message-proposal-indicator {
+  position: absolute;
+  top: -0.85rem;
+  inset-inline-start: 0;
+  z-index: 4;
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: var(--md-sys-color-surface-container-high);
+  color: var(--md-sys-color-on-surface);
+  font-size: 0.68rem;
+  line-height: 1.2;
 }
 
 .file-attchment-container {

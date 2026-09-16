@@ -4,6 +4,9 @@ import { SyncedEntity } from "./SyncedEntity";
 import { MessageStatus } from "../enums/MessagesStatus";
 import { isSignal, signal, Signal, type Type } from '@angular/core';
 import { syncedSignal, SyncedSignal } from '../signals/syncedSignal';
+import { DeleteProposal, EditProposal } from "./Proposals";
+import { OperationsNegotiator } from "../interfaces/OperationsNegotiator";
+import { defaultNegotiator } from "./DefaultNegotiator";
 import type { Agent } from "./Agent";
 
 export type MessageSender =
@@ -27,6 +30,10 @@ export type MessageOptions = {
     from?: MessageSender,
     status?: MessageStatus,
     editedAt?: Date
+}
+
+export type OperationOptions = {
+    negotiator?: OperationsNegotiator
 }
 
 export class Message extends SyncedEntity {
@@ -62,18 +69,23 @@ export class Message extends SyncedEntity {
         this.initSync()
     }
 
-    async edit(newValue: string, isSilent = false): Promise<boolean> {
-        this.lastAction = () => this._chat['manager'].requestMessageEdit(this, newValue);
+    async edit(newValue: string, options?: OperationOptions): Promise<boolean> {
+        const [newMessage, oldMessage] = [this.clone(), this]
+        const proposal = new EditProposal(new Set([{
+            newMessage,
+            oldMessage
+        }]));
+        const { negotiator } = this.parseOperationsOptions(options);       
+        this.lastAction = () => this._chat['manager'].requestMessagesEdit(proposal, negotiator!);
         if (
             !this.editable() ||
             this.from()?.type === 'supporter' ||
             !this._chat ||
             this.value() === newValue ||
-            await this._chat['manager'].requestMessageEdit(this, newValue) == MessageStatus.Failed
-        ) return false;            
-        this.value.set(newValue);
-        this.editedAt.set(new Date());
-        isSilent || this._chat.onMessageEdited.next(this);
+            await this.lastAction() == MessageStatus.Failed
+        ) return false;
+        newMessage.value.set(newValue, true)
+        newMessage.editedAt.set(new Date(), true)
         return true;
     }
 
@@ -81,15 +93,15 @@ export class Message extends SyncedEntity {
         this.attachment.set(attachment);
     }
 
-    async delete(isSilent = false): Promise<boolean> {
+    async delete(options?: OperationOptions): Promise<boolean> {
+        const proposal = new DeleteProposal(new Set([this]));
+        const { negotiator } = this.parseOperationsOptions(options);
         this.lastAction = this.delete.bind(this)
         if (
             !this.deletable() ||
             !this._chat ||
-            await this._chat['manager'].requestMessageDelete(this) === MessageStatus.Failed
+            await this._chat['manager'].requestMessagesDelete(proposal, negotiator!) === MessageStatus.Failed
         ) return false;
-        isSilent || this._chat.onMessageDeleted.next(this);
-        this._chat.messages.update(msgs => msgs.filter(msg => msg !== this));
         return true;
     }
 
@@ -107,5 +119,11 @@ export class Message extends SyncedEntity {
             }
         }
         return new (this.constructor as typeof Message)(this.value(), options);
+    }
+
+    private parseOperationsOptions(options?: OperationOptions){
+        if(!options) options = {};
+        options.negotiator ??= defaultNegotiator
+        return options;
     }
 }

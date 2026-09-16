@@ -11,10 +11,12 @@
         <svg [lucideIcon]="backIcon" class="directional-icon" aria-hidden="true"></svg>
       </button>
 
-      <div class="message-options-spacer"></div>
+      <div class="message-options-spacer" aria-live="polite">
+        {{ 'chat.selectedMessages' | translate: { count: selectedMessages()?.messages()?.size ?? 0} }}
+      </div>
 
       @if (!editMode()) {
-        @if (selectedMessage()?.from()?.type === 'client') {
+        @if (isSingleMessageSelected() && selectedMessage()?.from()?.type === 'client') {
           <button
             type="button"
             class="icon-button"
@@ -42,10 +44,10 @@
         <button
           type="button"
           class="icon-button icon-button--danger"
-          [attr.aria-label]="'chat.deleteMessage' | translate"
+          [attr.aria-label]="(selectedMessages()?.messages()?.size === 1 ? 'chat.deleteMessage' : 'chat.deleteMessages') | translate"
           [title]="'common.delete' | translate"
-          [disabled]="!selectedMessage()?.deletable()"
-          (click)="selectedMessage() && deleteMessage.emit(selectedMessage()!)"
+          [disabled]="!selectedMessages()?.canDelete()"
+          (click)="deleteMessages.emit()"
         >
           <svg [lucideIcon]="deleteIcon" aria-hidden="true"></svg>
         </button>
