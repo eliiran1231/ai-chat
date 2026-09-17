@@ -33,6 +33,7 @@ export class ChatManager {
         this.chat = chat;
     }
 
+    //@internal don't use
     createClientNegotiator(): ClientNegotiator {
         return new ClientNegotiator(this.alertService, this.languageService);
     }

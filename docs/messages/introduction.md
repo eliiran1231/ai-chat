@@ -95,3 +95,4 @@ See:
 - [Possible answers](../agents/possible-answers.md)
 - [Validators](../agents/validators.md)
 - [Message lifecycle](lifecycle.md)
+- [Message collections and batch actions](collections.md)

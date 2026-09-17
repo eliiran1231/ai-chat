@@ -23,6 +23,7 @@ Start with the [documentation index](docs/README.md) or the [getting-started gui
 | Guided XState flows | [State-machine agents](docs/agents/flows.md) |
 | Chats and participants | [Chat introduction](docs/chats/introduction.md) |
 | Messages and statuses | [Message documentation](docs/messages/introduction.md) |
+| Batch message actions | [Message collections](docs/messages/collections.md) |
 | Persistence behavior | [Signals and persistence](docs/state/signals.md) |
 | Languages and RTL | [Localization](docs/localization.md) |
 | Storage integrations | [Chat providers](docs/chats/providers.md) |

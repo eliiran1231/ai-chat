@@ -27,6 +27,7 @@ This documentation explains how to build conversation agents, add chat backends,
 
 - [Messages, questions, and answers](messages/introduction.md)
 - [Message lifecycle, statuses, and retries](messages/lifecycle.md)
+- [Message collections and batch actions](messages/collections.md)
 - [Attachments](messages/attachments.md)
 - [Client and supporter participants](participants/introduction.md)
 - [Supporter context and agent switching](participants/context-and-switching.md)
