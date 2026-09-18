@@ -21,9 +21,9 @@ export interface ChatProvider {
         initialAgent: Agent,
         options?: ChatOptions
     ): Chat | Promise<Chat>;
-    addMessage(chatId: Uuid, message: Message): void | Promise<void>;
-    deleteMessage(messageId: Uuid): void | Promise<void>;
-    editMessage(message: Message): void | Promise<void>;
+    addMessage(chatId: Uuid, message: Message, ...args: unknown[]): void | Promise<void>;
+    deleteMessage(messageId: Uuid, ...args: unknown[]): void | Promise<void>;
+    editMessage(message: Message, ...args: unknown[]): void | Promise<void>;
     getChats(): Chat[] | Promise<Chat[]>;
-    deleteChat(chatId: Uuid): void | Promise<void>;
+    deleteChat(chatId: Uuid, ...args: unknown[]): void | Promise<void>;
 }
