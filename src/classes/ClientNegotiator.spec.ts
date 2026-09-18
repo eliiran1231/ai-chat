@@ -1,6 +1,7 @@
 import { ClientNegotiator } from './ClientNegotiator';
 import { DeleteProposal, EditProposal } from './Proposals';
 import { Message } from './Message';
+import { defaultNegotiator } from './DefaultNegotiator';
 
 describe('ClientNegotiator', () => {
   const language = { translate: vi.fn((key: string) => `translated:${key}`) };
@@ -10,7 +11,7 @@ describe('ClientNegotiator', () => {
     const negotiator = new ClientNegotiator(alerts, language);
     const proposal = new DeleteProposal(new Set([new Message('Only')]));
 
-    await expect(negotiator.negotiateBatchDelete(proposal)).resolves.toBe(true);
+    await expect(negotiator.negotiateBatchDelete(proposal, negotiator)).resolves.toBe(true);
 
     expect(alerts.confirm).toHaveBeenCalledWith(expect.objectContaining({
       title: 'translated:chat.confirmDeletionTitle',
@@ -28,7 +29,7 @@ describe('ClientNegotiator', () => {
     const negotiator = new ClientNegotiator(alerts, language);
     const proposal = new DeleteProposal(new Set(messages));
 
-    const answer = negotiator.negotiateBatchDelete(proposal);
+    const answer = negotiator.negotiateBatchDelete(proposal, defaultNegotiator);
 
     expect(negotiator.activeProposal()).toBe(proposal);
     expect(alerts.confirm).toHaveBeenCalledWith(expect.objectContaining({
@@ -49,7 +50,7 @@ describe('ClientNegotiator', () => {
       oldMessage: newMessage.clone(),
     }))));
 
-    await expect(negotiator.negotiateBatchEdit(proposal)).resolves.toBe(false);
+    await expect(negotiator.negotiateBatchEdit(proposal, defaultNegotiator)).resolves.toBe(false);
     expect(alerts.confirm).toHaveBeenCalledWith(expect.objectContaining({ title: 'translated:chat.confirmEditsTitle' }));
     expect(negotiator.activeProposal()).toBeUndefined();
   });
@@ -59,7 +60,19 @@ describe('ClientNegotiator', () => {
     const negotiator = new ClientNegotiator(alerts, language);
     const proposal = new DeleteProposal(new Set([new Message('First'), new Message('Second')]));
 
-    await expect(negotiator.negotiateBatchDelete(proposal)).rejects.toThrow('dialog unavailable');
+    await expect(negotiator.negotiateBatchDelete(proposal, defaultNegotiator)).rejects.toThrow('dialog unavailable');
+    expect(negotiator.activeProposal()).toBeUndefined();
+  });
+
+  it('accepts its own edit without opening a dialog or publishing a proposal', async () => {
+    const alerts = { confirm: vi.fn() };
+    const negotiator = new ClientNegotiator(alerts, language);
+    const oldMessage = new Message('Before');
+    const proposal = new EditProposal(new Set([{ oldMessage, newMessage: new Message('After') }]));
+
+    await expect(negotiator.negotiateBatchEdit(proposal, negotiator)).resolves.toBe(true);
+
+    expect(alerts.confirm).not.toHaveBeenCalled();
     expect(negotiator.activeProposal()).toBeUndefined();
   });
 });

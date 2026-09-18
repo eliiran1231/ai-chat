@@ -10,6 +10,7 @@ import type { ChatProvider } from '../interfaces/ChatProvider';
 import { ChatService } from '../services/chat.service';
 import { AlertService } from '../services/alert.service';
 import { LanguageService } from '../services/language.service';
+import { defaultNegotiator } from './DefaultNegotiator';
 
 class RecordingChatManager extends ChatManager {
   edited: AcceptedEditCandidate[] = [];
@@ -28,22 +29,91 @@ class RecordingChatManager extends ChatManager {
   }
 }
 
-function createChat(): { chat: Chat; manager: RecordingChatManager } {
+function createChat() {
+  const alerts = { confirm: vi.fn().mockResolvedValue(true) };
   const injector = Injector.create({
     providers: [
       { provide: ChatService, useValue: { removeChat: vi.fn() } },
-      { provide: AlertService, useValue: { confirm: vi.fn().mockResolvedValue(true) } },
+      { provide: AlertService, useValue: alerts },
       { provide: LanguageService, useValue: { translate: (key: string) => key } },
     ],
   });
   const provider = {} as ChatProvider;
   const manager = new RecordingChatManager(injector, provider);
   const chat = new Chat('chat-id', 'Chat', new Supporter('supporter-id'), manager);
-  return { chat, manager };
+  return { chat, manager, alerts };
 }
 
 describe('message batch operations', () => {
-  it('submits the requested single-message edit and updates the original only after it succeeds', async () => {
+  it('creates independent empty collections with the participant negotiators', () => {
+    const { chat } = createChat();
+    const message = new Message('Existing');
+    chat.messages.set([message]);
+    const supporterBatch = chat.supporter.createMessageCollection();
+    expect(supporterBatch.negotiator).toBe(defaultNegotiator);
+    expect(supporterBatch.messages().size).toBe(0);
+
+    const policy = { negotiateBatchEdit: () => false, negotiateBatchDelete: () => false };
+    chat.supporter.negotiator = policy;
+    const customSupporterBatch = chat.supporter.createMessageCollection();
+    expect(customSupporterBatch.negotiator).toBe(policy);
+    expect(supporterBatch.negotiator).toBe(defaultNegotiator);
+
+    const userBatch = chat.user.createMessageCollection();
+    expect(userBatch.negotiator).toBe(chat.user.negotiator);
+    expect(userBatch.messages().size).toBe(0);
+    userBatch.addMessage(message);
+    expect(chat.user.createMessageCollection().messages().size).toBe(0);
+    expect(customSupporterBatch.messages().size).toBe(0);
+  });
+
+  it('persists a user collection edit without asking the user to confirm it again', async () => {
+    const { chat, manager, alerts } = createChat();
+    const message = new Message('Before', { from: { type: 'client' } });
+    chat.messages.set([message]);
+    const batch = chat.user.createMessageCollection();
+    batch.addMessage(message);
+
+    await expect(batch.edit(() => 'After')).resolves.toBe(MessageStatus.Sent);
+
+    expect(alerts.confirm).not.toHaveBeenCalled();
+    expect(manager.edited).toHaveLength(1);
+    expect(message.value()).toBe('After');
+  });
+
+  it('still confirms user collection deletes and preserves the batch on cancellation', async () => {
+    const { chat, manager, alerts } = createChat();
+    alerts.confirm.mockResolvedValue(false);
+    const message = new Message('Keep', { status: MessageStatus.Sent });
+    chat.messages.set([message]);
+    const batch = chat.user.createMessageCollection();
+    batch.addMessage(message);
+
+    await expect(batch.delete()).resolves.toBe(MessageStatus.Failed);
+
+    expect(alerts.confirm).toHaveBeenCalledTimes(1);
+    expect(manager.deleted).toEqual([]);
+    expect(chat.messages()).toEqual([message]);
+    expect(batch.messages()).toEqual(new Set([message]));
+    expect(message.status()).toBe(MessageStatus.Sent);
+  });
+
+  it('confirms supporter edits before persisting them', async () => {
+    const { chat, manager, alerts } = createChat();
+    alerts.confirm.mockResolvedValue(false);
+    const message = new Message('Before', { from: { type: 'client' } });
+    chat.messages.set([message]);
+    const batch = chat.supporter.createMessageCollection();
+    batch.addMessage(message);
+
+    await expect(batch.edit(() => 'After')).resolves.toBe(MessageStatus.Failed);
+
+    expect(alerts.confirm).toHaveBeenCalledTimes(1);
+    expect(manager.edited).toEqual([]);
+    expect(message.value()).toBe('Before');
+  });
+
+  it('submits the requested single-message edit and reports success on the original', async () => {
     const { chat, manager } = createChat();
     const message = new Message('before', { from: { type: 'client' } });
     message.setChat(chat);
