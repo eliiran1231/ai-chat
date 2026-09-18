@@ -9,6 +9,8 @@ import { SyncedEntity } from "./SyncedEntity";
 import { MessageStatus } from "../enums/MessagesStatus";
 import { signal, Signal, type Type } from "@angular/core";
 import { syncedSignal, SyncedSignal } from "../signals/syncedSignal";
+import { MessageCollection } from "./MessageCollection";
+import { OperationsNegotiator } from "../interfaces/OperationsNegotiator";
 
 export class Supporter extends SyncedEntity {
     public readonly id!: Signal<Uuid>;
@@ -20,6 +22,7 @@ export class Supporter extends SyncedEntity {
     private _context: any; 
     private chat!: Chat;
     private agent: Agent | undefined;
+    negotiator?: OperationsNegotiator;
     
     get context(){
         return this._context;
@@ -59,6 +62,10 @@ export class Supporter extends SyncedEntity {
             return;
         }
         await this.agent.respond();
+    }
+
+    createMessageCollection(): MessageCollection{
+        return new MessageCollection(this.chat, this.negotiator)
     }
 
     async setAgent(agent: Agent, isNewChat = false){

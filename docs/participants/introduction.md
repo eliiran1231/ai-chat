@@ -63,6 +63,19 @@ The supporter publishes:
 | `onAgentSwitch` | Newly initialized agent |
 | `onContextChange` | Newly persisted context value |
 
+## Message collections
+
+Both participants expose `createMessageCollection()`:
+
+```ts
+const supporterBatch = chat.supporter.createMessageCollection();
+const userBatch = chat.user.createMessageCollection();
+```
+
+Each call creates an empty collection associated with the chat and that participant's negotiator. Add messages explicitly; the factory does not automatically include or filter messages by sender. `supporter.negotiator` is optional and falls back to `defaultNegotiator`; the user factory uses `chat.user.negotiator`.
+
+To use a different negotiator for a specific batch, construct `new MessageCollection(chat, batchNegotiator)`. See [Message collections](../messages/collections.md) for agent examples, action eligibility, and confirmation behavior.
+
 ## Expected input type
 
 `supporter.expects` tells the UI which client message class to create next. The built-in chat component currently maps:

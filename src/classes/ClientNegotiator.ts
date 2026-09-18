@@ -13,11 +13,12 @@ export class ClientNegotiator implements OperationsNegotiator {
     private readonly language: Pick<LanguageService, 'translate'>,
   ) {}
 
-  negotiateBatchEdit(proposal: EditProposal): Promise<OperationsNegotiationAnswer> {
+  negotiateBatchEdit(proposal: EditProposal, proposer: OperationsNegotiator): Promise<OperationsNegotiationAnswer> {
+    if (proposer === this) return Promise.resolve(true);
     return this.negotiate(proposal, 'chat.confirmEdits');
   }
 
-  negotiateBatchDelete(proposal: DeleteProposal): Promise<OperationsNegotiationAnswer> {
+  negotiateBatchDelete(proposal: DeleteProposal, proposer: OperationsNegotiator): Promise<OperationsNegotiationAnswer> {
     return this.negotiate(proposal, 'chat.confirmDeletion');
   }
 

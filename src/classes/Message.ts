@@ -96,7 +96,7 @@ export class Message extends SyncedEntity {
     async delete(options?: OperationOptions): Promise<boolean> {
         const proposal = new DeleteProposal(new Set([this]));
         const { negotiator } = this.parseOperationsOptions(options);
-        this.lastAction = this.delete.bind(this)
+        this.lastAction = ()=>this.delete(options);
         if (
             !this.deletable() ||
             !this._chat ||
@@ -123,7 +123,7 @@ export class Message extends SyncedEntity {
 
     private parseOperationsOptions(options?: OperationOptions){
         if(!options) options = {};
-        options.negotiator ??= defaultNegotiator
+        options.negotiator ??= this._chat.supporter.negotiator || defaultNegotiator;
         return options;
     }
 }

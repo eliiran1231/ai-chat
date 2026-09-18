@@ -95,7 +95,11 @@ Before persistence, `OperationsNegotiationMediator` exchanges the proposal betwe
 2. the manager's policy methods, `isAllowedToEditMessages(...)` and `isAllowedToDeleteMessages(...)`;
 3. the chat client's negotiator, which makes the final confirmation decision.
 
-Each policy method may accept (`true`), reject (`false`), or return a revised proposal. The built-in client negotiator uses the translated CDK confirmation dialog and exposes the pending proposal separately from the user's selected messages.
+The manager evaluates the initial proposal first. Each policy method may accept (`true`), reject (`false`), or return a revised proposal. A revised proposal goes back to the caller's negotiator, and the two sides alternate for at most ten rounds. Rejection, exhausted rounds, or client cancellation returns `Failed` before persistence and without changing message statuses.
+
+Agent authors normally obtain the caller's negotiator through `supporter.createMessageCollection()` or `chat.user.createMessageCollection()`. A directly constructed `new MessageCollection(chat, negotiator)` supplies a policy for that batch without replacing participant defaults. See the [agent collection examples](../messages/collections.md).
+
+At the final edit decision, the mediator passes the current proposer to the client negotiator. It skips the dialog when the proposer is that same client negotiator instance, as with a user collection whose initial edit proposal the manager accepts unchanged. Other edits and all deletions use the translated CDK confirmation dialog. While shown, the pending proposal is exposed separately from the user's selected messages.
 
 Override the policy methods when a manager needs to enforce backend-specific permission or content rules:
 

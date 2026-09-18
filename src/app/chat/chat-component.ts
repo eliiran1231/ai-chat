@@ -42,7 +42,7 @@ export class ChatComponent {
   readonly shouldShowDateSeparator = shouldShowDateSeparator;
   readonly shouldShowMessageTail = shouldShowMessageTail;
   readonly chat = input.required<Chat>();
-  readonly selectedMessages = computed(() => new MessageCollection(this.chat()));
+  readonly selectedMessages = computed(() => this.chat().user.createMessageCollection());
 
   constructor() {
     effect(() => {
@@ -114,7 +114,9 @@ export class ChatComponent {
     let editingMessage = this.editingMessage();
     if (editingMessage) {  
       this.closeMessageOptions();
-      await editingMessage.edit(messageValue);
+      await editingMessage.edit(messageValue, {
+        negotiator: this.chat().user.negotiator
+      });
       return;
     }
 
@@ -187,7 +189,9 @@ export class ChatComponent {
     const messages = [...selection.messages()];
     if (messages.length === 1) {
       const [message] = messages;
-      if (await message.delete()) {
+      if (await message.delete({
+        negotiator: this.chat().user.negotiator
+      })) {
         selection.removeMessage(message);
       }
       return;

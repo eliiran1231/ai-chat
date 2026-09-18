@@ -70,6 +70,12 @@ The base `Agent` exposes these properties to subclasses:
 
 These properties are not ready before `super.init(...)` runs. Keep flow-specific state on the subclass, or use `supporter.setContext(...)` when that state must survive persistence and agent re-creation.
 
+## Editing or deleting a group of messages
+
+After initialization, use `this.supporter.createMessageCollection()` for a batch using the supporter's negotiator, or `this.chat.user.createMessageCollection()` for the user's negotiator. Both return a fresh, empty collection; add the messages the operation should affect, check `canEdit()` or `canDelete()`, and await `edit(...)` or `delete()`.
+
+For a policy specific to one operation, construct `new MessageCollection(this.chat, batchNegotiator)`. The [message collection guide](../messages/collections.md) shows complete batch examples, how to respond to counterproposals, and when client confirmation occurs.
+
 ## Simple agent implementation
 
 This agent greets a new chat and responds only to a small set of basic greetings:
