@@ -96,7 +96,7 @@ export class Message extends SyncedEntity {
     async delete(options?: OperationOptions): Promise<boolean> {
         const proposal = new DeleteProposal(new Set([this]));
         const { negotiator } = this.parseOperationsOptions(options);
-        this.lastAction = this.delete.bind(this)
+        this.lastAction = ()=>this.delete(options);
         if (
             !this.deletable() ||
             !this._chat ||
