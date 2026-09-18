@@ -123,7 +123,7 @@ export class Message extends SyncedEntity {
 
     private parseOperationsOptions(options?: OperationOptions){
         if(!options) options = {};
-        options.negotiator ??= defaultNegotiator
+        options.negotiator ??= this._chat.supporter.negotiator || defaultNegotiator;
         return options;
     }
 }

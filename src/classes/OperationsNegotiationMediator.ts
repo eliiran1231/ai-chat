@@ -1,6 +1,6 @@
 import { OperationsNegotiator } from "../interfaces/OperationsNegotiator";
 import { ClientNegotiator } from "./ClientNegotiator";
-import { AcceptedProposal, DeleteProposal, EditProposal, Proposal } from "./Proposals";
+import { AcceptedProposal, DeleteProposal, EditProposal } from "./Proposals";
 export class OperationsNegotiationMediator {
     private maxRounds = 10;
     constructor(
@@ -12,15 +12,19 @@ export class OperationsNegotiationMediator {
         offerReceiver: OperationsNegotiator,
     ): Promise<AcceptedProposal<T> | null> {
       let lastProposal = initialOffer;
-      for(let i = 0; i < this.maxRounds; i++){
+      for (let i = 0; i < this.maxRounds; i++) {
         const answer = lastProposal instanceof EditProposal
-          ? await offerReceiver.negotiateBatchEdit(lastProposal)
-          : await offerReceiver.negotiateBatchDelete(lastProposal);
+          ? await offerReceiver.negotiateBatchEdit(lastProposal, offerGiver)
+          : await offerReceiver.negotiateBatchDelete(lastProposal, offerGiver);
         
-        if (answer === true) return await this.askClient(lastProposal) 
-          ? lastProposal as AcceptedProposal<T>
-          : null;
-        
+        if (answer === true) {
+          if (
+            await this.askClient(lastProposal, offerGiver)
+          )
+            return lastProposal as AcceptedProposal<T>;
+          return null
+        }
+
         if (answer === false) return null;
 
         lastProposal = answer;
@@ -29,11 +33,14 @@ export class OperationsNegotiationMediator {
 
       return null
     }
-
-    async askClient(proposal: EditProposal | DeleteProposal){
+    
+    async askClient(
+      proposal: EditProposal | DeleteProposal,
+      offerGiver: OperationsNegotiator,
+    ){
       const answer = proposal instanceof EditProposal
-          ? await this.clientNegotiator.negotiateBatchEdit(proposal)
-          : await this.clientNegotiator.negotiateBatchDelete(proposal);
+          ? await this.clientNegotiator.negotiateBatchEdit(proposal, offerGiver)
+          : await this.clientNegotiator.negotiateBatchDelete(proposal, offerGiver);
       return !!answer;
     }
 }

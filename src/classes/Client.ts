@@ -5,6 +5,7 @@ import { Message } from "./Message";
 import { Question } from "./Question";
 import { MessageStatus } from "../enums/MessagesStatus";
 import { ClientNegotiator } from "./ClientNegotiator";
+import { MessageCollection } from "./MessageCollection";
 
 export type AnswerSelectedEvent = {
     answer: Answer | Answer[];
@@ -33,6 +34,11 @@ export class Client {
         new Answer(answer)
         return this.appendMessage(answer);
     }
+
+    createMessageCollection(): MessageCollection{
+        return new MessageCollection(this.chat, this.negotiator)
+    }
+
     private async appendMessage(message: Message){
         message.from.set({ type: 'client' });
         message.setChat(this.chat);

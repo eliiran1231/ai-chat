@@ -10,7 +10,7 @@ import { ClientNegotiator } from './ClientNegotiator';
 import { LanguageService } from '../services/language.service';
 import { OperationsNegotiationMediator } from "./OperationsNegotiationMediator";
 import { OperationsNegotiationAnswer, OperationsNegotiator } from "../interfaces/OperationsNegotiator";
-import { AcceptedEditCandidate, AcceptedProposal, DeleteProposal, EditProposal, Proposal } from "./Proposals";
+import { AcceptedEditCandidate, DeleteProposal, EditProposal } from "./Proposals";
 export class ChatManager {
     protected chat!: Chat;
     protected chatProvider: ChatProvider;
