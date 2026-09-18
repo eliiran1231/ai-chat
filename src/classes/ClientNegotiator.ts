@@ -1,5 +1,5 @@
 import { signal, WritableSignal } from '@angular/core';
-import type { OperationsNegotiationAnswer, OperationsNegotiator } from '../interfaces/OperationsNegotiator';
+import type { DeleteNegotiationAnswer, EditNegotiationAnswer, OperationsNegotiator } from '../interfaces/OperationsNegotiator';
 import type { AlertService } from '../services/alert.service';
 import type { LanguageService } from '../services/language.service';
 import { DeleteProposal, EditProposal, Proposal } from './Proposals';
@@ -13,16 +13,16 @@ export class ClientNegotiator implements OperationsNegotiator {
     private readonly language: Pick<LanguageService, 'translate'>,
   ) {}
 
-  negotiateBatchEdit(proposal: EditProposal, proposer: OperationsNegotiator): Promise<OperationsNegotiationAnswer> {
+  negotiateBatchEdit(proposal: EditProposal, proposer: OperationsNegotiator): Promise<EditNegotiationAnswer> {
     if (proposer === this) return Promise.resolve(true);
     return this.negotiate(proposal, 'chat.confirmEdits');
   }
 
-  negotiateBatchDelete(proposal: DeleteProposal, proposer: OperationsNegotiator): Promise<OperationsNegotiationAnswer> {
+  negotiateBatchDelete(proposal: DeleteProposal, proposer: OperationsNegotiator): Promise<DeleteNegotiationAnswer> {
     return this.negotiate(proposal, 'chat.confirmDeletion');
   }
 
-  private async negotiate(proposal: Proposal<any>, messageKey: string): Promise<OperationsNegotiationAnswer> {
+  private async negotiate(proposal: Proposal<any>, messageKey: string): Promise<boolean> {
     this.activeProposal.set(proposal);
     try {
       return await this.alerts.confirm({

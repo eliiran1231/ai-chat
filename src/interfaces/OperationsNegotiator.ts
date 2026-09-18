@@ -1,7 +1,8 @@
 import { DeleteProposal, EditProposal } from "../classes/Proposals.js";
 
-export type OperationsNegotiationAnswer = boolean | DeleteProposal | EditProposal;
+export type EditNegotiationAnswer = boolean | EditProposal;
+export type DeleteNegotiationAnswer = boolean | DeleteProposal;
 export interface OperationsNegotiator {
-    negotiateBatchEdit(proposal: EditProposal, proposer: OperationsNegotiator): OperationsNegotiationAnswer | Promise<OperationsNegotiationAnswer>
-    negotiateBatchDelete(proposal: DeleteProposal, proposer: OperationsNegotiator): OperationsNegotiationAnswer | Promise<OperationsNegotiationAnswer>
+    negotiateBatchEdit(proposal: EditProposal, proposer: OperationsNegotiator): EditNegotiationAnswer | Promise<EditNegotiationAnswer>
+    negotiateBatchDelete(proposal: DeleteProposal, proposer: OperationsNegotiator): DeleteNegotiationAnswer | Promise<DeleteNegotiationAnswer>
 }
