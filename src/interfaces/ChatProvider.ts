@@ -21,11 +21,11 @@ export interface ChatProvider {
         initialAgent: Agent,
         options?: ChatOptions
     ): Chat | Promise<Chat>;
-    addMessage(chatId: Uuid, message: Message): any | Promise<any>;
-    deleteMessage(messageId: Uuid): any | Promise<any>;
-    editMessage(message: Message): any | Promise<any>;
-    deleteBatch(messageIds: Uuid[]): any | Promise<any>;
-    editBatch(messages: Message[]): any | Promise<any>;
+    addMessage(chatId: Uuid, message: Message, ...args: unknown[]): void | Promise<void>;
+    deleteMessage(messageId: Uuid, ...args: unknown[]): void | Promise<void>;
+    editMessage(message: Message, ...args: unknown[]): void | Promise<void>;
+    deleteBatch(messageIds: Uuid[], ...args: unknown[]): any | Promise<any>;
+    editBatch(messages: Message[], ...args: unknown[]): any | Promise<any>;
     getChats(): Chat[] | Promise<Chat[]>;
-    deleteChat(chatId: Uuid): any | Promise<any>;
+    deleteChat(chatId: Uuid, ...args: unknown[]): void | Promise<void>;
 }
