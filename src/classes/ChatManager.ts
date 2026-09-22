@@ -9,7 +9,7 @@ import { AlertService } from '../services/alert.service';
 import { ClientNegotiator } from './ClientNegotiator';
 import { LanguageService } from '../services/language.service';
 import { OperationsNegotiationMediator } from "./OperationsNegotiationMediator";
-import { OperationsNegotiationAnswer, OperationsNegotiator } from "../interfaces/OperationsNegotiator";
+import type { DeleteNegotiationAnswer, EditNegotiationAnswer, OperationsNegotiator } from "../interfaces/OperationsNegotiator";
 import { AcceptedEditCandidate, DeleteProposal, EditProposal } from "./Proposals";
 export class ChatManager {
     protected chat!: Chat;
@@ -66,11 +66,11 @@ export class ChatManager {
         );
     }
 
-    isAllowedToEditMessages(proposal: EditProposal): OperationsNegotiationAnswer | Promise<OperationsNegotiationAnswer> {
+    isAllowedToEditMessages(proposal: EditProposal): EditNegotiationAnswer | Promise<EditNegotiationAnswer> {
         return true; 
     }
 
-    isAllowedToDeleteMessages(proposal: DeleteProposal): OperationsNegotiationAnswer | Promise<OperationsNegotiationAnswer> {
+    isAllowedToDeleteMessages(proposal: DeleteProposal): DeleteNegotiationAnswer | Promise<DeleteNegotiationAnswer> {
         return true;
     }
 
@@ -84,11 +84,14 @@ export class ChatManager {
         if(!negotiationResult) return MessageStatus.Failed;
 
         const messages = [...negotiationResult.contents];
-        messages.forEach((message, i) => message.status.set(MessageStatus.Pending, true));
+        messages.forEach((message, i) => {
+            message.status.set(MessageStatus.Pending, true);
+            message['lastAction'] = ()=>this.requestMessagesDelete(proposal, negotiator)
+        });
         const status = await this.onMessagesDeleteRequested(messages);
-        messages.forEach((message, i) => message.status.set(status ?? MessageStatus.Failed));
+        messages.forEach((message, i) => message.status.set(status ?? MessageStatus.Failed, status == MessageStatus.Failed));
         
-        const deleted = messages.filter((message) => message.status() === status);
+        const deleted = messages.filter((message) => message.status() !== MessageStatus.Failed && message.status() === status);
         const deletedSet = new Set(deleted);
         this.chat.messages.update((current) => current.filter((message) => !deletedSet.has(message)));
         if(status !== MessageStatus.Failed )
@@ -106,14 +109,16 @@ export class ChatManager {
         if(!negotiationResult) return MessageStatus.Failed;
         const acceptedCandidates = [...negotiationResult.contents];
         acceptedCandidates.forEach(({newMessage, oldMessage}) => {
+            oldMessage['lastAction'] = ()=>this.requestMessagesEdit(proposal, negotiator);
             oldMessage.status.set(MessageStatus.Pending, true);
             oldMessage.value.set(newMessage.value(), true);
             oldMessage.editedAt.set(newMessage.editedAt(), true);
         })
         const status = await this.onMessagesEditRequested(acceptedCandidates);
         acceptedCandidates.forEach(({newMessage, oldMessage})=>{
-            oldMessage.status.set(status)
-            if(status == MessageStatus.Failed) return;
+            const success = status != MessageStatus.Failed;
+            oldMessage.status.set(status, !success)
+            if(!success) return;
             oldMessage.value.set(newMessage.value());
             oldMessage.editedAt.set(newMessage.editedAt());
         });

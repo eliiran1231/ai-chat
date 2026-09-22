@@ -19,6 +19,7 @@ export class OperationsNegotiationMediator {
         
         if (answer === true) {
           if (
+            offerReceiver === this.clientNegotiator ||
             await this.askClient(lastProposal, offerGiver)
           )
             return lastProposal as AcceptedProposal<T>;
