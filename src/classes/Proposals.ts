@@ -6,7 +6,7 @@ export interface Proposal<T> {
 }
 
 export class DeleteProposal implements Proposal<ReadonlySignals<Message>>{
-    readonly contents: Set<ReadonlySignals<Message>>;
+    readonly contents: ReadonlySet<ReadonlySignals<Message>>;
     constructor(contents?: Set<Message>){
         this.contents = contents ?? new Set();
     }
