@@ -46,11 +46,11 @@ export class ChatManager {
         message.status.set(MessageStatus.Pending, true);
         const isAllowed = await isAllowedAction(message);
         if(!isAllowed) {
-            message.status.set(MessageStatus.Failed);
+            message.status.set(MessageStatus.Failed, true);
             return MessageStatus.Failed;
         }
-        const status = await action(message);
-        message.status.set(status);
+        const status = await action(message) ?? MessageStatus.Failed;
+        message.status.set(status, status == MessageStatus.Failed);
         return status;
     }
 
@@ -88,13 +88,13 @@ export class ChatManager {
             message.status.set(MessageStatus.Pending, true);
             message['lastAction'] = ()=>this.requestMessagesDelete(proposal, negotiator)
         });
-        const status = await this.onMessagesDeleteRequested(messages);
-        messages.forEach((message, i) => message.status.set(status ?? MessageStatus.Failed, status == MessageStatus.Failed));
+        const status = await this.onMessagesDeleteRequested(messages) ?? MessageStatus.Failed;
+        messages.forEach((message, i) => message.status.set(status, status == MessageStatus.Failed));
         
-        const deleted = messages.filter((message) => message.status() !== MessageStatus.Failed && message.status() === status);
+        const deleted = status == MessageStatus.Failed ? [] : messages;
         const deletedSet = new Set(deleted);
         this.chat.messages.update((current) => current.filter((message) => !deletedSet.has(message)));
-        if(status !== MessageStatus.Failed )
+        if(status !== MessageStatus.Failed)
             this.chat.onMessagesDeleted.next(messages);
         return status;
     }

@@ -14,7 +14,7 @@ export class ClientNegotiator implements OperationsNegotiator {
   ) {}
 
   negotiateBatchEdit(proposal: EditProposal, proposer: OperationsNegotiator): Promise<EditNegotiationAnswer> {
-    if (proposer === this) return Promise.resolve(true);
+    if (proposer === this) return Promise.resolve(true); //unlike deletes, we dont ask the user for confirmation for edits he initiated
     return this.negotiate(proposal, 'chat.confirmEdits');
   }
 

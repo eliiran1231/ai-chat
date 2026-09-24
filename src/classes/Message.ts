@@ -47,11 +47,12 @@ export class Message extends SyncedEntity {
     readonly attachment: SyncedSignal<Attachment | undefined>;
     readonly editable: SyncedSignal<boolean>;
     readonly deletable: SyncedSignal<boolean>;
-    private _chat!: Chat;
-    private lastAction: () => Promise<any> = () => this._chat['manager']?.requestMessageSend(this);
+    private _chat?: Chat;
+    private lastAction: () => Promise<any> = () => Promise.resolve(null);
 
     setChat(chat: Chat) {
         this._chat = chat;
+        this.lastAction = ()=>chat['manager'].requestMessageSend(this);
     }
 
     constructor(value: string, options?: MessageOptions) {
@@ -70,6 +71,7 @@ export class Message extends SyncedEntity {
     }
 
     async edit(newValue: string, options?: OperationOptions): Promise<boolean> {
+        if(!this._chat) return false;
         const [newMessage, oldMessage] = [this.clone(), this]
         newMessage.value.set(newValue, true)
         newMessage.editedAt.set(new Date(), true)
@@ -78,11 +80,11 @@ export class Message extends SyncedEntity {
             oldMessage
         }]));
         const { negotiator } = this.parseOperationsOptions(options);       
-        this.lastAction = () => this._chat['manager'].requestMessagesEdit(proposal, negotiator!);
+        const chat = this._chat;
+        this.lastAction = () => chat['manager'].requestMessagesEdit(proposal, negotiator!);
         if (
             !this.editable() ||
             this.from()?.type === 'supporter' ||
-            !this._chat ||
             this.value() === newValue ||
             await this.lastAction() == MessageStatus.Failed
         ) return false;
@@ -94,12 +96,12 @@ export class Message extends SyncedEntity {
     }
 
     async delete(options?: OperationOptions): Promise<boolean> {
+        if(!this._chat) return false; 
         const proposal = new DeleteProposal(new Set([this]));
         const { negotiator } = this.parseOperationsOptions(options);
         this.lastAction = ()=>this.delete(options);
         if (
             !this.deletable() ||
-            !this._chat ||
             await this._chat['manager'].requestMessagesDelete(proposal, negotiator!) === MessageStatus.Failed
         ) return false;
         return true;
@@ -123,7 +125,7 @@ export class Message extends SyncedEntity {
 
     private parseOperationsOptions(options?: OperationOptions){
         if(!options) options = {};
-        options.negotiator ??= this._chat.supporter.negotiator || defaultNegotiator;
+        options.negotiator ??= this._chat?.supporter.negotiator || defaultNegotiator;
         return options;
     }
 }

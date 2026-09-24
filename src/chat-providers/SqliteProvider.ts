@@ -167,16 +167,8 @@ export class SqliteProvider implements ChatProvider {
           throw new Error("couldn't retrieve agent from SQL");
         const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
         initialAgent.name = persistedSupporterRecord.agentName;
-        const supporterRecord =
-          persistedSupporterRecord ??
-          (await this.dbService.createSupporter({
-            chatId: record.id,
-            agentName: initialAgent.name,
-            context: '',
-          }));
-
-        return this.hydrateChat(record, initialAgent, supporterRecord, false);
-      }),
+        return this.hydrateChat(record, initialAgent, persistedSupporterRecord, false);
+      })
     );
   }
 
