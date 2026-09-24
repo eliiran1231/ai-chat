@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { Message } from '../../classes/Message';
 import { Question } from '../../classes/Question';
+import { MessageStatus } from '../../enums/MessagesStatus';
 import { sanitizeMarkdown } from '../../utils/sanitize-markdown';
 
 import { MessageBubbleComponent } from './message-bubble-component';
@@ -77,5 +78,25 @@ describe('MessageBubbleComponent', () => {
     ) as HTMLElement | null;
 
     expect(answerControls).not.toBeNull();
+  });
+
+  it('keeps proposal state distinct from user selection', async () => {
+    await renderMessage(new Message('Pending change'));
+    fixture.componentRef.setInput('proposalType', 'edit');
+    fixture.componentRef.setInput('isSelected', false);
+    fixture.detectChanges();
+
+    const row = fixture.nativeElement.querySelector('.message-row') as HTMLElement;
+    expect(row.classList).toContain('message-row--proposed-edit');
+    expect(row.classList).not.toContain('message-row--selected');
+  });
+
+  it('renders the failed status icon for an optimistic client message that could not persist', async () => {
+    const message = new Message('Optimistic edit', { from: { type: 'client' } });
+    message.status.set(MessageStatus.Failed, true);
+    await renderMessage(message);
+
+    const statusIcon = fixture.nativeElement.querySelector('.status-icon') as SVGElement;
+    expect(statusIcon.classList).toContain('lucide-circle-alert');
   });
 });

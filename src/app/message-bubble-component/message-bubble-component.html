@@ -5,6 +5,8 @@
   [class.message-row--user]="!isSupporterMessage(message())"
   [class.message-row--search-active]="isActiveSearchMatch()"
   [class.message-row--selected]="isSelected()"
+  [class.message-row--proposed-edit]="proposalType() === 'edit'"
+  [class.message-row--proposed-delete]="proposalType() === 'delete'"
 >
   <div
     class="message-bubble"
@@ -18,6 +20,7 @@
         type="button"
         class="message-options-button"
         (click)="openMessageOptions($event)"
+        [attr.aria-pressed]="isSelected()"
         [attr.aria-label]="'chat.openMessageOptions' | translate"
         [title]="'chat.messageOptions' | translate"
       >

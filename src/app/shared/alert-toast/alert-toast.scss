@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.alert-toast {
+  display: block;
+  width: fit-content;
+  max-width: min(calc(100vw - 2rem), 34rem);
+  padding: 0.8rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--md-sys-color-inverse-surface);
+  color: var(--md-sys-color-inverse-on-surface);
+  box-shadow: 0 0.4rem 1.25rem color-mix(in srgb, var(--md-sys-color-shadow) 35%, transparent);
+  cursor: pointer;
+}

@@ -24,6 +24,8 @@ export interface ChatProvider {
     addMessage(chatId: Uuid, message: Message, ...args: unknown[]): void | Promise<void>;
     deleteMessage(messageId: Uuid, ...args: unknown[]): void | Promise<void>;
     editMessage(message: Message, ...args: unknown[]): void | Promise<void>;
+    deleteBatch(messageIds: Uuid[], ...args: unknown[]): any | Promise<any>;
+    editBatch(messages: Message[], ...args: unknown[]): any | Promise<any>;
     getChats(): Chat[] | Promise<Chat[]>;
     deleteChat(chatId: Uuid, ...args: unknown[]): void | Promise<void>;
 }

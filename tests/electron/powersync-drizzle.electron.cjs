@@ -123,6 +123,81 @@ async function run() {
     const firstPage = await messageService.getChatMessages('pagination-chat', 0, 2);
     const secondPage = await messageService.getChatMessages('pagination-chat', 2, 2);
 
+    for (const id of ['batch-edit-a', 'batch-edit-b']) {
+      await messageService.createMessage({
+        id,
+        chatId: 'batch-chat',
+        value: id,
+        time: '2026-01-01T00:00:00.000Z',
+      });
+    }
+    await reportProgress('editing-batch');
+    const editedIds = await messageService.editBatch(
+      ['batch-edit-a', 'batch-edit-b'].map((id) => ({
+        id,
+        value: `${id}-updated`,
+        time: '2026-01-01T00:00:00.000Z',
+        editedAt: '2026-01-02T00:00:00.000Z',
+        status: 1,
+        editable: true,
+        deletable: true,
+      })),
+    );
+    const editedRows = await orm
+      .select()
+      .from(messages)
+      .where(eq(messages.chatId, 'batch-chat'))
+      .orderBy(messages.id);
+    await reportProgress('deleting-batch');
+    const deletedIds = await messageService.deleteBatch(['batch-edit-a', 'batch-edit-b']);
+    const remainingBatchRows = await orm
+      .select()
+      .from(messages)
+      .where(eq(messages.chatId, 'batch-chat'));
+
+    for (const [id, deletable] of [['batch-deleteable', true], ['batch-locked', false]]) {
+      await messageService.createMessage({
+        id,
+        chatId: 'batch-protected-chat',
+        value: id,
+        time: '2026-01-01T00:00:00.000Z',
+        deletable,
+      });
+    }
+    const protectedDeleteIds = await messageService.deleteBatch([
+      'batch-deleteable',
+      'batch-locked',
+    ]);
+    const protectedRemainingRows = await orm
+      .select({ id: messages.id })
+      .from(messages)
+      .where(eq(messages.chatId, 'batch-protected-chat'));
+
+    for (const [id, editable] of [['batch-rollback-a', true], ['batch-rollback-b', false]]) {
+      await messageService.createMessage({
+        id,
+        chatId: 'batch-rollback-chat',
+        value: id,
+        time: '2026-01-01T00:00:00.000Z',
+        editable,
+      });
+    }
+    await assert.rejects(() => messageService.editBatch([
+      {
+        id: 'batch-rollback-a', value: 'should-not-persist', time: '2026-01-01T00:00:00.000Z',
+        status: 1, editable: true, deletable: true,
+      },
+      {
+        id: 'batch-rollback-b', value: 'locked-change', time: '2026-01-01T00:00:00.000Z',
+        status: 1, editable: true, deletable: true,
+      },
+    ]));
+    const rollbackRows = await orm
+      .select({ value: messages.value })
+      .from(messages)
+      .where(eq(messages.chatId, 'batch-rollback-chat'))
+      .orderBy(messages.id);
+
     await writeFile(
       resultPath,
       JSON.stringify({
@@ -133,10 +208,19 @@ async function run() {
           messageRows: persistedMessages.length,
         },
         cascadeRows,
-        pages: [
+          pages: [
           firstPage.map(({ id }) => id),
           secondPage.map(({ id }) => id),
         ],
+        batch: {
+          editedIds,
+          values: editedRows.map(({ value }) => value),
+          deletedIds: deletedIds.sort(),
+          remainingRows: remainingBatchRows.length,
+          protectedDeleteIds: protectedDeleteIds.sort(),
+          protectedRemainingIds: protectedRemainingRows.map(({ id }) => id).sort(),
+          rollbackValues: rollbackRows.map(({ value }) => value),
+        },
       }),
       'utf8',
     );

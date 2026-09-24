@@ -1,0 +1,40 @@
+<section
+  class="alert-dialog"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="data.title ? 'alert-dialog-title' : null"
+  [attr.aria-label]="data.title ? null : data.message"
+>
+  @if (data.title) {
+    <h2 id="alert-dialog-title">{{ data.title }}</h2>
+  }
+  @if (data.message) {
+    <p>{{ data.message }}</p>
+  }
+
+  @if (data.kind === 'prompt') {
+    <form (ngSubmit)="confirm()">
+      <label>
+        <span class="sr-only">{{ data.inputLabel ?? data.title ?? data.message ?? 'Input' }}</span>
+        <input
+          #promptInput
+          [value]="value()"
+          (input)="value.set(promptInput.value)"
+          [placeholder]="data.placeholder ?? ''"
+          [attr.aria-label]="data.inputLabel ?? data.title ?? data.message ?? 'Input'"
+          autocomplete="off"
+          autofocus
+        />
+      </label>
+      <footer>
+        <button type="button" class="alert-dialog__cancel" (click)="cancel()">{{ data.cancelText }}</button>
+        <button type="submit" class="alert-dialog__confirm">{{ data.confirmText }}</button>
+      </footer>
+    </form>
+  } @else {
+    <footer>
+      <button type="button" class="alert-dialog__cancel" (click)="cancel()">{{ data.cancelText }}</button>
+      <button type="button" class="alert-dialog__confirm" (click)="confirm()">{{ data.confirmText }}</button>
+    </footer>
+  }
+</section>

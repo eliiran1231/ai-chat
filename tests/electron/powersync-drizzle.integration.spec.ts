@@ -15,7 +15,7 @@ const runnerPath = fileURLToPath(new URL('./powersync-drizzle.electron.cjs', imp
 
 describe('Drizzle with PowerSync in Electron', () => {
   it(
-    'returns, persists, paginates, and transactionally deletes service rows',
+    'returns, persists, paginates, and applies guarded batch mutations transactionally',
     async () => {
       const { ELECTRON_RUN_AS_NODE: _electronRunAsNode, ...env } = process.env;
       const resultPath = path.join(tmpdir(), `ai-chat-drizzle-result-${randomUUID()}.json`);
@@ -39,6 +39,15 @@ describe('Drizzle with PowerSync in Electron', () => {
           },
           cascadeRows: { chats: 0, messages: 0, supporters: 0 },
           pages: [['message-b', 'message-c'], ['message-a']],
+          batch: {
+            editedIds: ['batch-edit-a', 'batch-edit-b'],
+            values: ['batch-edit-a-updated', 'batch-edit-b-updated'],
+            deletedIds: ['batch-edit-a', 'batch-edit-b'],
+            remainingRows: 0,
+            protectedDeleteIds: ['batch-deleteable'],
+            protectedRemainingIds: ['batch-locked'],
+            rollbackValues: ['batch-rollback-a', 'batch-rollback-b'],
+          },
         });
       } finally {
         await rm(resultPath, { force: true });

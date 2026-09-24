@@ -58,6 +58,14 @@ export class DbService {
     return this.electronService.invoke<boolean>('db:deleteMessage', messageId);
   }
 
+  async deleteBatch(messageIds: Uuid[]): Promise<Uuid[]> {
+    return this.electronService.invoke<Uuid[]>('db:deleteBatch', messageIds);
+  }
+
+  async editBatch(messages: CommitMessageInput[]): Promise<Uuid[]> {
+    return this.electronService.invoke<Uuid[]>('db:editBatch', messages);
+  }
+
   async getChatSupporter(chatId: Uuid): Promise<SupporterRecord | null> {
     return this.electronService.invoke<SupporterRecord | null>('db:getChatSupporter', chatId);
   }

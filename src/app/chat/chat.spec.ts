@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
+import { DeleteProposal, EditProposal } from '../../classes/Proposals';
 import { Supporter } from '../../classes/Supporter';
 import { Uuid } from '../../interfaces/db/Uuid';
 import { createChatManagerStub } from '../../testing/chat-manager.stub';
@@ -101,6 +102,22 @@ describe('ChatComponent', () => {
       expect(bubble?.querySelector('strong')?.textContent).toBe('bold');
       expect(bubble?.querySelector('em')?.textContent).toBe('italic');
     });
+  });
+
+  it('projects edit and delete proposals onto their original messages without selecting them', async () => {
+    const message = createMessage('proposal-target', 'Original', new Date(2026, 5, 15));
+    const chat = await renderChat([message]);
+    const replacement = message.clone();
+    replacement.value.set('Replacement', true);
+
+    chat.user.negotiator.activeProposal.set(
+      new EditProposal(new Set([{ oldMessage: message, newMessage: replacement }])),
+    );
+    expect(fixture.componentInstance.proposalTypeFor(message)).toBe('edit');
+    expect(fixture.componentInstance.selectedMessages().messages().has(message)).toBe(false);
+
+    chat.user.negotiator.activeProposal.set(new DeleteProposal(new Set([message])));
+    expect(fixture.componentInstance.proposalTypeFor(message)).toBe('delete');
   });
 
   it('renders user messages through the message bubble markdown view', async () => {

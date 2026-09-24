@@ -20,6 +20,7 @@ import { AuthenticationProvider } from '../interfaces/auth/AuthenticationProvide
 import { PowerSyncAuthenticationService } from '../authenticators/powersync.authenticator';
 import { PowerSyncConnectComponent } from '../app/powersync-connect-component/powersync-connect-component';
 import { SqliteMessagesSource } from '../message-sources/SqliteMessagesSource';
+import type { CommitMessageInput } from '../interfaces/db/CommitMessageInput';
 
 @Injectable({
   providedIn: 'root',
@@ -46,7 +47,15 @@ export class SqliteProvider implements ChatProvider {
   async editMessage(message: Message): Promise<void> {
     await this.commitMessageChanges(message);
   }
-  
+
+  async deleteBatch(messageIds: Uuid[]): Promise<Uuid[]> {
+    return this.dbService.deleteBatch(messageIds);
+  }
+
+  async editBatch(messages: Message[]): Promise<Uuid[]> {
+    return this.dbService.editBatch(messages.map((message) => this.toCommitMessageInput(message)));
+  }
+
   private async persistMessage(chatId: Uuid, message: Message) {
     const messageType =
       message instanceof Answer ? 'answer' : message instanceof Question ? 'question' : 'message';
@@ -94,9 +103,13 @@ export class SqliteProvider implements ChatProvider {
   }
 
   async commitMessageChanges(message: Message): Promise<boolean> {
+    return this.dbService.commitMessage(this.toCommitMessageInput(message));
+  }
+
+  private toCommitMessageInput(message: Message): CommitMessageInput {
     const messageType =
       message instanceof Answer ? 'answer' : message instanceof Question ? 'question' : 'message';
-    return this.dbService.commitMessage({
+    return {
       id: message.id(),
       from: this.serializeSender(message),
       messageType,
@@ -118,7 +131,7 @@ export class SqliteProvider implements ChatProvider {
         message instanceof Question
           ? getPersistableValidationErrorMessage(message.validationErrorMessage)
           : undefined,
-    });
+    };
   }
 
   commitChatChanges(chat: Chat): Promise<boolean> {
@@ -154,16 +167,8 @@ export class SqliteProvider implements ChatProvider {
           throw new Error("couldn't retrieve agent from SQL");
         const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
         initialAgent.name = persistedSupporterRecord.agentName;
-        const supporterRecord =
-          persistedSupporterRecord ??
-          (await this.dbService.createSupporter({
-            chatId: record.id,
-            agentName: initialAgent.name,
-            context: '',
-          }));
-
-        return this.hydrateChat(record, initialAgent, supporterRecord, false);
-      }),
+        return this.hydrateChat(record, initialAgent, persistedSupporterRecord, false);
+      })
     );
   }
 

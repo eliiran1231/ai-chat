@@ -5,7 +5,6 @@ import { CHAT_PROVIDER } from './chat-providers.module';
 import { Router } from '@angular/router';
 import { Agent } from '../classes/Agent';
 import { AiAgent } from '../agents/AiAgent/AiAgent';
-import { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { Uuid } from '../interfaces/db/Uuid';
 import { AppNotificationService } from './app-notification.service';
 import { Subscription } from 'rxjs';
@@ -18,8 +17,7 @@ export class ChatService {
   private readonly _chatMap = new Map<string, Chat>()
   private loaded = false;
   private selectedChatId: WritableSignal<string | null | undefined> = signal(undefined);
-  private defaultProvider = inject(SqliteProvider);
-  private isCreatingChat = signal(false); 
+  private isCreatingChat = signal(false);
   private pendingCreateChat = signal<Promise<Chat> | null>(null);
   private notificationSubscriptions = new Map<string, Subscription>();
   private notificationService = inject(AppNotificationService);
@@ -27,6 +25,16 @@ export class ChatService {
   injector = inject(Injector);
 
   constructor(@Inject(CHAT_PROVIDER) private chatProviders: ChatProvider[] = []) {
+  }
+
+  /**
+   * The provider used when a caller doesn't specify one. Sourced from the
+   * `CHAT_PROVIDER` multi-token (registered in AppChatProvidersModule) rather
+   * than a concrete provider class, so this service has no static dependency
+   * on any specific provider implementation.
+   */
+  private get defaultProvider(): ChatProvider {
+    return this.chatProviders[0];
   }
 
   private setSelectedChatId(id: string | null | undefined) {
