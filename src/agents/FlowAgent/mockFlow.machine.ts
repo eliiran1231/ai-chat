@@ -1,68 +1,112 @@
 import { createMachine, assign } from 'xstate';
 
-export const mockFlowMachine = createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QFsD2BjA1gMQDaoHcA6AQ1kwDkTkwBiAQQoGUB1AUQCUBtABgF1EoAA6pYASwAuY1ADtBIAB6IATADYA7EWUBWHjwDMPbWu0BGZfoA0IAJ6JTADk2rTGozwAsH4-rUBfP2s0LDxCUnJ6GAZmdm5+eRFxKVl5JQQ1TR09Q2NVMwtrOwQATlMtV1UnfQd9Yr1TUwCgjBx8YjJMSLpGVk4uUwEkEETJaTkhtLzlIgdVHW1i1WKPdQXiwvtTYqIeUsrTfXUnD1cPJpBg1rCxGQA3ElwxCC7aXkHhUVGUiZUNLV0DEYTOYrLZ7B4eEQ9pUeMoPA4PPp4aoAoEQDJUBA4PJLqECAlPslxqA0gBaVQbBDk864trhSjUMAEpJjVKII5EAF6VSHVbGdSUxyaUwndTKY7LEUOZQ0lp4+ldZlfYmKRDwyHS3RrDwuGqLQWOIguVQaPbFVaqDwytG0653B5PRVDEZEtkIK2UhxlQx6HhevI8LZGWUhOkQWRM52E1k-BAOZacpzaQ7KdSqTwHA0OI0VdRmi1W1F+IA */
-  types: {} as {
-    context: {
-      name?: string;
-      age?: number;
-    };
-    events:
-    | { type: 'ANSWER' | 'QUESTION' | 'MESSAGE'; value: string };
-  },
+export const flowQuestionTags = {
+  name: 'flow:name',
+  age: 'flow:age',
+} as const;
 
+export interface FlowAnswer<T> {
+  value?: T;
+  messageId?: string;
+  questionId?: string;
+}
+
+export interface FlowContext {
+  name: FlowAnswer<string>;
+  age: FlowAnswer<number>;
+}
+
+type FlowEvent =
+  | { type: 'ANSWER' | 'QUESTION' | 'MESSAGE'; id: string; tag: string; value: string }
+  | { type: 'DELETE'; tags: string[] };
+
+// Older persisted snapshots used separate value, answer ID and question ID fields.
+export function restoreFlowContext(context: {
+  name?: string | FlowAnswer<string>;
+  age?: number | FlowAnswer<number>;
+  nameMessageId?: string;
+  ageMessageId?: string;
+  nameQuestionId?: string;
+  ageQuestionId?: string;
+}): FlowContext {
+  const name = typeof context.name === 'object' && context.name !== null
+    ? context.name
+    : { value: context.name, messageId: context.nameMessageId, questionId: context.nameQuestionId };
+  const age = typeof context.age === 'object' && context.age !== null
+    ? context.age
+    : { value: context.age, messageId: context.ageMessageId, questionId: context.ageQuestionId };
+  return {
+    name,
+    age,
+  };
+}
+
+export const mockFlowMachine = createMachine({
+  types: {} as { context: FlowContext; events: FlowEvent },
+  context: () => ({ name: {}, age: {} }),
   id: 'mockFlow',
   initial: 'askName',
-
+  on: {
+    QUESTION: {
+      actions: assign(({ context, event }) => {
+        const checkpoint = event.tag === flowQuestionTags.name ? 'name' :
+          event.tag === flowQuestionTags.age ? 'age' : undefined;
+        return {
+          ...(checkpoint ? { [checkpoint]: { ...context[checkpoint], questionId: event.id } } : {}),
+        };
+      }),
+    },
+    DELETE: [
+      {
+        guard: ({ event }) => event.tags.includes(flowQuestionTags.name),
+        target: '#mockFlow.askName',
+        reenter: true,
+        actions: assign({
+          name: () => ({}),
+          age: () => ({}),
+        }),
+      },
+      {
+        guard: ({ event }) => event.tags.includes(flowQuestionTags.age),
+        target: '#mockFlow.askAge',
+        reenter: true,
+        actions: assign({
+          age: () => ({}),
+        }),
+      },
+    ],
+  },
   states: {
     askName: {
       entry: 'askName',
       on: {
         ANSWER: [
-          {
-            target: 'invalidName',
-            guard: 'isInvalidAnswer'
-          },
+          { target: 'invalidName', guard: 'isInvalidAnswer' },
           {
             target: 'askAge',
             actions: assign({
-              name: ({ event }) => event.value
-            })
-          }
-        ]
-      }
+              name: ({ context, event }) => ({ ...context.name, value: event.value, messageId: event.id }),
+            }),
+          },
+        ],
+      },
     },
-
     askAge: {
       entry: 'askAge',
       on: {
         ANSWER: [
-          {
-            target: 'invalidAge',
-            guard: "isInvalidAnswer"
-          },
+          { target: 'invalidAge', guard: 'isInvalidAnswer' },
           {
             target: 'done',
             actions: assign({
-              age: ({ event }) => Number(event.value)
-            })
-          }
-        ]
-      }
+              age: ({ context, event }) => ({ ...context.age, value: Number(event.value), messageId: event.id }),
+            }),
+          },
+        ],
+      },
     },
-
-    invalidName: {
-      entry: 'sendInvalidName',
-      always: 'askName'
-    },
-
-    invalidAge: {
-      entry: 'sendInvalidAge',
-      always: 'askAge'
-    },
-
-    done: {
-      entry: 'finish'
-    }
-  }
+    invalidName: { entry: 'sendInvalidName', always: 'askName' },
+    invalidAge: { entry: 'sendInvalidAge', always: 'askAge' },
+    done: { entry: 'finish' },
+  },
 });

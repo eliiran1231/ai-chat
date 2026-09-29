@@ -15,12 +15,13 @@ import { SupporterRecord } from '../interfaces/db/SupporterRecord';
 import { Agent } from '../classes/Agent';
 import { ChatRecord } from '../interfaces/db/ChatRecord';
 import { Uuid } from '../interfaces/db/Uuid';
-import { SqliteManager } from '../chat-managers/SqliteManager';
+import { XStateManager } from '../chat-managers/XStateManager';
 import { AuthenticationProvider } from '../interfaces/auth/AuthenticationProvider';
 import { PowerSyncAuthenticationService } from '../authenticators/powersync.authenticator';
 import { PowerSyncConnectComponent } from '../app/powersync-connect-component/powersync-connect-component';
 import { SqliteMessagesSource } from '../message-sources/SqliteMessagesSource';
 import type { CommitMessageInput } from '../interfaces/db/CommitMessageInput';
+import { FlowAgent } from '../agents/FlowAgent/FlowAgent';
 
 @Injectable({
   providedIn: 'root',
@@ -173,6 +174,7 @@ export class SqliteProvider implements ChatProvider {
   }
 
   async createChat(name: string, initialAgent: Agent, options: ChatOptions = {}): Promise<Chat> {
+    initialAgent = new FlowAgent(this.injector);
     const record = await this.dbService.createChat({
       name,
       status: options.status,
@@ -216,7 +218,7 @@ export class SqliteProvider implements ChatProvider {
       supporterRecord.expects,
       context,
     );
-    const manager = new SqliteManager(this.injector, this);
+    const manager = new XStateManager(this.injector, this);
     const chat = new Chat(record.id, record.name, supporter, manager, {
       status: record.status,
       avatar: record.avatar,

@@ -5,13 +5,12 @@ import { Answer } from "../../classes/Answer";
 import { Chat } from "../../classes/Chat";
 import { Question } from "../../classes/Question";
 import { Supporter } from "../../classes/Supporter";
-import { MockAgent } from "../MockAgent/MockAgent";
-import { mockFlowMachine } from "./mockFlow.machine";
+import { FlowContext, flowQuestionTags, mockFlowMachine, restoreFlowContext } from "./mockFlow.machine";
 
 
 export class FlowAgent extends Agent {
     private actions!: Record<string, any>;
-    private actor!: ActorRefFrom<typeof mockFlowMachine>;
+    public actor!: ActorRefFrom<typeof mockFlowMachine>;
 
     constructor(private injector: Injector) {
         super(injector);
@@ -42,13 +41,17 @@ export class FlowAgent extends Agent {
     override init(chat: Chat, supporter: Supporter) {
         super.init(chat, supporter);
         this.actions = this.buildActions();
+        const snapshot = supporter.context?.context
+            ? { ...supporter.context, context: restoreFlowContext(supporter.context.context) }
+            : undefined;
         this.actor = createActor(mockFlowMachine.provide({
             actions: this.actions,
             guards: this.actions,
         }), {
-            snapshot: supporter.context.context && supporter.context
+            snapshot,
         });
         this.actor.subscribe((state) => {
+            console.log(state);
             void this.supporter.setContext(state.toJSON());
         });
         this.actor.start();
@@ -61,11 +64,14 @@ export class FlowAgent extends Agent {
         this.actor.send({
             type: this.lastMessage instanceof Question ? "QUESTION" : "ANSWER",
             value: this.lastMessage.value(),
+            id: this.lastMessage.id(),
+            tag: this.lastMessage.tag(),
         });
     }
-    askName() {
+    askName({ self }: { self: ActorRefFrom<typeof mockFlowMachine> }) {
         const possibleAnswers = ["Jhon", "Kyle", "Brad"];
         const question = new Question("Whats your name?" , {
+            tag: flowQuestionTags.name,
             validator: {
                 type: "oneOf",
                 values: possibleAnswers
@@ -73,16 +79,18 @@ export class FlowAgent extends Agent {
             possibleAnswers,
         });
         this.supporter.ask(question);
+        self.send({ type: 'QUESTION', id: question.id(), tag: question.tag(), value: question.value() });
     }
-    askAge() {
-        this.supporter.ask('What is your age?');
+    askAge({ self }: { self: ActorRefFrom<typeof mockFlowMachine> }) {
+        const question = new Question('What is your age?', { tag: flowQuestionTags.age });
+        this.supporter.ask(question);
+        self.send({ type: 'QUESTION', id: question.id(), tag: question.tag(), value: question.value() });
     }
     sendInvalidAge() {
         this.supporter.sendMessage('Invalid age, try again.');
     }
-    finish(ctx: any) {
-        this.supporter.answer(`Nice to meet you ${ctx.context.name}, age ${ctx.context.age}`);
-        this.supporter.setAgent(new MockAgent(this.injector));
+    finish({ context }: { context: FlowContext }) {
+        this.supporter.answer(`Nice to meet you ${context.name.value}, age ${context.age.value}`);
     }
     isInvalidAnswer() {
         if (!this.lastQuestion || !(this.lastMessage instanceof Answer)) return false;
@@ -90,5 +98,10 @@ export class FlowAgent extends Agent {
     }
     sendInvalidName() {
         this.supporter.sendMessage("i dont know you");
+    }
+
+    override onDestroy(): void {
+        this.actor?.stop();
+        super.onDestroy();
     }
 }
