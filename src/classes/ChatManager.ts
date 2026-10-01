@@ -11,6 +11,8 @@ import { LanguageService } from '../services/language.service';
 import { OperationsNegotiationMediator } from "./OperationsNegotiationMediator";
 import type { DeleteNegotiationAnswer, EditNegotiationAnswer, OperationsNegotiator } from "../interfaces/OperationsNegotiator";
 import { AcceptedEditCandidate, DeleteProposal, EditProposal } from "./Proposals";
+import { Unsent } from "../app/types/Unsent";
+
 export class ChatManager {
     protected chat!: Chat;
     protected chatProvider: ChatProvider;
@@ -18,8 +20,8 @@ export class ChatManager {
     private readonly alertService: AlertService;
     private readonly languageService: LanguageService;
     private negotiator: OperationsNegotiator = {
-        negotiateBatchEdit: (proposal) => this.isAllowedToEditMessages(proposal),
-        negotiateBatchDelete: (proposal) => this.isAllowedToDeleteMessages(proposal),
+        negotiateBatchEdit: this.isAllowedToEditMessages.bind(this),
+        negotiateBatchDelete: this.isAllowedToDeleteMessages.bind(this),
     };
 
     constructor(injector: Injector, chatProvider: ChatProvider) {
@@ -66,11 +68,11 @@ export class ChatManager {
         );
     }
 
-    isAllowedToEditMessages(proposal: EditProposal): EditNegotiationAnswer | Promise<EditNegotiationAnswer> {
+    isAllowedToEditMessages(proposal: EditProposal, proposer: OperationsNegotiator): EditNegotiationAnswer | Promise<EditNegotiationAnswer> {
         return true; 
     }
 
-    isAllowedToDeleteMessages(proposal: DeleteProposal): DeleteNegotiationAnswer | Promise<DeleteNegotiationAnswer> {
+    isAllowedToDeleteMessages(proposal: DeleteProposal, proposer: OperationsNegotiator): DeleteNegotiationAnswer | Promise<DeleteNegotiationAnswer> {
         return true;
     }
 
@@ -145,7 +147,7 @@ export class ChatManager {
         return this.onMessagePropChangeRequested(target, prop, newValue);
     }
 
-    protected onMessageSendRequested(message: Message): MessageStatus | Promise<MessageStatus> {
+    protected onMessageSendRequested(message: Unsent<Message>): MessageStatus | Promise<MessageStatus> {
         return MessageStatus.Read;
     }
 

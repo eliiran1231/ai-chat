@@ -4,6 +4,7 @@ import { Chat, ChatOptions } from "../classes/Chat";
 import { Message } from "../classes/Message";
 import { AuthenticationProvider } from "./auth/AuthenticationProvider";
 import { Uuid } from "./db/Uuid";
+import { Unsent } from '../app/types/Unsent';
 
 export interface ChatProviderMetadata {
     id: string;
@@ -21,11 +22,11 @@ export interface ChatProvider {
         initialAgent: Agent,
         options?: ChatOptions
     ): Chat | Promise<Chat>;
-    addMessage(chatId: Uuid, message: Message, ...args: unknown[]): void | Promise<void>;
-    deleteMessage(messageId: Uuid, ...args: unknown[]): void | Promise<void>;
-    editMessage(message: Message, ...args: unknown[]): void | Promise<void>;
+    addMessage(chatId: Uuid, message: Unsent<Message>, ...args: unknown[]): any | Promise<any>;
+    deleteMessage(messageId: Uuid, ...args: unknown[]): any | Promise<any>;
+    editMessage(message: Message, ...args: unknown[]): any | Promise<any>;
     deleteBatch(messageIds: Uuid[], ...args: unknown[]): any | Promise<any>;
     editBatch(messages: Message[], ...args: unknown[]): any | Promise<any>;
     getChats(): Chat[] | Promise<Chat[]>;
-    deleteChat(chatId: Uuid, ...args: unknown[]): void | Promise<void>;
+    deleteChat(chatId: Uuid, ...args: unknown[]): any | Promise<any>;
 }

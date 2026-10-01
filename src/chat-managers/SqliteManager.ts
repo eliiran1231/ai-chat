@@ -6,10 +6,11 @@ import { DbService } from "../services/db.service";
 import { Chat } from "../classes/Chat";
 import { SqliteProvider } from "../chat-providers/SqliteProvider";
 import { AcceptedEditCandidate, EditProposal } from "../classes/Proposals";
+import { Unsent } from "../app/types/Unsent";
 
 export class SqliteManager extends ChatManager {
   dbService: DbService;
-  pendingMessagePersists = new WeakMap<Message, Promise<void>>();
+  pendingMessagePersists = new WeakMap<Unsent<Message>, Promise<void>>();
 
   constructor(injector: Injector, sqliteProvider: SqliteProvider) {
     super(injector, sqliteProvider);
@@ -20,7 +21,7 @@ export class SqliteManager extends ChatManager {
     super.init(chat);
   }
 
-  override async onMessageSendRequested(message: Message): Promise<MessageStatus> {
+  override async onMessageSendRequested(message: Unsent<Message>): Promise<MessageStatus> {
     super.onMessageSendRequested(message);
     try {
         const persisted = this.chatProvider.addMessage(this.chat.id(), message) as Promise<void>;
