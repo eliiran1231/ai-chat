@@ -48,7 +48,7 @@
   opacity: 0;
   position: absolute;
   inset: 0;
-  background-color: rgba(#8bd1e58c, 0.55);
+  background-color:#8bd1e58c;
   z-index: 2;
   animation: flashOverlay 1s ease forwards;
 }
@@ -72,6 +72,61 @@
   border-radius: var(--message-bubble-radius);
   overflow: visible;
   box-shadow: 0 1px 0.5px color-mix(in srgb, color-mix(in srgb, var(--md-sys-color-secondary) 82%, var(--md-sys-color-shadow)) 13%, transparent);
+}
+
+.message-row--selectable {
+  position: relative;
+  padding-left: 2.75rem;
+  min-height: 2rem;
+}
+
+.message-row--selectable.message-row--selected {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent);
+}
+
+.message-selection-button {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  direction: ltr;
+  width: 100%;
+  padding: 0 0.75rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.message-selection-button:hover {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 5%, transparent);
+}
+
+.message-selection-button:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: -2px;
+}
+
+.message-selection-checkbox {
+  display: grid;
+  place-items: center;
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 0.2rem;
+}
+
+.message-selection-button[aria-checked='true'] .message-selection-checkbox {
+  border-color: var(--md-sys-color-secondary);
+  background: var(--md-sys-color-secondary);
+  color: white;
+}
+
+.message-selection-checkbox svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  stroke-width: 3;
 }
 
 .message-bubble--answer-controls {
