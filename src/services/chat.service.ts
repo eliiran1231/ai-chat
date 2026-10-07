@@ -16,6 +16,7 @@ export class ChatService {
   readonly chats = signal<Chat[]>([]);
   private readonly _chatMap = new Map<string, Chat>()
   private loaded = false;
+  private loadingChats: Promise<void> | null = null;
   private selectedChatId: WritableSignal<string | null | undefined> = signal(undefined);
   private isCreatingChat = signal(false);
   private pendingCreateChat = signal<Promise<Chat> | null>(null);
@@ -50,27 +51,24 @@ export class ChatService {
 
   async loadChats(): Promise<void> {
     if (this.loaded) return;
-    const providers = this.chatProviders ?? [];
-    const fulfilledFilter = (result: PromiseSettledResult<Chat[]>) => {
-      if (result.status == 'rejected') {
-        console.error(result.reason);
-      }
-      return result.status == 'fulfilled';
-    }
-    const chatPromises = providers.map(provider => provider.getChats());
-    const chats = (await Promise.allSettled(chatPromises))
-      .filter(fulfilledFilter)
-      .flatMap(r => r.value)
-    this.chats.set(chats);
-    chats.forEach(chat => this.addChatToMap(chat));
-    this.loaded = true;
+    this.loadingChats ??= (async () => {
+      const providers = this.chatProviders ?? [];
+      this.chats.set([]);
+      await Promise.all(providers.map(async provider => {
+        try {
+          for await (const chat of provider.getChats()) this.addChat(chat);
+        } catch (error) {
+          console.error(error);
+        }
+      }));
+      this.loaded = true;
+    })().finally(() => this.loadingChats = null);
+    return this.loadingChats;
   }
 
   async loadProviderChats(provider: ChatProvider): Promise<void> {
-    const chats = await provider.getChats();
     this.clearChats(provider.metadata.id);
-    this.chats.update(current => [...current, ...chats]);
-    chats.forEach(chat => this.addChatToMap(chat));
+    for await (const chat of provider.getChats()) this.addChat(chat);
   }
 
   getChatById(id: string | null | undefined): Chat | undefined {

@@ -158,18 +158,29 @@ export class SqliteProvider implements ChatProvider {
     });
   }
 
-  async getChats(): Promise<Chat[]> {
+  async *getChats(): AsyncGenerator<Chat> {
     const records = await this.dbService.getChats();
-    return Promise.all(
-      records.map(async (record) => {
-        const persistedSupporterRecord = await this.dbService.getChatSupporter(record.id);
-        if (!persistedSupporterRecord?.agentName)
-          throw new Error("couldn't retrieve agent from SQL");
-        const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
-        initialAgent.name = persistedSupporterRecord.agentName;
-        return this.hydrateChat(record, initialAgent, persistedSupporterRecord, false);
-      })
+    const loadChat = async (record: (typeof records)[number]) => {
+      const persistedSupporterRecord = await this.dbService.getChatSupporter(record.id);
+      if (!persistedSupporterRecord?.agentName)
+        throw new Error("couldn't retrieve agent from SQL");
+      const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
+      initialAgent.name = persistedSupporterRecord.agentName;
+      return this.hydrateChat(record, initialAgent, persistedSupporterRecord, false);
+    };
+    type Settled = { index: number; chat?: Chat; error?: unknown };
+    const pending = new Map<number, Promise<Settled>>(
+      records.map((record, index) => [
+        index,
+        loadChat(record).then(chat => ({ index, chat }), error => ({ index, error })),
+      ])
     );
+    while (pending.size) {
+      const { index, chat, error } = await Promise.race(pending.values());
+      pending.delete(index);
+      if (chat) yield chat;
+      else console.error(error);
+    }
   }
 
   async createChat(name: string, initialAgent: Agent, options: ChatOptions = {}): Promise<Chat> {
