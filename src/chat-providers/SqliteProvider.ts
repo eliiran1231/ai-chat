@@ -158,18 +158,23 @@ export class SqliteProvider implements ChatProvider {
     });
   }
 
-  async getChats(): Promise<Chat[]> {
+  async *getChats(): AsyncGenerator<Chat> {
     const records = await this.dbService.getChats();
-    return Promise.all(
-      records.map(async (record) => {
-        const persistedSupporterRecord = await this.dbService.getChatSupporter(record.id);
-        if (!persistedSupporterRecord?.agentName)
-          throw new Error("couldn't retrieve agent from SQL");
-        const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
-        initialAgent.name = persistedSupporterRecord.agentName;
-        return this.hydrateChat(record, initialAgent, persistedSupporterRecord, false);
-      })
-    );
+    const chatPromises = records.map(async (record) => {
+      const persistedSupporterRecord = await this.dbService.getChatSupporter(record.id);
+      if (!persistedSupporterRecord?.agentName)
+        throw new Error("couldn't retrieve agent from SQL");
+      const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
+      initialAgent.name = persistedSupporterRecord.agentName;
+      return this.hydrateChat(record, initialAgent, persistedSupporterRecord, false);
+    });
+    for (const chatPromise of chatPromises) {
+      try {
+        yield await chatPromise;
+      } catch (error) {
+        console.error(error);
+      }
+    }
   }
 
   async createChat(name: string, initialAgent: Agent, options: ChatOptions = {}): Promise<Chat> {
