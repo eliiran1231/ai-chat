@@ -36,6 +36,7 @@ export class SqliteManager extends ChatManager {
   }
 
   protected override async onMessagesEditRequested(acceptedCandidates: AcceptedEditCandidate[]): Promise<MessageStatus> {
+    await new Promise(res=>setTimeout(res, 1000)) 
     try {
       const messages = acceptedCandidates.map(c=>c.newMessage);
       const editedIds = new Set(await this.chatProvider.editBatch(messages));
