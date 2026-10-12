@@ -7,6 +7,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  box-sizing: border-box;
+  height: 4.5rem;
   padding: 0.85rem 1rem;
   background: var(--md-sys-color-secondary);
   color: var(--md-sys-color-on-secondary);
@@ -26,10 +28,15 @@
   align-items: center;
   gap: 0.35rem;
   width: 100%;
+  min-width: 0;
 }
 
 .message-options-spacer {
   flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .search-result-count {

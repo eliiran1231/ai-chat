@@ -61,7 +61,8 @@
   content: '';
   position: absolute;
   inset: 0;
-  background-color: rgba(#8bd1e58c, 0.55);
+  border-inline-start: 0.2rem solid color-mix(in srgb, var(--md-sys-color-primary) 72%, transparent);
+  background-color: color-mix(in srgb, var(--md-sys-color-primary) 12%, transparent);
   pointer-events: none;
   z-index: 4;
 }
@@ -81,7 +82,7 @@
 }
 
 .message-row--selectable.message-row--selected {
-  background: color-mix(in srgb, var(--md-sys-color-on-surface) 10%, transparent);
+  background: color-mix(in srgb, var(--md-sys-color-primary) 5%, transparent);
 }
 
 .message-selection-button {
@@ -118,9 +119,9 @@
 }
 
 .message-selection-button[aria-checked='true'] .message-selection-checkbox {
-  border-color: var(--md-sys-color-secondary);
-  background: var(--md-sys-color-secondary);
-  color: white;
+  border-color: var(--md-sys-color-primary);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
 }
 
 .message-selection-checkbox svg {
