@@ -5,17 +5,35 @@
   [class.message-row--user]="!isSupporterMessage(message())"
   [class.message-row--search-active]="isActiveSearchMatch()"
   [class.message-row--selected]="isSelected()"
+  [class.message-row--selectable]="selectionMode()"
   [class.message-row--proposed-edit]="proposalType() === 'edit'"
   [class.message-row--proposed-delete]="proposalType() === 'delete'"
 >
+  @if (selectionMode()) {
+    <button
+      type="button"
+      class="message-selection-button"
+      role="checkbox"
+      [attr.aria-checked]="isSelected()"
+      [attr.aria-label]="message().value() || ('chat.messageOptions' | translate)"
+      (click)="openMessageOptions($event)"
+    >
+      <span class="message-selection-checkbox" aria-hidden="true">
+        @if (isSelected()) {
+          <svg [lucideIcon]="selectionIcon"></svg>
+        }
+      </span>
+    </button>
+  }
   <div
     class="message-bubble"
+    [attr.inert]="selectionMode() ? '' : null"
     [class.message-bubble--supporter]="isSupporterMessage(message())"
     [class.message-bubble--user]="!isSupporterMessage(message())"
     [class.message-bubble--with-tail]="showTail()"
     [class.message-bubble--answer-controls]="hasAnswerControls()"
   >
-    @if (hasMessageOptions()) {
+    @if (hasMessageOptions() && !selectionMode()) {
       <button
         type="button"
         class="message-options-button"
