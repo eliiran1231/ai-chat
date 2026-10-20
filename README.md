@@ -131,6 +131,25 @@ npm run test:electron
 
 On Windows automation, use `npm.cmd` if the shell does not resolve npm's PowerShell shim.
 
+## Windows MSI installer
+
+On Windows, build the application and create an x64 MSI installer:
+
+```powershell
+npm run dist:msi
+```
+
+The installer is written to `release/AI Chat-<version>-x64.msi`. It uses a
+wizard and installs for the current user. Shortcuts are disabled because the
+current favicon is smaller than electron-builder's required 256x256 icon size.
+To enable them, set `win.icon` to a suitable `.ico` file and enable
+`msi.createDesktopShortcut` and `msi.createStartMenuShortcut`.
+The first build may download Electron and the Windows installer tooling.
+
+Packaging options are in `electron-builder.yml`. Keep `appId` stable between
+releases so upgrades identify the same application, and increase `version` in
+`package.json` for each release. Signing requires configuring your own certificate.
+
 ## Project structure
 
 ```text

@@ -6,7 +6,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng build --base-href ./ && npm run build:electron && electron .",
-    "build": "ng build && npm run build:electron",
+    "build": "ng build --base-href ./ && npm run build:electron",
+    "dist:msi": "npm run build && electron-builder --win msi --x64 --publish never",
     "build:electron": "tsc --project tsconfig.electron.json",
     "dev": "ng build -c development --base-href ./ && electron .",
     "test:electron": "npm run build:electron && vitest run --config vitest.electron.config.ts",
@@ -58,6 +59,7 @@
     "@electron/rebuild": "^4.0.6",
     "@types/better-sqlite3": "^7.6.13",
     "electron": "^41.8.0",
+    "electron-builder": "^26.15.3",
     "jsdom": "^27.1.0",
     "typescript": "~6.0.3",
     "vitest": "^4.0.8"

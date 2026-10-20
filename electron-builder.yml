@@ -1,0 +1,31 @@
+appId: com.ai-chat.desktop
+productName: AI Chat
+directories:
+  output: release
+files:
+  - main.js
+  - preload.js
+  - services/**/*.js
+  - ipc/**/*.js
+  - interfaces/**/*.js
+  - shared/**/*.js
+  - dist/ai-chat/browser/**/*
+asar: true
+asarUnpack:
+  - dist/ai-chat/browser/languages/**/*
+  - "**/*.node"
+  - "**/*.dll"
+win:
+  # icon: build/icon.ico
+  # Enable both MSI shortcuts below and rebuild with npm run dist:msi.
+  target:
+    - target: msi
+      arch:
+        - x64
+msi:
+  artifactName: "${productName}-${version}-${arch}.${ext}"
+  oneClick: false
+  perMachine: false
+  # Enable shortcuts after configuring win.icon with a 256x256 (or larger) icon.
+  createDesktopShortcut: false
+  createStartMenuShortcut: false
