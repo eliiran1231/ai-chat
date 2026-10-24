@@ -19,10 +19,8 @@ Object.defineProperty(app, 'isPackaged', { value: true });
 Object.defineProperty(process, 'resourcesPath', { value: path.dirname(archive) });
 app.setAppPath(archive);
 app.disableHardwareAcceleration();
-const watchdog = setTimeout(() => {
-  require('node:fs').writeFileSync(resultPath, JSON.stringify({ error: `Timed out during ${phase}`, failures, checks }));
-  app.exit(2);
-}, 45_000);
+// main.js quits when its last window closes; defer that until the test has reported cleanup.
+app.on('before-quit', event => event.preventDefault());
 
 const importApp = relative => import(pathToFileURL(path.join(archive, relative)).href);
 const evaluate = code => window.webContents.executeJavaScript(code, true);
@@ -57,7 +55,7 @@ async function run() {
   database = (await importApp('services/db.service.js')).dbService;
   await until("document.querySelector('app-root')?.innerText.trim().length > 0 && typeof window.electronAPI?.invoke === 'function'");
   assert.deepEqual(failures, [], 'Renderer startup errors');
-  checks.push('real main process startup, renderer assets, preload, tray');
+  checks.push('packaged main module imported, renderer content loaded, preload API exposed');
 
   phase = 'IPC';
   assert.equal(await invoke('system:getAppVersion'), app.getVersion());
@@ -98,16 +96,12 @@ async function run() {
   checks.push('settings navigation and page reload');
 }
 
-(async () => {
-  let error;
-  try { await run(); } catch (caught) { error = caught; }
-  await fs.writeFile(resultPath, JSON.stringify({ ok: !error, phase, checks, failures, error: error?.stack }, null, 2));
-  try {
-    for (const win of BrowserWindow.getAllWindows()) win.destroy();
-    await database?.close();
-  } finally {
-    clearTimeout(watchdog);
-    // Chromium can keep its session files open until process exit; retain this isolated test profile.
-    app.exit(error ? 1 : 0);
-  }
-})();
+require('./smoke-lifecycle.cjs').finishSmoke({
+  app, resultPath, run, timeoutMs: 45_000,
+  details: () => ({ phase, checks, failures }),
+  cleanup: async () => {
+    // main.js also closes the singleton on window-all-closed; avoid concurrent close calls.
+    try { await database?.close(); }
+    finally { for (const win of BrowserWindow.getAllWindows()) win.destroy(); }
+  },
+});

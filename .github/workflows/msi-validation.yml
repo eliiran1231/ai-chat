@@ -1,0 +1,90 @@
+name: MSI validation
+
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_clean_vm:
+        description: Run on a disposable self-hosted Windows x64 VM labeled msi-clean
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/electron/smoke-lifecycle.test.cjs
+      - run: npm test -- --watch=false
+      - run: npm run test:electron
+      - run: npm run dist:msi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: msi-under-test
+          path: |
+            release/*.msi
+            scripts/test-installed-app.cjs
+            scripts/test-installed-msi.ps1
+          if-no-files-found: error
+
+  installed-executable:
+    needs: build
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      # No checkout, npm install, or development Electron on this test job.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: msi-under-test
+          path: input
+      - name: Install MSI, launch installed executable, verify restart, uninstall
+        shell: pwsh
+        run: |
+          $msi = (Get-ChildItem input/release/*.msi | Select-Object -First 1).FullName
+          ./input/scripts/test-installed-msi.ps1 -MsiPath $msi -OutputDirectory "$env:RUNNER_TEMP/msi-validation" -DisposableMachine
+      - name: Save environment, installer logs, and app test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: installed-msi-results
+          path: |
+            ${{ runner.temp }}/msi-validation/*.json
+            ${{ runner.temp }}/msi-validation/*.log
+
+  clean-machine:
+    if: github.event_name == 'workflow_dispatch' && inputs.run_clean_vm
+    needs: build
+    runs-on: [self-hosted, Windows, X64, msi-clean]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: msi-under-test
+          path: input
+      - name: Require a clean VM and test the installed MSI
+        shell: pwsh
+        run: |
+          $msi = (Get-ChildItem input/release/*.msi | Select-Object -First 1).FullName
+          ./input/scripts/test-installed-msi.ps1 -MsiPath $msi -OutputDirectory "$env:RUNNER_TEMP/msi-clean-validation" -DisposableMachine -RequireCleanMachine
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-machine-msi-results
+          path: |
+            ${{ runner.temp }}/msi-clean-validation/*.json
+            ${{ runner.temp }}/msi-clean-validation/*.log
