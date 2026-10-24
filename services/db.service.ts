@@ -1,5 +1,6 @@
 import { app } from 'electron';
 import * as path from 'node:path';
+import { Worker } from 'node:worker_threads';
 import { PowerSyncDatabase } from '@powersync/node';
 import { wrapPowerSyncWithDrizzle } from '@powersync/drizzle-driver';
 import { AppSchema } from './powersync-schema.js';
@@ -33,6 +34,8 @@ export class DbService {
       schema: AppSchema,
       database: {
         dbFilename: path.join(app.getPath('userData'), 'ai-chat-powersync.sqlite'),
+        openWorker: (_filename, options) =>
+          new Worker(new URL('./powersync.worker.js', import.meta.url), options),
       },
     });
     this.drizzleDatabase = wrapPowerSyncWithDrizzle(this.database, { schema: drizzleSchema });

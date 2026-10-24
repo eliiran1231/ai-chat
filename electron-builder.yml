@@ -2,6 +2,10 @@ appId: com.ai-chat.desktop
 productName: AI Chat
 directories:
   output: release
+# PowerSync's Windows DLL requires the VC runtime, even on PCs without Visual Studio.
+extraFiles:
+  - from: build/windows-runtime/vcruntime140.dll
+    to: vcruntime140.dll
 files:
   - main.js
   - preload.js

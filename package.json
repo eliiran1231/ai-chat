@@ -5,12 +5,13 @@
   "main": "main.js",
   "scripts": {
     "ng": "ng",
-    "start": "ng build --base-href ./ && npm run build:electron && electron .",
-    "build": "ng build --base-href ./ && npm run build:electron",
-    "dist:msi": "npm run build && electron-builder --win msi --x64 --publish never",
+    "start": "ng build --base-href ./index.html && npm run build:electron && electron .",
+    "build": "ng build --base-href ./index.html && npm run build:electron",
+    "dist:msi": "npm run build && electron-builder --win msi --x64 --publish never && npm run test:packaged",
     "build:electron": "tsc --project tsconfig.electron.json",
-    "dev": "ng build -c development --base-href ./ && electron .",
+    "dev": "ng build -c development --base-href ./index.html && electron .",
     "test:electron": "npm run build:electron && vitest run --config vitest.electron.config.ts",
+    "test:packaged": "node scripts/test-packaged-database.cjs",
     "postinstall": "electron-rebuild -f -w better-sqlite3",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"

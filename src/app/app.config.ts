@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
+import { routerFeaturesForProtocol } from './router-features';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { routes } from './app.routes';
 import { AppAgentsModule } from './app-agents.module';
@@ -31,7 +32,8 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
-    provideRouter(routes),
+    // Only file:// desktop builds need hash routes; HTTP(S) keeps browser path routing.
+    provideRouter(routes, ...routerFeaturesForProtocol(globalThis.location?.protocol)),
     provideAgents(AppAgentsModule),
     importProvidersFrom(AppChatProvidersModule),
   ],

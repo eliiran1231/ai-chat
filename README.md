@@ -150,6 +150,64 @@ Packaging options are in `electron-builder.yml`. Keep `appId` stable between
 releases so upgrades identify the same application, and increase `version` in
 `package.json` for each release. Signing requires configuring your own certificate.
 
+`npm run dist:msi` also runs `npm run test:packaged` and fails if its smoke tests
+fail. These tests load the services and real main entry point from
+`release/win-unpacked/resources/app.asar` in Electron with temporary user data.
+These are packaged-file tests using `node_modules`' Electron executable, not
+tests of an installed executable or proof of clean-machine compatibility.
+They check database persistence, the renderer/preload IPC bridge, chat/message
+operations, packaged languages, settings persistence, Windows secure storage,
+and Settings navigation/reload. Windows startup registration is stubbed to avoid
+changing the test machine's settings. The tests do not connect to the sync server.
+Tray creation/interaction is not asserted. Temporary reports and user-data
+directories are removed by the parent runner after each child exits, including
+failure paths. Cleanup errors are reported separately from the original failure.
+To check another package, pass
+its `app.asar` path with `npm run test:packaged -- "C:\path\resources\app.asar"`.
+
+Keep DLLs in `asarUnpack`: the custom PowerSync worker resolves the SQLite
+extension to its physical `app.asar.unpacked` path because Windows cannot load
+a DLL from the virtual `app.asar` path.
+
+Only `file://` desktop navigation uses hash routes (`index.html#/settings`);
+HTTP(S) browser deployments retain path routing. Desktop reloads continue
+to load the packaged HTML file. The desktop build's base href is `./index.html`:
+using `./` would make fragment navigation resolve to a directory instead.
+PowerSync also requires the Visual C++ runtime; the Microsoft-signed x64 DLL in
+`build/windows-runtime` is copied beside the executable and must accompany the
+source checkout used for offline builds. See that directory's README for updates.
+Before distributing an upgrade, increase the
+package version; rebuilding `0.0.0` is not a versioned MSI upgrade.
+
+### MSI installation validation in GitHub Actions
+
+The `MSI validation` workflow builds the MSI and transfers only the installer
+and standalone test scripts to a separate Windows job. That job installs it,
+launches the **installed `AI Chat.exe`**, checks chat/message creation and
+persistence across a normal process restart, navigates/reloads Settings, and
+uninstalls the MSI. It also inspects the running process's loaded modules to
+assert that `VCRUNTIME140.dll` came from the installed application's directory.
+Installer logs, environment details, and test results are saved as artifacts.
+
+GitHub-hosted Windows images contain Visual Studio and global VC runtimes; a
+passing hosted run is **not** a clean-machine test. The optional `run_clean_vm`
+workflow-dispatch input uses a self-hosted Windows x64 runner labeled `msi-clean`.
+Provision it as an ephemeral/disposable VM restored to a clean snapshot for each
+run. This job refuses to run the app if it detects Visual Studio or a global VC
+runtime. It is opt-in and never runs automatically on pull-request code.
+
+The same test can be run manually on a disposable Windows VM with portable
+Node.js 22+ (no npm dependencies needed):
+
+```powershell
+./scripts/test-installed-msi.ps1 -MsiPath 'C:\input\AI Chat-0.0.0-x64.msi' `
+  -OutputDirectory 'C:\msi-test-results' -DisposableMachine -RequireCleanMachine
+```
+
+This test installs/uninstalls software and writes temporary application data;
+do not run it against a personal or production installation. Installer upgrades,
+tray interaction, and live backend authentication/sync are not covered.
+
 ## Project structure
 
 ```text
