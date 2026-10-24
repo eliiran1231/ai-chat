@@ -4,7 +4,7 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withHashLocation } from '@angular/router';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
 import { routes } from './app.routes';
 import { AppAgentsModule } from './app-agents.module';
@@ -31,7 +31,8 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
-    provideRouter(routes),
+    // Keep desktop routes in the fragment so reload still opens the packaged index.html.
+    provideRouter(routes, withHashLocation()),
     provideAgents(AppAgentsModule),
     importProvidersFrom(AppChatProvidersModule),
   ],
