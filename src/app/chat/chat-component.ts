@@ -187,13 +187,12 @@ export class ChatComponent {
   async deleteSelectedMessages(): Promise<void> {
     const selection = this.selectedMessages();
     const messages = [...selection.messages()];
+    selection.clearMessages();
     if (messages.length === 1) {
       const [message] = messages;
-      if (await message.delete({
+      await message.delete({
         negotiator: this.chat().user.negotiator
-      })) {
-        selection.removeMessage(message);
-      }
+      })
       return;
     }
 

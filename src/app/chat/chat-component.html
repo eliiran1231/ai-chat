@@ -57,6 +57,7 @@
         <app-message-bubble
           [message]="message"
           [isSelected]="selectedMessages().messages().has(message)"
+          [selectionMode]="selectedMessages().messages().size > 0 && !editingMessage()"
           [proposalType]="proposalTypeFor(message)"
           [isActiveSearchMatch]="isActiveSearchMatch(message.id())"
           [showTail]="shouldShowMessageTail(chat().messages(), $index)"
