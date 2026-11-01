@@ -98,9 +98,13 @@ export class Agent {
     }
 
     /** Called once after a batch completes, with only successfully deleted messages. */
-    onMessagesDeleted(messages: readonly Message[]): void | Promise<void> {
+    async onMessagesDeleted(messages: readonly Message[]): Promise<void> {
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
         this.lastMessage = this.chat.messages().at(-1);
+        const sender = this.lastMessage?.from();
+        if (!sender?.senderClass || sender.senderClass === this.constructor) return; 
+        const newAgent = this.agentService.getAgentByClass(sender.senderClass);
+        await this.supporter.setAgent(newAgent);
     }
 
     onMessagesEdited(messages: readonly Message[]): void | Promise<void> {

@@ -23,6 +23,10 @@ export class AgentsService {
     return new AgentClass(this.injector);
   }
 
+  getAgentByClass(agentClass: Type<Agent>): Agent {
+    return new agentClass(this.injector);
+  }
+
   getAgentClassByName(name: string): Type<Agent> {
     const AgentClass = this.agents[name];
     if (!AgentClass) throw new Error(`Agent "${name}" is not registered.`);
