@@ -27,6 +27,7 @@ export class MessageBubbleComponent {
   message = input.required<Message>();
   isActiveSearchMatch = input(false);
   isSelected = input(false);
+  selectionMode = input(false);
   proposalType = input<'edit' | 'delete' | undefined>();
   showTail = input(false);
   searchTerm = input('');
@@ -41,6 +42,7 @@ export class MessageBubbleComponent {
     [MessageStatus.Failed]: LucideCircleAlert,
   };
   readonly optionsIcon = LucideChevronDown;
+  readonly selectionIcon = LucideCheck;
 
   isSupporterMessage(message: Message): boolean {
     return message.from()?.type === 'supporter';
