@@ -73,6 +73,44 @@ describe('ChatComponent', () => {
     expect(textarea.style.getPropertyValue('--composer-max-rows')).toBe('5');
   });
 
+  it('allows editing the caption of an attached message without offering file replacement', async () => {
+    const message = createMessage('edit-target', 'caption', new Date());
+    message.setAttachment({ name: 'original', extension: 'txt', type: 'text/plain', size: 3, url: 'blob:original' });
+    const chat = await renderChat([message]);
+    const edit = vi.spyOn(message, 'edit').mockResolvedValue(true);
+    fixture.componentInstance.editMessage(message);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('button[aria-label="Attach file"]')).toBeNull();
+    expect((fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement).value).toBe('caption');
+    await fixture.componentInstance.sendMessage('new caption');
+    expect(edit).toHaveBeenCalledWith('new caption', { negotiator: chat.user.negotiator });
+    expect(fixture.componentInstance.editingMessage()).toBeUndefined();
+  });
+
+  it('carries the draft into a separate preview composer and keeps the original draft on cancellation', async () => {
+    const chat = await renderChat('Text written before choosing a file');
+    vi.spyOn(chat, 'processFileUrl').mockResolvedValue('blob:preview');
+    const release = vi.spyOn(chat, 'releaseFileUrl').mockImplementation(() => {});
+    fixture.componentInstance.openPreviewPage(new File(['file'], 'example.txt'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelectorAll('app-chat-input-component')).toHaveLength(1);
+    const textarea = fixture.nativeElement.querySelector('app-file-preview-component textarea') as HTMLTextAreaElement;
+    expect(textarea.value).toBe('Text written before choosing a file');
+    textarea.value = 'Changed in preview';
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(chat.draftMessage()).toBe('Text written before choosing a file');
+    (fixture.nativeElement.querySelector('.close-button') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(fixture.nativeElement.querySelector('app-file-preview-component')).toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('app-chat-input-component')).toHaveLength(1);
+    expect((fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement).value).toBe(chat.draftMessage());
+    expect(release).toHaveBeenCalledWith('blob:preview');
+  });
+
   it('sends the message on Enter', async () => {
     const chat = await renderChat('Hello from Enter');
     const textarea = fixture.nativeElement.querySelector('#message-input') as HTMLTextAreaElement;

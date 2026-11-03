@@ -1,7 +1,9 @@
 @if (attachmentFile(); as file) {
   <app-file-preview-component
     [file]="file"
-    [processFileUrl]="chat().processFileUrl.bind(chat())"
+    [onFileSelected]="chat().onFileSelected"
+    [onFileCanceled]="chat().onFileCanceled"
+    [initialCaption]="chat().draftMessage()"
     (submitted)="closePreviewPage(); sendMessage($event.value, $event.options)"
     (closed)="closePreviewPage()"
   ></app-file-preview-component>

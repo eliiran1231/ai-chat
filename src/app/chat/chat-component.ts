@@ -48,6 +48,7 @@ export class ChatComponent {
     effect(() => {
       if (this.chat()) {
         this.editingMessage.set(undefined);
+        this.attachmentFile.set(undefined);
       }
     });
   }

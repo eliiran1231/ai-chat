@@ -23,6 +23,9 @@
         }
       }
     }
+    @else if (previewFailed()) {
+      <p role="alert">{{ 'file.previewFailed' | translate }}</p>
+    }
     @else {
       <div id="loading-preview">{{ 'common.loading' | translate }}</div>
     }
@@ -34,5 +37,6 @@
     (messageSubmit)="submitFile($event)"
     (fileSubmit)="changeFile($event)"
     [requiredContent]=false
+    [submitDisabled]="!fileInfo()?.url"
   ></app-chat-input-component>
 </section>

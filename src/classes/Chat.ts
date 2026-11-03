@@ -9,6 +9,7 @@ import type { ChatManager } from './ChatManager';
 import { syncedSignal, SyncedSignal } from '../signals/syncedSignal';
 import { computed, signal, Signal, WritableSignal } from '@angular/core';
 import { MessageLoader } from './MessageLoader';
+import { SavedChatFile } from '../services/fileExplorer.service';
 
 export type Avatar = {
   type: 'image' | 'text';
@@ -16,15 +17,25 @@ export type Avatar = {
 };
 
 export type ChatOptions = {
-  status?: string,
-  avatar?: Avatar,
+  status?: string;
+  avatar?: Avatar;
   subtitle?: string;
   timeLabel?: string;
   unreadCount?: number;
   highlightTime?: boolean;
   avatarRing?: boolean;
   tipLabel?: string;
-}
+};
+
+export type savedFile = {
+  filePath: string;
+  savedChatFile: SavedChatFile | undefined;
+};
+
+export type FileSelectionResult = {
+  urlBlob?: string;
+  savedChatFile?: SavedChatFile;
+};
 
 export class Chat extends SyncedEntity {
   readonly id: Signal<Uuid>;
@@ -39,7 +50,11 @@ export class Chat extends SyncedEntity {
   readonly draftMessage: WritableSignal<string>;
   readonly messages: WritableSignal<Message[]>;
   readonly avatar: SyncedSignal<Avatar>;
-  readonly isRead = computed(() => this.unreadCount() === 0 && this.messages().every((message) => message.status() === MessageStatus.Read));
+  readonly isRead = computed(
+    () =>
+      this.unreadCount() === 0 &&
+      this.messages().every((message) => message.status() === MessageStatus.Read),
+  );
   readonly supporter: Supporter;
   readonly active: WritableSignal<boolean> = signal(false);
   readonly user: Client;
@@ -51,7 +66,7 @@ export class Chat extends SyncedEntity {
   markAsRead() {
     this.unreadCount.set(0);
     for (let message of this.messages()) {
-      if(message.from()?.type == "supporter") message.status.set(MessageStatus.Read);
+      if (message.from()?.type == 'supporter') message.status.set(MessageStatus.Read);
     }
   }
 
@@ -66,7 +81,9 @@ export class Chat extends SyncedEntity {
     this.id = signal(id);
     this.name = syncedSignal(name);
     this.status = syncedSignal(options.status ?? '');
-    this.avatar = syncedSignal(options.avatar ?? { type: 'text', value: name.slice(0, 2).toUpperCase() });
+    this.avatar = syncedSignal(
+      options.avatar ?? { type: 'text', value: name.slice(0, 2).toUpperCase() },
+    );
     this.messages = signal([]);
     this.supporter = supporter;
     this.supporter.setChat(this);
@@ -80,14 +97,19 @@ export class Chat extends SyncedEntity {
     this.highlightTime = syncedSignal(options.highlightTime ?? false);
     this.avatarRing = syncedSignal(options.avatarRing ?? false);
     this.tipLabel = syncedSignal(options.tipLabel ?? '');
-    this.initSync()
+    this.initSync();
   }
 
-  processFileUrl(file: File): string | Promise<string> {
-    return this.manager.handleFile(file);
-  }
+  readonly onFileSelected = (file: File): Promise<FileSelectionResult> => {
+    return this.manager.onFileSelected(file);
+  };
 
-  delete(){
+  readonly onFileCanceled = (fileId: string | undefined): Promise<void> =>
+    this.manager.onFileCanceled(fileId);
+
+  readonly releaseFileUrl = (url: string): void => this.manager.releaseFileUrl(url);
+
+  delete() {
     return this.manager.requestDelete();
   }
 

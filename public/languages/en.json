@@ -86,6 +86,8 @@
     "provider.optionalForSignup": "Optional for sign up",
     "provider.credentialsRequired": "Email and password are required.",
     "file.closePreview": "Close file preview",
+    "file.previewFailed": "Could not prepare the file. Please select it again.",
+    "file.cleanupFailed": "The message was deleted, but its file could not be deleted. Cleanup will be retried before loading files for a ticket.",
     "file.size": "Size",
     "file.type": "Type",
     "file.openAttachment": "Open attachment {name}",

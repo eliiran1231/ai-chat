@@ -43,13 +43,15 @@ export class Client {
         message.from.set({ type: 'client' });
         message.setChat(this.chat);
         this.chat.messages.update(msgs => [...msgs, message]);
-        message.status.set(await this.chat['manager'].requestMessageSend(message));
-        if (message.status() === MessageStatus.Failed) {
-            return false;
-        }
-        this.onMessageAdded.next(message);
-        this.chat.supporter.respond()
-        
-        return true;
+        // Retry must also notify the agent after a previously failed send succeeds.
+        const send = async () => {
+            message.status.set(await this.chat['manager'].requestMessageSend(message));
+            if (message.status() === MessageStatus.Failed) return false;
+            this.onMessageAdded.next(message);
+            this.chat.supporter.respond();
+            return true;
+        };
+        message['lastAction'] = send;
+        return send();
     }
 }

@@ -56,12 +56,14 @@ async function run() {
       avatar: { type: 'text', value: 'DC' },
     });
     await reportProgress('creating-message');
+    const attachment = { fileId: 'saved-file', name: 'hello', extension: 'txt', type: 'text/plain', url: 'blob:preview', size: 5 };
     const message = await messageService.createMessage({
       id: 'message-returning',
       chatId: chat.id,
       from: { type: 'client' },
       value: 'Persisted through PowerSync',
       time: '2026-01-01T00:00:00.000Z',
+      attachment,
     });
     await reportProgress('checking-returning');
     const persistedChats = await orm.select().from(chats).where(eq(chats.id, chat.id));
@@ -71,7 +73,18 @@ async function run() {
       .where(eq(messages.id, message.id));
 
     assert.deepEqual(message.from, { type: 'client' });
-    assert.deepEqual(JSON.parse(persistedMessages[0].sender), { type: 'client' });
+    assert.deepEqual([...await messageService.getAttachmentFileIds(chat.id)], ['saved-file']);
+    // Neither an edit nor an autosave may replace or remove a sent attachment.
+    await messageService.editBatch([{ ...message, value: 'New caption', attachment: { ...attachment, fileId: 'replacement' } }]);
+    let [captionEdited] = await messageService.getChatMessages(chat.id, 0, 20);
+    assert.equal(captionEdited.value, 'New caption');
+    assert.deepEqual(captionEdited.attachment, attachment);
+    await messageService.editBatch([{ ...message, attachment: null }]);
+    await messageService.commitMessage({ ...message, attachment: null });
+    [captionEdited] = await messageService.getChatMessages(chat.id, 0, 20);
+    assert.deepEqual(captionEdited.attachment, attachment);
+    assert.deepEqual([...await messageService.getAttachmentFileIds(chat.id)], ['saved-file']);
+    assert.deepEqual(ON.parse(persistedMessages[0].sender), { type: 'client' });
     await messageService.commitMessage({ ...message, from: { type: 'supporter', agentName: 'registered-agent' } });
     let [reloaded] = await messageService.getChatMessages(chat.id, 0, 20);
     assert.deepEqual(reloaded.from, { type: 'supporter', agentName: 'registered-agent' });

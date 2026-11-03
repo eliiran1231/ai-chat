@@ -40,7 +40,7 @@ export class MessageCollection {
   async delete(): Promise<MessageStatus> {
     const proposal = new DeleteProposal(new Set(this._messages()));
     const status = await this.chat['manager'].requestMessagesDelete(proposal, this.negotiator);
-    if(status != MessageStatus.Failed) this.clearMessages(); 
+    this._messages.update(messages => new Set([...messages].filter(message => this.chat.messages().includes(message))));
     return status;
   }
 

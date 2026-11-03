@@ -21,6 +21,7 @@ export class ChatInputComponent {
   theme = input<'light' | 'dark'>('light');
   chat = input<Chat | undefined>(undefined);
   requiredContent = input(true);
+  submitDisabled = input(false);
   placeholder = input('chat.messagePlaceholder');
   allowAttachments = input(true);
   messageSubmit = output<string>();
@@ -28,6 +29,7 @@ export class ChatInputComponent {
   caption = model('');
 
   submitMessage(form?: NgForm): void {
+    if (this.submitDisabled()) return;
     const trimmedMessage = this.caption().trim();
     (!this.requiredContent() || trimmedMessage) && this.messageSubmit.emit(trimmedMessage);
     this.composerHasOverflow.set(false);

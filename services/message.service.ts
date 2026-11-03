@@ -8,6 +8,7 @@ type Uuid = string;
 type AnswerSelectionMode = 'single' | 'multiple';
 
 interface AttachmentPayload {
+  fileId?: string;
   name: string;
   extension: string;
   type: string;
@@ -132,7 +133,7 @@ export class MessageService {
         tag: message.tag ?? null,
         time: message.time,
         editedAt: message.editedAt ?? null,
-        attachment: message.attachment ? JSON.stringify(message.attachment) : null,
+        // Attachments are fixed at creation; autosaves only update the other message fields.
         possibleAnswers: message.possibleAnswers?.length
           ? JSON.stringify(message.possibleAnswers)
           : null,
@@ -156,6 +157,15 @@ export class MessageService {
       .returning({ id: messages.id });
 
     return rows.length > 0;
+  }
+
+  async getAttachmentFileIds(chatId: Uuid): Promise<Set<string>> {
+    const rows = await this.db.orm.select({ id: messages.id, attachment: messages.attachment })
+      .from(messages).where(eq(messages.chatId, chatId));
+    return new Set(rows.flatMap(row => {
+      const attachment = this.parseAttachmentColumn(row.attachment, 'attachment', row.id);
+      return typeof attachment?.fileId === 'string' ? [attachment.fileId] : [];
+    }));
   }
 
   async deleteBatch(messageIds: Uuid[]): Promise<Uuid[]> {
@@ -187,7 +197,7 @@ export class MessageService {
             tag: message.tag ?? null,
             time: message.time,
             editedAt: message.editedAt ?? null,
-            attachment: message.attachment ? JSON.stringify(message.attachment) : null,
+            // Text edits preserve the attachment already stored for this message.
             possibleAnswers: message.possibleAnswers?.length
               ? JSON.stringify(message.possibleAnswers)
               : null,

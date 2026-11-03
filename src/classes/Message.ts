@@ -14,6 +14,7 @@ export type MessageSender =
     | { type: 'supporter'; senderClass?: Type<Agent> };
 export type MessageType = 'message' | 'question' | 'answer';
 export type Attachment = {
+    fileId?: string,
     type: string,
     url: string,
     size: number,
@@ -51,6 +52,7 @@ export class Message extends SyncedEntity {
     private lastAction: () => Promise<any> = () => Promise.resolve(null);
 
     setChat(chat: Chat) {
+        if (this._chat === chat) return; // Selecting an existing message must preserve its retry action.
         this._chat = chat;
         this.lastAction = ()=>chat['manager'].requestMessageSend(this);
     }
@@ -108,6 +110,7 @@ export class Message extends SyncedEntity {
     }
 
     retry(){
+        if (this.status() !== MessageStatus.Failed) return Promise.resolve(false);
         return this.lastAction();
     }
 
