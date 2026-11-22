@@ -1,6 +1,8 @@
 import { provideHttpClient } from '@angular/common/http';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { MARKED_OPTIONS, provideMarkdown, SANITIZE } from 'ngx-markdown';
+import { NgScrollReachDrop } from 'ngx-scrollbar/reached-event';
 import { Chat } from '../../classes/Chat';
 import { Message } from '../../classes/Message';
 import { DeleteProposal, EditProposal } from '../../classes/Proposals';
@@ -71,6 +73,81 @@ describe('ChatComponent', () => {
 
     expect(textarea.tagName).toBe('TEXTAREA');
     expect(textarea.style.getPropertyValue('--composer-max-rows')).toBe('5');
+  });
+
+  it.each([
+    { contentHeight: 300, clientHeight: 500, scrollTop: 0, visible: false },
+    { contentHeight: 900, clientHeight: 600, scrollTop: 300, visible: false },
+    { contentHeight: 900, clientHeight: 600, scrollTop: 260, visible: false },
+    { contentHeight: 900, clientHeight: 600, scrollTop: 100, visible: true },
+  ])('refreshes the scroll button after a size update: %o', async (dimensions) => {
+    await renderChat();
+    const component = fixture.componentInstance;
+    const adapter = component.scrollbar.adapter;
+    vi.spyOn(adapter, 'contentHeight', 'get').mockReturnValue(dimensions.contentHeight);
+    vi.spyOn(adapter, 'clientHeight', 'get').mockReturnValue(dimensions.clientHeight);
+    vi.spyOn(adapter, 'scrollTop', 'get').mockReturnValue(dimensions.scrollTop);
+    const scrollToBottom = vi.spyOn(component, 'scrollToBottom');
+    component.awayFromBottom.set(true);
+
+    component.scrollbar.adapter.afterUpdate.emit();
+    fixture.detectChanges();
+
+    expect(!!fixture.nativeElement.querySelector('.scroll-bottom-button')).toBe(dimensions.visible);
+    expect(scrollToBottom).not.toHaveBeenCalled();
+  });
+
+  it('keeps following the bottom on size updates when already following it', async () => {
+    await renderChat();
+    const component = fixture.componentInstance;
+    const scrollToBottom = vi.spyOn(component, 'scrollToBottom').mockResolvedValue();
+    component.awayFromBottom.set(false);
+
+    component.scrollbar.adapter.afterUpdate.emit();
+
+    expect(scrollToBottom).toHaveBeenCalledOnce();
+    expect(component.awayFromBottom()).toBe(false);
+  });
+
+  it('does not show the button when deletion hides the bottom observer targets', async () => {
+    const chat = await renderChat([createMessage('deleted', 'Delete me', new Date())]);
+    const component = fixture.componentInstance;
+    const adapter = component.scrollbar.adapter;
+    const reachDrop = fixture.debugElement.query(By.directive(NgScrollReachDrop))
+      .injector.get(NgScrollReachDrop);
+    vi.spyOn(adapter, 'contentHeight', 'get').mockReturnValue(300);
+    vi.spyOn(adapter, 'clientHeight', 'get').mockReturnValue(500);
+    vi.spyOn(adapter, 'scrollTop', 'get').mockReturnValue(0);
+    component.awayFromBottom.set(true);
+
+    chat.messages.set([]);
+    fixture.detectChanges();
+    adapter.afterUpdate.emit();
+    // IntersectionObserver can report a dropped target after the resize callback
+    // because ngx-scrollbar hides bottom targets when content stops overflowing.
+    reachDrop.droppedBottom.emit();
+    fixture.detectChanges();
+
+    expect(component.awayFromBottom()).toBe(false);
+    expect(fixture.nativeElement.querySelector('.scroll-bottom-button')).toBeNull();
+  });
+
+  it('updates the button from the actual distance while scrolling', async () => {
+    await renderChat();
+    const component = fixture.componentInstance;
+    const adapter = component.scrollbar.adapter;
+    vi.spyOn(adapter, 'contentHeight', 'get').mockReturnValue(900);
+    vi.spyOn(adapter, 'clientHeight', 'get').mockReturnValue(500);
+    const scrollTop = vi.spyOn(adapter, 'scrollTop', 'get').mockReturnValue(100);
+
+    adapter.viewportElement.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.scroll-bottom-button')).not.toBeNull();
+
+    scrollTop.mockReturnValue(400);
+    adapter.viewportElement.dispatchEvent(new Event('scroll'));
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.scroll-bottom-button')).toBeNull();
   });
 
   it('sends the message on Enter', async () => {

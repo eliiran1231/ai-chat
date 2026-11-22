@@ -76,6 +76,7 @@ export class ChatComponent {
   isLoadingOlderMessages = signal(false);
 
   onScroll(): void {
+    this.updateAwayFromBottom();
     if (!this.isScrolling()) {
       this.isScrolling.set(true);
     }
@@ -244,12 +245,18 @@ export class ChatComponent {
     });
   }
 
-  showScrollButton() {
-    this.awayFromBottom.set(true);
+  onScrollbarUpdate(): void {
+    if (!this.awayFromBottom()) {
+      void this.scrollToBottom();
+      return;
+    }
+
+    this.updateAwayFromBottom();
   }
 
-  hideScrollButton() {
-    this.awayFromBottom.set(false);
+  private updateAwayFromBottom(): void {
+    const { contentHeight, clientHeight, scrollTop } = this.scrollbar.adapter;
+    this.awayFromBottom.set(contentHeight - clientHeight - scrollTop > this.SCROLLBAR_OFFSET);
   }
 
   scrollToBottom() {
