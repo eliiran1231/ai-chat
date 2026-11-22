@@ -43,6 +43,16 @@ export class Agent {
         return undefined;
     }
 
+    private findLastSupporterMessage(messages: Message[]): Message | undefined {
+        for (let i = messages.length - 1; i >= 0; i--) {
+            const message = messages[i];
+            if (message.from()?.type === 'supporter') {
+                return message;
+            }
+        }
+        return undefined;
+    }
+
     init(chat: Chat, supporter: Supporter, _isNewChat = false): void | Promise<void> {
         this.chat = chat;
         this.supporter = supporter;
@@ -101,7 +111,7 @@ export class Agent {
     async onMessagesDeleted(messages: readonly Message[]): Promise<void> {
         this.lastQuestion = this.findLastSupporterQuestion(this.chat.messages());
         this.lastMessage = this.chat.messages().at(-1);
-        const sender = this.lastMessage?.from();
+        const sender = this.findLastSupporterMessage(this.chat.messages())?.from();
         if (!sender?.senderClass || sender.senderClass === this.constructor) return; 
         const newAgent = this.agentService.getAgentByClass(sender.senderClass);
         await this.supporter.setAgent(newAgent);
