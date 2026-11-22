@@ -104,7 +104,9 @@ export class Agent {
                 break;
             }
         }
-        responseToEdit?.edit(joinedAnswer.value()); 
+        responseToEdit?.edit(joinedAnswer.value(), {
+            negotiator: this.chat.user.negotiator
+        }); 
     }
 
     /** Called once after a batch completes, with only successfully deleted messages. */
