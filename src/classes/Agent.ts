@@ -56,6 +56,7 @@ export class Agent {
     init(chat: Chat, supporter: Supporter, _isNewChat = false): void | Promise<void> {
         this.chat = chat;
         this.supporter = supporter;
+        this.lastMessage = this.chat.messages().at(-1);
         this.lastQuestion = this.findLastSupporterQuestion(chat.messages());
         this.onAnswerSelectedHandler = chat.user.onAnswerSelected.subscribe(({answer, associatedQuestion, associatedQuestionIndex }) => this.onAnswerSelected(answer, associatedQuestion, associatedQuestionIndex as number));
         this.onBatchDeletedHandler = chat.onMessagesDeleted.subscribe(this.onMessagesDeleted.bind(this));
