@@ -14,7 +14,7 @@ import { registerAuthenticationHandlers } from './ipc/authentication.handler.js'
 import { authenticationService } from './services/server-authentication.service.js';
 import { registerSyncHandlers } from './ipc/sync.handler.js';
 import { registerLanguageHandlers } from './ipc/language.handler.js';
-import { registerFileExplorerHandlers } from './ipc/file-explorer.handler.js';
+import { registerAttachmentHandlers } from './ipc/attachment.handler.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -189,7 +189,7 @@ function bootstrap(): void {
     registerAuthenticationHandlers();
     registerSyncHandlers();
     registerLanguageHandlers();
-    registerFileExplorerHandlers(event =>
+    registerAttachmentHandlers(event =>
       event.sender === mainWindow?.webContents &&
       event.senderFrame === mainWindow?.webContents.mainFrame);
     registerSystemHandlers();

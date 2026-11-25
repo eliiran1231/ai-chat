@@ -7,12 +7,11 @@ import { Chat } from '../classes/Chat';
 import { SqliteProvider } from '../chat-providers/SqliteProvider';
 import { AcceptedEditCandidate } from '../classes/Proposals';
 import { Unsent } from '../app/types/Unsent';
-import { FileExplorerService } from '../services/fileExplorer.service';
-import { chatFileData } from '../../shared/files/ChatFile';
+import { AttachmentService } from '../services/attachment.service';
 
 export class SqliteManager extends ChatManager {
   dbService: DbService;
-  fileExplorerService: FileExplorerService;
+  attachmentService: AttachmentService;
   pendingMessagePersists = new WeakMap<Unsent<Message>, Promise<void>>();
   private readonly unsentMessages = new Set<Unsent<Message>>();
   private operation: Promise<void> = Promise.resolve();
@@ -20,7 +19,7 @@ export class SqliteManager extends ChatManager {
   constructor(injector: Injector, sqliteProvider: SqliteProvider) {
     super(injector, sqliteProvider);
     this.dbService = injector.get(DbService);
-    this.fileExplorerService = injector.get(FileExplorerService);
+    this.attachmentService = injector.get(AttachmentService);
   }
 
   override init(chat: Chat): void | Promise<void> {
@@ -28,36 +27,17 @@ export class SqliteManager extends ChatManager {
   }
 
   override async onFileSelected(file: File): Promise<string> {
-    try {
-      const endPathToSaveFile = await this.fileExplorerService.createDirectoryPathToSaveFile(
-        this.chat.id(),
-      );
-      const savedFileDataObject: chatFileData = await this.fileExplorerService.saveFile(
-        file,
-        endPathToSaveFile,
-      );
-      return savedFileDataObject.filePath;
-    } catch (error) {
-      throw error;
-    }
+    const savedFile = await this.attachmentService.saveAttachment(file, this.chat.id());
+    return savedFile.filePath;
   }
 
   override async onFileCanceled(filePath: string | undefined): Promise<void> {
     if (!filePath) return;
-    await this.fileExplorerService.deleteFile(filePath);
+    await this.attachmentService.deleteAttachment(this.chat.id(), filePath);
   }
 
   async getFilesList() {
-    try {
-      const baseChatDirectoryFiles = await this.fileExplorerService.baseChatDirectoryFiles(
-        this.chat.id(),
-      );
-      const allFilesInChatDirectory =
-        await this.fileExplorerService.listFiles(baseChatDirectoryFiles);
-      return allFilesInChatDirectory;
-    } catch (error) {
-      throw error;
-    }
+    return this.attachmentService.listAttachments(this.chat.id());
   }
 
   override async onMessageSendRequested(message: Unsent<Message>): Promise<MessageStatus> {

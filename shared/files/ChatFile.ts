@@ -33,14 +33,13 @@ export interface SavedChatFile {
 }
 
 export interface SaveChatFileRequest {
-  endPath: string;
+  chatId: string;
   name: string;
   type: string;
   bytes: Uint8Array;
 }
 
 export interface DeleteFileRequest {
-  fileDirectoryId: string;
   chatId: string;
   filePath: string;
 }
