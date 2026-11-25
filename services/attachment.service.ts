@@ -12,23 +12,23 @@ import { fileExplorerService } from './file-explorer.service.js';
 export class AttachmentService {
   constructor() {}
 
-  readonly attacmentsFolder = "attachments";
-  readonly root = path.join(app.getPath('userData'), this.attacmentsFolder)
+  readonly attacmentsFolder = 'attachments';
+  readonly root = path.join(app.getPath('userData'));
 
-  async saveAttachment(chatId: string, name: string, bytes: Uint8Array): Promise<void> {
-    return fileExplorerService.saveFile(
-        path.join(this.root, this.attacmentsFolder, chatId),
-        name,
-        bytes
-    )
+  async saveAttachment(chatId: string, name: string, bytes: Uint8Array): Promise<string> {
+    const attachmentPath = path.join(this.root, this.attacmentsFolder, chatId);
+    await fileExplorerService.saveFile(attachmentPath, name, bytes);
+    return path.join(attachmentPath, name);
   }
 
-  async deleteAttachment(chatId: string, name: string): Promise<void> {
-    return fileExplorerService.deleteFile(path.join(this.root, this.attacmentsFolder, chatId))
+  async deleteAttachment(chatId: string, fileName: string): Promise<void> {
+    return fileExplorerService.deleteFile(
+      path.join(this.root, this.attacmentsFolder, chatId, fileName),
+    );
   }
-  
+
   async listAttachments(chatId: string): Promise<ListedChatFile[]> {
-    return fileExplorerService.listFiles(path.join(this.root, this.attacmentsFolder, chatId))
+    return fileExplorerService.listFiles(path.join(this.root, this.attacmentsFolder, chatId));
   }
 }
 

@@ -8,29 +8,23 @@ import { authenticationService } from '../services/server-authentication.service
 import { attachmentService } from '../services/attachment.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
-export function registerAttachmentHandlers(
-  isTrustedSender: (event: IpcMainInvokeEvent) => boolean,
-): void {
-  function owner(event: IpcMainInvokeEvent): string {
-    if (!isTrustedSender(event)) throw new Error('Untrusted attachment request.');
-    return authenticationService.getCurrentUser()?.id ?? 'local';
-  }
-
+export function registerAttachmentHandlers(): void {
   ipcMain.handle(
     FILE_CHANNELS.save,
     withIpcErrorHandling((event, request: SaveChatFileRequest) =>
-      attachmentService.saveAttachment(owner(event), request)),
+      attachmentService.saveAttachment(request.chatId, request.name, request.bytes),
+    ),
   );
 
   ipcMain.handle(
     FILE_CHANNELS.delete,
     withIpcErrorHandling((event, request: DeleteFileRequest) =>
-      attachmentService.deleteAttachment(owner(event), request)),
+      attachmentService.deleteAttachment(request.chatId, request.fileName),
+    ),
   );
 
   ipcMain.handle(
     FILE_CHANNELS.list,
-    withIpcErrorHandling((event, chatId: string) =>
-      attachmentService.listAttachments(owner(event), chatId)),
+    withIpcErrorHandling((event, chatId: string) => attachmentService.listAttachments(chatId)),
   );
 }

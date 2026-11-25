@@ -189,9 +189,7 @@ function bootstrap(): void {
     registerAuthenticationHandlers();
     registerSyncHandlers();
     registerLanguageHandlers();
-    registerAttachmentHandlers(event =>
-      event.sender === mainWindow?.webContents &&
-      event.senderFrame === mainWindow?.webContents.mainFrame);
+    registerAttachmentHandlers();
     registerSystemHandlers();
     //Menu.setApplicationMenu(null);
     createWindow();
