@@ -159,8 +159,10 @@ export class ChatManager {
         return true;
     }
 
-    handleFile(file: File): string | Promise<string> {
+    async onFileSelected(file: File): Promise<string> {
         //override to handle file attachments
         return URL.createObjectURL(file);
     }
+
+    async onFileCanceled(filePath: string | undefined): Promise<void> {}
 }

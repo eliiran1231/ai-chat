@@ -1,24 +1,63 @@
-import { Injector } from "@angular/core";
-import { ChatManager } from "../classes/ChatManager";
-import { Message } from "../classes/Message";
-import { MessageStatus } from "../enums/MessagesStatus";
-import { DbService } from "../services/db.service";
-import { Chat } from "../classes/Chat";
-import { SqliteProvider } from "../chat-providers/SqliteProvider";
-import { AcceptedEditCandidate, EditProposal } from "../classes/Proposals";
-import { Unsent } from "../app/types/Unsent";
+import { Injector } from '@angular/core';
+import { ChatManager } from '../classes/ChatManager';
+import { Message } from '../classes/Message';
+import { MessageStatus } from '../enums/MessagesStatus';
+import { DbService } from '../services/db.service';
+import { Chat } from '../classes/Chat';
+import { SqliteProvider } from '../chat-providers/SqliteProvider';
+import { AcceptedEditCandidate } from '../classes/Proposals';
+import { Unsent } from '../app/types/Unsent';
+import { FileExplorerService } from '../services/fileExplorer.service';
+import { chatFileData } from '../../shared/files/ChatFile';
 
 export class SqliteManager extends ChatManager {
   dbService: DbService;
+  fileExplorerService: FileExplorerService;
   pendingMessagePersists = new WeakMap<Unsent<Message>, Promise<void>>();
+  private readonly unsentMessages = new Set<Unsent<Message>>();
+  private operation: Promise<void> = Promise.resolve();
 
   constructor(injector: Injector, sqliteProvider: SqliteProvider) {
     super(injector, sqliteProvider);
     this.dbService = injector.get(DbService);
+    this.fileExplorerService = injector.get(FileExplorerService);
   }
 
   override init(chat: Chat): void | Promise<void> {
     super.init(chat);
+  }
+
+  override async onFileSelected(file: File): Promise<string> {
+    try {
+      const endPathToSaveFile = await this.fileExplorerService.createDirectoryPathToSaveFile(
+        this.chat.id(),
+      );
+      const savedFileDataObject: chatFileData = await this.fileExplorerService.saveFile(
+        file,
+        endPathToSaveFile,
+      );
+      return savedFileDataObject.filePath;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  override async onFileCanceled(filePath: string | undefined): Promise<void> {
+    if (!filePath) return;
+    await this.fileExplorerService.deleteFile(filePath);
+  }
+
+  async getFilesList() {
+    try {
+      const baseChatDirectoryFiles = await this.fileExplorerService.baseChatDirectoryFiles(
+        this.chat.id(),
+      );
+      const allFilesInChatDirectory =
+        await this.fileExplorerService.listFiles(baseChatDirectoryFiles);
+      return allFilesInChatDirectory;
+    } catch (error) {
+      throw error;
+    }
   }
 
   override async onMessageSendRequested(message: Unsent<Message>): Promise<MessageStatus> {

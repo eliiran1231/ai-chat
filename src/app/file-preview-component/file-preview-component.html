@@ -34,5 +34,6 @@
     (messageSubmit)="submitFile($event)"
     (fileSubmit)="changeFile($event)"
     [requiredContent]=false
+    [submitDisabled]="!fileInfo()?.url"
   ></app-chat-input-component>
 </section>
