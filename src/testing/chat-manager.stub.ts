@@ -13,6 +13,7 @@ export function createChatManagerStub(): ChatManager {
     requestMessageDelete: () => MessageStatus.Read,
     requestDelete: () => true,
     requestPropChange: () => MessageStatus.Read,
-    handleFile: () => '',
+    onFileSelected: async () => '',
+    onFileCanceled: async () => {},
   });
 }
