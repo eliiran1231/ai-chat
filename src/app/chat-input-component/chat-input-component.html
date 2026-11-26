@@ -38,7 +38,7 @@
     type="submit"
     class="send-button"
     [attr.aria-label]="'chat.send' | translate"
-    [disabled]="requiredContent() && !caption().trim()"
+    [disabled]="submitDisabled() || (requiredContent() && !caption().trim())"
   >
     <svg [lucideIcon]="sendIcon" aria-hidden="true"></svg>
   </button>

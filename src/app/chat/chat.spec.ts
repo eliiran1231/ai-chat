@@ -168,6 +168,27 @@ describe('ChatComponent', () => {
     expect(chat.draftMessage()).toBe('');
   });
 
+  it('cancels the saved attachment when the preview is closed', async () => {
+    const chat = await renderChat();
+    const savedPath = 'attachments/test-chat/saved-file';
+    vi.spyOn(chat, 'onFileSelected').mockResolvedValue(savedPath);
+    const cancelFile = vi.spyOn(chat, 'onFileCanceled').mockResolvedValue(undefined);
+    fixture.componentInstance.openPreviewPage(
+      new File(['hello'], 'hello.txt', { type: 'text/plain' }),
+    );
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const closeButton = fixture.nativeElement.querySelector('.close-button') as HTMLButtonElement;
+    closeButton.click();
+    fixture.detectChanges();
+
+    expect(cancelFile).toHaveBeenCalledExactlyOnceWith(savedPath);
+    expect(fixture.componentInstance.attachmentFile()).toBeUndefined();
+    expect(fixture.nativeElement.querySelector('app-file-preview-component')).toBeNull();
+  });
+
   it('renders AI messages as markdown', async () => {
     const message = new Message('**bold** and *italic*');
     message.from.set({ type: 'supporter' });

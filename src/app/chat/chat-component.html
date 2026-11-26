@@ -1,9 +1,11 @@
 @if (attachmentFile(); as file) {
   <app-file-preview-component
     [file]="file"
-    [processFileUrl]="chat().processFileUrl.bind(chat())"
-    (submitted)="closePreviewPage(); sendMessage($event.value, $event.options)"
-    (closed)="closePreviewPage()"
+    [onFileSelected]="chat().onFileSelected"
+    [onFileCanceled]="chat().onFileCanceled"
+    [initialCaption]="chat().draftMessage()"
+    (submitted)="closePreviewPageAndAttachedFileSaved(); sendMessage($event.value, $event.options)"
+    (closed)="closePreviewAndCancelFile($event)"
   ></app-file-preview-component>
 } @else {
   <section class="chat-shell" [class.chat-shell--editing]="editingMessage()">

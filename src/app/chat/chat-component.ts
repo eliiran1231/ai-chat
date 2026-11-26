@@ -140,7 +140,14 @@ export class ChatComponent {
     this.isAnswerSheetOpen.set(isOpen);
   }
 
-  closePreviewPage(): void {
+  closePreviewAndCancelFile(filePath: string | undefined): void {
+    // הקובץ כבר נשמר בתיקייה ואז אני מוחק אותו בחוץ
+    this.attachmentFile.set(undefined);
+    if (filePath !== undefined) this.chat().onFileCanceled(filePath);
+  }
+
+  closePreviewPageAndAttachedFileSaved() {
+    // הקובץ נשמר בתיקייה
     this.attachmentFile.set(undefined);
   }
 

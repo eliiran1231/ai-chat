@@ -1,8 +1,10 @@
 import type { MessageSenderRecord } from '../shared/messages/MessageSenderRecord.js';
 import { dbService, type DbService } from './db.service.js';
 import { randomUUID } from 'crypto';
+import * as path from 'node:path';
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { messages, type MessageRow } from './drizzle-schema.js';
+import { attachmentService } from './attachment.service.js';
 
 type Uuid = string;
 type AnswerSelectionMode = 'single' | 'multiple';
@@ -35,10 +37,10 @@ export interface MessagePayload {
 }
 
 export enum MessageStatus {
-    Pending,
-    Sent,
-    Read,
-    Failed
+  Pending,
+  Sent,
+  Read,
+  Failed,
 }
 
 export interface CommitMessagePayload {
@@ -150,30 +152,37 @@ export class MessageService {
   }
 
   async deleteMessage(messageId: Uuid): Promise<boolean> {
-    const rows = await this.db.orm
-      .delete(messages)
-      .where(and(eq(messages.id, messageId), eq(messages.deletable, 1)))
-      .returning({ id: messages.id });
+    return this.db.orm.transaction(async (transaction) => {
+      const [row] = await transaction
+        .delete(messages)
+        .where(and(eq(messages.id, messageId), eq(messages.deletable, 1)))
+        .returning({ id: messages.id, chatId: messages.chatId, attachment: messages.attachment });
 
-    return rows.length > 0;
+      if (!row) return false;
+      await this.deleteMessageAttachment(row);
+      return true;
+    });
   }
 
   async deleteBatch(messageIds: Uuid[]): Promise<Uuid[]> {
     if (!messageIds.length) return [];
 
-    const rows = await this.db.orm
-      .delete(messages)
-      .where(and(inArray(messages.id, messageIds), eq(messages.deletable, 1)))
-      .returning({ id: messages.id });
+    return this.db.orm.transaction(async (transaction) => {
+      const rows = await transaction
+        .delete(messages)
+        .where(and(inArray(messages.id, messageIds), eq(messages.deletable, 1)))
+        .returning({ id: messages.id, chatId: messages.chatId, attachment: messages.attachment });
 
-    return rows.map((row) => row.id);
+      for (const row of rows) {
+        await this.deleteMessageAttachment(row);
+      }
+
+      return rows.map((row) => row.id);
+    });
   }
 
   async editBatch(batch: CommitMessagePayload[]): Promise<Uuid[]> {
-    if (
-      !batch.length ||
-      batch.some(message=>!message.editable)
-    ) return [];
+    if (!batch.length || batch.some((message) => !message.editable)) return [];
 
     return this.db.orm.transaction(async (transaction) => {
       const updated: Uuid[] = [];
@@ -200,11 +209,19 @@ export class MessageService {
           })
           .where(and(eq(messages.id, message.id), eq(messages.editable, 1)))
           .returning({ id: messages.id });
-        if (!rows[0]) throw new Error(`Message ${message.id} could not be edited`); 
+        if (!rows[0]) throw new Error(`Message ${message.id} could not be edited`);
         updated.push(rows[0].id);
       }
       return updated;
     });
+  }
+
+  private async deleteMessageAttachment(
+    row: Pick<MessageRow, 'id' | 'chatId' | 'attachment'>,
+  ): Promise<void> {
+    const attachment = this.parseAttachmentColumn(row.attachment, 'attachment', row.id);
+    if (!attachment) return;
+    await attachmentService.deleteAttachment(row.chatId, path.basename(attachment.url));
   }
 
   private mapMessageRow(row: MessageRow) {
@@ -221,11 +238,7 @@ export class MessageService {
       editable: Boolean(row.editable),
       deletable: Boolean(row.deletable),
       attachment: this.parseAttachmentColumn(row.attachment, 'attachment', row.id),
-      possibleAnswers: this.parseStringArrayColumn(
-        row.possibleAnswers,
-        'possible_answers',
-        row.id,
-      ),
+      possibleAnswers: this.parseStringArrayColumn(row.possibleAnswers, 'possible_answers', row.id),
       answerSelectionMode: this.parseAnswerSelectionMode(row.answerSelectionMode, row.id),
       validatorSpec: this.db.parseJsonColumn(row.validatorSpec, 'validator_spec', row.id),
       validationErrorMessage: row.validationErrorMessage ?? undefined,
@@ -238,8 +251,10 @@ export class MessageService {
     const sender: unknown = this.db.parseJsonColumn(value, 'sender', rowId);
     if (isJsonObject(sender)) {
       if (sender['type'] === 'client') return { type: 'client' };
-      if (sender['type'] === 'supporter' &&
-          (sender['agentName'] === undefined || typeof sender['agentName'] === 'string')) {
+      if (
+        sender['type'] === 'supporter' &&
+        (sender['agentName'] === undefined || typeof sender['agentName'] === 'string')
+      ) {
         return { type: 'supporter', agentName: sender['agentName'] as string | undefined };
       }
     }

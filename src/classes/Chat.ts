@@ -83,9 +83,12 @@ export class Chat extends SyncedEntity {
     this.initSync()
   }
 
-  processFileUrl(file: File): string | Promise<string> {
-    return this.manager.handleFile(file);
-  }
+  readonly onFileSelected = (file: File): Promise<string> => {
+    return this.manager.onFileSelected(file);
+  };
+
+  readonly onFileCanceled = (fileId: string | undefined): Promise<void> =>
+    this.manager.onFileCanceled(fileId);
 
   delete(){
     return this.manager.requestDelete();
