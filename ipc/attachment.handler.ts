@@ -19,18 +19,19 @@ export function registerAttachmentHandlers(
   ipcMain.handle(
     FILE_CHANNELS.save,
     withIpcErrorHandling((event, request: SaveChatFileRequest) =>
-      attachmentService.saveAttachment(owner(event), request)),
+      attachmentService.saveAttachment(request.chatId, request.name, request.bytes),
+    ),
   );
 
   ipcMain.handle(
     FILE_CHANNELS.delete,
     withIpcErrorHandling((event, request: DeleteFileRequest) =>
-      attachmentService.deleteAttachment(owner(event), request)),
+      attachmentService.deleteAttachment(request.chatId, request.fileName),
+    ),
   );
 
   ipcMain.handle(
     FILE_CHANNELS.list,
-    withIpcErrorHandling((event, chatId: string) =>
-      attachmentService.listAttachments(owner(event), chatId)),
+    withIpcErrorHandling((event, chatId: string) => attachmentService.listAttachments(chatId)),
   );
 }

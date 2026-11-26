@@ -41,7 +41,7 @@ export interface SaveChatFileRequest {
 
 export interface DeleteFileRequest {
   chatId: string;
-  filePath: string;
+  fileName: string;
 }
 
 export interface ReadChatFileResult {

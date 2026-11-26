@@ -24,8 +24,8 @@ export class AttachmentService {
     return this.electronService.invoke<SavedChatFile>(FILE_CHANNELS.save, request);
   }
 
-  async deleteAttachment(chatId: string, filePath: string): Promise<void> {
-    const request: DeleteFileRequest = { chatId, filePath };
+  async deleteAttachment(chatId: string, fileName: string): Promise<void> {
+    const request: DeleteFileRequest = { chatId, fileName };
     return this.electronService.invoke<void>(FILE_CHANNELS.delete, request);
   }
 
