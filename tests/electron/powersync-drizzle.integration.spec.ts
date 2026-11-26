@@ -15,7 +15,7 @@ const runnerPath = fileURLToPath(new URL('./powersync-drizzle.electron.cjs', imp
 
 describe('Drizzle with PowerSync in Electron', () => {
   it(
-    'returns, persists, paginates, and applies guarded batch mutations transactionally',
+    'returns, persists, paginates, applies guarded batch mutations, and cleans up attachments',
     async () => {
       const { ELECTRON_RUN_AS_NODE: _electronRunAsNode, ...env } = process.env;
       const resultPath = path.join(tmpdir(), `ai-chat-drizzle-result-${randomUUID()}.json`);

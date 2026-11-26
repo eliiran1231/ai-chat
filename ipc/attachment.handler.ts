@@ -8,14 +8,7 @@ import { authenticationService } from '../services/server-authentication.service
 import { attachmentService } from '../services/attachment.service.js';
 import { withIpcErrorHandling } from './ipc-handler.js';
 
-export function registerAttachmentHandlers(
-  isTrustedSender: (event: IpcMainInvokeEvent) => boolean,
-): void {
-  function owner(event: IpcMainInvokeEvent): string {
-    if (!isTrustedSender(event)) throw new Error('Untrusted attachment request.');
-    return authenticationService.getCurrentUser()?.id ?? 'local';
-  }
-
+export function registerAttachmentHandlers(): void {
   ipcMain.handle(
     FILE_CHANNELS.save,
     withIpcErrorHandling((event, request: SaveChatFileRequest) =>

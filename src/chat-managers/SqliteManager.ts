@@ -27,8 +27,8 @@ export class SqliteManager extends ChatManager {
   }
 
   override async onFileSelected(file: File): Promise<string> {
-    const savedFile = await this.attachmentService.saveAttachment(file, this.chat.id());
-    return savedFile.filePath;
+    const filePath = await this.attachmentService.saveAttachment(file, this.chat.id());
+    return filePath;
   }
 
   override async onFileCanceled(filePath: string | undefined): Promise<void> {
@@ -43,24 +43,26 @@ export class SqliteManager extends ChatManager {
   override async onMessageSendRequested(message: Unsent<Message>): Promise<MessageStatus> {
     super.onMessageSendRequested(message);
     try {
-        const persisted = this.chatProvider.addMessage(this.chat.id(), message) as Promise<void>;
-        this.pendingMessagePersists.set(message, persisted);
-        void persisted.finally(() => this.pendingMessagePersists.delete(message));
-        await persisted;
-        return MessageStatus.Sent;
+      const persisted = this.chatProvider.addMessage(this.chat.id(), message) as Promise<void>;
+      this.pendingMessagePersists.set(message, persisted);
+      void persisted.finally(() => this.pendingMessagePersists.delete(message));
+      await persisted;
+      return MessageStatus.Sent;
     } catch (error) {
       console.error(error);
       return MessageStatus.Failed;
     }
   }
 
-  protected override async onMessagesEditRequested(acceptedCandidates: AcceptedEditCandidate[]): Promise<MessageStatus> {
+  protected override async onMessagesEditRequested(
+    acceptedCandidates: AcceptedEditCandidate[],
+  ): Promise<MessageStatus> {
     try {
-      const messages = acceptedCandidates.map(c=>c.newMessage);
+      const messages = acceptedCandidates.map((c) => c.newMessage);
       const editedIds = new Set(await this.chatProvider.editBatch(messages));
-      return messages.every((message) => editedIds.has(message.id())) ?
-       MessageStatus.Sent :
-       MessageStatus.Failed;
+      return messages.every((message) => editedIds.has(message.id()))
+        ? MessageStatus.Sent
+        : MessageStatus.Failed;
     } catch (error) {
       console.error(error);
       return MessageStatus.Failed;
@@ -70,10 +72,12 @@ export class SqliteManager extends ChatManager {
   protected override async onMessagesDeleteRequested(messages: Message[]): Promise<MessageStatus> {
     try {
       await Promise.all(messages.map((message) => this.pendingMessagePersists.get(message)));
-      const deletedIds = new Set(await this.chatProvider.deleteBatch(messages.map((message) => message.id())));
-      return messages.every((message) =>deletedIds.has(message.id())) ? 
-       MessageStatus.Sent : 
-       MessageStatus.Failed
+      const deletedIds = new Set(
+        await this.chatProvider.deleteBatch(messages.map((message) => message.id())),
+      );
+      return messages.every((message) => deletedIds.has(message.id()))
+        ? MessageStatus.Sent
+        : MessageStatus.Failed;
     } catch (error) {
       console.error(error);
       return MessageStatus.Failed;
@@ -85,8 +89,7 @@ export class SqliteManager extends ChatManager {
     try {
       await this.chatProvider.deleteChat(this.chat.id());
       return true;
-    }
-    catch {
+    } catch {
       return false;
     }
   }

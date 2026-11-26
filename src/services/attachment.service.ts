@@ -14,18 +14,18 @@ export type { SavedChatFile } from '../../shared/files/ChatFile';
 export class AttachmentService {
   private readonly electronService = inject(ElectronService);
 
-  async saveAttachment(file: File, chatId: string): Promise<SavedChatFile> {
+  async saveAttachment(file: File, chatId: string): Promise<string> {
     const request: SaveChatFileRequest = {
       chatId,
       name: file.name,
       type: file.type,
       bytes: new Uint8Array(await file.arrayBuffer()),
     };
-    return this.electronService.invoke<SavedChatFile>(FILE_CHANNELS.save, request);
+    return this.electronService.invoke<string>(FILE_CHANNELS.save, request);
   }
 
-  async deleteAttachment(chatId: string, fileName: string): Promise<void> {
-    const request: DeleteFileRequest = { chatId, fileName };
+  async deleteAttachment(chatId: string, attachmentID: string): Promise<void> {
+    const request: DeleteFileRequest = { chatId, fileName: attachmentID };
     return this.electronService.invoke<void>(FILE_CHANNELS.delete, request);
   }
 

@@ -3,10 +3,7 @@ import { ChatProvider } from '../interfaces/ChatProvider';
 import { Chat, ChatOptions } from '../classes/Chat';
 import { DbService } from '../services/db.service';
 import { AgentsService } from '../services/agents.service';
-import {
-  getPersistableValidationErrorMessage,
-  Question,
-} from '../classes/Question';
+import { getPersistableValidationErrorMessage, Question } from '../classes/Question';
 import type { MessageSenderRecord } from '../../shared/messages/MessageSenderRecord.js';
 import { Message } from '../classes/Message';
 import { Answer } from '../classes/Answer';
@@ -74,18 +71,18 @@ export class SqliteProvider implements ChatProvider {
       attachment: message.attachment(),
       possibleAnswers:
         message instanceof Question
-          ? message.possibleAnswers().map((possibleAnswer) =>
-              typeof possibleAnswer === 'string' ? possibleAnswer : possibleAnswer.value(),
-            )
+          ? message
+              .possibleAnswers()
+              .map((possibleAnswer) =>
+                typeof possibleAnswer === 'string' ? possibleAnswer : possibleAnswer.value(),
+              )
           : undefined,
       validatorSpec: message instanceof Question ? message.validatorSpec?.() : undefined,
       validationErrorMessage:
         message instanceof Question
           ? getPersistableValidationErrorMessage(message.validationErrorMessage)
           : undefined,
-      answerSelectionMode: message instanceof Question
-        ? message.answerSelectionMode()
-        : undefined,
+      answerSelectionMode: message instanceof Question ? message.answerSelectionMode() : undefined,
     });
     message.status.set(record.status);
     message.editable.set(record.editable);
@@ -98,8 +95,12 @@ export class SqliteProvider implements ChatProvider {
     if (!sender) return undefined;
     return sender.type === 'client'
       ? { type: 'client' }
-      : { type: 'supporter', agentName: sender.senderClass
-          ? this.agentsService.getAgentClassName(sender.senderClass) : undefined };
+      : {
+          type: 'supporter',
+          agentName: sender.senderClass
+            ? this.agentsService.getAgentClassName(sender.senderClass)
+            : undefined,
+        };
   }
 
   async commitMessageChanges(message: Message): Promise<boolean> {
@@ -162,8 +163,7 @@ export class SqliteProvider implements ChatProvider {
     const records = await this.dbService.getChats();
     const loadChat = async (record: (typeof records)[number]) => {
       const persistedSupporterRecord = await this.dbService.getChatSupporter(record.id);
-      if (!persistedSupporterRecord?.agentName)
-        throw new Error("couldn't retrieve agent from SQL");
+      if (!persistedSupporterRecord?.agentName) throw new Error("couldn't retrieve agent from SQL");
       const initialAgent = this.agentsService.getAgentByName(persistedSupporterRecord.agentName);
       initialAgent.name = persistedSupporterRecord.agentName;
       return this.hydrateChat(record, initialAgent, persistedSupporterRecord, false);
@@ -172,8 +172,11 @@ export class SqliteProvider implements ChatProvider {
     const pending = new Map<number, Promise<Settled>>(
       records.map((record, index) => [
         index,
-        loadChat(record).then(chat => ({ index, chat }), error => ({ index, error })),
-      ])
+        loadChat(record).then(
+          (chat) => ({ index, chat }),
+          (error) => ({ index, error }),
+        ),
+      ]),
     );
     while (pending.size) {
       const { index, chat, error } = await Promise.race(pending.values());
@@ -239,7 +242,14 @@ export class SqliteProvider implements ChatProvider {
       tipLabel: record.tipLabel,
     });
     chat.setSaveChangesHandler((target) => void this.commitChatChanges(target));
-    chat.loader.addSource(new SqliteMessagesSource(chat, this.dbService, this.commitMessageChanges.bind(this), this.agentsService));
+    chat.loader.addSource(
+      new SqliteMessagesSource(
+        chat,
+        this.dbService,
+        this.commitMessageChanges.bind(this),
+        this.agentsService,
+      ),
+    );
     await chat.loader.loadNextChunk();
     supporter.setSaveChangesHandler(this.commitSupporterChanges.bind(this));
     supporter.onAgentSwitch.subscribe((agent) =>
@@ -251,5 +261,4 @@ export class SqliteProvider implements ChatProvider {
     await supporter.setAgent(initialAgent, isNewChat);
     return chat;
   }
-
 }

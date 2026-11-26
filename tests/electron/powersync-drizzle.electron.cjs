@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { app } = require('electron');
-const { mkdtemp, rm, writeFile } = require('node:fs/promises');
+const { access, mkdtemp, readFile, rm, writeFile } = require('node:fs/promises');
 const { tmpdir } = require('node:os');
 const path = require('node:path');
 
@@ -11,7 +11,10 @@ async function run() {
   const reportProgress = (stage) => writeFile(resultPath, JSON.stringify({ stage }), 'utf8');
   await reportProgress('app-ready');
 
-  const [powerSync, drizzleDriver, drizzle, powerSyncSchema, schema, chatModule, messageModule, supporterModule] =
+  const testDirectory = await mkdtemp(path.join(tmpdir(), 'ai-chat-drizzle-'));
+  app.setPath('userData', testDirectory);
+
+  const [powerSync, drizzleDriver, drizzle, powerSyncSchema, schema, chatModule, messageModule, supporterModule, attachmentModule] =
     await Promise.all([
       import('@powersync/node'),
       import('@powersync/drizzle-driver'),
@@ -21,6 +24,7 @@ async function run() {
       import('../../services/chat.service.js'),
       import('../../services/message.service.js'),
       import('../../services/supporter.service.js'),
+      import('../../services/attachment.service.js'),
     ]);
 
   const { PowerSyncDatabase } = powerSync;
@@ -31,8 +35,8 @@ async function run() {
   const { ChatService } = chatModule;
   const { MessageService } = messageModule;
   const { SupporterService } = supporterModule;
+  const { attachmentService } = attachmentModule;
 
-  const testDirectory = await mkdtemp(path.join(tmpdir(), 'ai-chat-drizzle-'));
   const database = new PowerSyncDatabase({
     schema: AppSchema,
     database: { dbFilename: path.join(testDirectory, 'test.sqlite') },
@@ -172,6 +176,68 @@ async function run() {
       .select({ id: messages.id })
       .from(messages)
       .where(eq(messages.chatId, 'batch-protected-chat'));
+
+    await reportProgress('deleting-attachments');
+    const attachmentChatId = 'attachment-chat';
+    const attachments = new Map();
+    for (const id of ['attachment-deletable', 'attachment-locked', 'attachment-unselected']) {
+      const url = await attachmentService.saveAttachment(
+        attachmentChatId, 'file.txt', Buffer.from(id),
+      );
+      const attachment = { url, name: 'file', extension: 'txt', type: 'text/plain', size: id.length };
+      attachments.set(id, attachment);
+      await messageService.createMessage({
+        id, chatId: attachmentChatId, value: id, time: '2026-01-01T00:00:00.000Z',
+        attachment, deletable: id !== 'attachment-locked',
+      });
+    }
+    await messageService.createMessage({
+      id: 'attachment-text', chatId: attachmentChatId, value: 'No attachment',
+      time: '2026-01-01T00:00:00.000Z',
+    });
+    assert.deepEqual(await messageService.deleteBatch([]), []);
+    assert.deepEqual(await messageService.deleteBatch(['missing-message']), []);
+    assert.deepEqual((await messageService.deleteBatch([
+      'attachment-deletable', 'attachment-deletable', 'attachment-locked',
+      'attachment-text', 'missing-message',
+    ])).sort(), ['attachment-deletable', 'attachment-text']);
+    await assert.rejects(access(attachments.get('attachment-deletable').url), { code: 'ENOENT' });
+    for (const id of ['attachment-locked', 'attachment-unselected']) {
+      assert.equal(await readFile(path.join(attachments.get(id).url, 'file.txt'), 'utf8'), id);
+    }
+    assert.deepEqual(
+      (await messageService.getChatMessages(attachmentChatId, 0, 20)).map(({ id }) => id).sort(),
+      ['attachment-locked', 'attachment-unselected'],
+    );
+
+    assert.equal(await messageService.deleteMessage('attachment-unselected'), true);
+    await assert.rejects(access(attachments.get('attachment-unselected').url), { code: 'ENOENT' });
+    assert.equal(await messageService.deleteMessage('attachment-unselected'), false);
+    assert.equal(await messageService.deleteMessage('attachment-locked'), false);
+    assert.equal(
+      await readFile(path.join(attachments.get('attachment-locked').url, 'file.txt'), 'utf8'),
+      'attachment-locked',
+    );
+
+    // Missing local files should not prevent deleting a synced message.
+    await messageService.createMessage({
+      id: 'attachment-missing', chatId: attachmentChatId, value: 'Missing local attachment',
+      time: '2026-01-01T00:00:00.000Z', attachment: attachments.get('attachment-deletable'),
+    });
+    assert.deepEqual(await messageService.deleteBatch(['attachment-missing']), ['attachment-missing']);
+
+    // Reject a path targeting the chat directory and keep the message when cleanup fails.
+    await messageService.createMessage({
+      id: 'attachment-invalid', chatId: attachmentChatId, value: 'Invalid attachment path',
+      time: '2026-01-01T00:00:00.000Z',
+      attachment: { ...attachments.get('attachment-locked'), url: '.' },
+    });
+    await assert.rejects(messageService.deleteBatch(['attachment-invalid']), /Invalid attachment path/);
+    assert.equal((await orm.select().from(messages).where(eq(messages.id, 'attachment-invalid'))).length, 1);
+    assert.equal(
+      await readFile(path.join(attachments.get('attachment-locked').url, 'file.txt'), 'utf8'),
+      'attachment-locked',
+    );
 
     for (const [id, editable] of [['batch-rollback-a', true], ['batch-rollback-b', false]]) {
       await messageService.createMessage({

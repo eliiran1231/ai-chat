@@ -8,6 +8,7 @@ import type {
 } from '../shared/files/ChatFile.js';
 import { app } from 'electron';
 import { fileExplorerService } from './file-explorer.service.js';
+import { randomUUID } from 'node:crypto';
 
 export class AttachmentService {
   constructor() {}
@@ -15,18 +16,29 @@ export class AttachmentService {
   readonly attacmentsFolder = 'attachments';
   readonly root = path.join(app.getPath('userData'));
 
-  async saveAttachment(chatId: string, name: string, bytes: Uint8Array): Promise<void> {
-    return fileExplorerService.saveFile(
-      path.join(this.root, this.attacmentsFolder, chatId),
-      name,
-      bytes,
+  async saveAttachment(chatId: string, name: string, bytes: Uint8Array): Promise<string> {
+    const attachmentDirectoryId = randomUUID();
+    const attachmentPath = path.join(
+      this.root,
+      this.attacmentsFolder,
+      chatId,
+      attachmentDirectoryId,
     );
+    await fileExplorerService.saveFile(attachmentPath, name, bytes);
+    return attachmentPath;
   }
 
-  async deleteAttachment(chatId: string, fileName: string): Promise<void> {
-    return fileExplorerService.deleteFile(
-      path.join(this.root, this.attacmentsFolder, chatId, fileName),
-    );
+  async deleteAttachment(chatId: string, attachmentId: string): Promise<void> {
+    const attachmentsDirectory = path.resolve(this.root, this.attacmentsFolder);
+    const chatDirectory = path.resolve(attachmentsDirectory, chatId);
+    const attachmentPath = path.resolve(chatDirectory, attachmentId);
+    if (
+      path.dirname(chatDirectory) !== attachmentsDirectory ||
+      path.dirname(attachmentPath) !== chatDirectory
+    ) {
+      throw new Error('Invalid attachment path.');
+    }
+    await rm(attachmentPath, { recursive: true, force: true });
   }
 
   async listAttachments(chatId: string): Promise<ListedChatFile[]> {
